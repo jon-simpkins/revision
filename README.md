@@ -9,6 +9,13 @@ know you want to write, bit by bit.
 # Disclaimer
 This is **not** an official Google product.
 
+# Running Storybook
+
+`npm run storybook`
+
+Right now, there's a bug where the events console takes over the whole screen, but going into "fullscreen" mode will
+let you see the correct story content.
+
 # Angular CLI Scaffolding
 
 This project was initialized with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.0.
