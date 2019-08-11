@@ -7,4 +7,12 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Revision';
+
+  signIn() {
+    console.log('Sign in goes here');
+  }
+
+  signOut() {
+    console.log('Sign out goes here');
+  }
 }
