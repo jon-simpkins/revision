@@ -6,10 +6,12 @@ import {MatButtonModule} from '@angular/material/button';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LoginGateComponent } from './login-gate/login-gate.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginGateComponent
   ],
   imports: [
     BrowserModule,
