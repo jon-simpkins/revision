@@ -9,7 +9,14 @@ const API_KEY = credentials.API_KEY;
 const CLIENT_ID = credentials.CLIENT_ID;
 
 // Function to initialize the GAPI global object
-function initApi() {
+function initApi() : void {
+  if (!gapi || !gapi.load) {
+    setTimeout(() => {
+      initApi();
+    }, 50);
+    return
+  }
+
   const DISCOVERY_DOCS = [
     'https://docs.googleapis.com/$discovery/rest?version=v1&key=' + API_KEY];
 
@@ -23,20 +30,29 @@ function initApi() {
   });
 }
 
-// This isn't a particularly elegant solution, but it works
-// This will attempt 'initApi' once every 250 ms until it succeeds
-let initApiTimeout = setInterval(() => {
-  if (!!gapi.client) {
-    // Succeeded!
-    clearInterval(initApiTimeout);
+initApi();
+
+function signIn() : void {
+  gapi.auth2.getAuthInstance().signIn();
+}
+
+function signOut() : void {
+  gapi.auth2.getAuthInstance().signOut();
+}
+
+function registerSignedInListener(callback) : void {
+  if (!gapi || !gapi.auth2) {
+    setTimeout(() => {
+      registerSignedInListener(callback);
+    }, 50);
     return;
   }
 
-  initApi();
-}, 250);
+  gapi.auth2.getAuthInstance().isSignedIn.listen(callback);
+}
 
-function signIn() {
-  gapi.auth2.getAuthInstance().signIn();
+function getLoginEmail() {
+  return gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
 }
 
 function fetchDoc(docId) {
@@ -51,4 +67,4 @@ function createDoc(title) {
   });
 }
 
-export { signIn, fetchDoc, createDoc };
+export { signIn, signOut, registerSignedInListener, getLoginEmail, fetchDoc, createDoc };

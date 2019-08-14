@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { signIn, fetchDoc, createDoc } from '../docsApi/docsApiHelpers';
+import { fetchDoc, createDoc } from '../docsApi/docsApiHelpers';
 
 @Component({
   selector: 'app-root',
@@ -9,10 +9,6 @@ import { signIn, fetchDoc, createDoc } from '../docsApi/docsApiHelpers';
 })
 export class AppComponent {
   title = 'Revision';
-
-  mySignIn() {
-    signIn();
-  }
 
   myFetchDoc() {
     fetchDoc('195j9eDD3ccgjQRttHhJPymLJUCOUjs-jmwTrekvdjFE')

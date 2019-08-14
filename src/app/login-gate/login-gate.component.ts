@@ -1,18 +1,23 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component } from '@angular/core';
+
+import {LoginGateService } from '../login-gate.service';
 
 @Component({
   selector: 'login-gate',
   templateUrl: './login-gate.component.html',
   styleUrls: ['./login-gate.component.scss'],
 })
-export class LoginGateComponent implements OnInit {
+export class LoginGateComponent {
 
-  @Input() loggedIn: boolean;
-
-  constructor() {
+  constructor(public loginGateService: LoginGateService) {
 
   }
 
-  ngOnInit() {
+  signIn() {
+    this.loginGateService.signIn();
+  }
+
+  signOut() {
+    this.loginGateService.signOut();
   }
 }

@@ -1,2 +1,9 @@
-<div *ngIf="loggedIn; else notLoggedIn">Logged in!</div>
-<ng-template #notLoggedIn>Logged out!</ng-template>
+<div *ngIf="loginGateService.loggedIn; else notLoggedIn">
+  <h3>Logged in as: {{loginGateService.loggedInEmail}}</h3>
+  <button (click)="signOut()" mat-raised-button color="primary">Sign Out</button>
+</div>
+<ng-template #notLoggedIn>
+  <h3>Logged out!</h3>
+  <button (click)="signIn()" mat-raised-button color="primary">Sign In</button>
+</ng-template>
+

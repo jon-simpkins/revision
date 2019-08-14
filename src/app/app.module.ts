@@ -18,7 +18,6 @@ import { LoginGateComponent } from './login-gate/login-gate.component';
     AppRoutingModule,
     MatButtonModule,
     BrowserAnimationsModule,
-
   ],
   providers: [],
   bootstrap: [AppComponent]
