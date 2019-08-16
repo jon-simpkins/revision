@@ -6,6 +6,8 @@ import { LoginGateComponent } from './login-gate.component';
 import { LoginGateService } from '../login-gate.service';
 import { StorybookService } from '../storybook.service';
 
+import {LoggedOutStateComponent} from '../logged-out-state/logged-out-state.component';
+
 @Component({
   template: `<login-gate></login-gate>`,
 })
@@ -31,7 +33,7 @@ class LoginGateLoggedOut {
 storiesOf('Login Gate', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [LoginGateComponent, LoginGateLoggedIn, LoginGateLoggedOut],
+      declarations: [LoginGateComponent, LoginGateLoggedIn, LoginGateLoggedOut, LoggedOutStateComponent],
       imports: [],
       providers: [],
     }),
