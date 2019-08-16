@@ -14,7 +14,5 @@ export class LoginGateComponent {
 
   }
 
-  signOut() {
-    this.loginGateService.signOut();
-  }
+
 }

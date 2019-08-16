@@ -10,12 +10,14 @@ import { AppComponent } from './app.component';
 import { LoginGateComponent } from './login-gate/login-gate.component';
 import { LoggedOutStateComponent } from './logged-out-state/logged-out-state.component';
 import {MatDividerModule} from '@angular/material';
+import { LoggedInStateComponent } from './logged-in-state/logged-in-state.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginGateComponent,
-    LoggedOutStateComponent
+    LoggedOutStateComponent,
+    LoggedInStateComponent
   ],
   imports: [
     BrowserModule,

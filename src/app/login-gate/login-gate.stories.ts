@@ -42,9 +42,9 @@ storiesOf('Login Gate', module)
     return {
       component: LoginGateLoggedIn
     };
-  })
+  }, { notes: 'Login state is determined by the LoginGateService' })
   .add('Logged Out', () => {
     return {
       component: LoginGateLoggedOut
     };
-  });
+  }, { notes: 'Login state is determined by the LoginGateService' });

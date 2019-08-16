@@ -3,8 +3,7 @@
     <h3>Mock Logged in as {{loginGateService.loggedInEmail}}</h3>
   </ng-template>
   <ng-template #loggedIn>
-    <h3>Logged in as: {{loginGateService.loggedInEmail}}</h3>
-    <button (click)="signOut()" mat-raised-button color="primary">Sign Out</button>
+    <logged-in-state></logged-in-state>
   </ng-template>
 </div>
 <ng-template #notLoggedIn>
