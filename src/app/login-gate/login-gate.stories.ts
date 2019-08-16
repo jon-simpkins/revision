@@ -7,6 +7,8 @@ import { LoginGateService } from '../login-gate.service';
 import { StorybookService } from '../storybook.service';
 
 import {LoggedOutStateComponent} from '../logged-out-state/logged-out-state.component';
+import {LoggedInStateComponent} from '../logged-in-state/logged-in-state.component';
+import {MatDividerModule} from '@angular/material';
 
 @Component({
   template: `<login-gate></login-gate>`,
@@ -33,8 +35,8 @@ class LoginGateLoggedOut {
 storiesOf('Login Gate', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [LoginGateComponent, LoginGateLoggedIn, LoginGateLoggedOut, LoggedOutStateComponent],
-      imports: [],
+      declarations: [LoginGateComponent, LoginGateLoggedIn, LoginGateLoggedOut, LoggedOutStateComponent, LoggedInStateComponent],
+      imports: [MatDividerModule],
       providers: [],
     }),
   )
