@@ -10,11 +10,15 @@ const CLIENT_ID = credentials.CLIENT_ID;
 
 // Function to initialize the GAPI global object
 function initApi() : void {
+  if (typeof gapi == 'undefined') {
+    return; // If GAPI didn't load, abort
+  }
+
   if (!gapi || !gapi.load) {
     setTimeout(() => {
       initApi();
     }, 50);
-    return
+    return;
   }
 
   const DISCOVERY_DOCS = [
@@ -41,6 +45,10 @@ function signOut() : void {
 }
 
 function registerSignedInListener(callback) : void {
+  if (typeof gapi == 'undefined') {
+    return; // If GAPI didn't load, abort
+  }
+
   if (!gapi || !gapi.auth2) {
     setTimeout(() => {
       registerSignedInListener(callback);

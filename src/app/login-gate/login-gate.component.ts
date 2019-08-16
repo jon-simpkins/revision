@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
-import {LoginGateService } from '../login-gate.service';
+import { LoginGateService } from '../login-gate.service';
+import { StorybookService } from '../storybook.service';
 
 @Component({
   selector: 'login-gate',
@@ -9,7 +10,7 @@ import {LoginGateService } from '../login-gate.service';
 })
 export class LoginGateComponent {
 
-  constructor(public loginGateService: LoginGateService) {
+  constructor(public loginGateService: LoginGateService, public storybookService: StorybookService) {
 
   }
 

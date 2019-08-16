@@ -1,9 +1,19 @@
 <div *ngIf="loginGateService.loggedIn; else notLoggedIn">
-  <h3>Logged in as: {{loginGateService.loggedInEmail}}</h3>
-  <button (click)="signOut()" mat-raised-button color="primary">Sign Out</button>
+  <ng-template [ngIf]="storybookService.isInStorybook" [ngIfElse]="loggedIn">
+    <h3>Mock Logged in as {{loginGateService.loggedInEmail}}</h3>
+  </ng-template>
+  <ng-template #loggedIn>
+    <h3>Logged in as: {{loginGateService.loggedInEmail}}</h3>
+    <button (click)="signOut()" mat-raised-button color="primary">Sign Out</button>
+  </ng-template>
 </div>
 <ng-template #notLoggedIn>
-  <h3>Logged out!</h3>
-  <button (click)="signIn()" mat-raised-button color="primary">Sign In</button>
+  <ng-template [ngIf]="storybookService.isInStorybook" [ngIfElse]="loggedOut">
+    <h3>Mock Logged out</h3>
+  </ng-template>
+  <ng-template #loggedOut>
+    <h3>Logged out!</h3>
+    <button (click)="signIn()" mat-raised-button color="primary">Sign In</button>
+  </ng-template>
 </ng-template>
 
