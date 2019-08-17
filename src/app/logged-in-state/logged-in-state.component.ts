@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {LoginGateService} from '../login-gate.service';
-import {createDoc, fetchDoc} from '../../docsApi/docsApiHelpers';
 
 @Component({
   selector: 'logged-in-state',
@@ -14,19 +13,4 @@ export class LoggedInStateComponent {
   signOut() {
     this.loginGateService.signOut();
   }
-
-  myFetchDoc() {
-    fetchDoc('195j9eDD3ccgjQRttHhJPymLJUCOUjs-jmwTrekvdjFE')
-      .then((response) => {
-        console.log(response);
-      });
-  }
-
-  myCreateDoc() {
-    createDoc('Revision Test Doc: ' + Date.now())
-      .then((response) => {
-        console.log(response);
-      });
-  }
-
 }

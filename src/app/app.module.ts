@@ -11,13 +11,15 @@ import { LoginGateComponent } from './login-gate/login-gate.component';
 import { LoggedOutStateComponent } from './logged-out-state/logged-out-state.component';
 import {MatDividerModule} from '@angular/material';
 import { LoggedInStateComponent } from './logged-in-state/logged-in-state.component';
+import { StoryListComponent } from './story-list/story-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginGateComponent,
     LoggedOutStateComponent,
-    LoggedInStateComponent
+    LoggedInStateComponent,
+    StoryListComponent
   ],
   imports: [
     BrowserModule,

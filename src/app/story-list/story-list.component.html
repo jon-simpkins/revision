@@ -1,0 +1,15 @@
+<h2>Debug area for now</h2>
+<button (click)="createStory()">Add story</button>
+<h3>List of stories:</h3>
+<div *ngFor="let summary of storyService.storySummaries">
+  {{summary.title}}
+  <button (click)="storyService.fetchStory(summary.id)">
+    Fetch me!
+  </button>
+  <a target="_blank" href="https://docs.google.com/document/d/{{summary.id}}/edit">
+    Open in Google Docs
+  </a>
+</div>
+<h3>/end of list</h3>
+<h3>Current fetch: {{storyService.currentId}}</h3>
+<pre>{{storyService.currentStoryStr}}</pre>
