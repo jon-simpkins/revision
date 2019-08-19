@@ -19,3 +19,24 @@ stories in this app:
 which stitches together the content of Q scraps into a human-readable format
   * e.g. three different Renderings of the same story might be a one-sheet summary, a 12-page treatment, and the full script
   * Renderings are the thing actually exported from the app
+
+
+## Which screens would make sense?
+
+For starters, it seems like:
+
+* Story list
+    * Ability to create a new story
+    * Ability to import existing story by pasting Google Doc link
+    * Ability to select from list of stories
+* Story details
+    * See revision history of story
+    * See list of available views of scraps
+    * See list of available renders
+* Scrap view
+    * Rendering of N scraps
+    * Links to other related views (e.g. views of related scraps)
+* Scrap edit
+    * Edit rendering of N scraps
+    * Ideally, adjacent to the list of scrap views
+    * Ideally, show some sort of sprint timer / completion button
