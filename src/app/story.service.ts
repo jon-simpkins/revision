@@ -2,6 +2,8 @@ import { ApplicationRef, Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../docsApi/docsApiHelpers';
 
+import StorySummary from '../types/StorySummary';
+
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
 @Injectable({
@@ -9,18 +11,23 @@ const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 })
 export class StoryService {
 
-  storySummaries: object[] = [];
+  storySummaries: StorySummary[] = [];
   currentId: string = null;
   currentStoryStr: string = '';
 
   constructor(private appRef: ApplicationRef) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
-      this.storySummaries = JSON.parse(localStorage.getItem(STORY_SUMMARIES_KEY));
+      this.storySummaries = JSON.parse(localStorage.getItem(STORY_SUMMARIES_KEY))
+        .map(StorySummary.buildFromJSON);
     }
   }
 
   persistStorySummaries() {
-    localStorage.setItem(STORY_SUMMARIES_KEY, JSON.stringify(this.storySummaries));
+    localStorage.setItem(
+      STORY_SUMMARIES_KEY,
+      JSON.stringify(this.storySummaries.map((summary) => {
+        return summary.toJSON();
+      })));
   }
 
   createStory() {
@@ -28,10 +35,13 @@ export class StoryService {
       .then((response) => {
         let newDocumentId = response.result.documentId;
 
-        this.storySummaries.push({
-          id: newDocumentId,
-          title: response.result.title
-        });
+        let newSummary = new StorySummary();
+        newSummary.documentId = newDocumentId;
+        newSummary.revisionId = response.result.revisionId;
+        newSummary.lastFetched = Date.now();
+
+        this.storySummaries.push(newSummary);
+
         this.persistStorySummaries();
         this.appRef.tick();
 

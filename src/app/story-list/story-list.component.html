@@ -2,11 +2,11 @@
 <button (click)="createStory()">Add story</button>
 <h3>List of stories:</h3>
 <div *ngFor="let summary of storyService.storySummaries">
-  {{summary.title}}
-  <button (click)="storyService.fetchStory(summary.id)">
+  {{summary.getLastUpdateStr()}}
+  <button (click)="storyService.fetchStory(summary.documentId)">
     Fetch me!
   </button>
-  <a target="_blank" href="https://docs.google.com/document/d/{{summary.id}}/edit">
+  <a target="_blank" href="https://docs.google.com/document/d/{{summary.documentId}}/edit">
     Open in Google Docs
   </a>
 </div>
