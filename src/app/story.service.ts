@@ -42,6 +42,28 @@ export class StoryService {
       });
   }
 
+  // Convenience function to generate the update necessary to replace / amend a line of content
+  updateContentLine(oldLine: string, newLine: string) {
+    if (!oldLine) {
+      return {
+        insertText: {
+          text: newLine + '\n',
+          endOfSegmentLocation: {} // Indicates amend to end of doc
+        }
+      };
+    }
+
+    return {
+      replaceAllText: {
+        replaceText: newLine,
+        containsText: {
+          text: oldLine,
+          matchCase: true
+        }
+      }
+    };
+  }
+
   // Convenience function to write the boilerplate header for the document
   writeHeader(id) {
     let updates = this.insertTextLines(1,
@@ -55,7 +77,8 @@ export class StoryService {
         '',
         'IF YOU WANT TO IMPORT TO REVISION: simply copy the URL of this page and paste it into the prompt given in the “import” dialog.',
         '',
-        '--------------------------'
+        '--------------------------',
+        ''
       ],
       [
         {bold: true, fontSize: this.generateFontSize(18)},
@@ -67,8 +90,16 @@ export class StoryService {
         {},
         {},
         {},
-        {bold: true}
+        {bold: true},
+        {}
       ]
+    );
+
+    updates.push(
+      this.updateContentLine(null, '<abc123>this is stuff</abc123>')
+    );
+    updates.push(
+      this.updateContentLine('<abc123>this is stuff</abc123>', '<abc123>this is new stuff</abc123>')
     );
 
     return updateBatch(
