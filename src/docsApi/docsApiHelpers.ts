@@ -75,4 +75,11 @@ function createDoc(title) {
   });
 }
 
-export { signIn, signOut, registerSignedInListener, getLoginEmail, fetchDoc, createDoc };
+function updateBatch(documentId, updates) {
+  return gapi.client.docs.documents.batchUpdate({
+    documentId: documentId,
+    requests: updates
+  });
+}
+
+export { signIn, signOut, registerSignedInListener, getLoginEmail, fetchDoc, createDoc, updateBatch };
