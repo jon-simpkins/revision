@@ -1,4 +1,9 @@
-<h3>Logged in as: {{loginGateService.loggedInEmail}}</h3>
-<button (click)="signOut()" mat-raised-button color="primary">Sign Out</button>
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span>Revision: {{loginGateService.loggedInEmail}}</span>
+    <span class="toolbar-spacer"></span>
+    <button (click)="signOut()" mat-raised-button>Sign Out</button>
+  </mat-toolbar-row>
+</mat-toolbar>
 
 <story-list></story-list>

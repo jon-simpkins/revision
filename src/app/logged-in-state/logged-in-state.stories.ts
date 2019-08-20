@@ -6,6 +6,7 @@ import { LoggedInStateComponent } from './logged-in-state.component';
 import { LoginGateService } from '../login-gate.service';
 
 import {MatButtonModule} from '@angular/material/button';
+import {MatToolbarModule} from '@angular/material';
 
 import {StoryListComponent} from '../story-list/story-list.component';
 
@@ -27,7 +28,7 @@ storiesOf('Logged In State', module)
   .addDecorator(
     moduleMetadata({
       declarations: [StoryListComponent, LoggedInStateComponent, LoggedInStateWithStubs],
-      imports: [MatButtonModule],
+      imports: [MatButtonModule, MatToolbarModule],
       providers: [],
     }),
   )

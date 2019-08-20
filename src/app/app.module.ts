@@ -12,6 +12,7 @@ import { LoggedOutStateComponent } from './logged-out-state/logged-out-state.com
 import {MatDividerModule} from '@angular/material';
 import { LoggedInStateComponent } from './logged-in-state/logged-in-state.component';
 import { StoryListComponent } from './story-list/story-list.component';
+import {MatToolbarModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { StoryListComponent } from './story-list/story-list.component';
     AppRoutingModule,
     MatButtonModule,
     MatDividerModule,
+    MatToolbarModule,
     BrowserAnimationsModule,
   ],
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
