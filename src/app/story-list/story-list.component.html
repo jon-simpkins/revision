@@ -1,13 +1,10 @@
 <h2>Story List</h2>
-<button (click)="createStory()">Add story</button>
-<h3>List of stories:</h3>
-<div *ngFor="let summary of storyService.storySummaries">
-  {{summary.getLastUpdateStr()}}
-  <button (click)="seeDetails(summary.documentId)">
-    Fetch me!
-  </button>
-  <a target="_blank" href="https://docs.google.com/document/d/{{summary.documentId}}/edit">
-    Open in Google Docs
-  </a>
-</div>
-<h3>/end of list</h3>
+<button mat-raised-button color="primary" (click)="createStory()">Create New</button>
+
+<mat-action-list>
+  <ng-container *ngFor="let summary of storyService.storySummaries">
+    <button mat-list-item (click)="seeDetails(summary.documentId)">
+      {{summary.getLastUpdateStr()}}
+    </button>
+  </ng-container>
+</mat-action-list>

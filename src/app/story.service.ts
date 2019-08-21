@@ -36,10 +36,11 @@ export class StoryService {
       .then((response) => {
         let newDocumentId = response.result.documentId;
 
-        let newSummary = new StorySummary();
-        newSummary.documentId = newDocumentId;
-        newSummary.revisionId = response.result.revisionId;
-        newSummary.lastFetched = Date.now();
+        let newSummary = new StorySummary(
+          newDocumentId,
+          response.result.revisionId,
+          Date.now()
+        );
 
         this.storySummaries.push(newSummary);
 

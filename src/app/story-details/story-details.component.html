@@ -1,3 +1,6 @@
 <h3>Story Details: {{storyService.currentId}}</h3>
+<a target="_blank" href="https://docs.google.com/document/d/{{storyService.currentId}}/edit">
+  Open in Google Docs
+</a>
 <button (click)="backToList()">Back to story list</button>
 <pre>{{storyService.currentStoryStr}}</pre>

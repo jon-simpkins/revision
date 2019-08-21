@@ -5,15 +5,18 @@ class StorySummary {
   revisionId: string;
   lastFetched: number;
 
-  constructor() {}
+  constructor(documentId: string, revisionId: string, lastFetched: number) {
+    this.documentId = documentId;
+    this.revisionId = revisionId;
+    this.lastFetched = lastFetched;
+  }
 
   static buildFromJSON(jsonObj: any): StorySummary {
-    let newSummary = new StorySummary();
-    newSummary.documentId = jsonObj.documentId;
-    newSummary.revisionId = jsonObj.revisionId;
-    newSummary.lastFetched = jsonObj.lastFetched;
-
-    return newSummary;
+    return new StorySummary(
+      jsonObj.documentId,
+      jsonObj.revisionId,
+      jsonObj.lastFetched
+    );
   }
 
   toJSON(): any {
