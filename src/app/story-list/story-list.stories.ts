@@ -37,16 +37,35 @@ class StoryListWithStubs {
   }
 }
 
+@Component({
+  template: `<story-list></story-list>`,
+})
+class StoryListWithNoEntries {
+  constructor(storyService: StoryService, screenService: ScreenService) {
+    screenService.showStoryDetails = false;
+    screenService.updateShowStoryDetails = (newValue) => {
+      alert('Changed showDetails to: ' + newValue);
+    };
+
+    storyService.storySummaries = [];
+  }
+}
+
 
 storiesOf('Story List', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [StoryListComponent, StoryListWithStubs],
+      declarations: [StoryListComponent, StoryListWithStubs, StoryListWithNoEntries],
       imports: [MatButtonModule, MatToolbarModule, MatListModule],
       providers: [],
     }),
   ).add('Renders correctly with entries', () => {
     return {
       component: StoryListWithStubs
+    };
+  })
+  .add('Renders correctly with no entries', () => {
+    return {
+      component: StoryListWithNoEntries
     };
   });
