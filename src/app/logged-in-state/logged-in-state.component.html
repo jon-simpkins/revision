@@ -6,4 +6,9 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<story-list></story-list>
+<ng-template [ngIf]="screenService.showStoryDetails" [ngIfElse]="storyList">
+  <story-details></story-details>
+</ng-template>
+<ng-template #storyList>
+  <story-list></story-list>
+</ng-template>

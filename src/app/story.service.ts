@@ -123,6 +123,9 @@ export class StoryService {
       return;
     }
 
+    this.currentId = 'null';
+    this.currentStoryStr = 'loading...';
+
     fetchDoc(id).then((response) => {
       this.currentId = id;
       this.currentStoryStr = JSON.stringify(response.result, null, 4);

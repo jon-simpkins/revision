@@ -13,6 +13,7 @@ import {MatDividerModule} from '@angular/material';
 import { LoggedInStateComponent } from './logged-in-state/logged-in-state.component';
 import { StoryListComponent } from './story-list/story-list.component';
 import {MatToolbarModule} from '@angular/material';
+import { StoryDetailsComponent } from './story-details/story-details.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import {MatToolbarModule} from '@angular/material';
     LoginGateComponent,
     LoggedOutStateComponent,
     LoggedInStateComponent,
-    StoryListComponent
+    StoryListComponent,
+    StoryDetailsComponent
   ],
   imports: [
     BrowserModule,

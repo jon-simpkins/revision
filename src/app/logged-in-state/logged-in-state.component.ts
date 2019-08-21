@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {LoginGateService} from '../login-gate.service';
+import {ScreenService} from '../screen.service';
 
 @Component({
   selector: 'logged-in-state',
@@ -8,7 +9,7 @@ import {LoginGateService} from '../login-gate.service';
 })
 export class LoggedInStateComponent {
 
-  constructor(public loginGateService: LoginGateService) { }
+  constructor(public loginGateService: LoginGateService, public screenService: ScreenService) { }
 
   signOut() {
     this.loginGateService.signOut();
