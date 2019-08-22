@@ -1,6 +1,95 @@
-<h3>Story Details: {{storyService.currentId}}</h3>
-<a target="_blank" href="https://docs.google.com/document/d/{{storyService.currentId}}/edit">
-  Open in Google Docs
-</a>
-<button (click)="backToList()">Back to story list</button>
-<pre>{{storyService.currentStoryStr}}</pre>
+<div style="margin-bottom: 25px; display: flex; padding: 12px;">
+  <button mat-button
+    style="flex: 0 0 50px; text-align: left"
+    (click)="backToList()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span style="flex: 1; text-align: center;">
+    Placeholder for status
+  </span>
+  <a target="_blank" href="https://docs.google.com/document/d/{{storyService.currentId}}/edit"
+     style="flex: 0 0 50px; text-align: right"
+  >
+    <button mat-button>
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </a>
+</div>
+
+<div>
+  <div style="margin: auto; padding: 0; text-align: center;">
+
+  </div>
+  <div style="display: flex;">
+    <span style="flex: 0 0 100px;">
+      <button mat-button
+        *ngIf="storyDetailsViewService.showViewPanel()"
+        (click)="storyDetailsViewService.toggleViewNav()">
+        <mat-icon>
+          {{storyDetailsViewService.showViewNav ? 'chevron_left' : 'more_horiz'}}
+        </mat-icon>
+      </button>
+    </span>
+    <span style="flex: 1; text-align: center;">
+      <button mat-button
+        [color]="storyDetailsViewService.currentPanelView === 'view' ? 'primary' : null"
+        (click)="storyDetailsViewService.setPanelView('view')">
+        <mat-icon>description</mat-icon>
+      </button>
+      <button mat-button
+        [color]="storyDetailsViewService.currentPanelView === 'split' ? 'primary' : null"
+        (click)="storyDetailsViewService.setPanelView('split')">
+        <mat-icon>compare</mat-icon>
+      </button>
+      <button mat-button
+        [color]="storyDetailsViewService.currentPanelView === 'edit' ? 'primary' : null"
+        (click)="storyDetailsViewService.setPanelView('edit')">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </span>
+    <span style="flex: 0 0 100px; text-align: right;">
+      <button mat-button
+        *ngIf="storyDetailsViewService.showEditPanel()"
+        (click)="storyDetailsViewService.toggleEditNav()">
+        <mat-icon>
+          {{storyDetailsViewService.showEditNav ? 'chevron_right' : 'more_horiz'}}
+        </mat-icon>
+      </button>
+    </span>
+  </div>
+  <mat-sidenav-container>
+    <mat-sidenav mode="side"
+      [opened]="storyDetailsViewService.showViewNav"
+    >
+      <div style="min-width:250px;">
+        Sidenav content left
+      </div>
+    </mat-sidenav>
+
+    <div style="display: flex; border: 1px solid black;">
+      <div
+        style="border: 1px solid green; flex: 1; padding: 12px;"
+        *ngIf="storyDetailsViewService.showViewPanel()"
+      >
+        <h3>View Content Placeholder</h3>
+        <p>Here we'll show Scraps that are already written</p>
+      </div>
+      <div
+        style="border: 1px solid red; flex: 1; padding: 12px;"
+        *ngIf="storyDetailsViewService.showEditPanel()"
+      >
+        <h3>Edit Content Placeholder</h3>
+        <p>Here we'll show Scraps that are still in progress</p>
+      </div>
+    </div>
+
+
+    <mat-sidenav mode="side" position="end"
+     [opened]="storyDetailsViewService.showEditNav"
+    >
+      Sidenav content right
+    </mat-sidenav>
+
+  </mat-sidenav-container>
+</div>
+

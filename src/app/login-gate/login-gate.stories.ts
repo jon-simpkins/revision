@@ -10,7 +10,7 @@ import {StoryListComponent} from '../story-list/story-list.component';
 import {LoggedOutStateComponent} from '../logged-out-state/logged-out-state.component';
 import {LoggedInStateComponent} from '../logged-in-state/logged-in-state.component';
 import {StoryDetailsComponent} from '../story-details/story-details.component';
-import {MatDividerModule, MatToolbarModule, MatListModule} from '@angular/material';
+import {MatDividerModule, MatButtonModule, MatIconModule, MatSidenavModule, MatToolbarModule, MatListModule} from '@angular/material';
 
 @Component({
   template: `<login-gate></login-gate>`,
@@ -38,7 +38,7 @@ storiesOf('Login Gate', module)
   .addDecorator(
     moduleMetadata({
       declarations: [StoryListComponent, StoryDetailsComponent, LoginGateComponent, LoginGateLoggedIn, LoginGateLoggedOut, LoggedOutStateComponent, LoggedInStateComponent],
-      imports: [MatDividerModule, MatToolbarModule, MatListModule],
+      imports: [ MatIconModule, MatSidenavModule, MatButtonModule, MatDividerModule, MatToolbarModule, MatListModule],
       providers: [],
     }),
   )

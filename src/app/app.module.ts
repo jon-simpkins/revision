@@ -6,6 +6,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material/button';
 
 import {MatListModule} from '@angular/material';
+import {MatIconModule} from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -16,6 +17,7 @@ import { LoggedInStateComponent } from './logged-in-state/logged-in-state.compon
 import { StoryListComponent } from './story-list/story-list.component';
 import {MatToolbarModule} from '@angular/material';
 import { StoryDetailsComponent } from './story-details/story-details.component';
+import {MatSidenavModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { StoryDetailsComponent } from './story-details/story-details.component';
     MatDividerModule,
     MatToolbarModule,
     MatListModule,
+    MatIconModule,
+    MatSidenavModule,
     BrowserAnimationsModule,
   ],
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
