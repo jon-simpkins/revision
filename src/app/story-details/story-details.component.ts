@@ -20,6 +20,9 @@ export class StoryDetailsComponent {
 
   // Take the user back to the story list view
   backToList() {
+    // Close the nav views, to avoid weirdness
+    this.storyDetailsViewService.showEditNav = false;
+    this.storyDetailsViewService.showViewNav = false;
     this.screenService.updateShowStoryDetails(false);
   }
 

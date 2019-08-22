@@ -71,7 +71,7 @@
       >
         <h3>View Content Placeholder</h3>
         <p>Here we'll show Scraps that are already written</p>
-        <p>Currently selected Scrap: {{screenService.currentViewScrap}}</p>
+        <p>Currently selected Scrap: {{storyService.fetchViewScrap(screenService.currentViewScrapId)}}</p>
       </div>
       <div
         style="border: 1px solid red; flex: 1; padding: 12px;"

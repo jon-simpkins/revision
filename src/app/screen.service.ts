@@ -7,20 +7,9 @@ import {ApplicationRef, Injectable} from '@angular/core';
 export class ScreenService {
 
   showStoryDetails: boolean = false;
-  currentViewScrap: string = null;
+  currentViewScrapId: string = null;
 
-  viewOptions = [
-    {
-      id: 'abc123',
-      label: 'Title',
-      isSelected: false
-    },
-    {
-      id: 'def456',
-      label: 'Logline',
-      isSelected: false
-    }
-  ];
+  viewOptions = [];
 
   constructor(private appRef: ApplicationRef) { }
 
@@ -29,14 +18,12 @@ export class ScreenService {
     this.appRef.tick();
   }
 
-
+  setViewOptions(options) {
+    this.viewOptions = options;
+  }
 
   selectViewScrap(scrapId: string) {
-    this.currentViewScrap = scrapId; // TODO: actually fetch the scrap from the story service
-    this.viewOptions = this.viewOptions.map(option => {
-      option.isSelected = option.id === scrapId;
-      return option;
-    });
+    this.currentViewScrapId = scrapId;
 
     this.appRef.tick();
   }
