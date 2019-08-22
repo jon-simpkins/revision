@@ -18,6 +18,6 @@ storiesOf('Story Details', module)
     }),
   ).add('Renders correctly', () => {
     return {
-      template: '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><story-details></story-details>'
+      template: '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>'
     };
   });

@@ -13,8 +13,7 @@ This is **not** an official Google product.
 
 `npm run storybook`
 
-Right now, there's a bug where the events console takes over the whole screen, but going into "fullscreen" mode will
-let you see the correct story content.
+This will let you inspect the UI elements under different data conditions (see https://storybook.js.org/ for more details).
 
 # Angular CLI Scaffolding
 
