@@ -8,11 +8,12 @@ import {MatIconModule} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import {StoryDetailsComponent} from './story-details.component';
+import {ViewNavComponent} from '../view-nav/view-nav.component';
 
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [StoryDetailsComponent],
+      declarations: [StoryDetailsComponent, ViewNavComponent],
       imports: [MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),

@@ -61,9 +61,7 @@
     <mat-sidenav mode="side"
       [opened]="storyDetailsViewService.showViewNav"
     >
-      <div style="min-width:250px;">
-        Sidenav content left
-      </div>
+      <view-nav></view-nav>
     </mat-sidenav>
 
     <div style="display: flex; border: 1px solid black;">
@@ -73,6 +71,7 @@
       >
         <h3>View Content Placeholder</h3>
         <p>Here we'll show Scraps that are already written</p>
+        <p>Currently selected Scrap: {{screenService.currentViewScrap}}</p>
       </div>
       <div
         style="border: 1px solid red; flex: 1; padding: 12px;"

@@ -15,7 +15,7 @@ export class StoryDetailsComponent {
   constructor(
     public storyService: StoryService,
     public storyDetailsViewService: StoryDetailsViewService,
-    private screenService: ScreenService
+    public screenService: ScreenService
   ) { }
 
   // Take the user back to the story list view

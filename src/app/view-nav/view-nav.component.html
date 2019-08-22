@@ -1,0 +1,12 @@
+<div style="width:250px;">
+  <mat-action-list dense>
+    <div *ngFor="let viewOption of screenService.viewOptions">
+      <mat-list-item
+        (click)="screenService.selectViewScrap(viewOption.id);"
+      >
+        <b *ngIf="viewOption.isSelected; else optionSelected">{{viewOption.label}}</b>
+        <ng-template #optionSelected>{{viewOption.label}}</ng-template>
+      </mat-list-item>
+    </div>
+  </mat-action-list>
+</div>
