@@ -5,8 +5,7 @@ import {APP_BASE_HREF} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material/button';
 
-import {MatListModule} from '@angular/material';
-import {MatIconModule} from '@angular/material';
+import {MatListModule, MatIconModule, MatFormFieldModule, MatInputModule} from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -43,6 +42,7 @@ import { EditPanelContentComponent } from './story-details/edit-panel-content/ed
     MatListModule,
     MatIconModule,
     MatSidenavModule,
+    MatFormFieldModule, MatInputModule,
     BrowserAnimationsModule,
   ],
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],

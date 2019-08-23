@@ -1,32 +1,32 @@
-<div [ngSwitch]="editContent.type">
+<div [ngSwitch]="editType">
   <div *ngSwitchCase="'textLine'">
     <form style="padding: 12px;">
-      <h3>{{editContent.content.shortPrompt}}:</h3>
+      <h3>{{editContext.shortPrompt}}:</h3>
       <mat-form-field style="width: 100%;">
         <input matInput
-          (input)="receiveEdit($event.target.value,null)"
-           value="{{editContent.content.text}}"
+          (input)="contentEditService.receiveEdit($event.target.value,null)"
+           value="{{editContent.text}}"
         >
       </mat-form-field>
     </form>
   </div>
   <div *ngSwitchCase="'textArea'">
     <form style="padding: 12px;">
-      <h3>{{editContent.content.shortPrompt}}:</h3>
+      <h3>{{editContext.shortPrompt}}:</h3>
       <mat-form-field style="width: 100%;">
         <textarea matInput
-          (input)="receiveEdit($event.target.value,null)"
-        >{{editContent.content.text}}</textarea>
+          (input)="contentEditService.receiveEdit($event.target.value,null)"
+        >{{editContent.text}}</textarea>
       </mat-form-field>
     </form>
   </div>
   <div *ngSwitchCase="'threeLines'">
     <form style="padding: 12px;">
-      <h3>{{editContent.content.shortPrompt}}:</h3>
-      <div *ngFor="let entry of editContent.content.textEntries; index as i;">
+      <h3>{{editContext.shortPrompt}}:</h3>
+      <div *ngFor="let entry of editContent.textEntries; index as i;">
         <mat-form-field style="width: 100%;">
           <input matInput
-             (input)="receiveEdit($event.target.value,i)"
+             (input)="contentEditService.receiveEdit($event.target.value,i)"
              value="{{entry}}"
           >
         </mat-form-field>

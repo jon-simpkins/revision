@@ -83,8 +83,16 @@
           style="border: 1px solid red; flex: 1; padding: 12px;"
           *ngIf="screenService.showEditPanel()"
         >
-          <h3>Edit Content Placeholder</h3>
-          <p>Here we'll show Scraps that are still in progress</p>
+          <div *ngIf="contentEditService.currentScrapId; else editPlaceholder">
+            <edit-panel-content
+              [editType]="contentEditService.editType"
+              [editContext]="contentEditService.editContext"
+              [editContent]="contentEditService.originalContent"
+            ></edit-panel-content>
+          </div>
+          <ng-template #editPlaceholder>
+            <h3>Please select a scrap to edit</h3>
+          </ng-template>
         </div>
       </div>
       <mat-sidenav mode="side" position="end"

@@ -1,14 +1,14 @@
 <div [ngSwitch]="viewContent.type">
   <div *ngSwitchCase="'textLine'">
-    <h3>{{viewContent.content.shortPrompt}}:</h3>
+    <h3>{{viewContent.context.shortPrompt}}:</h3>
     <p>{{viewContent.content.text}}</p>
   </div>
   <div *ngSwitchCase="'textArea'">
-    <h3>{{viewContent.content.shortPrompt}}:</h3>
+    <h3>{{viewContent.context.shortPrompt}}:</h3>
     <p>{{viewContent.content.text}}</p>
   </div>
   <div *ngSwitchCase="'threeLines'">
-    <h3>{{viewContent.content.shortPrompt}}:</h3>
+    <h3>{{viewContent.context.shortPrompt}}:</h3>
     <ul>
       <li *ngFor="let entry of viewContent.content.textEntries">
         {{entry}}

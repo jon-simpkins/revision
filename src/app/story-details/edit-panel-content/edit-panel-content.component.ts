@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import {ContentEditService} from '../../content-edit.service';
 
 @Component({
   selector: 'edit-panel-content',
@@ -8,11 +9,9 @@ import { Component, Input } from '@angular/core';
 export class EditPanelContentComponent {
 
   @Input() editContent: any;
+  @Input() editContext: any;
+  @Input() editType: string;
 
-  constructor() { }
-
-  receiveEdit(updatedValue, context) {
-    console.log(context + ':' + updatedValue);
-  }
+  constructor(public contentEditService: ContentEditService) { }
 
 }

@@ -7,10 +7,14 @@ import {MatSidenavModule} from '@angular/material';
 import {MatIconModule} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
+import {MatFormFieldModule, MatInputModule} from '@angular/material';
+import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
 import {StoryDetailsComponent} from './story-details.component';
 import {ViewNavComponent} from './view-nav/view-nav.component';
 import {Component} from '@angular/core';
 import {ScreenService} from '../screen.service';
+import {ContentEditService} from '../content-edit.service';
+import {StoryService} from '../story.service';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>';
 
@@ -18,8 +22,41 @@ const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+
   template: TEMPLATE,
 })
 class StoryDetailsWithNoViewOptions {
-  constructor(screenService: ScreenService) {
+  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
     screenService.setViewOptions([]);
+    storyService.currentId = 'myStory1234';
+    contentEditService.startEdit(
+      'abc123',
+      'textLine',
+      {
+        shortPrompt: 'Movie Title'
+      },
+      {
+        text: 'Godfather 4'
+      },
+      false
+    );
+  }
+}
+
+@Component({
+  template: TEMPLATE,
+})
+class StoryDetailsThreeLineEditWithNoViewOptions {
+  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
+    screenService.setViewOptions([]);
+    storyService.currentId = 'myStory1234';
+    contentEditService.startEdit(
+      'abc123',
+      'threeLines',
+      {
+        shortPrompt: 'Similar Movies'
+      },
+      {
+        textEntries: ['','','']
+      },
+      false
+    );
   }
 }
 
@@ -27,7 +64,8 @@ class StoryDetailsWithNoViewOptions {
   template: TEMPLATE,
 })
 class StoryDetailsWith2ViewOptions {
-  constructor(screenService: ScreenService) {
+  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
+    storyService.currentId = 'myStory1234';
     screenService.setViewOptions([
       {
         id: 'abc123',
@@ -38,20 +76,32 @@ class StoryDetailsWith2ViewOptions {
         label: 'Logline'
       }
     ]);
+    contentEditService.startEdit(
+      null,
+      'textLine',
+      {},
+      {},
+      false
+    );
   }
 }
 
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [StoryDetailsComponent, StoryDetailsWith2ViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
-      imports: [MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
+      declarations: [StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWith2ViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
+      imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
   ).add('Renders correctly with no view options', () => {
     return {
       component: StoryDetailsWithNoViewOptions
     };
+  })
+  .add('Renders correctly with 3-line edit', () => {
+    return {
+      component: StoryDetailsThreeLineEditWithNoViewOptions
+    }
   })
   .add('Renders correctly with 2 view options', () => {
     return {

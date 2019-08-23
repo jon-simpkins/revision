@@ -17,8 +17,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Movie Title',
     content: {
       type: 'textLine',
+      context: {
+        shortPrompt: 'Movie Title'
+      },
       content: {
-        shortPrompt: 'Movie Title',
         text: 'Die Hard 7'
       }
     }
@@ -27,8 +29,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Log Line',
     content: {
       type: 'textArea',
+      context: {
+        shortPrompt: 'Log Line'
+      },
       content: {
-        shortPrompt: 'Log Line',
         text: 'A cop goes undercover as a baker, and discovers a love of cake decorating.'
       }
     }
@@ -37,8 +41,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Time Frame',
     content: {
       type: 'textLine',
+      context: {
+        shortPrompt: 'Time Frame'
+      },
       content: {
-        shortPrompt: 'Time Frame',
         text: 'A summer'
       }
     }
@@ -47,8 +53,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Similar Movies',
     content: {
       type: 'threeLines',
+      context: {
+        shortPrompt: 'Similar Movies'
+      },
       content: {
-        shortPrompt: 'Similar Movies',
         textEntries: [
           'Raiders of the Lost Ark',
           'Sound of Music',
@@ -61,8 +69,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Three Questions',
     content: {
       type: 'threeLines',
+      context: {
+        shortPrompt: 'Three Questions in Act 2'
+      },
       content: {
-        shortPrompt: 'Three Questions in Act 2',
         textEntries: [
           'Why did the the droids come to Tatooine?',
           '',
@@ -75,8 +85,10 @@ const EXAMPLE_TYPES = [
     storyName: 'Three Answers',
     content: {
       type: 'threeLines',
-      content: {
+      context: {
         shortPrompt: 'Three Answers in Act 2',
+      },
+      content: {
         textEntries: [
           'Sent by Leia',
           '',
@@ -110,7 +122,7 @@ EXAMPLE_TYPES.forEach(entry => {
     return {
       component: ViewPanelContentComponent,
       props: {
-        viewContent: entry.content
+        viewContent: entry.content,
       }
     }
   });
@@ -119,7 +131,9 @@ EXAMPLE_TYPES.forEach(entry => {
     return {
       component: EditPanelContentComponent,
       props: {
-        editContent: entry.content
+        editContent: entry.content.content,
+        editContext: entry.content.context,
+        editType: entry.content.type
       }
     }
   });
