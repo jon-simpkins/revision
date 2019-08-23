@@ -9,6 +9,10 @@ export class ScreenService {
   showStoryDetails: boolean = false;
   currentViewScrapId: string = null;
 
+  currentDetailsPanelView = 'split';
+  showViewNav = false;
+  showEditNav = false;
+
   viewOptions = [];
 
   constructor(private appRef: ApplicationRef) { }
@@ -20,10 +24,49 @@ export class ScreenService {
 
   setViewOptions(options) {
     this.viewOptions = options;
+    if (!this.viewOptions.length) {
+      // If there are no view options, then insist on edit mode
+      this.setDetailPanelView('edit', false);
+    }
   }
 
   selectViewScrap(scrapId: string) {
     this.currentViewScrapId = scrapId;
+
+    this.appRef.tick();
+  }
+
+  setDetailPanelView(newValue, doTick: boolean) {
+    this.currentDetailsPanelView = newValue;
+
+    if (this.currentDetailsPanelView === 'view') {
+      this.showEditNav = false;
+    }
+    if (this.currentDetailsPanelView === 'edit') {
+      this.showViewNav = false;
+    }
+
+    if (doTick) {
+      this.appRef.tick();
+    }
+  }
+
+  showViewPanel() {
+    return this.currentDetailsPanelView === 'split' || this.currentDetailsPanelView === 'view';
+  }
+
+  showEditPanel() {
+    return this.currentDetailsPanelView === 'split' || this.currentDetailsPanelView === 'edit';
+  }
+
+  toggleViewNav() {
+    this.showViewNav = !this.showViewNav;
+
+    this.appRef.tick();
+  }
+
+  toggleEditNav() {
+    this.showEditNav = !this.showEditNav;
 
     this.appRef.tick();
   }

@@ -63,11 +63,8 @@ export class StoryService {
 
   // Clear the local copy of a story, used when loading fresh
   clearStory() {
-    this.currentId = 'null';
-    this.currentStoryStr = 'loading...';
-    this.screenService.setViewOptions([]);
+    this.currentId = null;
     this.screenService.currentViewScrapId = null;
-
   }
 
   fetchStory(id) {
