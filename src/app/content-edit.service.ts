@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import {ApplicationRef, Injectable} from '@angular/core';
+import {min} from 'rxjs/operators';
 
 // A service for tracking the current editing state of a Scrap
 @Injectable({
@@ -14,7 +15,34 @@ export class ContentEditService {
   currentContent: any = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
 
-  constructor() { }
+  constructor(private appRef: ApplicationRef) {
+    setInterval(() => {
+      if (this.currentScrapId) {
+        // Do an update check once a second when actively editing
+        this.appRef.tick();
+      }
+    }, 1000);
+  }
+
+  getElapsedTimeStr() : string {
+    let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
+
+    let minElapsed = Math.floor(secElapsed / 60);
+    secElapsed -= (60*minElapsed);
+
+    let outputStr = '';
+    if (minElapsed < 10) {
+      outputStr += '0';
+    }
+    outputStr += minElapsed + ':';
+
+    if (secElapsed < 10) {
+      outputStr += '0';
+    }
+    outputStr += secElapsed;
+
+    return outputStr;
+  }
 
   startEdit(scrapId: string, type: string, context: any, content: any, hasBeenSaved: boolean) {
     this.currentScrapId = scrapId;

@@ -20,6 +20,7 @@ import {MatSidenavModule} from '@angular/material';
 import { ViewNavComponent } from './story-details/view-nav/view-nav.component';
 import { ViewPanelContentComponent } from './story-details/view-panel-content/view-panel-content.component';
 import { EditPanelContentComponent } from './story-details/edit-panel-content/edit-panel-content.component';
+import { EditHeaderComponent } from './story-details/edit-header/edit-header.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { EditPanelContentComponent } from './story-details/edit-panel-content/ed
     StoryDetailsComponent,
     ViewNavComponent,
     ViewPanelContentComponent,
-    EditPanelContentComponent
+    EditPanelContentComponent,
+    EditHeaderComponent
   ],
   imports: [
     BrowserModule,

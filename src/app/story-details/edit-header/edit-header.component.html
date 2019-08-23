@@ -1,0 +1,17 @@
+<div *ngIf="contentEditService.currentScrapId" style="display: flex;">
+  <h3 style="flex: 1; display: inline-block">
+    {{contentEditService.getElapsedTimeStr()}}
+  </h3>
+  <div style="flex: 1; display: inline-block; margin: auto;">
+    <button mat-stroked-button color="primary" style="margin-right: 1em;">
+      <mat-icon>done</mat-icon>
+    </button>
+    <button
+      mat-stroked-button color="accent"
+      (click)="contentEditService.cancelEdit()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+</div>
