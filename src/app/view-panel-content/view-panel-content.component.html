@@ -1,0 +1,15 @@
+<div [ngSwitch]="viewContent.type">
+  <div *ngSwitchCase="'title'">
+    <h3>Movie Title:</h3>
+    <p>{{viewContent.content.title}}</p>
+  </div>
+  <div *ngSwitchCase="'similarMovies'">
+    <h3>Similar Movies:</h3>
+    <ul>
+      <li *ngFor="let similarTitle of viewContent.content.titles">
+        {{similarTitle}}
+      </li>
+    </ul>
+  </div>
+  <div *ngSwitchDefault>Unknown content type!</div>
+</div>

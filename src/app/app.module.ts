@@ -19,6 +19,7 @@ import {MatToolbarModule} from '@angular/material';
 import { StoryDetailsComponent } from './story-details/story-details.component';
 import {MatSidenavModule} from '@angular/material';
 import { ViewNavComponent } from './view-nav/view-nav.component';
+import { ViewPanelContentComponent } from './view-panel-content/view-panel-content.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { ViewNavComponent } from './view-nav/view-nav.component';
     LoggedInStateComponent,
     StoryListComponent,
     StoryDetailsComponent,
-    ViewNavComponent
+    ViewNavComponent,
+    ViewPanelContentComponent
   ],
   imports: [
     BrowserModule,
