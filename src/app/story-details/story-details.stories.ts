@@ -8,7 +8,7 @@ import {MatIconModule} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import {StoryDetailsComponent} from './story-details.component';
-import {ViewNavComponent} from '../view-nav/view-nav.component';
+import {ViewNavComponent} from './view-nav/view-nav.component';
 import {Component} from '@angular/core';
 import {ScreenService} from '../screen.service';
 

@@ -1,0 +1,37 @@
+<div [ngSwitch]="editContent.type">
+  <div *ngSwitchCase="'textLine'">
+    <form style="padding: 12px;">
+      <h3>{{editContent.content.shortPrompt}}:</h3>
+      <mat-form-field style="width: 100%;">
+        <input matInput
+          (input)="receiveEdit($event.target.value,null)"
+           value="{{editContent.content.text}}"
+        >
+      </mat-form-field>
+    </form>
+  </div>
+  <div *ngSwitchCase="'textArea'">
+    <form style="padding: 12px;">
+      <h3>{{editContent.content.shortPrompt}}:</h3>
+      <mat-form-field style="width: 100%;">
+        <textarea matInput
+          (input)="receiveEdit($event.target.value,null)"
+        >{{editContent.content.text}}</textarea>
+      </mat-form-field>
+    </form>
+  </div>
+  <div *ngSwitchCase="'threeLines'">
+    <form style="padding: 12px;">
+      <h3>{{editContent.content.shortPrompt}}:</h3>
+      <div *ngFor="let entry of editContent.content.textEntries; index as i;">
+        <mat-form-field style="width: 100%;">
+          <input matInput
+             (input)="receiveEdit($event.target.value,i)"
+             value="{{entry}}"
+          >
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+  <div *ngSwitchDefault>Unknown content type!</div>
+</div>

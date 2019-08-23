@@ -18,8 +18,9 @@ import { StoryListComponent } from './story-list/story-list.component';
 import {MatToolbarModule} from '@angular/material';
 import { StoryDetailsComponent } from './story-details/story-details.component';
 import {MatSidenavModule} from '@angular/material';
-import { ViewNavComponent } from './view-nav/view-nav.component';
-import { ViewPanelContentComponent } from './view-panel-content/view-panel-content.component';
+import { ViewNavComponent } from './story-details/view-nav/view-nav.component';
+import { ViewPanelContentComponent } from './story-details/view-panel-content/view-panel-content.component';
+import { EditPanelContentComponent } from './story-details/edit-panel-content/edit-panel-content.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { ViewPanelContentComponent } from './view-panel-content/view-panel-conte
     StoryListComponent,
     StoryDetailsComponent,
     ViewNavComponent,
-    ViewPanelContentComponent
+    ViewPanelContentComponent,
+    EditPanelContentComponent
   ],
   imports: [
     BrowserModule,

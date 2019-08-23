@@ -1,19 +1,21 @@
 import { storiesOf, moduleMetadata } from '@storybook/angular';
 
-import {MatButtonModule, MatListModule, MatToolbarModule} from '@angular/material';
-import {ViewPanelContentComponent} from './view-panel-content.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatButtonModule, MatListModule, MatToolbarModule, MatFormFieldModule, MatInputModule, MatIconModule} from '@angular/material';
+import {ViewPanelContentComponent} from './view-panel-content/view-panel-content.component';
+import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
 
 const EXAMPLE_TYPES = [
   {
     storyName: 'Unknown Type',
-    viewContent: {
+    content: {
       type: 'bob',
       content: {}
     }
   },
   {
     storyName: 'Movie Title',
-    viewContent: {
+    content: {
       type: 'textLine',
       content: {
         shortPrompt: 'Movie Title',
@@ -23,17 +25,17 @@ const EXAMPLE_TYPES = [
   },
   {
     storyName: 'Log Line',
-    viewContent: {
-      type: 'textLine',
+    content: {
+      type: 'textArea',
       content: {
         shortPrompt: 'Log Line',
-        text: 'An cop goes undercover as a baker, and discovers a love of cake decorating.'
+        text: 'A cop goes undercover as a baker, and discovers a love of cake decorating.'
       }
     }
   },
   {
     storyName: 'Time Frame',
-    viewContent: {
+    content: {
       type: 'textLine',
       content: {
         shortPrompt: 'Time Frame',
@@ -43,8 +45,8 @@ const EXAMPLE_TYPES = [
   },
   {
     storyName: 'Similar Movies',
-    viewContent: {
-      type: 'textEntries',
+    content: {
+      type: 'threeLines',
       content: {
         shortPrompt: 'Similar Movies',
         textEntries: [
@@ -57,8 +59,8 @@ const EXAMPLE_TYPES = [
   },
   {
     storyName: 'Three Questions',
-    viewContent: {
-      type: 'textEntries',
+    content: {
+      type: 'threeLines',
       content: {
         shortPrompt: 'Three Questions in Act 2',
         textEntries: [
@@ -71,8 +73,8 @@ const EXAMPLE_TYPES = [
   },
   {
     storyName: 'Three Answers',
-    viewContent: {
-      type: 'textEntries',
+    content: {
+      type: 'threeLines',
       content: {
         shortPrompt: 'Three Answers in Act 2',
         textEntries: [
@@ -85,22 +87,40 @@ const EXAMPLE_TYPES = [
   },
 ];
 
-let storyModule = storiesOf('View Panel Content', module)
+let viewStoryModule = storiesOf('View Panel Content', module)
   .addDecorator(
     moduleMetadata({
       declarations: [ViewPanelContentComponent],
-      imports: [MatButtonModule, MatToolbarModule, MatListModule],
+      imports: [MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
+      providers: [],
+    })
+  );
+
+let editStoryModule = storiesOf('Edit Panel Content', module)
+  .addDecorator(
+    moduleMetadata({
+      declarations: [EditPanelContentComponent],
+      imports: [MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
       providers: [],
     })
   );
 
 EXAMPLE_TYPES.forEach(entry => {
-  storyModule.add(entry.storyName, () => {
+  viewStoryModule.add(entry.storyName, () => {
     return {
       component: ViewPanelContentComponent,
       props: {
-        viewContent: entry.viewContent
+        viewContent: entry.content
       }
     }
-  })
+  });
+
+  editStoryModule.add(entry.storyName, () => {
+    return {
+      component: EditPanelContentComponent,
+      props: {
+        editContent: entry.content
+      }
+    }
+  });
 });
