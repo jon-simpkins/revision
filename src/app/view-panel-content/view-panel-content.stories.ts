@@ -14,21 +14,71 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Movie Title',
     viewContent: {
-      type: 'title',
+      type: 'textLine',
       content: {
-        title: 'Die Hard 7'
+        shortPrompt: 'Movie Title',
+        text: 'Die Hard 7'
+      }
+    }
+  },
+  {
+    storyName: 'Log Line',
+    viewContent: {
+      type: 'textLine',
+      content: {
+        shortPrompt: 'Log Line',
+        text: 'An cop goes undercover as a baker, and discovers a love of cake decorating.'
+      }
+    }
+  },
+  {
+    storyName: 'Time Frame',
+    viewContent: {
+      type: 'textLine',
+      content: {
+        shortPrompt: 'Time Frame',
+        text: 'A summer'
       }
     }
   },
   {
     storyName: 'Similar Movies',
     viewContent: {
-      type: 'similarMovies',
+      type: 'textEntries',
       content: {
-        titles: [
+        shortPrompt: 'Similar Movies',
+        textEntries: [
           'Raiders of the Lost Ark',
           'Sound of Music',
           'The Dark Knight'
+        ]
+      }
+    }
+  },
+  {
+    storyName: 'Three Questions',
+    viewContent: {
+      type: 'textEntries',
+      content: {
+        shortPrompt: 'Three Questions in Act 2',
+        textEntries: [
+          'Why did the the droids come to Tatooine?',
+          '',
+          'What does the Joker want?'
+        ]
+      }
+    }
+  },
+  {
+    storyName: 'Three Answers',
+    viewContent: {
+      type: 'textEntries',
+      content: {
+        shortPrompt: 'Three Answers in Act 2',
+        textEntries: [
+          'Sent by Leia',
+          '',
+          'Chaos',
         ]
       }
     }

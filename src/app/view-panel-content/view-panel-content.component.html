@@ -1,13 +1,13 @@
 <div [ngSwitch]="viewContent.type">
-  <div *ngSwitchCase="'title'">
-    <h3>Movie Title:</h3>
-    <p>{{viewContent.content.title}}</p>
+  <div *ngSwitchCase="'textLine'">
+    <h3>{{viewContent.content.shortPrompt}}:</h3>
+    <p>{{viewContent.content.text}}</p>
   </div>
-  <div *ngSwitchCase="'similarMovies'">
-    <h3>Similar Movies:</h3>
+  <div *ngSwitchCase="'textEntries'">
+    <h3>{{viewContent.content.shortPrompt}}:</h3>
     <ul>
-      <li *ngFor="let similarTitle of viewContent.content.titles">
-        {{similarTitle}}
+      <li *ngFor="let entry of viewContent.content.textEntries">
+        {{entry}}
       </li>
     </ul>
   </div>
