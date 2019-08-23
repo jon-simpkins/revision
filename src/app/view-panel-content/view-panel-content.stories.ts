@@ -54,14 +54,3 @@ EXAMPLE_TYPES.forEach(entry => {
     }
   })
 });
-
-/*.add('Renders correctly', () => {
-    return {
-      component: ViewPanelContentComponent,
-      props: {
-        viewContent: {
-          title: 'this works too!!!'
-        }
-      }
-    };
-  });*/
