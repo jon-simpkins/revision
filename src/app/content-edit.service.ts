@@ -74,4 +74,8 @@ export class ContentEditService {
     this.currentScrapId = null;
   }
 
+  acceptEdit() {
+    console.log('Accepting edit!!!');
+  }
+
 }
