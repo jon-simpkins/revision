@@ -7,6 +7,7 @@ import { Component, Input } from '@angular/core';
 })
 export class ViewPanelContentComponent {
 
+  @Input() viewContext: any;
   @Input() viewContent: any;
 
   constructor() { }

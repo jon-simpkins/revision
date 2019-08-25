@@ -28,10 +28,7 @@ class StoryDetailsWithNoViewOptions {
     storyService.currentId = 'myStory1234';
     contentEditService.startEdit(
       'abc123',
-      'textLine',
-      {
-        shortPrompt: 'Movie Title'
-      },
+      'movieTitle',
       {
         text: 'Godfather 4'
       },
@@ -49,10 +46,7 @@ class StoryDetailsThreeLineEditWithNoViewOptions {
     storyService.currentId = 'myStory1234';
     contentEditService.startEdit(
       'abc123',
-      'threeLines',
-      {
-        shortPrompt: 'Similar Movies'
-      },
+      'similarMovies',
       {
         textEntries: ['','','']
       },
@@ -79,8 +73,7 @@ class StoryDetailsWith2ViewOptions {
     ]);
     contentEditService.startEdit(
       null,
-      'textLine',
-      {},
+      null,
       {},
       false
     );

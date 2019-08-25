@@ -10,7 +10,6 @@ export class EditPanelContentComponent {
 
   @Input() editContent: any;
   @Input() editContext: any;
-  @Input() editType: string;
 
   constructor(public contentEditService: ContentEditService) { }
 

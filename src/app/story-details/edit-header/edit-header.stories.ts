@@ -1,8 +1,6 @@
 import { storiesOf, moduleMetadata } from '@storybook/angular';
 import {Component} from '@angular/core';
-import {ScreenService} from '../../screen.service';
 import {ContentEditService} from '../../content-edit.service';
-import {StoryService} from '../../story.service';
 import {EditPanelContentComponent} from '../edit-panel-content/edit-panel-content.component';
 import {StoryDetailsComponent} from '../story-details.component';
 import {ViewNavComponent} from '../view-nav/view-nav.component';
@@ -36,10 +34,7 @@ class EditHeaderWithActiveEdit {
   constructor(contentEditService: ContentEditService) {
     contentEditService.startEdit(
       'myScrap001',
-      'textLine',
-      {
-        shortPrompt: 'Movie Title'
-      },
+      'movieTitle',
       {
         text: 'Die Hard 7'
       },

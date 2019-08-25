@@ -1,4 +1,4 @@
-<div [ngSwitch]="editType">
+<div [ngSwitch]="editContext.type">
   <div *ngSwitchCase="'textLine'">
     <form style="padding: 12px;">
       <h3>{{editContext.shortPrompt}}:</h3>

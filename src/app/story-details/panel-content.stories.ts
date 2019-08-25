@@ -4,22 +4,20 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule, MatListModule, MatToolbarModule, MatFormFieldModule, MatInputModule, MatIconModule} from '@angular/material';
 import {ViewPanelContentComponent} from './view-panel-content/view-panel-content.component';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
+import {ContentEditService} from '../content-edit.service';
 
 const EXAMPLE_TYPES = [
   {
     storyName: 'Unknown Type',
     content: {
-      type: 'bob',
+      prototype: 'bob',
       content: {}
     }
   },
   {
     storyName: 'Movie Title',
     content: {
-      type: 'textLine',
-      context: {
-        shortPrompt: 'Movie Title'
-      },
+      prototype: 'movieTitle',
       content: {
         text: 'Die Hard 7'
       }
@@ -28,10 +26,7 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Log Line',
     content: {
-      type: 'textArea',
-      context: {
-        shortPrompt: 'Log Line'
-      },
+      prototype: 'logLine',
       content: {
         text: 'A cop goes undercover as a baker, and discovers a love of cake decorating.'
       }
@@ -40,10 +35,7 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Time Frame',
     content: {
-      type: 'textLine',
-      context: {
-        shortPrompt: 'Time Frame'
-      },
+      prototype: 'timeFrame',
       content: {
         text: 'A summer'
       }
@@ -52,10 +44,7 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Similar Movies',
     content: {
-      type: 'threeLines',
-      context: {
-        shortPrompt: 'Similar Movies'
-      },
+      prototype: 'similarMovies',
       content: {
         textEntries: [
           'Raiders of the Lost Ark',
@@ -68,10 +57,7 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Three Questions',
     content: {
-      type: 'threeLines',
-      context: {
-        shortPrompt: 'Three Questions in Act 2'
-      },
+      prototype: 'threeQuestions',
       content: {
         textEntries: [
           'Why did the the droids come to Tatooine?',
@@ -84,10 +70,7 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Three Answers',
     content: {
-      type: 'threeLines',
-      context: {
-        shortPrompt: 'Three Answers in Act 2',
-      },
+      prototype: 'threeAnswers',
       content: {
         textEntries: [
           'Sent by Leia',
@@ -122,7 +105,8 @@ EXAMPLE_TYPES.forEach(entry => {
     return {
       component: ViewPanelContentComponent,
       props: {
-        viewContent: entry.content,
+        viewContent: entry.content.content,
+        viewContext: ContentEditService.buildContext(entry.content.prototype)
       }
     }
   });
@@ -132,8 +116,7 @@ EXAMPLE_TYPES.forEach(entry => {
       component: EditPanelContentComponent,
       props: {
         editContent: entry.content.content,
-        editContext: entry.content.context,
-        editType: entry.content.type
+        editContext: ContentEditService.buildContext(entry.content.prototype)
       }
     }
   });
