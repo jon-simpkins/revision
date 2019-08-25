@@ -1,5 +1,7 @@
 import {ApplicationRef, Injectable} from '@angular/core';
 
+import {StoryService} from './story.service';
+
 // A service for tracking the current editing state of a Scrap
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class ContentEditService {
   currentContent: any = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
 
-  constructor(private appRef: ApplicationRef) {
+  constructor(private appRef: ApplicationRef, private storyService: StoryService) {
     setInterval(() => {
       if (this.currentScrapId) {
         // Do an update check once a second when actively editing
@@ -73,15 +75,21 @@ export class ContentEditService {
 
   cancelEdit() {
     this.currentScrapId = null;
+    this.appRef.tick();
   }
 
   acceptEdit() {
-    console.log('Accepting edit!!!');
-    console.log(this.currentScrapId);
-    console.log(this.editPrototype);
-    console.log(this.originalContent);
-    console.log(this.currentContent);
+    this.storyService.updateScrap(
+      this.currentScrapId,
+      this.editPrototype,
+      this.originalContent,
+      this.currentContent
+    ).then(() => {
+      this.cancelEdit();
+    });
   }
+
+
 
   static buildContext(prototype: string) {
     switch (prototype) {

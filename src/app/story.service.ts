@@ -3,7 +3,7 @@ import { ApplicationRef, Injectable } from '@angular/core';
 import { createDoc, fetchDoc, updateBatch } from '../docsApi/docsApiHelpers';
 
 import StorySummary from '../types/StorySummary';
-import {generateHeaderCommands} from '../docsApi/docsContentHelpers';
+import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentHelpers';
 import {ScreenService} from './screen.service';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
@@ -98,6 +98,67 @@ export class StoryService {
       return 'abc123 (Title)';
     }
     return scrapId;
+  }
+
+  updateScrap(scrapId, prototype, originalContent, currentContent) {
+    if (!this.currentId) {
+      // No associated story, skip
+    }
+
+    let originalSerialized = null;
+
+    let newSerialized = StoryService.generateSerialization(
+      scrapId,
+      prototype,
+      currentContent
+    );
+
+    let updateCommand = updateContentLine(
+      originalSerialized,
+      newSerialized
+    );
+
+    return updateBatch(
+      this.currentId,
+      [
+        updateCommand
+      ]
+    );
+  }
+
+  static generateSerialization(scrapId: string, prototype: string, content: any) {
+    const ARRAY_CHUNK_LENGTH = 10;
+
+    let base64Content = btoa(JSON.stringify(content));
+
+    let contentArray = [];
+    for (let i = 0; i < base64Content.length; i += ARRAY_CHUNK_LENGTH) {
+      contentArray.push(base64Content.substr(i, ARRAY_CHUNK_LENGTH));
+    }
+
+    return `(${scrapId}:${prototype}) ${contentArray.join(' ')}`
+  }
+
+  static parseSerialization(serializedContent: string) {
+    const LINE_REGEX = /\(([a-zA-Z0-9]+):([a-zA-Z0-9]+)\)/;
+
+    let matchedHeader = LINE_REGEX.exec(serializedContent);
+
+    if (!matchedHeader) {
+      return null;
+    }
+
+    let scrapId = matchedHeader[1];
+    let prototype = matchedHeader[2];
+
+    serializedContent = serializedContent.replace(matchedHeader[0], '');
+    serializedContent = serializedContent.split(' ').join('');
+
+    return {
+      scrapId: scrapId,
+      prototype: prototype,
+      content: JSON.parse(atob(serializedContent))
+    };
   }
 
 

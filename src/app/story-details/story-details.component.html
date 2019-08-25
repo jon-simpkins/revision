@@ -91,6 +91,9 @@
           </div>
           <ng-template #editPlaceholder>
             <h3>Please select a scrap to edit</h3>
+            <button (click)="contentEditService.startEdit('abc123', 'similarMovies', {textEntries: ['','','']}, false)">
+              start dummy edit
+            </button>
           </ng-template>
         </div>
       </div>

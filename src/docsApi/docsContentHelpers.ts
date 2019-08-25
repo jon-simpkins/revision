@@ -115,4 +115,4 @@ function generateHeaderCommands() {
   return updates;
 }
 
-export {generateHeaderCommands};
+export {generateHeaderCommands, updateContentLine};
