@@ -49,7 +49,6 @@ export class ContentEditService {
     this.currentScrapId = scrapId;
     this.editPrototype = prototype;
 
-    // TODO: fetch type, context based on prototype
     this.editContext = ContentEditService.buildContext(prototype);
     this.originalContent = JSON.parse(JSON.stringify(content)); // Create isolated clone
     this.currentContent = content;

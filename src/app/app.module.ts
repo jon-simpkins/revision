@@ -21,6 +21,7 @@ import { ViewNavComponent } from './story-details/view-nav/view-nav.component';
 import { ViewPanelContentComponent } from './story-details/view-panel-content/view-panel-content.component';
 import { EditPanelContentComponent } from './story-details/edit-panel-content/edit-panel-content.component';
 import { EditHeaderComponent } from './story-details/edit-header/edit-header.component';
+import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { EditHeaderComponent } from './story-details/edit-header/edit-header.com
     ViewNavComponent,
     ViewPanelContentComponent,
     EditPanelContentComponent,
-    EditHeaderComponent
+    EditHeaderComponent,
+    EditNavComponent
   ],
   imports: [
     BrowserModule,

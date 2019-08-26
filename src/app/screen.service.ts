@@ -14,6 +14,26 @@ export class ScreenService {
   showEditNav = false;
 
   viewOptions = [];
+  editOptions = [
+    {
+      scrapId: 'abc123',
+      prototype: 'similarMovies',
+      content: {
+        textEntries: ['','','']
+      },
+      hasBeenSaved: false,
+      label: 'Similar Movies'
+    },
+    {
+      scrapId: 'def456',
+      prototype: 'movieTitle',
+      content: {
+        textLine: ''
+      },
+      hasBeenSaved: false,
+      label: 'Movie Title'
+    }
+  ];
 
   constructor(private appRef: ApplicationRef) { }
 
