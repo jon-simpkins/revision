@@ -16,6 +16,7 @@ import {ScreenService} from '../screen.service';
 import {ContentEditService} from '../content-edit.service';
 import {StoryService} from '../story.service';
 import {EditHeaderComponent} from './edit-header/edit-header.component';
+import {EditNavComponent} from './edit-nav/edit-nav.component';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>';
 
@@ -26,13 +27,15 @@ class StoryDetailsWithNoViewOptions {
   constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
     screenService.setViewOptions([]);
     storyService.currentId = 'myStory1234';
+    storyService.currentStoryScraps = {
+      'abc123': {
+        text: 'Godfather 4'
+      }
+    };
+
     contentEditService.startEdit(
       'abc123',
-      'movieTitle',
-      {
-        text: 'Godfather 4'
-      },
-      false
+      'movieTitle'
     );
   }
 }
@@ -46,11 +49,7 @@ class StoryDetailsThreeLineEditWithNoViewOptions {
     storyService.currentId = 'myStory1234';
     contentEditService.startEdit(
       'abc123',
-      'similarMovies',
-      {
-        textEntries: ['','','']
-      },
-      false
+      'similarMovies'
     );
   }
 }
@@ -73,9 +72,7 @@ class StoryDetailsWith2ViewOptions {
     ]);
     contentEditService.startEdit(
       null,
-      null,
-      {},
-      false
+      null
     );
   }
 }
@@ -83,7 +80,7 @@ class StoryDetailsWith2ViewOptions {
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [EditHeaderComponent, StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWith2ViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
+      declarations: [EditNavComponent, EditHeaderComponent, StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWith2ViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
       imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),

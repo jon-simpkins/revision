@@ -15,6 +15,7 @@ import {
 } from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {EditHeaderComponent} from './edit-header.component';
+import {EditNavComponent} from '../edit-nav/edit-nav.component';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-header></edit-header></div>';
 
@@ -34,11 +35,7 @@ class EditHeaderWithActiveEdit {
   constructor(contentEditService: ContentEditService) {
     contentEditService.startEdit(
       'myScrap001',
-      'movieTitle',
-      {
-        text: 'Die Hard 7'
-      },
-      false
+      'movieTitle'
     );
   }
 }
@@ -46,7 +43,7 @@ class EditHeaderWithActiveEdit {
 storiesOf('Edit Header', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [ EditHeaderComponent, EditPanelContentComponent, StoryDetailsComponent, ViewNavComponent, EditHeaderWithNoEdit, EditHeaderWithActiveEdit],
+      declarations: [EditNavComponent, EditHeaderComponent, EditPanelContentComponent, StoryDetailsComponent, ViewNavComponent, EditHeaderWithNoEdit, EditHeaderWithActiveEdit],
       imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
