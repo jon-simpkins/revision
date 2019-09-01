@@ -18,19 +18,11 @@ export class ScreenService {
     {
       scrapId: 'abc123',
       prototype: 'similarMovies',
-      content: {
-        textEntries: ['','','']
-      },
-      hasBeenSaved: false,
       label: 'Similar Movies'
     },
     {
       scrapId: 'def456',
       prototype: 'movieTitle',
-      content: {
-        textLine: ''
-      },
-      hasBeenSaved: false,
       label: 'Movie Title'
     }
   ];

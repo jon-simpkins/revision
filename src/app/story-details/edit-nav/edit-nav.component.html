@@ -2,7 +2,7 @@
   <mat-action-list dense>
     <div *ngFor="let editOption of screenService.editOptions">
       <mat-list-item
-        (click)="contentEditService.startEdit(editOption.scrapId, editOption.prototype, editOption.content, editOption.hasBeenSaved)"
+        (click)="contentEditService.startEdit(editOption.scrapId, editOption.prototype)"
       >
         {{editOption.label}}
       </mat-list-item>

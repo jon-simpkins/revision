@@ -16,6 +16,7 @@ export class StoryService {
   storySummaries: StorySummary[] = [];
   currentId: string = null;
   currentStoryStr: string = '';
+  currentStoryScraps: any = {};
 
   constructor(private appRef: ApplicationRef, private screenService: ScreenService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
@@ -65,6 +66,7 @@ export class StoryService {
   clearStory() {
     this.currentId = null;
     this.screenService.currentViewScrapId = null;
+    this.currentStoryScraps = {};
   }
 
   fetchStory(id) {
@@ -77,6 +79,8 @@ export class StoryService {
     fetchDoc(id).then((response) => {
       this.currentId = id;
       this.currentStoryStr = JSON.stringify(response.result, null, 4);
+
+      // TODO: INITIALIZE currentStoryScraps
 
       this.screenService.setViewOptions([
         {
@@ -100,12 +104,23 @@ export class StoryService {
     return scrapId;
   }
 
-  updateScrap(scrapId, prototype, originalContent, currentContent) {
+  fetchEditScrap(scrapId: string) {
+    return this.currentStoryScraps[scrapId];
+  }
+
+  updateScrap(scrapId, prototype, originalContent, currentContent, hasBeenSaved: boolean) {
     if (!this.currentId) {
       // No associated story, skip
     }
 
     let originalSerialized = null;
+    if (hasBeenSaved) {
+      originalSerialized = StoryService.generateSerialization(
+        scrapId,
+        prototype,
+        originalContent
+      );
+    }
 
     let newSerialized = StoryService.generateSerialization(
       scrapId,
@@ -117,6 +132,8 @@ export class StoryService {
       originalSerialized,
       newSerialized
     );
+
+    this.currentStoryScraps[scrapId] = currentContent;
 
     return updateBatch(
       this.currentId,

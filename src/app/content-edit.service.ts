@@ -45,14 +45,24 @@ export class ContentEditService {
     return outputStr;
   }
 
-  startEdit(scrapId: string, prototype: any, content: any, hasBeenSaved: boolean) {
+  startEdit(scrapId: string, prototype: string) {
     this.currentScrapId = scrapId;
     this.editPrototype = prototype;
 
+    // TODO: fetch content, or default to empty state
+    // TODO: determine if hasBeenSaved based on if story scrap is available
+
     this.editContext = ContentEditService.buildContext(prototype);
-    this.originalContent = JSON.parse(JSON.stringify(content)); // Create isolated clone
-    this.currentContent = content;
-    this.hasBeenSaved = hasBeenSaved;
+
+    this.originalContent = this.storyService.fetchEditScrap(scrapId);
+    this.hasBeenSaved = true;
+    if (!this.originalContent) {
+      this.hasBeenSaved = false;
+      this.originalContent = ContentEditService.buildEmptyContent(this.editContext.type);
+    }
+
+    this.currentContent = JSON.parse(JSON.stringify(this.originalContent)); // Create isolated clone
+
     this.editStartEpoch = Date.now();
   }
 
@@ -82,7 +92,8 @@ export class ContentEditService {
       this.currentScrapId,
       this.editPrototype,
       this.originalContent,
-      this.currentContent
+      this.currentContent,
+      this.hasBeenSaved
     ).then(() => {
       this.cancelEdit();
     });
@@ -122,6 +133,21 @@ export class ContentEditService {
           type: 'threeLines',
           shortPrompt: 'Three Answers in Act 2'
         };
+    }
+
+    return {};
+  }
+
+  static buildEmptyContent(type: string) {
+    switch (type) {
+      case 'textLine':
+        return {
+          text: ''
+        };
+      case 'threeLines':
+        return {
+          textEntries: ['','','']
+        }
     }
 
     return {};
