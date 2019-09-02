@@ -1,4 +1,5 @@
 import {ApplicationRef, Injectable} from '@angular/core';
+import {ScrapPrototype} from '../types/Scrap';
 
 // Service to manage the state of "what screen am I on right now" when logged in
 @Injectable({
@@ -17,13 +18,18 @@ export class ScreenService {
   editOptions = [
     {
       scrapId: 'abc123',
-      prototype: 'similarMovies',
+      prototype: ScrapPrototype.SIMILAR_MOVIES,
       label: 'Similar Movies'
     },
     {
       scrapId: 'def456',
-      prototype: 'movieTitle',
+      prototype: ScrapPrototype.MOVIE_TITLE,
       label: 'Movie Title'
+    },
+    {
+      scrapId: 'def456',
+      prototype: ScrapPrototype.LOG_LINE,
+      label: 'Log Line'
     }
   ];
 

@@ -1,7 +1,9 @@
+import UserEdit from './UserEdit';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
   SIMILAR_MOVIES,
+  LOG_LINE,
 }
 
 enum ScrapContentType {
@@ -11,11 +13,21 @@ enum ScrapContentType {
 
 abstract class ScrapContent {
 
-  toString() {}
+  abstract toString(): string;
+
+  abstract clone(): ScrapContent;
+
+  abstract receiveEdit(userEdit: UserEdit);
 }
 
 class TextLineContent extends ScrapContent {
   text: string = '';
+
+  constructor(text?: string) {
+    super();
+
+    this.text = text ? text : '';
+  }
 
   toString() {
     return JSON.stringify({t: this.text});
@@ -23,14 +35,35 @@ class TextLineContent extends ScrapContent {
 
   static parse(stringified: string): TextLineContent {
     let retVal = new TextLineContent();
+
+    if (!stringified) {
+      return retVal;
+    }
+
     retVal.text = JSON.parse(stringified).t;
 
     return retVal;
   }
+
+  clone(): TextLineContent {
+    let newContent = new TextLineContent();
+    newContent.text = this.text;
+    return newContent;
+  }
+
+  receiveEdit(userEdit: UserEdit) {
+    this.text = userEdit.textValue;
+  }
 }
 
 class ThreeLineContent extends ScrapContent {
-  textLines: object = ['', '', ''];
+  textLines: string[];
+
+  constructor(textLines ?: string[]) {
+    super();
+
+    this.textLines = textLines ? textLines : ['', '', ''];
+  }
 
   toString() {
     return JSON.stringify({l: this.textLines});
@@ -38,9 +71,24 @@ class ThreeLineContent extends ScrapContent {
 
   static parse(stringified: string): ThreeLineContent {
     let retVal = new ThreeLineContent();
+
+    if (!stringified) {
+      return retVal;
+    }
+
     retVal.textLines = JSON.parse(stringified).l;
 
     return retVal;
+  }
+
+  clone(): ThreeLineContent {
+    let newContent = new ThreeLineContent();
+    newContent.textLines = JSON.parse(JSON.stringify(this.textLines))
+    return newContent;
+  }
+
+  receiveEdit(userEdit: UserEdit) {
+    this.textLines[userEdit.idx] = userEdit.textValue;
   }
 }
 
@@ -100,14 +148,13 @@ class Scrap {
     newScrap.editedBy = jsonContent[2];
     newScrap.content = Scrap.parseScrapContent(jsonContent[3], newScrap.prototype);
 
-    console.log(newScrap.content);
-
     return newScrap;
   }
 
   static determineTypeFromPrototype(prototype: ScrapPrototype): ScrapContentType {
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
+      case ScrapPrototype.LOG_LINE:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
         return ScrapContentType.THREE_LINES;
@@ -131,6 +178,6 @@ class Scrap {
 
 }
 
-export {ScrapPrototype, ThreeLineContent, TextLineContent};
+export {ScrapContent, ScrapPrototype, ThreeLineContent, TextLineContent};
 
 export default Scrap;

@@ -5,6 +5,7 @@ import { createDoc, fetchDoc, updateBatch } from '../docsApi/docsApiHelpers';
 import StorySummary from '../types/StorySummary';
 import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentHelpers';
 import {ScreenService} from './screen.service';
+import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -16,7 +17,7 @@ export class StoryService {
   storySummaries: StorySummary[] = [];
   currentId: string = null;
   currentStoryStr: string = '';
-  currentStoryScraps: any = {};
+  currentStoryScraps: Map<string, Scrap> = new Map<string, Scrap>();
 
   constructor(private appRef: ApplicationRef, private screenService: ScreenService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
@@ -50,7 +51,6 @@ export class StoryService {
         this.appRef.tick();
 
         return this.writeHeader(newDocumentId);
-        // TODO: write / update the changelog
       });
   }
 
@@ -66,7 +66,7 @@ export class StoryService {
   clearStory() {
     this.currentId = null;
     this.screenService.currentViewScrapId = null;
-    this.currentStoryScraps = {};
+    this.currentStoryScraps = new Map<string, Scrap>();
   }
 
   fetchStory(id) {
@@ -80,7 +80,21 @@ export class StoryService {
       this.currentId = id;
       this.currentStoryStr = JSON.stringify(response.result, null, 4);
 
-      // TODO: INITIALIZE currentStoryScraps
+      response.result.body.content.forEach((section) => {
+        let textContent = null;
+        try {
+          textContent = section.paragraph.elements[0].textRun.content;
+
+          let parsedScrap = Scrap.parseSerialization(textContent);
+
+          if (parsedScrap) {
+            this.currentStoryScraps[parsedScrap.id] = parsedScrap;
+          }
+
+        } catch(e) {}
+      });
+
+      console.log(this.currentStoryScraps);
 
       this.screenService.setViewOptions([
         {
@@ -104,36 +118,30 @@ export class StoryService {
     return scrapId;
   }
 
-  fetchEditScrap(scrapId: string) {
-    return this.currentStoryScraps[scrapId];
+  fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype) : ScrapContent {
+    let fetchedScrap = this.currentStoryScraps.get(scrapId);
+    if (fetchedScrap) {
+      return fetchedScrap.content;
+    }
+
+    // If it didn't currently exist, generate empty content of the correct
+    // type given the prototype
+    return Scrap.parseScrapContent(null, prototype);
   }
 
-  updateScrap(scrapId, prototype, originalContent, currentContent, hasBeenSaved: boolean) {
+  updateScrap(newScrap: Scrap) {
     if (!this.currentId) {
       // No associated story, skip
     }
 
-    let originalSerialized = null;
-    if (hasBeenSaved) {
-      originalSerialized = StoryService.generateSerialization(
-        scrapId,
-        prototype,
-        originalContent
-      );
-    }
-
-    let newSerialized = StoryService.generateSerialization(
-      scrapId,
-      prototype,
-      currentContent
-    );
+    let newSerialized = newScrap.generateSerialization();
 
     let updateCommand = updateContentLine(
-      originalSerialized,
+      null,
       newSerialized
     );
 
-    this.currentStoryScraps[scrapId] = currentContent;
+    this.currentStoryScraps[newScrap.id] = newScrap;
 
     return updateBatch(
       this.currentId,
@@ -142,41 +150,5 @@ export class StoryService {
       ]
     );
   }
-
-  static generateSerialization(scrapId: string, prototype: string, content: any) {
-    const ARRAY_CHUNK_LENGTH = 10;
-
-    let base64Content = btoa(JSON.stringify(content));
-
-    let contentArray = [];
-    for (let i = 0; i < base64Content.length; i += ARRAY_CHUNK_LENGTH) {
-      contentArray.push(base64Content.substr(i, ARRAY_CHUNK_LENGTH));
-    }
-
-    return `(${scrapId}:${prototype}) ${contentArray.join(' ')}`
-  }
-
-  static parseSerialization(serializedContent: string) {
-    const LINE_REGEX = /\(([a-zA-Z0-9]+):([a-zA-Z0-9]+)\)/;
-
-    let matchedHeader = LINE_REGEX.exec(serializedContent);
-
-    if (!matchedHeader) {
-      return null;
-    }
-
-    let scrapId = matchedHeader[1];
-    let prototype = matchedHeader[2];
-
-    serializedContent = serializedContent.replace(matchedHeader[0], '');
-    serializedContent = serializedContent.split(' ').join('');
-
-    return {
-      scrapId: scrapId,
-      prototype: prototype,
-      content: JSON.parse(atob(serializedContent))
-    };
-  }
-
 
 }

@@ -1,4 +1,4 @@
-import { storiesOf, moduleMetadata } from '@storybook/angular';
+import {moduleMetadata, storiesOf} from '@storybook/angular';
 import {Component} from '@angular/core';
 import {ContentEditService} from '../../content-edit.service';
 import {EditPanelContentComponent} from '../edit-panel-content/edit-panel-content.component';
@@ -16,6 +16,7 @@ import {
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {EditHeaderComponent} from './edit-header.component';
 import {EditNavComponent} from '../edit-nav/edit-nav.component';
+import {ScrapPrototype} from '../../../types/Scrap';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-header></edit-header></div>';
 
@@ -35,7 +36,7 @@ class EditHeaderWithActiveEdit {
   constructor(contentEditService: ContentEditService) {
     contentEditService.startEdit(
       'myScrap001',
-      'movieTitle'
+      ScrapPrototype.MOVIE_TITLE
     );
   }
 }

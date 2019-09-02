@@ -1,32 +1,32 @@
-<div [ngSwitch]="editContext.type">
-  <div *ngSwitchCase="'textLine'">
+<div [ngSwitch]="editContext.editType">
+  <div *ngSwitchCase="editTypes.TEXT_LINE">
     <form style="padding: 12px;">
-      <h3>{{editContext.shortPrompt}}:</h3>
+      <h3>{{editContext.headerPrompt}}:</h3>
       <mat-form-field style="width: 100%;">
         <input matInput
-          (input)="contentEditService.receiveEdit($event.target.value,null)"
-           value="{{editContent.text}}"
+          (input)="sendPlaintextEdit($event.target.value)"
+          value="{{editContent.text}}"
         >
       </mat-form-field>
     </form>
   </div>
-  <div *ngSwitchCase="'textArea'">
+  <div *ngSwitchCase="editTypes.TEXT_AREA">
     <form style="padding: 12px;">
-      <h3>{{editContext.shortPrompt}}:</h3>
+      <h3>{{editContext.headerPrompt}}:</h3>
       <mat-form-field style="width: 100%;">
         <textarea matInput
-          (input)="contentEditService.receiveEdit($event.target.value,null)"
+          (input)="sendPlaintextEdit($event.target.value)"
         >{{editContent.text}}</textarea>
       </mat-form-field>
     </form>
   </div>
-  <div *ngSwitchCase="'threeLines'">
+  <div *ngSwitchCase="editTypes.THREE_LINES">
     <form style="padding: 12px;">
-      <h3>{{editContext.shortPrompt}}:</h3>
-      <div *ngFor="let entry of editContent.textEntries; index as i;">
+      <h3>{{editContext.headerPrompt}}:</h3>
+      <div *ngFor="let entry of editContent.textLines; index as i;">
         <mat-form-field style="width: 100%;">
           <input matInput
-             (input)="contentEditService.receiveEdit($event.target.value,i)"
+             (input)="sendIndexedTextEdit($event.target.value,i)"
              value="{{entry}}"
           >
         </mat-form-field>
