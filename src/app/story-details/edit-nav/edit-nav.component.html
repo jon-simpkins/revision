@@ -4,7 +4,7 @@
       <mat-list-item
         (click)="contentEditService.startEdit(editOption.scrapId, editOption.prototype)"
       >
-        {{editOption.label}}
+        {{editOption.getHeader()}} ({{editOption.iterations}})
       </mat-list-item>
     </div>
   </mat-action-list>

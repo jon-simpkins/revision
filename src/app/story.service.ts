@@ -6,6 +6,7 @@ import StorySummary from '../types/StorySummary';
 import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentHelpers';
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
+import EditOption from '../types/EditOption';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -88,13 +89,13 @@ export class StoryService {
           let parsedScrap = Scrap.parseSerialization(textContent);
 
           if (parsedScrap) {
-            this.currentStoryScraps[parsedScrap.id] = parsedScrap;
+            this.currentStoryScraps.set(parsedScrap.id, parsedScrap);
           }
 
         } catch(e) {}
       });
 
-      console.log(this.currentStoryScraps);
+      this.updateEditOptions();
 
       this.screenService.setViewOptions([
         {
@@ -129,6 +130,10 @@ export class StoryService {
     return Scrap.parseScrapContent(null, prototype);
   }
 
+  updateEditOptions() {
+    this.screenService.setEditOptions(EditOption.buildOptions(this.currentStoryScraps));
+  }
+
   updateScrap(newScrap: Scrap) {
     if (!this.currentId) {
       // No associated story, skip
@@ -141,7 +146,9 @@ export class StoryService {
       newSerialized
     );
 
-    this.currentStoryScraps[newScrap.id] = newScrap;
+    this.currentStoryScraps.set(newScrap.id, newScrap);
+
+    this.updateEditOptions();
 
     return updateBatch(
       this.currentId,
