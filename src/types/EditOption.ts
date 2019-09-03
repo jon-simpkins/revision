@@ -2,6 +2,10 @@ import Scrap, {ScrapPrototype} from './Scrap';
 
 const SINGULAR_PROTOTYPES = new Set([ScrapPrototype.SIMILAR_MOVIES, ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE]);
 
+const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.SIMILAR_MOVIES, ScrapPrototype.LOG_LINE]));
+
 class EditOption {
   prototype: ScrapPrototype;
   scrapId: string; // ID to start from on next edit
@@ -50,11 +54,35 @@ class EditOption {
       }
     });
 
-    optionByPrototype.forEach((option) => {
+    // Add only options which have the necessary dependencies
+    optionByPrototype.forEach((option, prototype) => {
+      if (SINGULAR_DEPENDENCY_MAP.has(prototype)) {
+        // Check dependencies, proceed
+        let dependencies = SINGULAR_DEPENDENCY_MAP.get(prototype);
+        let hasAllDependencies = true;
+        dependencies.forEach((dependency) => {
+          if (!optionByPrototype.has(dependency) || !optionByPrototype.get(dependency).iterations) {
+            hasAllDependencies = false;
+          }
+        });
+
+        if (!hasAllDependencies) {
+          return;
+        }
+      }
+
       allOptions.push(option);
     });
 
-    return allOptions;
+    // Return the sorted version, where less-iterated things are on top,
+    // and recency of edit is the tiebreaker
+    return allOptions.sort((a: EditOption, b: EditOption) => {
+      if (b.iterations != a.iterations) {
+        return a.iterations - b.iterations;
+      }
+
+      return a.lastEdited - b.lastEdited;
+    });
   }
 
 }
