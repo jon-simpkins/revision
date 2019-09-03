@@ -34,8 +34,6 @@ export class ScreenService {
   }
 
   setEditOptions(options: EditOption[]) {
-    console.log(options);
-
     this.editOptions = options;
   }
 

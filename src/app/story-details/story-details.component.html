@@ -91,7 +91,12 @@
           </div>
           <ng-template #editPlaceholder>
             <h3>Please select a scrap to edit</h3>
-            <p>TODO: randomize button here</p>
+            <button mat-button
+              [color]="'primary'"
+              (click)="chooseRandomEdit()"
+            >
+              <mat-icon>shuffle</mat-icon>
+            </button>
           </ng-template>
         </div>
       </div>

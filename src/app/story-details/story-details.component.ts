@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {StoryService} from '../story.service';
 import {ScreenService} from '../screen.service';
 import {ContentEditService} from '../content-edit.service';
+import EditOption from '../../types/EditOption';
 
 @Component({
   selector: 'story-details',
@@ -22,6 +23,12 @@ export class StoryDetailsComponent {
     this.screenService.showEditNav = false;
     this.screenService.showViewNav = false;
     this.screenService.updateShowStoryDetails(false);
+  }
+
+  chooseRandomEdit() {
+    let option = EditOption.selectRandom(this.screenService.editOptions);
+
+    this.contentEditService.startEdit(option.scrapId, option.prototype);
   }
 
 }

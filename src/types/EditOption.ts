@@ -85,6 +85,20 @@ class EditOption {
     });
   }
 
+  static selectRandom(options: EditOption[]): EditOption {
+    let incompleteOptions = options.filter(option => {
+      return !option.iterations;
+    });
+
+    if (incompleteOptions.length) {
+      let randomIdx = Math.floor(Math.random() * incompleteOptions.length);
+
+      return incompleteOptions[randomIdx];
+    }
+
+    let randomIdx = Math.floor(Math.random() * options.length);
+    return options[randomIdx];
+  }
 }
 
 
