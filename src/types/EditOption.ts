@@ -37,8 +37,6 @@ class EditOption {
 
 
     scraps.forEach((scrap: Scrap) => {
-      console.log(scrap); // TODO: FIGURE OUT WHY THIS DOESNT WORK
-
       if (!SINGULAR_PROTOTYPES.has(scrap.prototype)) {
         return; // Only care about singular ones now
       }
