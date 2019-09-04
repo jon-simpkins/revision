@@ -1,19 +1,18 @@
-<div [ngSwitch]="viewContext.type">
-  <div *ngSwitchCase="'textLine'">
-    <h3>{{viewContext.shortPrompt}}:</h3>
-    <p>{{viewContent.text}}</p>
+<div *ngIf="(!!viewContentBlocks && !!viewContentBlocks.length); else noViewContent">
+  <div *ngFor="let block of viewContentBlocks">
+    <div [ngSwitch]="block.type">
+      <div *ngSwitchCase="viewContentBlockTypes.HEADER">
+        <h3>{{block.text}}</h3>
+      </div>
+      <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
+        <p>{{block.text}}</p>
+      </div>
+      <div *ngSwitchCase="viewContentBlockTypes.LIST_ENTRY">
+        <p style="margin-left: 2em;">{{block.text}}</p>
+      </div>
+    </div>
   </div>
-  <div *ngSwitchCase="'textArea'">
-    <h3>{{viewContext.shortPrompt}}:</h3>
-    <p>{{viewContent.text}}</p>
-  </div>
-  <div *ngSwitchCase="'threeLines'">
-    <h3>{{viewContext.shortPrompt}}:</h3>
-    <ul>
-      <li *ngFor="let entry of viewContent.textEntries">
-        {{entry}}
-      </li>
-    </ul>
-  </div>
-  <div *ngSwitchDefault>Unknown content type!</div>
 </div>
+<ng-template #noViewContent>
+  no stuff!
+</ng-template>

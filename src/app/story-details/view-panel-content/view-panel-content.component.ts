@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import ViewContentBlock, {ViewContentBlockType} from './ViewContentBlock';
 
 @Component({
   selector: 'view-panel-content',
@@ -7,9 +8,9 @@ import { Component, Input } from '@angular/core';
 })
 export class ViewPanelContentComponent {
 
-  @Input() viewContext: any;
-  @Input() viewContent: any;
+  // Make enum visible to the component
+  viewContentBlockTypes = ViewContentBlockType;
 
-  constructor() { }
+  @Input() viewContentBlocks: ViewContentBlock[];
 
 }
