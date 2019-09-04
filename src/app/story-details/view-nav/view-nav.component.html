@@ -2,10 +2,9 @@
   <mat-action-list dense>
     <div *ngFor="let viewOption of screenService.viewOptions">
       <mat-list-item
-        (click)="screenService.selectViewScrap(viewOption.id);"
+        (click)="storyService.setViewContent(viewOption);"
       >
-        <b *ngIf="viewOption.id == screenService.currentViewScrapId; else optionSelected">{{viewOption.label}}</b>
-        <ng-template #optionSelected>{{viewOption.label}}</ng-template>
+        {{viewOption.label}}
       </mat-list-item>
     </div>
   </mat-action-list>

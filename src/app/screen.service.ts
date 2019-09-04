@@ -1,6 +1,7 @@
 import {ApplicationRef, Injectable} from '@angular/core';
 import {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
+import ViewContentBlock from './story-details/view-panel-content/ViewContentBlock';
 
 // Service to manage the state of "what screen am I on right now" when logged in
 @Injectable({
@@ -15,6 +16,7 @@ export class ScreenService {
   showViewNav = false;
   showEditNav = false;
 
+  viewContent: ViewContentBlock[] = [];
   viewOptions = [];
   editOptions: EditOption[] = [];
 

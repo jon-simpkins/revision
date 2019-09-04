@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import {ScreenService} from '../../screen.service';
+import {StoryService} from '../../story.service';
 
 @Component({
   selector: 'view-nav',
@@ -9,6 +10,6 @@ import {ScreenService} from '../../screen.service';
 })
 export class ViewNavComponent {
 
-  constructor(public screenService: ScreenService) { }
+  constructor(public screenService: ScreenService, public storyService: StoryService) { }
 
 }

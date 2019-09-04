@@ -75,9 +75,9 @@
           style="border: 1px solid green; flex: 1; padding: 12px;"
           *ngIf="screenService.showViewPanel()"
         >
-          <h3>View Content Placeholder</h3>
-          <p>Here we'll show Scraps that are already written</p>
-          <p>Currently selected Scrap: {{storyService.fetchViewScrap(screenService.currentViewScrapId)}}</p>
+          <view-panel-content
+            [viewContentBlocks]="screenService.viewContent"
+          ></view-panel-content>
         </div>
         <div
           style="border: 1px solid red; flex: 1; padding: 12px;"

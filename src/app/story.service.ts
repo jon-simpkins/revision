@@ -7,6 +7,7 @@ import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentH
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
+import generateChangelog from './story-details/view-panel-content/generateChangelog';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -99,12 +100,8 @@ export class StoryService {
 
       this.screenService.setViewOptions([
         {
-          id: 'abc123',
-          label: 'Title'
-        },
-        {
-          id: 'def456',
-          label: 'Logline'
+          label: 'Changelog',
+          generator: generateChangelog
         }
       ]);
 
@@ -156,6 +153,13 @@ export class StoryService {
         updateCommand
       ]
     );
+  }
+
+  setViewContent(viewOption) {
+    this.screenService.viewContent = viewOption.generator(
+      this.currentStoryScraps
+    );
+    this.appRef.tick();
   }
 
 }
