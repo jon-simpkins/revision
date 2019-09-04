@@ -1,4 +1,5 @@
 import UserEdit from './UserEdit';
+import * as LZString from 'lz-string/libs/lz-string.js';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
@@ -108,9 +109,9 @@ class Scrap {
 
 
   generateSerialization(): string {
-    const ARRAY_CHUNK_LENGTH = 10;
+    const ARRAY_CHUNK_LENGTH = 20;
 
-    let base64Content = btoa(JSON.stringify([
+    let base64Content = LZString.compressToBase64(JSON.stringify([
       this.startedEpoch,
       this.completedEpoch,
       this.editedBy,
@@ -137,7 +138,7 @@ class Scrap {
     serializedContent = serializedContent.replace(matchedHeader[0], '');
     serializedContent = serializedContent.split(' ').join('');
 
-    let jsonContent = JSON.parse(atob(serializedContent));
+    let jsonContent = JSON.parse(LZString.decompressFromBase64(serializedContent));
 
     let newScrap = new Scrap();
 

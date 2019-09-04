@@ -17,8 +17,8 @@ describe('EditOption', () => {
 
   it('Should return more options when more things are finished', () => {
     let scraps = new Map<string, Scrap>();
-    let scrap1 = Scrap.parseSerialization('(1567507283063:1) WzE1Njc1MD cyODMwNjMs MTU2NzUwNz I5NTk1OSwi am9uLnNpbX BraW5zQGdt YWlsLmNvbS IsIntcImxc IjpbXCJNb3 ZpZSAxXCIs XCJUQkRcIi xcIjNyZCBt b3ZpZVwiXX 0iXQ==');
-    let scrap2 = Scrap.parseSerialization('(1567507304667:2) WzE1Njc1MD czMDQ2Njcs MTU2NzUwNz MyMzMyNCwi am9uLnNpbX BraW5zQGdt YWlsLmNvbS IsIntcInRc IjpcIkl0J2 QgYmUgY29v bGVyIGlmIH dlIGNvdWxk IHNlZSB0aG UgbGlzdCBv ZiBzaW1pbG FyIG1vdmll cyBhdCB0aG Ugc2FtZSB0 aW1lIHJpZ2 h0IG5vd1wi fSJd');
+    let scrap1 = Scrap.parseSerialization('(1567593518505:1) NoRgrAbA7GCcDMYQA4wA YIBpzTo+EALCPJgEQBWA 9gHYB0AzgJYC2ADgNZM0 MACA5iwCGTADZ0AxlRZl yAbwA6ZUUoBcwJQElMAA gBKVAEZUALksxKAEkxMS AFuaUAVOwFMdAOVOvjVD koBdAF8yAKA=');
+    let scrap2 = Scrap.parseSerialization('(1567593539785:2) NoRgrAbA7GCcDMZ6ygDj AGnNOjIkQwCIArAewDsA 6AZwEsBbABwGs6KaABAc wYEM6AGyoBjMgyLEA3gB 0iAFzkAuOQFkyANzoBTG gAIA7tr00+Bvez0ALOty smRVsmUGGbg40cPaATsY AmfPLs3HIAvkQAukA===');
 
     scraps.set(scrap1.id, scrap1);
     scraps.set(scrap2.id, scrap2);
