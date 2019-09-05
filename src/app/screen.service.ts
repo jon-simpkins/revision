@@ -2,6 +2,7 @@ import {ApplicationRef, Injectable} from '@angular/core';
 import {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 import ViewContentBlock from './story-details/view-panel-content/ViewContentBlock';
+import ViewOption from '../types/ViewOption';
 
 // Service to manage the state of "what screen am I on right now" when logged in
 @Injectable({
@@ -27,7 +28,7 @@ export class ScreenService {
     this.appRef.tick();
   }
 
-  setViewOptions(options) {
+  setViewOptions(options: ViewOption[]) {
     this.viewOptions = options;
     if (!this.viewOptions.length) {
       // If there are no view options, then insist on edit mode
@@ -37,12 +38,6 @@ export class ScreenService {
 
   setEditOptions(options: EditOption[]) {
     this.editOptions = options;
-  }
-
-  selectViewScrap(scrapId: string) {
-    this.currentViewScrapId = scrapId;
-
-    this.appRef.tick();
   }
 
   setDetailPanelView(newValue, doTick: boolean) {

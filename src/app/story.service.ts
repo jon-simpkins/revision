@@ -7,7 +7,8 @@ import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentH
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
-import generateChangelog from './story-details/view-panel-content/generateChangelog';
+import generateChangelog from '../viewContentGenerators/generateChangelog';
+import ViewOption, {generateAppropriateGenerator} from '../types/ViewOption';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -18,7 +19,6 @@ export class StoryService {
 
   storySummaries: StorySummary[] = [];
   currentId: string = null;
-  currentStoryStr: string = '';
   currentStoryScraps: Map<string, Scrap> = new Map<string, Scrap>();
 
   constructor(private appRef: ApplicationRef, private screenService: ScreenService) {
@@ -80,7 +80,6 @@ export class StoryService {
 
     fetchDoc(id).then((response) => {
       this.currentId = id;
-      this.currentStoryStr = JSON.stringify(response.result, null, 4);
 
       response.result.body.content.forEach((section) => {
         let textContent = null;
@@ -97,23 +96,10 @@ export class StoryService {
       });
 
       this.updateEditOptions();
-
-      this.screenService.setViewOptions([
-        {
-          label: 'Changelog',
-          generator: generateChangelog
-        }
-      ]);
+      this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
 
       this.appRef.tick();
     });
-  }
-
-  fetchViewScrap(scrapId) {
-    if (scrapId === 'abc123') {
-      return 'abc123 (Title)';
-    }
-    return scrapId;
   }
 
   fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype) : ScrapContent {
@@ -146,6 +132,7 @@ export class StoryService {
     this.currentStoryScraps.set(newScrap.id, newScrap);
 
     this.updateEditOptions();
+    this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
 
     return updateBatch(
       this.currentId,
@@ -155,9 +142,10 @@ export class StoryService {
     );
   }
 
-  setViewContent(viewOption) {
-    this.screenService.viewContent = viewOption.generator(
-      this.currentStoryScraps
+  setViewContent(viewOption: ViewOption) {
+    this.screenService.viewContent = generateAppropriateGenerator(viewOption)(
+      this.currentStoryScraps,
+      viewOption.scrapId
     );
     this.appRef.tick();
   }

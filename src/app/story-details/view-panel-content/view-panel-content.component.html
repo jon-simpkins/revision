@@ -8,7 +8,14 @@
         <p>{{block.text}}</p>
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.LIST_ENTRY">
-        <p style="margin-left: 2em;">{{block.text}}</p>
+        <div *ngIf="!!(block.viewOption); else noLinkListEntry">
+          <p style="color: blue; margin-left: 2em; cursor: pointer;"
+            (click)="updateViewContent(block.viewOption)"
+          >{{block.text}}</p>
+        </div>
+        <ng-template #noLinkListEntry>
+          <p style="margin-left: 2em;">{{block.text}}</p>
+        </ng-template>
       </div>
     </div>
   </div>
