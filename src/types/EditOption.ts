@@ -1,6 +1,5 @@
 import Scrap, {ScrapPrototype} from './Scrap';
-
-const SINGULAR_PROTOTYPES = new Set([ScrapPrototype.SIMILAR_MOVIES, ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE]);
+import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
