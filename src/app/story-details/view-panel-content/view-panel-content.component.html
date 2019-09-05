@@ -9,9 +9,9 @@
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.LIST_ENTRY">
         <div *ngIf="!!(block.viewOption); else noLinkListEntry">
-          <p style="color: blue; margin-left: 2em; cursor: pointer;"
+          <button mat-button
             (click)="updateViewContent(block.viewOption)"
-          >{{block.text}}</p>
+          >{{block.text}}</button>
         </div>
         <ng-template #noLinkListEntry>
           <p style="margin-left: 2em;">{{block.text}}</p>

@@ -14,6 +14,10 @@ import {EditHeaderComponent} from './edit-header/edit-header.component';
 import {EditNavComponent} from './edit-nav/edit-nav.component';
 import Scrap, {ScrapPrototype, TextLineContent} from '../../types/Scrap';
 
+import {stubStory001} from '../../stubStoryData/stubStory001';
+
+import {ViewPanelContentComponent} from './view-panel-content/view-panel-content.component';
+
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>';
 
 @Component({
@@ -55,27 +59,25 @@ class StoryDetailsThreeLineEditWithNoViewOptions {
 @Component({
   template: TEMPLATE,
 })
-class StoryDetailsWith2ViewOptions {
+class StoryDetailsWithViewOptions {
   constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
+    // Import the appropriate story scraps
+    storyService.clearStory();
     storyService.currentId = 'myStory1234';
-    screenService.setViewOptions([
-      {
-        id: 'abc123',
-        label: 'My title'
-      },
-      {
-        id: 'def456',
-        label: 'Logline'
-      }
-    ]);
-    //contentEditService.cancelEdit();
+    stubStory001.forEach(line => {
+      let scrap = Scrap.parseSerialization(line.trim());
+
+      storyService.currentStoryScraps.set(scrap.id, scrap);
+    });
+
+    storyService.updateViewEditOptions();
   }
 }
 
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [EditNavComponent, EditHeaderComponent, StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWith2ViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
+      declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
       imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
@@ -89,8 +91,8 @@ storiesOf('Story Details', module)
       component: StoryDetailsThreeLineEditWithNoViewOptions
     }
   })
-  .add('Renders correctly with 2 view options', () => {
+  .add('Renders correctly with a full-fledged story', () => {
     return {
-      component: StoryDetailsWith2ViewOptions
+      component: StoryDetailsWithViewOptions
     };
   });

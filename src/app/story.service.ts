@@ -7,7 +7,6 @@ import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentH
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
-import generateChangelog from '../viewContentGenerators/generateChangelog';
 import ViewOption, {generateAppropriateGenerator} from '../types/ViewOption';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
@@ -95,11 +94,14 @@ export class StoryService {
         } catch(e) {}
       });
 
-      this.updateEditOptions();
-      this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
-
+      this.updateViewEditOptions();
       this.appRef.tick();
     });
+  }
+
+  updateViewEditOptions() {
+    this.updateEditOptions();
+    this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
   }
 
   fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype) : ScrapContent {
@@ -131,8 +133,7 @@ export class StoryService {
 
     this.currentStoryScraps.set(newScrap.id, newScrap);
 
-    this.updateEditOptions();
-    this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
+    this.updateViewEditOptions();
 
     return updateBatch(
       this.currentId,

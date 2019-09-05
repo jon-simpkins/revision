@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import ViewContentBlock, {ViewContentBlockType} from './ViewContentBlock';
 import ViewOption from '../../../types/ViewOption';
-import {ScreenService} from '../../screen.service';
 import {StoryService} from '../../story.service';
 
 @Component({
