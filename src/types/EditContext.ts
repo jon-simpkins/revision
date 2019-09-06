@@ -23,6 +23,8 @@ class EditContext {
         return new EditContext(EditType.THREE_LINES, 'Similar Movies');
       case ScrapPrototype.LOG_LINE:
         return new EditContext(EditType.TEXT_AREA, 'Log Line');
+      case ScrapPrototype.TIME_FRAME:
+        return new EditContext(EditType.TEXT_LINE, 'Time Frame');
     }
   }
 }

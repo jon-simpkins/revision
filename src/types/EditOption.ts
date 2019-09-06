@@ -3,7 +3,8 @@ import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
-SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.SIMILAR_MOVIES, ScrapPrototype.LOG_LINE]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.SIMILAR_MOVIES]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
 
 class EditOption {
   prototype: ScrapPrototype;
@@ -96,7 +97,7 @@ class EditOption {
   }
 
   // Function to fetch header text for list
-  getHeader() : string {
+  getHeader(): string {
     switch (this.prototype) {
       case ScrapPrototype.MOVIE_TITLE:
         return 'Movie Title';
@@ -104,6 +105,8 @@ class EditOption {
         return 'Log Line';
       case ScrapPrototype.SIMILAR_MOVIES:
         return 'Similar Movies';
+      case ScrapPrototype.TIME_FRAME:
+        return 'Time Frame';
     }
   }
 }

@@ -80,13 +80,17 @@ export class ContentEditService {
     newScrap.content = this.currentContent;
     newScrap.startedEpoch = this.editStartEpoch;
     newScrap.completedEpoch = Date.now();
-    newScrap.editedBy = this.loginGateService.loggedInEmail;
+    newScrap.editedBy = this.getCurrentUserEmail();
 
     this.storyService.updateScrap(
       newScrap
     ).then(() => {
       this.cancelEdit();
     });
+  }
+
+  getCurrentUserEmail(): string {
+    return this.loginGateService.loggedInEmail;
   }
 
 }

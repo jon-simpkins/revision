@@ -2,7 +2,7 @@ import Scrap, {ScrapPrototype} from '../types/Scrap';
 import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption from '../types/ViewOption';
 
-const RELEVANT_PROTOTYPES = new Set([ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE, ScrapPrototype.SIMILAR_MOVIES]);
+const RELEVANT_PROTOTYPES = new Set([ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE, ScrapPrototype.TIME_FRAME, ScrapPrototype.SIMILAR_MOVIES]);
 
 function getLatestScrapsByPrototype(scraps: Map<string, Scrap>, relevantPrototypes: Set<ScrapPrototype>): Map<ScrapPrototype, Scrap> {
   let scrapsByPrototype = new Map <ScrapPrototype, Scrap>();
@@ -45,6 +45,12 @@ function generateStorySummaryPage(scraps: Map <string, Scrap>): ViewContentBlock
     logLine.forEach(paragraph => {
       blocks.push(buildParagraph(paragraph));
     });
+  }
+
+  if (scrapsByPrototype.has(ScrapPrototype.TIME_FRAME)) {
+    let timeFrameScrap = scrapsByPrototype.get(ScrapPrototype.TIME_FRAME);
+    blocks.push(buildHeader('Time Frame:', ViewOption.detailsForScrap(timeFrameScrap)));
+    blocks.push(buildParagraph(timeFrameScrap.content.text));
   }
 
   if (scrapsByPrototype.has(ScrapPrototype.SIMILAR_MOVIES)) {

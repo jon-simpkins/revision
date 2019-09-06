@@ -26,6 +26,9 @@ const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+
 })
 class StoryDetailsBlankSlate {
   constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService, storybookService: StorybookService) {
+    contentEditService.getCurrentUserEmail = () => {
+      return 'dummy.user@gmail.com';
+    };
     storybookService.isInStorybook = true;
     storyService.clearStory();
     storyService.currentId = 'myStory1234';
@@ -42,6 +45,9 @@ class StoryDetailsBlankSlate {
 class StoryDetailsWithViewOptions {
   constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService, storybookService: StorybookService) {
     // Import the appropriate story scraps
+    contentEditService.getCurrentUserEmail = () => {
+      return 'dummy.user@gmail.com';
+    };
     storybookService.isInStorybook = true;
     storyService.clearStory();
     storyService.currentId = 'myStory1234';

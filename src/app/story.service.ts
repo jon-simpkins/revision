@@ -137,6 +137,9 @@ export class StoryService {
     this.updateViewEditOptions();
 
     if (this.storybookService.isInStorybook) {
+      console.log('Serialization to update:');
+      console.log(newSerialized);
+      console.log('');
       return Promise.resolve(true); // If in storybook, don't sync with google docs
     }
 

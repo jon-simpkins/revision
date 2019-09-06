@@ -5,6 +5,7 @@ enum ScrapPrototype {
   MOVIE_TITLE,
   SIMILAR_MOVIES,
   LOG_LINE,
+  TIME_FRAME,
 }
 
 enum ScrapContentType {
@@ -158,6 +159,7 @@ class Scrap {
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
       case ScrapPrototype.LOG_LINE:
+      case ScrapPrototype.TIME_FRAME:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
         return ScrapContentType.THREE_LINES;
