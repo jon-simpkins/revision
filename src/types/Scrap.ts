@@ -13,6 +13,8 @@ enum ScrapContentType {
 }
 
 abstract class ScrapContent {
+  text: string = '';
+  textLines: string[] = [];
 
   abstract toString(): string;
 
