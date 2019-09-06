@@ -7,16 +7,9 @@ import ViewContentBlock, {
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
+import EditOption from '../types/EditOption';
 
-function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string): ViewContentBlock[] {
-  let blocks = [];
-
-  blocks.push(buildHeader('Scrap Details'));
-
-  let relevantScrap = scraps.get(scrapId);
-
-  blocks.push(buildListEntry(`Created by ${relevantScrap.editedBy} on ${new Date(relevantScrap.completedEpoch).toLocaleString()}`));
-
+function fetchNexPrevIterations(relevantScrap: Scrap, scraps: Map <string, Scrap>) {
   let previousScrap: Scrap = null;
   let nextScrap: Scrap = null;
   if (SINGULAR_PROTOTYPES.has(relevantScrap.prototype)) {
@@ -44,14 +37,34 @@ function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string):
     });
   }
 
+  return [previousScrap, nextScrap];
+}
+
+function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string): ViewContentBlock[] {
+  let blocks = [];
+
+  let relevantScrap = scraps.get(scrapId);
+  let prevNextScraps = fetchNexPrevIterations(relevantScrap, scraps);
+
+  let editOption : EditOption = null;
+  if (!prevNextScraps[1]) {
+    // If there is no next iteration of the scrap, then include the edit button
+    editOption = EditOption.buildFromScrap(relevantScrap);
+  }
+  blocks.push(buildHeader('Scrap Details', null, editOption));
+
+  blocks.push(buildListEntry(`Created by ${relevantScrap.editedBy} on ${new Date(relevantScrap.completedEpoch).toLocaleString()}`));
+
   blocks.push(buildNexPrevNav(
     'Iteration',
-    nextScrap ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, nextScrap.id) : null,
-    previousScrap ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, previousScrap.id) : null
+    prevNextScraps[1] ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, prevNextScraps[1].id) : null,
+    prevNextScraps[0] ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, prevNextScraps[0].id) : null
   ));
 
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));
+
+  console.log(blocks);
 
   return blocks;
 }

@@ -17,42 +17,22 @@ import Scrap, {ScrapPrototype, TextLineContent} from '../../types/Scrap';
 import {stubStory001} from '../../stubStoryData/stubStory001';
 
 import {ViewPanelContentComponent} from './view-panel-content/view-panel-content.component';
+import {StorybookService} from '../storybook.service';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>';
 
 @Component({
   template: TEMPLATE,
 })
-class StoryDetailsWithNoViewOptions {
-  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
-    screenService.setViewOptions([]);
+class StoryDetailsBlankSlate {
+  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService, storybookService: StorybookService) {
+    storybookService.isInStorybook = true;
+    storyService.clearStory();
     storyService.currentId = 'myStory1234';
-    storyService.currentStoryScraps = new Map<string, Scrap>();
 
-    let myScrap = new Scrap();
-    myScrap.content = new TextLineContent('Godfather 4');
-    myScrap.prototype = ScrapPrototype.MOVIE_TITLE;
+    // Notably, don't create any scraps
 
-    storyService.currentStoryScraps.set('abc123', myScrap);
-
-    contentEditService.startEdit(
-      'abc123',
-      ScrapPrototype.MOVIE_TITLE
-    );
-  }
-}
-
-@Component({
-  template: TEMPLATE,
-})
-class StoryDetailsThreeLineEditWithNoViewOptions {
-  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
-    screenService.setViewOptions([]);
-    storyService.currentId = 'myStory1234';
-    contentEditService.startEdit(
-      'abc123',
-      ScrapPrototype.SIMILAR_MOVIES
-    );
+    storyService.updateViewEditOptions();
   }
 }
 
@@ -60,8 +40,9 @@ class StoryDetailsThreeLineEditWithNoViewOptions {
   template: TEMPLATE,
 })
 class StoryDetailsWithViewOptions {
-  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService) {
+  constructor(screenService: ScreenService, contentEditService: ContentEditService, storyService: StoryService, storybookService: StorybookService) {
     // Import the appropriate story scraps
+    storybookService.isInStorybook = true;
     storyService.clearStory();
     storyService.currentId = 'myStory1234';
     stubStory001.forEach(line => {
@@ -77,19 +58,14 @@ class StoryDetailsWithViewOptions {
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsThreeLineEditWithNoViewOptions, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent, StoryDetailsWithNoViewOptions],
+      declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsBlankSlate, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent],
       imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
-  ).add('Renders correctly with no view options', () => {
+  ).add('Renders correctly with a blank slate', () => {
     return {
-      component: StoryDetailsWithNoViewOptions
+      component: StoryDetailsBlankSlate
     };
-  })
-  .add('Renders correctly with 3-line edit', () => {
-    return {
-      component: StoryDetailsThreeLineEditWithNoViewOptions
-    }
   })
   .add('Renders correctly with a full-fledged story', () => {
     return {

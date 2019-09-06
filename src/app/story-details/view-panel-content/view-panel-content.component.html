@@ -11,6 +11,13 @@
           >
             <mat-icon>double_arrow</mat-icon>
           </button>
+          <button
+            *ngIf="block.editOption"
+            mat-button
+            (click)="initiateEdit(block.editOption)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         </h3>
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">

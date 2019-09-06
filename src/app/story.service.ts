@@ -8,6 +8,7 @@ import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 import ViewOption, {generateAppropriateGenerator} from '../types/ViewOption';
+import {StorybookService} from './storybook.service';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -20,7 +21,7 @@ export class StoryService {
   currentId: string = null;
   currentStoryScraps: Map<string, Scrap> = new Map<string, Scrap>();
 
-  constructor(private appRef: ApplicationRef, private screenService: ScreenService) {
+  constructor(private appRef: ApplicationRef, private screenService: ScreenService, private storybookService: StorybookService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
       this.storySummaries = JSON.parse(localStorage.getItem(STORY_SUMMARIES_KEY))
         .map(StorySummary.buildFromJSON);
@@ -134,6 +135,10 @@ export class StoryService {
     this.currentStoryScraps.set(newScrap.id, newScrap);
 
     this.updateViewEditOptions();
+
+    if (this.storybookService.isInStorybook) {
+      return Promise.resolve(true); // If in storybook, don't sync with google docs
+    }
 
     return updateBatch(
       this.currentId,

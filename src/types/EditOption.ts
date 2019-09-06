@@ -11,18 +11,6 @@ class EditOption {
   iterations: number; // How many times as this scrap been iterated on?
   lastEdited: number; // Epoch of last edit
 
-  // Function to fetch header text for list
-  getHeader() : string {
-    switch (this.prototype) {
-      case ScrapPrototype.MOVIE_TITLE:
-        return 'Movie Title';
-      case ScrapPrototype.LOG_LINE:
-        return 'Log Line';
-      case ScrapPrototype.SIMILAR_MOVIES:
-        return 'Similar Movies';
-    }
-  }
-
   static buildOptions(scraps: Map<string, Scrap>): EditOption[] {
     let allOptions = [];
 
@@ -97,6 +85,26 @@ class EditOption {
 
     let randomIdx = Math.floor(Math.random() * options.length);
     return options[randomIdx];
+  }
+
+  static buildFromScrap(scrap: Scrap): EditOption {
+    let editOption = new EditOption();
+    editOption.prototype = scrap.prototype;
+    editOption.scrapId = scrap.id;
+
+    return editOption;
+  }
+
+  // Function to fetch header text for list
+  getHeader() : string {
+    switch (this.prototype) {
+      case ScrapPrototype.MOVIE_TITLE:
+        return 'Movie Title';
+      case ScrapPrototype.LOG_LINE:
+        return 'Log Line';
+      case ScrapPrototype.SIMILAR_MOVIES:
+        return 'Similar Movies';
+    }
   }
 }
 
