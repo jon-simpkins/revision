@@ -64,8 +64,6 @@ function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string):
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));
 
-  console.log(blocks);
-
   return blocks;
 }
 
