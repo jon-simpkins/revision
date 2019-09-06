@@ -21,8 +21,8 @@ class ViewContentBlock {
   }
 }
 
-function buildHeader(text) :ViewContentBlock {
-  return new ViewContentBlock(ViewContentBlockType.HEADER, text);
+function buildHeader(text, viewOption?: ViewOption) :ViewContentBlock {
+  return new ViewContentBlock(ViewContentBlockType.HEADER, text, viewOption);
 }
 
 function buildParagraph(text) :ViewContentBlock {

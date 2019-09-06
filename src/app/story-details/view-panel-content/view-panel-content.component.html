@@ -2,7 +2,16 @@
   <div *ngFor="let block of viewContentBlocks">
     <div [ngSwitch]="block.type">
       <div *ngSwitchCase="viewContentBlockTypes.HEADER">
-        <h3>{{block.text}}</h3>
+        <h3>
+          {{block.text}}
+          <button
+            *ngIf="block.viewOption"
+            mat-button
+            (click)="updateViewContent(block.viewOption)"
+          >
+            <mat-icon>double_arrow</mat-icon>
+          </button>
+        </h3>
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
         <p>{{block.text}}</p>

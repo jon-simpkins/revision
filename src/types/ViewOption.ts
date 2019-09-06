@@ -47,6 +47,10 @@ class ViewOption {
 
     return options;
   }
+
+  static detailsForScrap(scrap: Scrap) {
+    return new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, scrap.id);
+  }
 }
 
 export {ViewOptionGenerators};

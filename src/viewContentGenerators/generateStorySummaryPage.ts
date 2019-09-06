@@ -1,5 +1,6 @@
 import Scrap, {ScrapPrototype} from '../types/Scrap';
 import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewOption from '../types/ViewOption';
 
 const RELEVANT_PROTOTYPES = new Set([ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE, ScrapPrototype.SIMILAR_MOVIES]);
 
@@ -28,24 +29,28 @@ function generateStorySummaryPage(scraps: Map <string, Scrap>): ViewContentBlock
   blocks.push(buildHeader('Story Summary'));
 
   let title = 'Untitled Film';
+  let titleViewOption = null;
   if (scrapsByPrototype.has(ScrapPrototype.MOVIE_TITLE)) {
     title = scrapsByPrototype.get(ScrapPrototype.MOVIE_TITLE).content.text;
+    titleViewOption = ViewOption.detailsForScrap(scrapsByPrototype.get(ScrapPrototype.MOVIE_TITLE));
   }
 
 
-  blocks.push(buildHeader(`Title: ${title}`));
+  blocks.push(buildHeader(`Title: ${title}`, titleViewOption));
 
   if (scrapsByPrototype.has(ScrapPrototype.LOG_LINE)) {
-    blocks.push(buildHeader('Log Line:'));
-    let logLine = scrapsByPrototype.get(ScrapPrototype.LOG_LINE).content.text.split('\n');
+    let logLineScrap = scrapsByPrototype.get(ScrapPrototype.LOG_LINE);
+    blocks.push(buildHeader('Log Line:', ViewOption.detailsForScrap(logLineScrap)));
+    let logLine = logLineScrap.content.text.split('\n');
     logLine.forEach(paragraph => {
       blocks.push(buildParagraph(paragraph));
     });
   }
 
   if (scrapsByPrototype.has(ScrapPrototype.SIMILAR_MOVIES)) {
-    blocks.push(buildHeader('Similar Movies:'));
-    let similarMovies = scrapsByPrototype.get(ScrapPrototype.SIMILAR_MOVIES).content.textLines;
+    let similarMovieScrap = scrapsByPrototype.get(ScrapPrototype.SIMILAR_MOVIES);
+    blocks.push(buildHeader('Similar Movies:', ViewOption.detailsForScrap(similarMovieScrap)));
+    let similarMovies = similarMovieScrap.content.textLines;
     similarMovies.forEach(similarMovie => {
       blocks.push(buildListEntry(similarMovie));
     });
