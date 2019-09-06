@@ -1,5 +1,10 @@
 import Scrap from '../types/Scrap';
-import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewContentBlock, {
+  buildHeader,
+  buildListEntry,
+  buildNexPrevNav,
+  buildParagraph
+} from '../app/story-details/view-panel-content/ViewContentBlock';
 import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 
@@ -39,12 +44,11 @@ function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string):
     });
   }
 
-  if (previousScrap) {
-    blocks.push(buildListEntry('See Previous Iteration', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, previousScrap.id)));
-  }
-  if (nextScrap) {
-    blocks.push(buildListEntry('See Next Iteration', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, nextScrap.id)));
-  }
+  blocks.push(buildNexPrevNav(
+    'Iteration',
+    nextScrap ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, nextScrap.id) : null,
+    previousScrap ? new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, previousScrap.id) : null
+  ));
 
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));

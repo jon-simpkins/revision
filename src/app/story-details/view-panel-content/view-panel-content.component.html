@@ -17,6 +17,16 @@
           <p style="margin-left: 2em;">{{block.text}}</p>
         </ng-template>
       </div>
+      <div *ngSwitchCase="viewContentBlockTypes.NEXT_PREV_NAV">
+        <button mat-button
+          [disabled]="!block.prevOption"
+          (click)="updateViewContent(block.prevOption)"
+        >Prev {{block.text}}</button>
+        <button mat-button
+          [disabled]="!block.viewOption"
+          (click)="updateViewContent(block.viewOption)"
+        >Next {{block.text}}</button>
+      </div>
     </div>
   </div>
 </div>
