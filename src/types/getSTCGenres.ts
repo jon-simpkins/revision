@@ -61,4 +61,14 @@ const STC_GENRES = [
   )
 ];
 
-export {STC_GENRES, MultiOption};
+function getOptionFromValue(value: string): MultiOption {
+  for (let i = 0; i < STC_GENRES.length; i++) {
+    if (STC_GENRES[i].value === value) {
+      return STC_GENRES[i];
+    }
+  }
+
+  return null;
+}
+
+export {STC_GENRES, MultiOption, getOptionFromValue};

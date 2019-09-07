@@ -86,4 +86,12 @@ storiesOf('View Panel Content', module)
         viewOption: new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, '1567593539785')
       }
     }
-  });
+  }).add('Renders STC Story Summary', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.STC_SUMMARY, null, null)
+      }
+    }
+  })
+;

@@ -1,25 +1,15 @@
 import Scrap, {ScrapPrototype} from '../types/Scrap';
-import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewContentBlock, {
+  buildHeader,
+  buildListEntry,
+  buildParagraph,
+  buildParagraphsFromTextArea
+} from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption from '../types/ViewOption';
 
+import {getLatestScrapsByPrototype} from './getLatestScrapsByPrototype';
+
 const RELEVANT_PROTOTYPES = new Set([ScrapPrototype.MOVIE_TITLE, ScrapPrototype.LOG_LINE, ScrapPrototype.TIME_FRAME, ScrapPrototype.SIMILAR_MOVIES]);
-
-function getLatestScrapsByPrototype(scraps: Map<string, Scrap>, relevantPrototypes: Set<ScrapPrototype>): Map<ScrapPrototype, Scrap> {
-  let scrapsByPrototype = new Map <ScrapPrototype, Scrap>();
-
-  scraps.forEach((scrap) => {
-    if (!relevantPrototypes.has(scrap.prototype)) {
-      return; // Move on, not relevant
-    }
-
-    // Only take if it's newer or if it's the first one of prototype we've encountered
-    if (!scrapsByPrototype.has(scrap.prototype) || (scrap.completedEpoch > scrapsByPrototype.get(scrap.prototype).completedEpoch)) {
-      scrapsByPrototype.set(scrap.prototype, scrap);
-    }
-  });
-
-  return scrapsByPrototype;
-}
 
 function generateStorySummaryPage(scraps: Map <string, Scrap>): ViewContentBlock[] {
 
@@ -41,10 +31,7 @@ function generateStorySummaryPage(scraps: Map <string, Scrap>): ViewContentBlock
   if (scrapsByPrototype.has(ScrapPrototype.LOG_LINE)) {
     let logLineScrap = scrapsByPrototype.get(ScrapPrototype.LOG_LINE);
     blocks.push(buildHeader('Log Line:', ViewOption.detailsForScrap(logLineScrap)));
-    let logLine = logLineScrap.content.text.split('\n');
-    logLine.forEach(paragraph => {
-      blocks.push(buildParagraph(paragraph));
-    });
+    blocks = buildParagraphsFromTextArea(logLineScrap.content.text, blocks);
   }
 
   if (scrapsByPrototype.has(ScrapPrototype.TIME_FRAME)) {

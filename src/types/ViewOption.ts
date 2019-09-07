@@ -1,6 +1,7 @@
 import Scrap from './Scrap';
 import {canCreateStorySummary} from '../viewContentGenerators/generateStorySummaryPage';
 import {ViewOptionGenerators} from '../viewContentGenerators/viewContentGenerators';
+import {canCreateSTCStorySummary} from '../viewContentGenerators/generateSTCSummaryPage';
 
 class ViewOption {
   generatorSpec: ViewOptionGenerators;
@@ -20,6 +21,9 @@ class ViewOption {
     }
     if (canCreateStorySummary(scraps)) {
       options.push(new ViewOption(ViewOptionGenerators.STORY_SUMMARY, 'Story Summary', null));
+    }
+    if (canCreateSTCStorySummary(scraps)) {
+      options.push(new ViewOption(ViewOptionGenerators.STC_SUMMARY, 'STC Summary', null));
     }
 
     return options;

@@ -32,6 +32,14 @@ function buildParagraph(text): ViewContentBlock {
   return new ViewContentBlock(ViewContentBlockType.PARAGRAPH, text);
 }
 
+function buildParagraphsFromTextArea(text: string, viewContent: ViewContentBlock[]): ViewContentBlock[] {
+  text.split('\n').forEach(line => {
+    viewContent.push(buildParagraph(line));
+  });
+
+  return viewContent;
+}
+
 function buildListEntry(text: string, viewOption?: ViewOption): ViewContentBlock {
   return new ViewContentBlock(ViewContentBlockType.LIST_ENTRY, text, viewOption);
 }
@@ -42,6 +50,6 @@ function buildNexPrevNav(label: string, nextOption ?: ViewOption, prevOption ?: 
   return block;
 }
 
-export {ViewContentBlockType, buildHeader, buildParagraph, buildListEntry, buildNexPrevNav};
+export {ViewContentBlockType, buildHeader, buildParagraph, buildParagraphsFromTextArea, buildListEntry, buildNexPrevNav};
 
 export default ViewContentBlock;
