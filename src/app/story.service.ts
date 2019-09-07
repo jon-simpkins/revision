@@ -7,7 +7,8 @@ import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentH
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
-import ViewOption, {generateAppropriateGenerator} from '../types/ViewOption';
+import ViewOption from '../types/ViewOption';
+import {generateAppropriateGenerator} from '../viewContentGenerators/viewContentGenerators';
 import {StorybookService} from './storybook.service';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';

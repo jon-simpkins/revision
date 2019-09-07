@@ -1,29 +1,6 @@
-import generateChangelog from '../viewContentGenerators/generateChangelog';
-import generateViewScrapDetails from '../viewContentGenerators/generateViewScrapDetails';
-import ViewContentBlock from '../app/story-details/view-panel-content/ViewContentBlock';
 import Scrap from './Scrap';
-import generateStorySummaryPage, {canCreateStorySummary} from '../viewContentGenerators/generateStorySummaryPage';
-
-enum ViewOptionGenerators {
-  CHANGELOG,
-  SCRAP_DETAILS,
-  STORY_SUMMARY,
-}
-
-export interface ViewContentGeneratorFunction {
-  (scraps: Map<string, Scrap>, scrapId: string): ViewContentBlock[];
-}
-
-export function generateAppropriateGenerator(viewOption: ViewOption): ViewContentGeneratorFunction {
-  switch (viewOption.generatorSpec) {
-    case ViewOptionGenerators.CHANGELOG:
-      return generateChangelog;
-    case ViewOptionGenerators.SCRAP_DETAILS:
-      return generateViewScrapDetails;
-    case ViewOptionGenerators.STORY_SUMMARY:
-      return generateStorySummaryPage;
-  }
-}
+import {canCreateStorySummary} from '../viewContentGenerators/generateStorySummaryPage';
+import {ViewOptionGenerators} from '../viewContentGenerators/viewContentGenerators';
 
 class ViewOption {
   generatorSpec: ViewOptionGenerators;
