@@ -33,5 +33,28 @@
       </div>
     </form>
   </div>
+  <div *ngSwitchCase="editTypes.MULTI_CHOICE">
+    <form style="padding: 12px;">
+      <h3>{{editContext.headerPrompt}}:</h3>
+
+      <mat-form-field>
+        <mat-label>Select an option</mat-label>
+        <mat-select
+          [(value)]="editContent.text"
+          (valueChange)="sendPlaintextEdit($event)"
+        >
+          <mat-option
+            *ngFor="let option of editContext.multiOptions;"
+            [value]="option.value"
+          >
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <p>{{getDesc(editContent.text)}}</p>
+
+    </form>
+  </div>
   <div *ngSwitchDefault>Unknown content type!</div>
 </div>

@@ -25,4 +25,16 @@ export class EditPanelContentComponent {
   sendIndexedTextEdit(update: string, idx: number) {
     this.contentEditService.receiveEdit(new UserEdit(update, idx));
   }
+
+  getDesc(value: string) {
+    let desc = '';
+
+    this.editContext.multiOptions.forEach(option => {
+      if (option.value === value) {
+        desc = option.desc;
+      }
+    });
+
+    return desc;
+  }
 }

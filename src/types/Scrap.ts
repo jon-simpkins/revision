@@ -6,6 +6,8 @@ enum ScrapPrototype {
   SIMILAR_MOVIES,
   LOG_LINE,
   TIME_FRAME,
+  STC_GENRE,
+  STC_GENRE_EXPLANATION,
 }
 
 enum ScrapContentType {
@@ -14,7 +16,7 @@ enum ScrapContentType {
 }
 
 abstract class ScrapContent {
-  text: string = '';
+  text = '';
   textLines: string[] = [];
 
   abstract toString(): string;
@@ -25,7 +27,7 @@ abstract class ScrapContent {
 }
 
 class TextLineContent extends ScrapContent {
-  text: string = '';
+  text = '';
 
   constructor(text?: string) {
     super();
@@ -160,6 +162,8 @@ class Scrap {
       case ScrapPrototype.MOVIE_TITLE:
       case ScrapPrototype.LOG_LINE:
       case ScrapPrototype.TIME_FRAME:
+      case ScrapPrototype.STC_GENRE:
+      case ScrapPrototype.STC_GENRE_EXPLANATION:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
         return ScrapContentType.THREE_LINES;

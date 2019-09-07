@@ -1,7 +1,15 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatListModule, MatToolbarModule} from '@angular/material';
+import {
+  MatButtonModule,
+  MatFormFieldModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatSelectModule,
+  MatToolbarModule
+} from '@angular/material';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
 import {ScrapPrototype, TextLineContent, ThreeLineContent} from '../../types/Scrap';
 import EditContext from '../../types/EditContext';
@@ -31,6 +39,16 @@ const EXAMPLE_TYPES = [
       'The Dark Knight'
     ])
   },
+  {
+    storyName: 'STC Genre',
+    prototype: ScrapPrototype.STC_GENRE,
+    content: new TextLineContent()
+  },
+  {
+    storyName: 'STC Genre Explanation',
+    prototype: ScrapPrototype.STC_GENRE_EXPLANATION,
+    content: new TextLineContent()
+  }
 ];
 
 
@@ -38,7 +56,7 @@ let editStoryModule = storiesOf('Edit Panel Content', module)
   .addDecorator(
     moduleMetadata({
       declarations: [EditPanelContentComponent],
-      imports: [MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
+      imports: [MatSelectModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
       providers: [],
     })
   );

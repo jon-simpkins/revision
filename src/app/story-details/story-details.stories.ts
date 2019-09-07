@@ -1,7 +1,15 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import {MatButtonModule} from '@angular/material/button';
-import {MatFormFieldModule, MatIconModule, MatInputModule, MatListModule, MatSidenavModule, MatToolbarModule} from '@angular/material';
+import {
+  MatFormFieldModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatToolbarModule
+} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
 import {StoryDetailsComponent} from './story-details.component';
@@ -65,7 +73,7 @@ storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
       declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsBlankSlate, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent],
-      imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
+      imports: [MatSelectModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
   ).add('Renders correctly with a blank slate', () => {
