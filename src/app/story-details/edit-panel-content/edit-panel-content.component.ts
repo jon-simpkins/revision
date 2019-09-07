@@ -3,6 +3,8 @@ import {ContentEditService} from '../../content-edit.service';
 import UserEdit from '../../../types/UserEdit';
 import EditContext, {EditType} from '../../../types/EditContext';
 import {TextLineContent, ThreeLineContent} from '../../../types/Scrap';
+import ViewOption from '../../../types/ViewOption';
+import {StoryService} from '../../story.service';
 
 @Component({
   selector: 'edit-panel-content',
@@ -16,7 +18,7 @@ export class EditPanelContentComponent {
 
   editTypes = EditType; // Allow the template to see the enum
 
-  constructor(private contentEditService: ContentEditService) { }
+  constructor(private contentEditService: ContentEditService, private storyService: StoryService) { }
 
   sendPlaintextEdit(update: string) {
     this.contentEditService.receiveEdit(new UserEdit(update, null));
@@ -36,5 +38,9 @@ export class EditPanelContentComponent {
     });
 
     return desc;
+  }
+
+  requestView(viewOption: ViewOption) {
+    this.storyService.setViewContent(viewOption);
   }
 }

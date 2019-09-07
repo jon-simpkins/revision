@@ -58,3 +58,13 @@
   </div>
   <div *ngSwitchDefault>Unknown content type!</div>
 </div>
+<div *ngIf="editContext.viewOptions">
+  <h4>Reference Content:</h4>
+  <mat-action-list>
+    <mat-list-item *ngFor="let option of editContext.viewOptions"
+      (click)="requestView(option)"
+    >
+      {{option.label}}
+    </mat-list-item>
+  </mat-action-list>
+</div>

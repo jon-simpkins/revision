@@ -8,6 +8,7 @@ import ViewContentBlock, {
 import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
+import EditContext from '../types/EditContext';
 
 function fetchNexPrevIterations(relevantScrap: Scrap, scraps: Map <string, Scrap>) {
   let previousScrap: Scrap = null;
@@ -40,6 +41,11 @@ function fetchNexPrevIterations(relevantScrap: Scrap, scraps: Map <string, Scrap
   return [previousScrap, nextScrap];
 }
 
+// Convenience function to build the relevant list of views for this scrap (identical to what would show in the bottom of the edit panel)
+function fetchRelevantViews(scrap: Scrap): ViewOption[] {
+  return EditContext.fromPrototype(scrap.prototype).viewOptions;
+}
+
 function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string): ViewContentBlock[] {
   let blocks = [];
 
@@ -63,6 +69,14 @@ function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string):
 
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));
+
+  const relevantViews = fetchRelevantViews(relevantScrap);
+  if (relevantViews && relevantViews.length) {
+    blocks.push(buildHeader('Related Content'));
+    relevantViews.forEach(view => {
+      blocks.push(buildListEntry(view.label, view));
+    });
+  }
 
   return blocks;
 }
