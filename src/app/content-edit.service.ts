@@ -1,10 +1,13 @@
 import {ApplicationRef, Injectable} from '@angular/core';
 
+import * as uuid from 'uuid/v4';
+
 import {StoryService} from './story.service';
-import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
+import Scrap, {ScrapPrototype} from '../types/Scrap';
 import EditContext from '../types/EditContext';
 import UserEdit from '../types/UserEdit';
 import {LoginGateService} from './login-gate.service';
+import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
 
 // A service for tracking the current editing state of a Scrap
 @Injectable({
@@ -28,11 +31,11 @@ export class ContentEditService {
     }, 1000);
   }
 
-  getElapsedTimeStr() : string {
+  getElapsedTimeStr(): string {
     let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
 
-    let minElapsed = Math.floor(secElapsed / 60);
-    secElapsed -= (60*minElapsed);
+    const minElapsed = Math.floor(secElapsed / 60);
+    secElapsed -= (60 * minElapsed);
 
     let outputStr = '';
     if (minElapsed < 10) {
@@ -49,7 +52,7 @@ export class ContentEditService {
   }
 
   startEdit(scrapId: string, prototype: ScrapPrototype) {
-    this.currentScrapId = String(Date.now()); // Maintain every edit as unique
+    this.currentScrapId = uuid(); // Maintain every edit as unique
     this.editPrototype = prototype;
 
     this.editContext = EditContext.fromPrototype(prototype);

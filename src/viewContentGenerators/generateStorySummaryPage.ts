@@ -43,9 +43,11 @@ function generateStorySummaryPage(scraps: Map <string, Scrap>): ViewContentBlock
   if (scrapsByPrototype.has(ScrapPrototype.SIMILAR_MOVIES)) {
     let similarMovieScrap = scrapsByPrototype.get(ScrapPrototype.SIMILAR_MOVIES);
     blocks.push(buildHeader('Similar Movies:', ViewOption.detailsForScrap(similarMovieScrap)));
-    let similarMovies = similarMovieScrap.content.textLines;
+    let similarMovies = similarMovieScrap.content.lines;
     similarMovies.forEach(similarMovie => {
-      blocks.push(buildListEntry(similarMovie));
+      if (similarMovie.active) {
+        blocks.push(buildListEntry(similarMovie.text));
+      }
     });
   }
 

@@ -1,5 +1,7 @@
 import UserEdit from './UserEdit';
 import * as LZString from 'lz-string/libs/lz-string.js';
+import {NLineContent} from './ScrapTypes/NLineContent';
+import { ScrapContent } from './ScrapTypes/ScrapContent';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
@@ -12,18 +14,7 @@ enum ScrapPrototype {
 
 enum ScrapContentType {
   TEXT_LINE,
-  THREE_LINES,
-}
-
-abstract class ScrapContent {
-  text = '';
-  textLines: string[] = [];
-
-  abstract toString(): string;
-
-  abstract clone(): ScrapContent;
-
-  abstract receiveEdit(userEdit: UserEdit);
+  N_LINES,
 }
 
 class TextLineContent extends ScrapContent {
@@ -62,41 +53,7 @@ class TextLineContent extends ScrapContent {
   }
 }
 
-class ThreeLineContent extends ScrapContent {
-  textLines: string[];
 
-  constructor(textLines ?: string[]) {
-    super();
-
-    this.textLines = textLines ? textLines : ['', '', ''];
-  }
-
-  toString() {
-    return JSON.stringify({l: this.textLines});
-  }
-
-  static parse(stringified: string): ThreeLineContent {
-    let retVal = new ThreeLineContent();
-
-    if (!stringified) {
-      return retVal;
-    }
-
-    retVal.textLines = JSON.parse(stringified).l;
-
-    return retVal;
-  }
-
-  clone(): ThreeLineContent {
-    let newContent = new ThreeLineContent();
-    newContent.textLines = JSON.parse(JSON.stringify(this.textLines))
-    return newContent;
-  }
-
-  receiveEdit(userEdit: UserEdit) {
-    this.textLines[userEdit.idx] = userEdit.textValue;
-  }
-}
 
 // Class for individual story scraps
 class Scrap {
@@ -131,8 +88,8 @@ class Scrap {
     return `(${this.id}:${this.prototype}) ${contentArray.join(' ')}`;
   }
 
-  static parseSerialization(serializedContent: string) : Scrap | null {
-    const LINE_REGEX = /\(([a-zA-Z0-9]+):([a-zA-Z0-9]+)\)/;
+  static parseSerialization(serializedContent: string): Scrap | null {
+    const LINE_REGEX = /\(([a-zA-Z0-9\-]+):([0-9]+)\)/; // Expect a uuid followed by a numeric ID
 
     let matchedHeader = LINE_REGEX.exec(serializedContent);
 
@@ -166,7 +123,7 @@ class Scrap {
       case ScrapPrototype.STC_GENRE_EXPLANATION:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
-        return ScrapContentType.THREE_LINES;
+        return ScrapContentType.N_LINES;
     }
 
     return null;
@@ -178,8 +135,8 @@ class Scrap {
     switch (contentType) {
       case ScrapContentType.TEXT_LINE:
         return TextLineContent.parse(serializedContent);
-      case ScrapContentType.THREE_LINES:
-        return ThreeLineContent.parse(serializedContent);
+      case ScrapContentType.N_LINES:
+        return NLineContent.parse(serializedContent);
     }
 
     return null;
@@ -187,6 +144,6 @@ class Scrap {
 
 }
 
-export {ScrapContent, ScrapPrototype, ThreeLineContent, TextLineContent};
+export {ScrapPrototype, TextLineContent};
 
 export default Scrap;

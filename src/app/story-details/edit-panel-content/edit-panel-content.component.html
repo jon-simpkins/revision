@@ -20,14 +20,14 @@
       </mat-form-field>
     </form>
   </div>
-  <div *ngSwitchCase="editTypes.THREE_LINES">
+  <div *ngSwitchCase="editTypes.N_LINES">
     <form style="padding: 12px;">
       <h3>{{editContext.headerPrompt}}:</h3>
-      <div *ngFor="let entry of editContent.textLines; index as i;">
+      <div *ngFor="let entry of editContent.lines; index as i;">
         <mat-form-field style="width: 100%;">
           <input matInput
              (input)="sendIndexedTextEdit($event.target.value,i)"
-             value="{{entry}}"
+             value="{{entry.text}}"
           >
         </mat-form-field>
       </div>

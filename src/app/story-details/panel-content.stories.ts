@@ -11,8 +11,10 @@ import {
   MatToolbarModule
 } from '@angular/material';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
-import {ScrapPrototype, TextLineContent, ThreeLineContent} from '../../types/Scrap';
+import {ScrapPrototype, TextLineContent} from '../../types/Scrap';
 import EditContext from '../../types/EditContext';
+import {NLineContent} from '../../types/ScrapTypes/NLineContent';
+import {LineContent} from '../../types/ScrapTypes/LineContent';
 
 const EXAMPLE_TYPES = [
   {
@@ -33,10 +35,10 @@ const EXAMPLE_TYPES = [
   {
     storyName: 'Similar Movies',
     prototype: ScrapPrototype.SIMILAR_MOVIES,
-    content: new ThreeLineContent([
-      'Raiders of the Lost Ark',
-      'Sound of Music',
-      'The Dark Knight'
+    content: new NLineContent([
+      new LineContent('Raiders of the Lost Ark', true),
+      new LineContent('Sound of Music', true),
+      new LineContent('The Dark Knight', true)
     ])
   },
   {

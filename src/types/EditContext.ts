@@ -5,7 +5,7 @@ import ViewOption, {buildStorySummaryViewOption, buildSTCSummaryViewOption} from
 enum EditType {
   TEXT_LINE,
   TEXT_AREA,
-  THREE_LINES,
+  N_LINES,
   MULTI_CHOICE
 }
 
@@ -33,7 +33,7 @@ class EditContext {
         );
       case ScrapPrototype.SIMILAR_MOVIES:
         return new EditContext(
-          EditType.THREE_LINES,
+          EditType.N_LINES,
           'Similar Movies',
           null,
           [buildStorySummaryViewOption()]

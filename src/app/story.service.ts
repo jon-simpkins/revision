@@ -5,11 +5,12 @@ import { createDoc, fetchDoc, updateBatch } from '../docsApi/docsApiHelpers';
 import StorySummary from '../types/StorySummary';
 import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentHelpers';
 import {ScreenService} from './screen.service';
-import Scrap, {ScrapContent, ScrapPrototype} from '../types/Scrap';
+import Scrap, {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 import ViewOption from '../types/ViewOption';
 import {generateAppropriateGenerator} from '../viewContentGenerators/viewContentGenerators';
 import {StorybookService} from './storybook.service';
+import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -106,7 +107,7 @@ export class StoryService {
     this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
   }
 
-  fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype) : ScrapContent {
+  fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype): ScrapContent {
     let fetchedScrap = this.currentStoryScraps.get(scrapId);
     if (fetchedScrap) {
       return fetchedScrap.content;

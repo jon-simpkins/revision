@@ -1,9 +1,15 @@
-import Scrap, {ScrapPrototype, TextLineContent, ThreeLineContent} from './Scrap';
+import Scrap, {ScrapPrototype, TextLineContent} from './Scrap';
+import {NLineContent} from './ScrapTypes/NLineContent';
+import {LineContent} from './ScrapTypes/LineContent';
 
 describe('Scrap', () => {
   it('Serializes and deserializes similar movies', () => {
     let myScrap = new Scrap();
-    myScrap.content = new ThreeLineContent(['This is the first movie', '', 'Another movie goes here, with more of a title']);
+    myScrap.content = new NLineContent([
+      new LineContent('This is the first movie', true),
+      new LineContent('This was the second movie, now inactive', false),
+      new LineContent('third movie title, still active', true)
+    ]);
     myScrap.startedEpoch = 1567363519553;
     myScrap.completedEpoch = 1567363534553;
     myScrap.editedBy = 'jon.simpkins@gmail.com';
