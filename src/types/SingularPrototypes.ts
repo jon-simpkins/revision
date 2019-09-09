@@ -6,7 +6,8 @@ const SINGULAR_PROTOTYPES = new Set([
   ScrapPrototype.LOG_LINE,
   ScrapPrototype.TIME_FRAME,
   ScrapPrototype.STC_GENRE,
-  ScrapPrototype.STC_GENRE_EXPLANATION
+  ScrapPrototype.STC_GENRE_EXPLANATION,
+  ScrapPrototype.CHARACTER_LISTING,
 ]);
 
 export {SINGULAR_PROTOTYPES};

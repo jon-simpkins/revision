@@ -10,6 +10,7 @@ enum ScrapPrototype {
   TIME_FRAME,
   STC_GENRE,
   STC_GENRE_EXPLANATION,
+  CHARACTER_LISTING,
 }
 
 enum ScrapContentType {
@@ -123,6 +124,7 @@ class Scrap {
       case ScrapPrototype.STC_GENRE_EXPLANATION:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
+      case ScrapPrototype.CHARACTER_LISTING:
         return ScrapContentType.N_LINES;
     }
 

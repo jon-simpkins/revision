@@ -23,6 +23,9 @@
   <div *ngSwitchCase="editTypes.N_LINES">
     <form style="padding: 12px;">
       <h3>{{editContext.headerPrompt}}:</h3>
+      <p *ngIf="editContext.userGuidance">
+        {{editContext.userGuidance}}
+      </p>
       <div *ngFor="let entry of editContent.lines; index as i;"
         style="display: flex;"
       >

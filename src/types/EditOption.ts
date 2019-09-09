@@ -7,6 +7,7 @@ SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.S
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STC_GENRE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STC_GENRE_EXPLANATION, new Set([ScrapPrototype.STC_GENRE]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.CHARACTER_LISTING, new Set([ScrapPrototype.LOG_LINE]));
 
 class EditOption {
   prototype: ScrapPrototype;
@@ -113,6 +114,8 @@ class EditOption {
         return 'STC Genre';
       case ScrapPrototype.STC_GENRE_EXPLANATION:
         return 'STC Genre Explanation';
+      case ScrapPrototype.CHARACTER_LISTING:
+        return 'Character Listing';
     }
   }
 }
