@@ -105,13 +105,6 @@ function generateHeaderCommands() {
     ]
   );
 
-  updates.push(
-    updateContentLine(null, '<abc123>this is stuff</abc123>')
-  );
-  updates.push(
-    updateContentLine('<abc123>this is stuff</abc123>', '<abc123>this is new stuff</abc123>')
-  );
-
   return updates;
 }
 

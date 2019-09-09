@@ -1,25 +1,16 @@
-import Scrap, {ScrapPrototype} from '../types/Scrap';
+import {ScrapPrototype} from '../types/Scrap';
 import ViewContentBlock, {
   buildHeader,
   buildParagraph,
   buildParagraphsFromTextArea
 } from '../app/story-details/view-panel-content/ViewContentBlock';
-import {getLatestScrapsByPrototype} from './getLatestScrapsByPrototype';
 import ViewOption from '../types/ViewOption';
 import {getOptionFromValue} from '../types/getSTCGenres';
+import {ScrapPile} from '../types/ScrapPile';
 
-const RELEVANT_PROTOTYPES = new Set([ScrapPrototype.STC_GENRE, ScrapPrototype.STC_GENRE_EXPLANATION]);
+function generateSTCSummaryPage(scrapPile: ScrapPile): ViewContentBlock[] {
 
-
-function canCreateSTCStorySummary(scraps: Map <string, Scrap>): boolean {
-  const scrapsByPrototype = getLatestScrapsByPrototype(scraps, RELEVANT_PROTOTYPES);
-
-  return scrapsByPrototype.size > 0;
-}
-
-function generateSTCSummaryPage(scraps: Map <string, Scrap>): ViewContentBlock[] {
-
-  const scrapsByPrototype = getLatestScrapsByPrototype(scraps, RELEVANT_PROTOTYPES);
+  const scrapsByPrototype = scrapPile.newestScrapBySingularPrototype;
   let blocks = [];
 
   blocks.push(buildHeader('Save the Cat Summary'));
@@ -54,4 +45,4 @@ function generateSTCSummaryPage(scraps: Map <string, Scrap>): ViewContentBlock[]
   return blocks;
 }
 
-export {generateSTCSummaryPage, canCreateSTCStorySummary};
+export {generateSTCSummaryPage};

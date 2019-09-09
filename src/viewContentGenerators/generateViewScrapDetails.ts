@@ -9,13 +9,14 @@ import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
 import EditContext from '../types/EditContext';
+import {ScrapPile} from '../types/ScrapPile';
 
-function fetchNexPrevIterations(relevantScrap: Scrap, scraps: Map <string, Scrap>) {
+function fetchNexPrevIterations(relevantScrap: Scrap, scrapPile: ScrapPile) {
   let previousScrap: Scrap = null;
   let nextScrap: Scrap = null;
   if (SINGULAR_PROTOTYPES.has(relevantScrap.prototype)) {
     // Iterate through all scraps, finding the one right before and right after with the same prototype
-    scraps.forEach((scrap) => {
+    scrapPile.scrapById.forEach((scrap) => {
       if (scrap.prototype !== relevantScrap.prototype) {
         return; // Move on
       }
@@ -46,13 +47,13 @@ function fetchRelevantViews(scrap: Scrap): ViewOption[] {
   return EditContext.fromPrototype(scrap.prototype).viewOptions;
 }
 
-function generateViewScrapDetails(scraps: Map <string, Scrap>, scrapId: string): ViewContentBlock[] {
-  let blocks = [];
+function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewContentBlock[] {
+  const blocks = [];
 
-  let relevantScrap = scraps.get(scrapId);
-  let prevNextScraps = fetchNexPrevIterations(relevantScrap, scraps);
+  const relevantScrap = scrapPile.scrapById.get(scrapId);
+  const prevNextScraps = fetchNexPrevIterations(relevantScrap, scrapPile);
 
-  let editOption : EditOption = null;
+  let editOption: EditOption = null;
   if (!prevNextScraps[1]) {
     // If there is no next iteration of the scrap, then include the edit button
     editOption = EditOption.buildFromScrap(relevantScrap);

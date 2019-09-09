@@ -1,10 +1,10 @@
-import Scrap from '../types/Scrap';
 import ViewContentBlock from '../app/story-details/view-panel-content/ViewContentBlock';
 import generateChangelog from './generateChangelog';
 import generateViewScrapDetails from './generateViewScrapDetails';
 import generateStorySummaryPage from './generateStorySummaryPage';
 import {generateSTCSummaryPage} from './generateSTCSummaryPage';
 import ViewOption from '../types/ViewOption';
+import {ScrapPile} from '../types/ScrapPile';
 
 enum ViewOptionGenerators {
   CHANGELOG,
@@ -13,7 +13,7 @@ enum ViewOptionGenerators {
   STC_SUMMARY,
 }
 
-export type ViewContentGeneratorFunction = (scraps: Map<string, Scrap>, scrapId: string) => ViewContentBlock[];
+export type ViewContentGeneratorFunction = (scrapPile: ScrapPile, scrapId: string) => ViewContentBlock[];
 
 export {ViewOptionGenerators};
 

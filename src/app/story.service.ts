@@ -11,6 +11,7 @@ import ViewOption from '../types/ViewOption';
 import {generateAppropriateGenerator} from '../viewContentGenerators/viewContentGenerators';
 import {StorybookService} from './storybook.service';
 import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
+import {ScrapPile} from '../types/ScrapPile';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 
@@ -21,7 +22,7 @@ export class StoryService {
 
   storySummaries: StorySummary[] = [];
   currentId: string = null;
-  currentStoryScraps: Map<string, Scrap> = new Map<string, Scrap>();
+  currentScrapPile: ScrapPile;
 
   constructor(private appRef: ApplicationRef, private screenService: ScreenService, private storybookService: StorybookService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
@@ -70,7 +71,7 @@ export class StoryService {
   clearStory() {
     this.currentId = null;
     this.screenService.currentViewScrapId = null;
-    this.currentStoryScraps = new Map<string, Scrap>();
+    this.currentScrapPile = new ScrapPile();
   }
 
   fetchStory(id) {
@@ -88,13 +89,10 @@ export class StoryService {
         try {
           textContent = section.paragraph.elements[0].textRun.content;
 
-          let parsedScrap = Scrap.parseSerialization(textContent);
-
-          if (parsedScrap) {
-            this.currentStoryScraps.set(parsedScrap.id, parsedScrap);
-          }
-
-        } catch(e) {}
+          this.currentScrapPile.importFromSerialization(textContent);
+        } catch (e) {
+          console.error(e);
+        }
       });
 
       this.updateViewEditOptions();
@@ -104,11 +102,11 @@ export class StoryService {
 
   updateViewEditOptions() {
     this.updateEditOptions();
-    this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentStoryScraps));
+    this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentScrapPile));
   }
 
   fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype): ScrapContent {
-    let fetchedScrap = this.currentStoryScraps.get(scrapId);
+    const fetchedScrap = this.currentScrapPile.scrapById.get(scrapId);
     if (fetchedScrap) {
       return fetchedScrap.content;
     }
@@ -119,7 +117,7 @@ export class StoryService {
   }
 
   updateEditOptions() {
-    this.screenService.setEditOptions(EditOption.buildOptions(this.currentStoryScraps));
+    this.screenService.setEditOptions(EditOption.buildOptions(this.currentScrapPile));
   }
 
   updateScrap(newScrap: Scrap) {
@@ -134,7 +132,7 @@ export class StoryService {
       newSerialized
     );
 
-    this.currentStoryScraps.set(newScrap.id, newScrap);
+    this.currentScrapPile.addScrap(newScrap);
 
     this.updateViewEditOptions();
 
@@ -155,7 +153,7 @@ export class StoryService {
 
   setViewContent(viewOption: ViewOption) {
     this.screenService.viewContent = generateAppropriateGenerator(viewOption)(
-      this.currentStoryScraps,
+      this.currentScrapPile,
       viewOption.scrapId
     );
     this.appRef.tick();

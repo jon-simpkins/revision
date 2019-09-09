@@ -1,5 +1,6 @@
 import Scrap, {ScrapPrototype} from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
+import {ScrapPile} from './ScrapPile';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
@@ -15,13 +16,13 @@ class EditOption {
   iterations: number; // How many times as this scrap been iterated on?
   lastEdited: number; // Epoch of last edit
 
-  static buildOptions(scraps: Map<string, Scrap>): EditOption[] {
-    let allOptions = [];
+  static buildSingularOptions(scrapPile: ScrapPile): EditOption[] {
+    const singularOptions = [];
 
-    // First, just go ahead and figure out the options for prototypes which only have 1 instance for the
-    let optionByPrototype = new Map<ScrapPrototype, EditOption>();
+    // First, just go ahead and figure out the options for singular prototypes
+    const optionByPrototype = new Map<ScrapPrototype, EditOption>();
     SINGULAR_PROTOTYPES.forEach((prototype) => {
-      let newOption = new EditOption();
+      const newOption = new EditOption();
       newOption.prototype = prototype;
       newOption.iterations = 0;
       newOption.lastEdited = 0;
@@ -31,12 +32,12 @@ class EditOption {
     });
 
 
-    scraps.forEach((scrap: Scrap) => {
+    scrapPile.scrapById.forEach((scrap: Scrap) => {
       if (!SINGULAR_PROTOTYPES.has(scrap.prototype)) {
         return; // Only care about singular ones now
       }
 
-      let competingOption = optionByPrototype.get(scrap.prototype);
+      const competingOption = optionByPrototype.get(scrap.prototype);
 
       competingOption.iterations += 1;
       if (scrap.completedEpoch > competingOption.lastEdited) {
@@ -49,7 +50,7 @@ class EditOption {
     optionByPrototype.forEach((option, prototype) => {
       if (SINGULAR_DEPENDENCY_MAP.has(prototype)) {
         // Check dependencies, proceed
-        let dependencies = SINGULAR_DEPENDENCY_MAP.get(prototype);
+        const dependencies = SINGULAR_DEPENDENCY_MAP.get(prototype);
         let hasAllDependencies = true;
         dependencies.forEach((dependency) => {
           if (!optionByPrototype.has(dependency) || !optionByPrototype.get(dependency).iterations) {
@@ -62,13 +63,21 @@ class EditOption {
         }
       }
 
-      allOptions.push(option);
+      singularOptions.push(option);
     });
+
+    return singularOptions;
+  }
+
+  static buildOptions(scrapPile: ScrapPile): EditOption[] {
+    let allOptions = [];
+
+    allOptions = allOptions.concat(EditOption.buildSingularOptions(scrapPile));
 
     // Return the sorted version, where less-iterated things are on top,
     // and recency of edit is the tiebreaker
     return allOptions.sort((a: EditOption, b: EditOption) => {
-      if (b.iterations != a.iterations) {
+      if (b.iterations !== a.iterations) {
         return a.iterations - b.iterations;
       }
 
@@ -77,6 +86,7 @@ class EditOption {
   }
 
   static selectRandom(options: EditOption[]): EditOption {
+    console.log(options);
     let incompleteOptions = options.filter(option => {
       return !option.iterations;
     });

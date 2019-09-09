@@ -62,7 +62,7 @@ class StoryDetailsWithViewOptions {
     stubStory001.forEach(line => {
       let scrap = Scrap.parseSerialization(line.trim());
 
-      storyService.currentStoryScraps.set(scrap.id, scrap);
+      storyService.currentScrapPile.addScrap(scrap);
     });
 
     storyService.updateViewEditOptions();

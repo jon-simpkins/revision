@@ -1,7 +1,6 @@
-import Scrap from './Scrap';
-import {canCreateStorySummary} from '../viewContentGenerators/generateStorySummaryPage';
+import Scrap, {ScrapPrototype} from './Scrap';
 import {ViewOptionGenerators} from '../viewContentGenerators/viewContentGenerators';
-import {canCreateSTCStorySummary} from '../viewContentGenerators/generateSTCSummaryPage';
+import {ScrapPile} from './ScrapPile';
 
 function buildStorySummaryViewOption() {
   return new ViewOption(ViewOptionGenerators.STORY_SUMMARY, 'Story Summary', null);
@@ -22,15 +21,23 @@ class ViewOption {
     this.scrapId = scrapId;
   }
 
-  static generateViewOptions(scraps: Map<string, Scrap>): ViewOption[] {
+  static generateViewOptions(scrapPile: ScrapPile): ViewOption[] {
     const options = [];
-    if (scraps.size) {
+    if (scrapPile.hasAnyScraps()) {
       options.push(new ViewOption(ViewOptionGenerators.CHANGELOG, 'Changelog', null));
     }
-    if (canCreateStorySummary(scraps)) {
+    if (scrapPile.hasOneOfSingularPrototypes([
+      ScrapPrototype.SIMILAR_MOVIES,
+      ScrapPrototype.LOG_LINE,
+      ScrapPrototype.TIME_FRAME,
+      ScrapPrototype.MOVIE_TITLE
+    ])) {
       options.push(buildStorySummaryViewOption());
     }
-    if (canCreateSTCStorySummary(scraps)) {
+    if (scrapPile.hasOneOfSingularPrototypes([
+      ScrapPrototype.STC_GENRE,
+      ScrapPrototype.STC_GENRE_EXPLANATION
+    ])) {
       options.push(buildSTCSummaryViewOption());
     }
 
