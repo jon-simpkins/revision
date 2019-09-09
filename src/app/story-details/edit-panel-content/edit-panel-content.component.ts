@@ -29,6 +29,10 @@ export class EditPanelContentComponent {
     this.contentEditService.receiveEdit(new UserEdit(update, idx));
   }
 
+  sendToggle(newToggleVal, idx: number) {
+    this.contentEditService.receiveEdit(new UserEdit(null, idx, newToggleVal));
+  }
+
   getDesc(value: string) {
     let desc = '';
 

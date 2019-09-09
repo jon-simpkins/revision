@@ -7,7 +7,7 @@ import {
   MatInputModule,
   MatListModule,
   MatSelectModule,
-  MatSidenavModule,
+  MatSidenavModule, MatSlideToggleModule,
   MatToolbarModule
 } from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -73,7 +73,7 @@ storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
       declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsBlankSlate, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent],
-      imports: [MatSelectModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
+      imports: [MatSlideToggleModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
   ).add('Renders correctly with a blank slate', () => {

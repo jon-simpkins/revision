@@ -69,6 +69,7 @@ export class ContentEditService {
     }
 
     this.currentContent.receiveEdit(userEdit);
+    this.appRef.tick();
   }
 
   cancelEdit() {

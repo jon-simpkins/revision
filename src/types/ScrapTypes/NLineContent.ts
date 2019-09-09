@@ -40,6 +40,14 @@ class NLineContent extends ScrapContent {
   }
 
   receiveEdit(userEdit: UserEdit) {
+    if (userEdit.idx >= this.lines.length) {
+      // Interpret as add line
+      this.lines.push(
+        new LineContent('', true)
+      );
+      return;
+    }
+
     if (userEdit.textValue !== null) {
       this.lines[userEdit.idx].text = userEdit.textValue;
     } else {

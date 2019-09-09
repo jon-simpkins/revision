@@ -23,15 +23,31 @@
   <div *ngSwitchCase="editTypes.N_LINES">
     <form style="padding: 12px;">
       <h3>{{editContext.headerPrompt}}:</h3>
-      <div *ngFor="let entry of editContent.lines; index as i;">
-        <mat-form-field style="width: 100%;">
+      <div *ngFor="let entry of editContent.lines; index as i;"
+        style="display: flex;"
+      >
+        <mat-form-field
+          style="flex: 1;"
+        >
           <input matInput
-             (input)="sendIndexedTextEdit($event.target.value,i)"
-             value="{{entry.text}}"
+           (input)="sendIndexedTextEdit($event.target.value,i)"
+           [disabled]="!entry.active"
+           value="{{entry.text}}"
           >
         </mat-form-field>
+        <mat-slide-toggle
+          style="margin: auto 1em;"
+          (input)="sendToggle($event.target.checked,i)"
+          [checked]="entry.active"
+          tabIndex="-1"
+        ></mat-slide-toggle>
       </div>
     </form>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="sendIndexedTextEdit('',editContent.lines.length)"
+    >Add entry</button>
   </div>
   <div *ngSwitchCase="editTypes.MULTI_CHOICE">
     <form style="padding: 12px;">

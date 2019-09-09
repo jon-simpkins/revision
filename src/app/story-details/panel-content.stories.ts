@@ -7,7 +7,7 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
-  MatSelectModule,
+  MatSelectModule, MatSlideToggleModule,
   MatToolbarModule
 } from '@angular/material';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
@@ -58,7 +58,7 @@ let editStoryModule = storiesOf('Edit Panel Content', module)
   .addDecorator(
     moduleMetadata({
       declarations: [EditPanelContentComponent],
-      imports: [MatSelectModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
+      imports: [MatSlideToggleModule, MatSelectModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
       providers: [],
     })
   );

@@ -86,7 +86,7 @@
           <div *ngIf="contentEditService.currentScrapId; else editPlaceholder">
             <edit-panel-content
               [editContext]="contentEditService.editContext"
-              [editContent]="contentEditService.originalContent"
+              [editContent]="contentEditService.currentContent"
             ></edit-panel-content>
           </div>
           <ng-template #editPlaceholder>

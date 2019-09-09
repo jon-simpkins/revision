@@ -5,7 +5,7 @@ import {APP_BASE_HREF} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material/button';
 
-import {MatSelectModule, MatListModule, MatIconModule, MatFormFieldModule, MatInputModule} from '@angular/material';
+import {MatSelectModule, MatListModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule} from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -48,7 +48,7 @@ import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
     MatSelectModule,
     MatSidenavModule,
     MatFormFieldModule, MatInputModule,
-    BrowserAnimationsModule,
+    BrowserAnimationsModule, MatSlideToggleModule,
   ],
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
   bootstrap: [AppComponent]
