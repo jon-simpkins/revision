@@ -57,11 +57,6 @@ const EXAMPLE_TYPES = [
     storyName: 'Character Listing',
     prototype: ScrapPrototype.CHARACTER_LISTING,
     content: new NLineContent()
-  },
-  {
-    storyName: 'Character Name',
-    prototype: ScrapPrototype.CHARACTER_NAME,
-    content: new TextLineContent()
   }
 ];
 
