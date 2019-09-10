@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import ViewContentBlock, {ViewContentBlockType} from './ViewContentBlock';
 import ViewOption from '../../../types/ViewOption';
 import {StoryService} from '../../story.service';
-import {ScrapPrototype} from '../../../types/Scrap';
 import {ContentEditService} from '../../content-edit.service';
 import EditOption from '../../../types/EditOption';
 
@@ -21,11 +20,11 @@ export class ViewPanelContentComponent {
   constructor(private storyService: StoryService, private contentEditService: ContentEditService) { }
 
   updateViewContent(viewOption: ViewOption) {
-    this.storyService.setViewContent(viewOption)
+    this.storyService.setViewContent(viewOption);
   }
 
   initiateEdit(editOption: EditOption) {
-    this.contentEditService.startEdit(editOption.scrapId, editOption.prototype);
+    this.contentEditService.startEdit(editOption.scrapId, editOption.prototype, editOption.refId);
   }
 
 }

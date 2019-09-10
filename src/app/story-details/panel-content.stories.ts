@@ -7,7 +7,8 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
-  MatSelectModule, MatSlideToggleModule,
+  MatSelectModule,
+  MatSlideToggleModule,
   MatToolbarModule
 } from '@angular/material';
 import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
@@ -15,6 +16,7 @@ import {ScrapPrototype, TextLineContent} from '../../types/Scrap';
 import EditContext from '../../types/EditContext';
 import {NLineContent} from '../../types/ScrapTypes/NLineContent';
 import {LineContent} from '../../types/ScrapTypes/LineContent';
+import {ScrapPile} from '../../types/ScrapPile';
 
 const EXAMPLE_TYPES = [
   {
@@ -55,6 +57,11 @@ const EXAMPLE_TYPES = [
     storyName: 'Character Listing',
     prototype: ScrapPrototype.CHARACTER_LISTING,
     content: new NLineContent()
+  },
+  {
+    storyName: 'Character Name',
+    prototype: ScrapPrototype.CHARACTER_NAME,
+    content: new TextLineContent()
   }
 ];
 
@@ -75,7 +82,7 @@ EXAMPLE_TYPES.forEach(entry => {
       component: EditPanelContentComponent,
       props: {
         editContent: entry.content,
-        editContext: EditContext.fromPrototype(entry.prototype)
+        editContext: EditContext.fromPrototype(entry.prototype, new ScrapPile(), null)
       }
     }
   });

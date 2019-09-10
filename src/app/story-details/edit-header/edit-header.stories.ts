@@ -36,7 +36,8 @@ class EditHeaderWithActiveEdit {
   constructor(contentEditService: ContentEditService) {
     contentEditService.startEdit(
       'myScrap001',
-      ScrapPrototype.MOVIE_TITLE
+      ScrapPrototype.MOVIE_TITLE,
+      null
     );
   }
 }

@@ -1,6 +1,7 @@
 import {ScrapPrototype} from './Scrap';
 import {MultiOption, STC_GENRES} from './getSTCGenres';
 import ViewOption, {buildSTCSummaryViewOption, buildStorySummaryViewOption} from './ViewOption';
+import {ScrapPile} from './ScrapPile';
 
 enum EditType {
   TEXT_LINE,
@@ -23,7 +24,9 @@ class EditContext {
     this.viewOptions = viewOptions;
   }
 
-  static fromPrototype(prototype: ScrapPrototype): EditContext {
+  static fromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
+    let ctx: EditContext;
+
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
         return new EditContext(
@@ -68,13 +71,30 @@ class EditContext {
           [buildSTCSummaryViewOption()]
         );
       case ScrapPrototype.CHARACTER_LISTING:
-        const ctx = new EditContext(
+        ctx = new EditContext(
           EditType.N_LINES,
           'List all Characters',
           null,
           null
         );
         ctx.userGuidance = 'Give a quick summary of who\'s in the story. "The main spy" or "Marine biologist, love interest" is all the granularity you need for now. You\'ll get to come back and revise later';
+        return ctx;
+      case ScrapPrototype.CHARACTER_NAME:
+        ctx = new EditContext(
+          EditType.TEXT_LINE,
+          'Character Name',
+          null,
+          null
+        );
+
+        let characterDescription = '';
+        scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING).content.lines.forEach(line => {
+          if (line.refId === refId) {
+            characterDescription = line.text;
+          }
+        });
+
+        ctx.userGuidance = 'For this character, what\'s their name in the script? "' + characterDescription + '"';
         return ctx;
     }
   }

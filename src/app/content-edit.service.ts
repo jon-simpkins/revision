@@ -16,6 +16,7 @@ import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
 export class ContentEditService {
 
   currentScrapId: string = null; // ID of the current scrap being edited
+  currentRefId: string = null;
   originalContent: ScrapContent = null; // The original state, so that we can perform updates
   editPrototype: ScrapPrototype = null; // The "type" of this scrap, which indicates the input variation and messaging
   editContext: EditContext = null; // The prompt, description, hints for presentation sake
@@ -51,11 +52,12 @@ export class ContentEditService {
     return outputStr;
   }
 
-  startEdit(scrapId: string, prototype: ScrapPrototype) {
+  startEdit(scrapId: string, prototype: ScrapPrototype, refId: string) {
     this.currentScrapId = uuid(); // Maintain every edit as unique
+    this.currentRefId = refId;
     this.editPrototype = prototype;
 
-    this.editContext = EditContext.fromPrototype(prototype);
+    this.editContext = EditContext.fromPrototype(prototype, this.storyService.currentScrapPile, refId);
 
     this.originalContent = this.storyService.fetchEditScrapContent(scrapId, prototype);
     this.currentContent = this.originalContent.clone(); // Create isolated clone
@@ -80,6 +82,7 @@ export class ContentEditService {
   acceptEdit() {
     let newScrap = new Scrap();
     newScrap.id = this.currentScrapId;
+    newScrap.refId = this.currentRefId;
     newScrap.prototype = this.editPrototype;
     newScrap.content = this.currentContent;
     newScrap.startedEpoch = this.editStartEpoch;

@@ -17,7 +17,6 @@ describe('Scrap', () => {
     myScrap.id = 'def456';
 
     let serialized = myScrap.generateSerialization();
-    console.log(serialized);
     let deserialized = Scrap.parseSerialization(serialized);
 
     expect(deserialized.content).toEqual(myScrap.content);

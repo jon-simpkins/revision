@@ -43,8 +43,8 @@ function fetchNexPrevIterations(relevantScrap: Scrap, scrapPile: ScrapPile) {
 }
 
 // Convenience function to build the relevant list of views for this scrap (identical to what would show in the bottom of the edit panel)
-function fetchRelevantViews(scrap: Scrap): ViewOption[] {
-  return EditContext.fromPrototype(scrap.prototype).viewOptions;
+function fetchRelevantViews(scrap: Scrap, scrapPile: ScrapPile): ViewOption[] {
+  return EditContext.fromPrototype(scrap.prototype, scrapPile, scrap.refId).viewOptions;
 }
 
 function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewContentBlock[] {
@@ -71,7 +71,7 @@ function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewCo
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));
 
-  const relevantViews = fetchRelevantViews(relevantScrap);
+  const relevantViews = fetchRelevantViews(relevantScrap, scrapPile);
   if (relevantViews && relevantViews.length) {
     blocks.push(buildHeader('Related Content'));
     relevantViews.forEach(view => {
