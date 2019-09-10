@@ -14,30 +14,31 @@ import {ScrapPile} from '../types/ScrapPile';
 function fetchNexPrevIterations(relevantScrap: Scrap, scrapPile: ScrapPile) {
   let previousScrap: Scrap = null;
   let nextScrap: Scrap = null;
-  if (SINGULAR_PROTOTYPES.has(relevantScrap.prototype)) {
-    // Iterate through all scraps, finding the one right before and right after with the same prototype
-    scrapPile.scrapById.forEach((scrap) => {
-      if (scrap.prototype !== relevantScrap.prototype) {
-        return; // Move on
-      }
+  scrapPile.scrapById.forEach((scrap) => {
+    if (scrap.prototype !== relevantScrap.prototype) {
+      return; // Move on
+    }
 
-      if (scrap.id === relevantScrap.id) {
-        return; // Move on
-      }
+    if (scrap.id === relevantScrap.id) {
+      return; // Move on
+    }
 
-      if (scrap.completedEpoch < relevantScrap.completedEpoch) {
-        if (!previousScrap || previousScrap.completedEpoch < scrap.completedEpoch) {
-          previousScrap = scrap;
-        }
-      }
-      if (scrap.completedEpoch > relevantScrap.completedEpoch) {
-        if (!nextScrap || nextScrap.completedEpoch > scrap.completedEpoch) {
-          nextScrap = scrap;
-        }
-      }
+    if (scrap.refId && scrap.refId !== relevantScrap.refId) {
+      return; // Move on, refId must match if present
+    }
 
-    });
-  }
+    if (scrap.completedEpoch < relevantScrap.completedEpoch) {
+      if (!previousScrap || previousScrap.completedEpoch < scrap.completedEpoch) {
+        previousScrap = scrap;
+      }
+    }
+    if (scrap.completedEpoch > relevantScrap.completedEpoch) {
+      if (!nextScrap || nextScrap.completedEpoch > scrap.completedEpoch) {
+        nextScrap = scrap;
+      }
+    }
+
+  });
 
   return [previousScrap, nextScrap];
 }

@@ -52,46 +52,45 @@ storiesOf('View Panel Content', module)
       component: ViewPanelContentComponent
     };
   }).add('Renders changelog', () => {
-      return {
-        component: ViewPanelContent,
-        props: {
-          viewOption: new ViewOption(ViewOptionGenerators.CHANGELOG, null, null)
-        }
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.CHANGELOG, null, null)
       }
+    };
   }).add('Renders story summary', () => {
     return {
       component: ViewPanelContent,
       props: {
         viewOption: new ViewOption(ViewOptionGenerators.STORY_SUMMARY, null, null)
       }
-    }
-  }).add('Renders scrap details for most recent edit', () => {
-    return {
-      component: ViewPanelContent,
-      props: {
-        viewOption: new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, '1567691117955')
-      }
-    }
-  }).add('Renders scrap details for most edit with next / prev', () => {
-    return {
-      component: ViewPanelContent,
-      props: {
-        viewOption: new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, '1567682847943')
-      }
-    }
-  }).add('Renders scrap details for least recent edit', () => {
-    return {
-      component: ViewPanelContent,
-      props: {
-        viewOption: new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, '1567593539785')
-      }
-    }
+    };
   }).add('Renders STC Story Summary', () => {
     return {
       component: ViewPanelContent,
       props: {
         viewOption: new ViewOption(ViewOptionGenerators.STC_SUMMARY, null, null)
       }
-    }
-  })
-;
+    };
+  }).add('Renders Character Listing', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_LISTING, null, null)
+      }
+    };
+  }).add('Renders Character Details', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, 'e89278c8-b979-49f5-86e3-bc9214f1d172')
+      }
+    };
+  }).add('Renders Character Details for Incomplete Character', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, '7c6e7a5d-0f44-4a48-a5b8-deefbf7a02da')
+      }
+    };
+  });

@@ -154,7 +154,8 @@ export class StoryService {
   setViewContent(viewOption: ViewOption) {
     this.screenService.viewContent = generateAppropriateGenerator(viewOption)(
       this.currentScrapPile,
-      viewOption.scrapId
+      viewOption.scrapId,
+      viewOption.refId
     );
     this.appRef.tick();
   }
