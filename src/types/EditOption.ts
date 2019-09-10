@@ -13,6 +13,7 @@ SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.CHARACTER_LISTING, new Set([ScrapProt
 class EditOption {
   prototype: ScrapPrototype;
   scrapId: string; // ID to start from on next edit
+  refId: string; // ID of the entity this corresponds to
   iterations: number; // How many times as this scrap been iterated on?
   lastEdited: number; // Epoch of last edit
 
@@ -69,10 +70,45 @@ class EditOption {
     return singularOptions;
   }
 
-  static buildOptions(scrapPile: ScrapPile): EditOption[] {
-    let allOptions = [];
+  static buildCharacterOptions(scrapPile: ScrapPile): EditOption[] {
+    const allOptions = [];
 
-    allOptions = allOptions.concat(EditOption.buildSingularOptions(scrapPile));
+    const allCharRefIds = scrapPile.getAllCharacterRefIds();
+    if (!allCharRefIds.length) {
+      return [];
+    }
+
+    // Blindly add all character name edits
+    const CHARACTER_PROTOTYPES = new Set([ScrapPrototype.CHARACTER_NAME]);
+
+    allCharRefIds.forEach(refId => {
+      CHARACTER_PROTOTYPES.forEach(prototype => {
+        const newOption = new EditOption();
+        newOption.prototype = ScrapPrototype.CHARACTER_NAME;
+        newOption.iterations = 0;
+        newOption.lastEdited = 0;
+        newOption.scrapId = 'null';
+        newOption.refId = refId;
+
+        if (scrapPile.getByRefId(refId, prototype)) {
+          const relevantScrap = scrapPile.getByRefId(refId, prototype);
+
+          newOption.scrapId = relevantScrap.id;
+          newOption.lastEdited = relevantScrap.completedEpoch;
+          newOption.iterations = 1; // Inaccurrate, but performant; we really just care if it has ever been completed, and when
+        }
+
+        allOptions.push(newOption);
+      });
+    });
+
+    return allOptions;
+  }
+
+  static buildOptions(scrapPile: ScrapPile): EditOption[] {
+    const allOptions = []
+      .concat(EditOption.buildSingularOptions(scrapPile))
+      .concat(EditOption.buildCharacterOptions(scrapPile));
 
     // Return the sorted version, where less-iterated things are on top,
     // and recency of edit is the tiebreaker
@@ -86,7 +122,6 @@ class EditOption {
   }
 
   static selectRandom(options: EditOption[]): EditOption {
-    console.log(options);
     let incompleteOptions = options.filter(option => {
       return !option.iterations;
     });
@@ -105,6 +140,7 @@ class EditOption {
     let editOption = new EditOption();
     editOption.prototype = scrap.prototype;
     editOption.scrapId = scrap.id;
+    editOption.refId = scrap.refId;
 
     return editOption;
   }
@@ -126,6 +162,8 @@ class EditOption {
         return 'STC Genre Explanation';
       case ScrapPrototype.CHARACTER_LISTING:
         return 'Character Listing';
+      case ScrapPrototype.CHARACTER_NAME:
+        return 'Character Name';
     }
   }
 }

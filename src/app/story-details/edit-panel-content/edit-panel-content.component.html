@@ -2,6 +2,9 @@
   <div *ngSwitchCase="editTypes.TEXT_LINE">
     <form style="padding: 12px;">
       <h3>{{editContext.headerPrompt}}:</h3>
+      <p *ngIf="editContext.userGuidance">
+        {{editContext.userGuidance}}
+      </p>
       <mat-form-field style="width: 100%;">
         <input matInput
           (input)="sendPlaintextEdit($event.target.value)"

@@ -26,10 +26,9 @@ export class StoryDetailsComponent {
   }
 
   chooseRandomEdit() {
-    console.log(this.screenService.editOptions);
     let option = EditOption.selectRandom(this.screenService.editOptions);
 
-    this.contentEditService.startEdit(option.scrapId, option.prototype);
+    this.contentEditService.startEdit(option.scrapId, option.prototype, option.refId);
   }
 
 }
