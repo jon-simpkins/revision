@@ -51,6 +51,13 @@ storiesOf('View Panel Content', module)
     return {
       component: ViewPanelContentComponent
     };
+  }).add('Renders writing tracker', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.WRITING_TRACKER, null, null)
+      }
+    };
   }).add('Renders changelog', () => {
     return {
       component: ViewPanelContent,

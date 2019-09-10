@@ -26,6 +26,7 @@ class ViewOption {
   // Used to generate the view options in the left nav
   static generateViewOptions(scrapPile: ScrapPile): ViewOption[] {
     const options = [];
+    options.push(new ViewOption(ViewOptionGenerators.WRITING_TRACKER, 'Writing Tracker'));
     if (scrapPile.hasAnyScraps()) {
       options.push(new ViewOption(ViewOptionGenerators.CHANGELOG, 'Changelog'));
     }
