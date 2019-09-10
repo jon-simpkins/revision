@@ -1,6 +1,6 @@
 import {ScrapPrototype} from './Scrap';
 import {MultiOption, STC_GENRES} from './getSTCGenres';
-import ViewOption, {buildSTCSummaryViewOption, buildStorySummaryViewOption} from './ViewOption';
+import ViewOption, {buildCharacterDetailsViewOption, buildSTCSummaryViewOption, buildStorySummaryViewOption} from './ViewOption';
 import {ScrapPile} from './ScrapPile';
 
 enum EditType {
@@ -84,7 +84,7 @@ class EditContext {
           EditType.TEXT_LINE,
           'Character Name',
           null,
-          null
+          [buildCharacterDetailsViewOption(refId)]
         );
 
         let characterDescription = '';

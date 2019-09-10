@@ -10,6 +10,10 @@ function buildSTCSummaryViewOption() {
   return new ViewOption(ViewOptionGenerators.STC_SUMMARY, 'STC Summary');
 }
 
+function buildCharacterDetailsViewOption(refId: string) {
+  return new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, 'Character Details', null, refId);
+}
+
 class ViewOption {
   generatorSpec: ViewOptionGenerators;
   label: string;
@@ -61,6 +65,6 @@ class ViewOption {
   }
 }
 
-export {ViewOptionGenerators, buildStorySummaryViewOption, buildSTCSummaryViewOption};
+export {ViewOptionGenerators, buildStorySummaryViewOption, buildSTCSummaryViewOption, buildCharacterDetailsViewOption};
 
 export default ViewOption;
