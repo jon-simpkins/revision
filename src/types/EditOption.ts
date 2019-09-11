@@ -79,7 +79,11 @@ class EditOption {
     }
 
     // Blindly add all character name edits
-    const CHARACTER_PROTOTYPES = new Set([ScrapPrototype.CHARACTER_NAME, ScrapPrototype.CHARACTER_GENDER]);
+    const CHARACTER_PROTOTYPES = new Set([
+      ScrapPrototype.CHARACTER_NAME,
+      ScrapPrototype.CHARACTER_GENDER,
+      ScrapPrototype.CHARACTER_DRIVE
+    ]);
 
     allCharRefIds.forEach(refId => {
       CHARACTER_PROTOTYPES.forEach(prototype => {
@@ -166,6 +170,8 @@ class EditOption {
         return 'Character Name';
       case ScrapPrototype.CHARACTER_GENDER:
         return 'Character Gender';
+      case ScrapPrototype.CHARACTER_DRIVE:
+        return 'Character Drive';
     }
   }
 }

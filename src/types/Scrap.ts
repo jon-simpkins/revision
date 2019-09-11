@@ -13,6 +13,7 @@ enum ScrapPrototype {
   CHARACTER_LISTING,
   CHARACTER_NAME,
   CHARACTER_GENDER,
+  CHARACTER_DRIVE,
 }
 
 enum ScrapContentType {
@@ -132,6 +133,7 @@ class Scrap {
       case ScrapPrototype.STC_GENRE_EXPLANATION:
       case ScrapPrototype.CHARACTER_NAME:
       case ScrapPrototype.CHARACTER_GENDER:
+      case ScrapPrototype.CHARACTER_DRIVE:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
       case ScrapPrototype.CHARACTER_LISTING:

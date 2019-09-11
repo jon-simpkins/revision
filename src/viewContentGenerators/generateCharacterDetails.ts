@@ -1,12 +1,16 @@
 import {ScrapPile} from '../types/ScrapPile';
-import ViewContentBlock, {buildHeader, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewContentBlock, {
+  buildHeader,
+  buildParagraph,
+  buildParagraphsFromTextArea
+} from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import Character from '../types/Character';
 import {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 
 function generateCharacterDetails(scrapPile: ScrapPile, scrapId: string, refId: string): ViewContentBlock[] {
-  const blocks = [];
+  let blocks = [];
 
   const myCharacter = Character.buildFromScrapPile(refId, scrapPile);
 
@@ -37,6 +41,17 @@ function generateCharacterDetails(scrapPile: ScrapPile, scrapId: string, refId: 
 
   blocks.push(buildHeader('Summary:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING).id)));
   blocks.push(buildParagraph(myCharacter.summary));
+
+  if (myCharacter.driveScrapId) {
+    blocks.push(buildHeader('Drive:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, myCharacter.driveScrapId)));
+    blocks = buildParagraphsFromTextArea(myCharacter.drive, blocks);
+  } else {
+    const driveEditOption = new EditOption();
+    driveEditOption.refId = myCharacter.refId;
+    driveEditOption.prototype = ScrapPrototype.CHARACTER_DRIVE;
+
+    blocks.push(buildHeader('Unknown Motivation', null, driveEditOption));
+  }
 
   blocks.push(buildHeader('See all characters', new ViewOption(ViewOptionGenerators.CHARACTER_LISTING, null)));
 

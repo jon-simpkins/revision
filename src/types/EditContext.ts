@@ -97,6 +97,15 @@ class EditContext {
           GENDER_OPTIONS,
           [buildCharacterDetailsViewOption(refId)]
         );
+      case ScrapPrototype.CHARACTER_DRIVE:
+        ctx = new EditContext(
+          EditType.TEXT_AREA,
+          'Character Drive',
+          null,
+          [buildCharacterDetailsViewOption(refId)]
+        );
+        ctx.userGuidance = 'What drives this character? What do they want / need?';
+        return ctx;
     }
   }
 }

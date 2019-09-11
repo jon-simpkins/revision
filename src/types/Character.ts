@@ -10,6 +10,8 @@ class Character {
   nameScrapId: string;
   gender: string;
   genderScrapId: string;
+  drive: string;
+  driveScrapId: string;
 
   static buildFromScrapPile(refId: string, scrapPile: ScrapPile) {
     let myCharacter = new Character();
@@ -32,6 +34,12 @@ class Character {
     if (genderScrap) {
       myCharacter.gender = genderScrap.content.text;
       myCharacter.genderScrapId = genderScrap.id;
+    }
+
+    const driveScrap = scrapPile.getByRefId(refId, ScrapPrototype.CHARACTER_DRIVE);
+    if (driveScrap) {
+      myCharacter.drive = driveScrap.content.text;
+      myCharacter.driveScrapId = driveScrap.id;
     }
 
     return myCharacter;
