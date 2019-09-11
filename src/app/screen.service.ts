@@ -17,6 +17,7 @@ export class ScreenService {
   showViewNav = false;
   showEditNav = false;
 
+  currentViewOption: ViewOption;
   viewContent: ViewContentBlock[] = [];
   viewOptions = [];
   editOptions: EditOption[] = [];

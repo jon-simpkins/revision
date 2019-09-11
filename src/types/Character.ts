@@ -8,6 +8,8 @@ class Character {
 
   name: string;
   nameScrapId: string;
+  gender: string;
+  genderScrapId: string;
 
   static buildFromScrapPile(refId: string, scrapPile: ScrapPile) {
     let myCharacter = new Character();
@@ -20,10 +22,16 @@ class Character {
       }
     });
 
-    let nameScrap = scrapPile.getByRefId(refId, ScrapPrototype.CHARACTER_NAME);
+    const nameScrap = scrapPile.getByRefId(refId, ScrapPrototype.CHARACTER_NAME);
     if (nameScrap) {
       myCharacter.name = nameScrap.content.text;
       myCharacter.nameScrapId = nameScrap.id;
+    }
+
+    const genderScrap = scrapPile.getByRefId(refId, ScrapPrototype.CHARACTER_GENDER);
+    if (genderScrap) {
+      myCharacter.gender = genderScrap.content.text;
+      myCharacter.genderScrapId = genderScrap.id;
     }
 
     return myCharacter;

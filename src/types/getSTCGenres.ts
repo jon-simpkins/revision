@@ -1,7 +1,4 @@
-
-class MultiOption {
-  constructor(public label: string, public value: string, public desc: string) {}
-}
+import {MultiOption} from './MultiOption';
 
 const STC_GENRES = [
   new MultiOption(
@@ -71,4 +68,4 @@ function getOptionFromValue(value: string): MultiOption {
   return null;
 }
 
-export {STC_GENRES, MultiOption, getOptionFromValue};
+export {STC_GENRES, getOptionFromValue};

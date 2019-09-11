@@ -152,12 +152,20 @@ export class StoryService {
   }
 
   setViewContent(viewOption: ViewOption) {
+    this.screenService.currentViewOption = viewOption;
+    this.refreshViewContent(true);
+  }
+
+  refreshViewContent(includeTick: boolean) {
+    const viewOption = this.screenService.currentViewOption;
     this.screenService.viewContent = generateAppropriateGenerator(viewOption)(
       this.currentScrapPile,
       viewOption.scrapId,
       viewOption.refId
     );
-    this.appRef.tick();
+    if (includeTick) {
+      this.appRef.tick();
+    }
   }
 
 }

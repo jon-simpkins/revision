@@ -1,7 +1,9 @@
 import {ScrapPrototype} from './Scrap';
-import {MultiOption, STC_GENRES} from './getSTCGenres';
+import {STC_GENRES} from './getSTCGenres';
 import ViewOption, {buildCharacterDetailsViewOption, buildSTCSummaryViewOption, buildStorySummaryViewOption} from './ViewOption';
 import {ScrapPile} from './ScrapPile';
+import {GENDER_OPTIONS} from './GenderOptions';
+import {MultiOption} from './MultiOption';
 
 enum EditType {
   TEXT_LINE,
@@ -87,19 +89,18 @@ class EditContext {
           [buildCharacterDetailsViewOption(refId)]
         );
 
-        let characterDescription = '';
-        scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING).content.lines.forEach(line => {
-          if (line.refId === refId) {
-            characterDescription = line.text;
-          }
-        });
-
-        ctx.userGuidance = 'For this character, what\'s their name in the script? "' + characterDescription + '"';
         return ctx;
+      case ScrapPrototype.CHARACTER_GENDER:
+        return new EditContext(
+          EditType.MULTI_CHOICE,
+          'Character Gender',
+          GENDER_OPTIONS,
+          [buildCharacterDetailsViewOption(refId)]
+        );
     }
   }
 }
 
-export {EditType, MultiOption};
+export {EditType};
 
 export default EditContext;

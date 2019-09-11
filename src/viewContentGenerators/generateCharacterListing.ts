@@ -2,14 +2,22 @@ import {ScrapPile} from '../types/ScrapPile';
 import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import {ScrapPrototype} from '../types/Scrap';
+import Character from '../types/Character';
 
 function generateCharacterListing(scrapPile: ScrapPile): ViewContentBlock[] {
-  const blocks = [];
+  let blocks = [];
 
   const listingScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
 
   blocks.push(buildHeader('Character Listing', ViewOption.detailsForScrap(listingScrap)));
-  blocks.push(buildParagraph('Here are all the characters:'));
+
+  const characterListBlocks = [];
+  let characterCountByGender = {
+    male: 0,
+    female: 0,
+    'non-binary': 0,
+    unknown: 0
+  };
 
   listingScrap.content.lines.forEach(line => {
     if (!line.active) {
@@ -23,14 +31,28 @@ function generateCharacterListing(scrapPile: ScrapPile): ViewContentBlock[] {
       line.refId
     );
 
-    const nameScrap = scrapPile.getByRefId(line.refId, ScrapPrototype.CHARACTER_NAME);
-    let nameToDisplay = line.text;
-    if (nameScrap) {
-      nameToDisplay = nameScrap.content.text;
+    const thisCharacter = Character.buildFromScrapPile(line.refId, scrapPile);
+
+    const nameToDisplay = thisCharacter.name ? thisCharacter.name : thisCharacter.summary;
+
+    if (thisCharacter.gender) {
+      characterCountByGender[thisCharacter.gender] += 1;
+    } else {
+      characterCountByGender.unknown += 1;
     }
 
-    blocks.push(buildListEntry(nameToDisplay, detailViewOption));
+    characterListBlocks.push(buildListEntry(nameToDisplay, detailViewOption));
   });
+
+  blocks.push(buildHeader('Character Count by Gender:'));
+  Object.keys(characterCountByGender).forEach(key => {
+    if (characterCountByGender[key]) {
+      blocks.push(buildListEntry(`${key}: ${characterCountByGender[key]}`));
+    }
+  });
+
+  blocks.push(buildHeader('List of Characters:'));
+  blocks = blocks.concat(characterListBlocks);
 
   return blocks;
 }

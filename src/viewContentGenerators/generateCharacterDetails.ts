@@ -24,6 +24,17 @@ function generateCharacterDetails(scrapPile: ScrapPile, scrapId: string, refId: 
     blocks.push(buildHeader('Unknown Name', null, nameEditOption));
   }
 
+  if (myCharacter.genderScrapId) {
+    blocks.push(buildHeader('Gender:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, myCharacter.genderScrapId)));
+    blocks.push(buildParagraph(myCharacter.gender));
+  } else {
+    const genderEditOption = new EditOption();
+    genderEditOption.refId = myCharacter.refId;
+    genderEditOption.prototype = ScrapPrototype.CHARACTER_GENDER;
+
+    blocks.push(buildHeader('Unknown Gender', null, genderEditOption));
+  }
+
   blocks.push(buildHeader('Summary:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING).id)));
   blocks.push(buildParagraph(myCharacter.summary));
 

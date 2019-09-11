@@ -79,12 +79,12 @@ class EditOption {
     }
 
     // Blindly add all character name edits
-    const CHARACTER_PROTOTYPES = new Set([ScrapPrototype.CHARACTER_NAME]);
+    const CHARACTER_PROTOTYPES = new Set([ScrapPrototype.CHARACTER_NAME, ScrapPrototype.CHARACTER_GENDER]);
 
     allCharRefIds.forEach(refId => {
       CHARACTER_PROTOTYPES.forEach(prototype => {
         const newOption = new EditOption();
-        newOption.prototype = ScrapPrototype.CHARACTER_NAME;
+        newOption.prototype = prototype;
         newOption.iterations = 0;
         newOption.lastEdited = 0;
         newOption.scrapId = 'null';
@@ -164,6 +164,8 @@ class EditOption {
         return 'Character Listing';
       case ScrapPrototype.CHARACTER_NAME:
         return 'Character Name';
+      case ScrapPrototype.CHARACTER_GENDER:
+        return 'Character Gender';
     }
   }
 }

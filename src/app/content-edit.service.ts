@@ -59,6 +59,11 @@ export class ContentEditService {
 
     this.editContext = EditContext.fromPrototype(prototype, this.storyService.currentScrapPile, refId);
 
+    // If the edit suggests a set of content to view, load that content
+    if (this.editContext.viewOptions && this.editContext.viewOptions.length) {
+      this.storyService.setViewContent(this.editContext.viewOptions[0]);
+    }
+
     this.originalContent = this.storyService.fetchEditScrapContent(scrapId, prototype);
     this.currentContent = this.originalContent.clone(); // Create isolated clone
 
@@ -92,6 +97,7 @@ export class ContentEditService {
     this.storyService.updateScrap(
       newScrap
     ).then(() => {
+      this.storyService.refreshViewContent(false);
       this.cancelEdit();
     });
   }
