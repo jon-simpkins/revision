@@ -8,8 +8,6 @@ enum ScrapPrototype {
   SIMILAR_MOVIES,
   LOG_LINE,
   TIME_FRAME,
-  STC_GENRE,
-  STC_GENRE_EXPLANATION,
   CHARACTER_LISTING,
   CHARACTER_NAME,
   CHARACTER_GENDER,
@@ -129,8 +127,6 @@ class Scrap {
       case ScrapPrototype.MOVIE_TITLE:
       case ScrapPrototype.LOG_LINE:
       case ScrapPrototype.TIME_FRAME:
-      case ScrapPrototype.STC_GENRE:
-      case ScrapPrototype.STC_GENRE_EXPLANATION:
       case ScrapPrototype.CHARACTER_NAME:
       case ScrapPrototype.CHARACTER_GENDER:
       case ScrapPrototype.CHARACTER_DRIVE:

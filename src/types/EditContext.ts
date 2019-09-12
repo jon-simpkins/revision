@@ -1,6 +1,5 @@
 import {ScrapPrototype} from './Scrap';
-import {STC_GENRES} from './getSTCGenres';
-import ViewOption, {buildCharacterDetailsViewOption, buildSTCSummaryViewOption, buildStorySummaryViewOption} from './ViewOption';
+import ViewOption, {buildCharacterDetailsViewOption, buildStorySummaryViewOption} from './ViewOption';
 import {ScrapPile} from './ScrapPile';
 import {GENDER_OPTIONS} from './GenderOptions';
 import {MultiOption} from './MultiOption';
@@ -57,20 +56,6 @@ class EditContext {
           'Time Frame',
           null,
           [buildStorySummaryViewOption()]
-        );
-      case ScrapPrototype.STC_GENRE:
-        return new EditContext(
-          EditType.MULTI_CHOICE,
-          'Save The Cat Genre',
-          STC_GENRES,
-          [buildSTCSummaryViewOption()]
-        );
-      case ScrapPrototype.STC_GENRE_EXPLANATION:
-        return new EditContext(
-          EditType.TEXT_AREA,
-          'Save The Cat Genre Explanation',
-          null,
-          [buildSTCSummaryViewOption()]
         );
       case ScrapPrototype.CHARACTER_LISTING:
         ctx = new EditContext(

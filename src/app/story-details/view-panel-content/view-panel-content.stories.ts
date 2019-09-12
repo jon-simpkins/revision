@@ -72,13 +72,6 @@ storiesOf('View Panel Content', module)
         viewOption: new ViewOption(ViewOptionGenerators.STORY_SUMMARY, null, null)
       }
     };
-  }).add('Renders STC Story Summary', () => {
-    return {
-      component: ViewPanelContent,
-      props: {
-        viewOption: new ViewOption(ViewOptionGenerators.STC_SUMMARY, null, null)
-      }
-    };
   }).add('Renders Character Listing', () => {
     return {
       component: ViewPanelContent,
@@ -90,14 +83,14 @@ storiesOf('View Panel Content', module)
     return {
       component: ViewPanelContent,
       props: {
-        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, 'e89278c8-b979-49f5-86e3-bc9214f1d172')
+        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, '3398fac5-cea6-4d9c-affa-08afab444108')
       }
     };
   }).add('Renders Character Details for Incomplete Character', () => {
     return {
       component: ViewPanelContent,
       props: {
-        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, '7c6e7a5d-0f44-4a48-a5b8-deefbf7a02da')
+        viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, '67bdf7e3-db18-4e66-a09e-0cb35203b31c')
       }
     };
   });

@@ -44,16 +44,6 @@ const EXAMPLE_TYPES = [
     ])
   },
   {
-    storyName: 'STC Genre',
-    prototype: ScrapPrototype.STC_GENRE,
-    content: new TextLineContent()
-  },
-  {
-    storyName: 'STC Genre Explanation',
-    prototype: ScrapPrototype.STC_GENRE_EXPLANATION,
-    content: new TextLineContent()
-  },
-  {
     storyName: 'Character Listing',
     prototype: ScrapPrototype.CHARACTER_LISTING,
     content: new NLineContent()

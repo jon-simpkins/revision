@@ -6,10 +6,6 @@ function buildStorySummaryViewOption() {
   return new ViewOption(ViewOptionGenerators.STORY_SUMMARY, 'Story Summary');
 }
 
-function buildSTCSummaryViewOption() {
-  return new ViewOption(ViewOptionGenerators.STC_SUMMARY, 'STC Summary');
-}
-
 function buildCharacterDetailsViewOption(refId: string) {
   return new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, 'Character Details', null, refId);
 }
@@ -42,12 +38,6 @@ class ViewOption {
     ])) {
       options.push(buildStorySummaryViewOption());
     }
-    if (scrapPile.hasOneOfSingularPrototypes([
-      ScrapPrototype.STC_GENRE,
-      ScrapPrototype.STC_GENRE_EXPLANATION
-    ])) {
-      options.push(buildSTCSummaryViewOption());
-    }
     if (scrapPile.hasOneOfSingularPrototypes([ScrapPrototype.CHARACTER_LISTING])) {
       options.push(
         new ViewOption(
@@ -65,6 +55,6 @@ class ViewOption {
   }
 }
 
-export {ViewOptionGenerators, buildStorySummaryViewOption, buildSTCSummaryViewOption, buildCharacterDetailsViewOption};
+export {ViewOptionGenerators, buildStorySummaryViewOption, buildCharacterDetailsViewOption};
 
 export default ViewOption;

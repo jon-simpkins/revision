@@ -6,8 +6,6 @@ const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
-SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STC_GENRE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
-SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STC_GENRE_EXPLANATION, new Set([ScrapPrototype.STC_GENRE]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.CHARACTER_LISTING, new Set([ScrapPrototype.LOG_LINE]));
 
 class EditOption {
@@ -160,10 +158,6 @@ class EditOption {
         return 'Similar Movies';
       case ScrapPrototype.TIME_FRAME:
         return 'Time Frame';
-      case ScrapPrototype.STC_GENRE:
-        return 'STC Genre';
-      case ScrapPrototype.STC_GENRE_EXPLANATION:
-        return 'STC Genre Explanation';
       case ScrapPrototype.CHARACTER_LISTING:
         return 'Character Listing';
       case ScrapPrototype.CHARACTER_NAME:
