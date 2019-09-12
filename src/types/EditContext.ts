@@ -18,11 +18,12 @@ class EditContext {
   multiOptions: MultiOption[]; // For selection entries, define the set of options
   viewOptions: ViewOption[]; // Optional, list of view options for the bottom of the edit
 
-  constructor(editType: EditType, headerPrompt: string, multiOptions?: MultiOption[], viewOptions?: ViewOption[]) {
+  constructor(editType: EditType, headerPrompt: string, multiOptions?: MultiOption[], viewOptions?: ViewOption[], userGuidance?: string) {
     this.editType = editType;
     this.headerPrompt = headerPrompt;
     this.multiOptions = multiOptions;
     this.viewOptions = viewOptions;
+    this.userGuidance = userGuidance;
   }
 
   static fromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
@@ -56,6 +57,14 @@ class EditContext {
           'Time Frame',
           null,
           [buildStorySummaryViewOption()]
+        );
+      case ScrapPrototype.MOVIE_DURATION:
+        return new EditContext(
+          EditType.TEXT_LINE,
+          'Movie Duration (min)',
+          null,
+          [buildStorySummaryViewOption()],
+          '"Similar Movies" can provide guidance here for a typical runtime'
         );
       case ScrapPrototype.CHARACTER_LISTING:
         ctx = new EditContext(

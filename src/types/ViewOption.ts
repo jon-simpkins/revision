@@ -32,6 +32,7 @@ class ViewOption {
     }
     if (scrapPile.hasOneOfSingularPrototypes([
       ScrapPrototype.SIMILAR_MOVIES,
+      ScrapPrototype.MOVIE_DURATION,
       ScrapPrototype.LOG_LINE,
       ScrapPrototype.TIME_FRAME,
       ScrapPrototype.MOVIE_TITLE

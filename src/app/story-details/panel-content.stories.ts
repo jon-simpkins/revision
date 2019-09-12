@@ -30,6 +30,11 @@ const EXAMPLE_TYPES = [
     content: new TextLineContent('Over the summer of 1969')
   },
   {
+    storyName: 'Movie Duration',
+    prototype: ScrapPrototype.MOVIE_DURATION,
+    content: new TextLineContent('107')
+  },
+  {
     storyName: 'Log Line',
     prototype: ScrapPrototype.LOG_LINE,
     content: new TextLineContent('A cop goes undercover as a baker, and discovers a love of cake decorating.')

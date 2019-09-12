@@ -26,6 +26,12 @@ function generateStorySummaryPage(scrapPile: ScrapPile): ViewContentBlock[] {
 
   blocks.push(buildHeader(`Title: ${title}`, titleViewOption));
 
+  if (scrapsByPrototype.has(ScrapPrototype.MOVIE_DURATION)) {
+    const movieDurationScrap = scrapsByPrototype.get(ScrapPrototype.MOVIE_DURATION);
+    blocks.push(buildHeader('Movie Duration:', ViewOption.detailsForScrap(movieDurationScrap)));
+    blocks.push(buildParagraph(`${movieDurationScrap.content.text} min`));
+  }
+
   if (scrapsByPrototype.has(ScrapPrototype.LOG_LINE)) {
     const logLineScrap = scrapsByPrototype.get(ScrapPrototype.LOG_LINE);
     blocks.push(buildHeader('Log Line:', ViewOption.detailsForScrap(logLineScrap)));

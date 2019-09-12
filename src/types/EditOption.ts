@@ -3,6 +3,7 @@ import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {ScrapPile} from './ScrapPile';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_DURATION, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
@@ -158,6 +159,8 @@ class EditOption {
         return 'Similar Movies';
       case ScrapPrototype.TIME_FRAME:
         return 'Time Frame';
+      case ScrapPrototype.MOVIE_DURATION:
+        return 'Movie Duration';
       case ScrapPrototype.CHARACTER_LISTING:
         return 'Character Listing';
       case ScrapPrototype.CHARACTER_NAME:
