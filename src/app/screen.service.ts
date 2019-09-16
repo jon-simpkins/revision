@@ -1,5 +1,4 @@
 import {ApplicationRef, Injectable} from '@angular/core';
-import {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 import ViewContentBlock from './story-details/view-panel-content/ViewContentBlock';
 import ViewOption from '../types/ViewOption';
@@ -10,7 +9,8 @@ import ViewOption from '../types/ViewOption';
 })
 export class ScreenService {
 
-  showStoryDetails: boolean = false;
+  showStructureTemplateEditor = false;
+  showStoryDetails = false;
   currentViewScrapId: string = null;
 
   currentDetailsPanelView = 'split';
@@ -22,18 +22,21 @@ export class ScreenService {
   viewOptions = [];
   editOptions: EditOption[] = [];
 
-  constructor(private appRef: ApplicationRef) { }
+  constructor() { }
 
-  updateShowStoryDetails(newValue: boolean) : void {
+  updateShowStoryDetails(newValue: boolean): void {
     this.showStoryDetails = newValue;
-    this.appRef.tick();
+  }
+
+  updateShowStructureTemplateEditor(newValue: boolean): void {
+    this.showStructureTemplateEditor = newValue;
   }
 
   setViewOptions(options: ViewOption[]) {
     this.viewOptions = options;
     if (!this.viewOptions.length) {
       // If there are no view options, then insist on edit mode
-      this.setDetailPanelView('edit', false);
+      this.setDetailPanelView('edit');
     }
   }
 
@@ -41,7 +44,7 @@ export class ScreenService {
     this.editOptions = options;
   }
 
-  setDetailPanelView(newValue, doTick: boolean) {
+  setDetailPanelView(newValue) {
     this.currentDetailsPanelView = newValue;
 
     if (this.currentDetailsPanelView === 'view') {
@@ -49,10 +52,6 @@ export class ScreenService {
     }
     if (this.currentDetailsPanelView === 'edit') {
       this.showViewNav = false;
-    }
-
-    if (doTick) {
-      this.appRef.tick();
     }
   }
 
@@ -66,14 +65,10 @@ export class ScreenService {
 
   toggleViewNav() {
     this.showViewNav = !this.showViewNav;
-
-    this.appRef.tick();
   }
 
   toggleEditNav() {
     this.showEditNav = !this.showEditNav;
-
-    this.appRef.tick();
   }
 
 }

@@ -25,6 +25,7 @@
     "@angular/router": "~8.2.0",
     "@storybook/core": "^5.1.11",
     "autoprefixer": "^9.6.1",
+    "hammerjs": "^2.0.8",
     "lz-string": "^1.4.4",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",

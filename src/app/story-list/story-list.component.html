@@ -1,10 +1,21 @@
-<h2>Story List</h2>
-<button mat-raised-button color="primary" (click)="createStory()">Create New</button>
 
-<mat-action-list>
-  <ng-container *ngFor="let summary of storyService.storySummaries">
-    <button mat-list-item (click)="seeDetails(summary.documentId)">
-      {{summary.getLastUpdateStr()}}
-    </button>
-  </ng-container>
-</mat-action-list>
+<div style="display: flex; flex-direction: row;">
+  <div style="flex: 1;">
+    <h2>Story List</h2>
+    <button mat-raised-button color="primary" (click)="createStory()">Create New</button>
+
+    <mat-action-list>
+      <ng-container *ngFor="let summary of storyService.storySummaries">
+        <button mat-list-item (click)="seeDetails(summary.documentId)">
+          {{summary.getLastUpdateStr()}}
+        </button>
+      </ng-container>
+    </mat-action-list>
+  </div>
+  <div style="flex:1; margin-top: 2em;">
+    <button mat-raised-button color="accent" (click)="seeStructureEditor()"
+    >Edit Structure Templates</button>
+  </div>
+</div>
+
+

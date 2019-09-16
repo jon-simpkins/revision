@@ -10,16 +10,15 @@ export class LoginGateService {
   loggedIn: boolean = false;
   loggedInEmail: string = '';
 
-  constructor(private appRef: ApplicationRef) {
+  constructor() {
     registerSignedInListener((loggedIn) => {
       this.updateSignedIn(loggedIn);
-    })
+    });
   }
 
   updateSignedIn(loggedIn) {
     this.loggedIn = loggedIn;
     this.loggedInEmail = getLoginEmail();
-    this.appRef.tick();
   }
 
   signIn(): void {

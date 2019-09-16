@@ -21,6 +21,10 @@ export class StoryListComponent implements OnInit {
     this.screenService.updateShowStoryDetails(true);
   }
 
+  seeStructureEditor() {
+    this.screenService.updateShowStructureTemplateEditor(true);
+  }
+
   ngOnInit() {
   }
 

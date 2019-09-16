@@ -4,7 +4,6 @@ import {ViewPanelContentComponent} from './view-panel-content.component';
 
 import {MatButtonModule, MatIconModule, MatListModule,} from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import ViewContentBlock, {ViewContentBlockType} from './ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../../../types/ViewOption';
 
 import {stubStory001} from '../../../stubStoryData/stubStory001';

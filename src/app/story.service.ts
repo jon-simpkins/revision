@@ -53,7 +53,6 @@ export class StoryService {
         this.storySummaries.push(newSummary);
 
         this.persistStorySummaries();
-        this.appRef.tick();
 
         return this.writeHeader(newDocumentId);
       });
@@ -96,7 +95,6 @@ export class StoryService {
       });
 
       this.updateViewEditOptions();
-      this.appRef.tick();
     });
   }
 
@@ -153,19 +151,16 @@ export class StoryService {
 
   setViewContent(viewOption: ViewOption) {
     this.screenService.currentViewOption = viewOption;
-    this.refreshViewContent(true);
+    this.refreshViewContent();
   }
 
-  refreshViewContent(includeTick: boolean) {
+  refreshViewContent() {
     const viewOption = this.screenService.currentViewOption;
     this.screenService.viewContent = generateAppropriateGenerator(viewOption)(
       this.currentScrapPile,
       viewOption.scrapId,
       viewOption.refId
     );
-    if (includeTick) {
-      this.appRef.tick();
-    }
   }
 
 }

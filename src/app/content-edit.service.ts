@@ -23,14 +23,7 @@ export class ContentEditService {
   currentContent: ScrapContent = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
 
-  constructor(private appRef: ApplicationRef, private storyService: StoryService, private loginGateService: LoginGateService) {
-    setInterval(() => {
-      if (this.currentScrapId) {
-        // Do an update check once a second when actively editing
-        this.appRef.tick();
-      }
-    }, 1000);
-  }
+  constructor(private appRef: ApplicationRef, private storyService: StoryService, private loginGateService: LoginGateService) {}
 
   getElapsedTimeStr(): string {
     let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
@@ -76,12 +69,10 @@ export class ContentEditService {
     }
 
     this.currentContent.receiveEdit(userEdit);
-    this.appRef.tick();
   }
 
   cancelEdit() {
     this.currentScrapId = null;
-    this.appRef.tick();
   }
 
   acceptEdit() {
@@ -97,7 +88,7 @@ export class ContentEditService {
     this.storyService.updateScrap(
       newScrap
     ).then(() => {
-      this.storyService.refreshViewContent(false);
+      this.storyService.refreshViewContent();
       this.cancelEdit();
     });
   }

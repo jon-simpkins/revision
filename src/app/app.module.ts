@@ -5,7 +5,15 @@ import {APP_BASE_HREF} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material/button';
 
-import {MatSelectModule, MatListModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule} from '@angular/material';
+import {
+  MatSelectModule,
+  MatListModule,
+  MatIconModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatSlideToggleModule,
+  MatCardModule, MatSliderModule
+} from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -22,6 +30,8 @@ import { ViewPanelContentComponent } from './story-details/view-panel-content/vi
 import { EditPanelContentComponent } from './story-details/edit-panel-content/edit-panel-content.component';
 import { EditHeaderComponent } from './story-details/edit-header/edit-header.component';
 import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
+import { StructureEditorComponent } from './structure-editor/structure-editor.component';
+import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-card-list.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +45,9 @@ import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
     ViewPanelContentComponent,
     EditPanelContentComponent,
     EditHeaderComponent,
-    EditNavComponent
+    EditNavComponent,
+    StructureEditorComponent,
+    BeatCardListComponent
   ],
   imports: [
     BrowserModule,
@@ -45,10 +57,10 @@ import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
     MatToolbarModule,
     MatListModule,
     MatIconModule,
-    MatSelectModule,
     MatSidenavModule,
-    MatFormFieldModule, MatInputModule,
-    BrowserAnimationsModule, MatSlideToggleModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatSlideToggleModule, MatCardModule, MatSliderModule,
+    BrowserAnimationsModule,
   ],
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
   bootstrap: [AppComponent]
