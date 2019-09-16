@@ -8,7 +8,8 @@ enum EditType {
   TEXT_LINE,
   TEXT_AREA,
   N_LINES,
-  MULTI_CHOICE
+  MULTI_CHOICE,
+  STRUCTURE_SELECTION,
 }
 
 class EditContext {

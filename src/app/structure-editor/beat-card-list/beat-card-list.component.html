@@ -1,0 +1,64 @@
+<div
+  *ngIf="storyStructure"
+  style="display: flex; flex-direction: column; width: 400px; height: 400px; overflow: scroll; border: 1px solid black;"
+  id="list-{{idPrefix}}"
+>
+  <mat-card *ngFor="let block of storyStructure.blocks; index as i"
+    style="margin: 5px; display: inline-flex; min-height: 130px;"
+    id="{{idPrefix + '-' + i}}"
+  >
+    <div *ngIf="shouldHighlightCard(i)" style="width: 5px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: green;"></div>
+    <div style="flex: 1; vertical-align: middle;" >
+      <mat-card-title>
+        <input *ngIf="allowEditTitles; else titlePlain" matInput
+           (input)="storyStructure.updateBlockLabel($event.target.value, i)"
+           value="{{block.label}}"
+           placeholder="Block Name"
+        >
+        <ng-template #titlePlain>{{block.label}}</ng-template>
+      </mat-card-title>
+      <mat-card-subtitle>
+        <input *ngIf="allowEditDescriptions; else descPlain" matInput
+           (input)="storyStructure.updateBlockDescription($event.target.value, i)"
+           value="{{block.description}}"
+           placeholder="Block Description"
+        >
+        <ng-template #descPlain>{{block.description}}</ng-template>
+      </mat-card-subtitle>
+      <mat-card-content>
+        <p>
+          {{storyStructure.getTimeRangeStr(i)}}
+        </p>
+        <button
+          mat-stroked-button *ngIf="storyStructure.canCreateAfter(i) && allowEditSequence"
+          (click)="storyStructure.createAfter(i)"
+        >
+          Add Beat After
+        </button>
+        <button
+          mat-stroked-button *ngIf="storyStructure.canDelete(i) && allowEditSequence"
+          (click)="storyStructure.delete(i)"
+        >
+          Delete
+        </button>
+      </mat-card-content>
+    </div>
+    <div style="flex: 0;">
+      <mat-slider
+        style="height: 100%;"
+        *ngIf="storyStructure.canChangeStart(i) && allowEditSequence"
+        min="0"
+        value="{{10000 * storyStructure.getFractionalStart(i)}}"
+        max="10000"
+        vertical
+        invert
+        (input)="storyStructure.updateBlockStart($event.value / 10000, i)"
+      ></mat-slider>
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,108 @@
+<h2>Structure Editor</h2>
+
+<button mat-button
+  style="flex: 0 0 50px; text-align: left"
+  (click)="backToStoryList()"
+>
+  <mat-icon>arrow_back</mat-icon>
+</button>
+
+<form>
+  <mat-form-field>
+    <mat-label>Structure Name</mat-label>
+    <input matInput
+      (input)="nameUpdate($event.target.value)"
+      value="{{editingStructure.name}}"
+    >
+  </mat-form-field>
+  <mat-form-field style="margin-left: 2em;">
+    <mat-label>Structure Duration</mat-label>
+    <input matInput
+      (input)="durationUpdate($event.target.value)"
+      value="{{editingStructure.totalDurationSecStr}}"
+    >
+  </mat-form-field>
+</form>
+
+
+<div
+  style="display: flex; flex-direction: row;"
+>
+  <span style="flex: 1;">&nbsp;</span>
+  <div style="flex: 0;">
+    <div style="height: 60px;">
+      <button mat-button style="margin: auto; text-align: center;"
+        (click)="saveTemplate()"
+      >
+        Save Template
+      </button>
+    </div>
+    <beat-card-list
+      [storyStructure]="editingStructure"
+      [allowEditSequence]="true"
+      [allowEditTitles]="true"
+      [allowEditDescriptions]="true"
+      [showHighlight]="true"
+      [highlightSec]="sliderSec"
+    ></beat-card-list>
+  </div>
+
+  <div
+    style="flex: 1;"
+  >
+    <div style="height: 60px;">
+      <button mat-button style="margin: auto; text-align: center;"
+        (click)="copyFromTemplate()"
+      >
+        <mat-icon>chevron_left</mat-icon> from Template
+      </button>
+    </div>
+    <div style="display: flex; flex-direction: column; height: 400px;">
+      <p style="flex: 0; text-align: center;">{{getTimelineSliderStr()}}</p>
+      <mat-slider
+        style="flex: 1; margin: auto;"
+        min="0"
+        value="{{getTimelineSliderFrac() * 10000}}"
+        (input)="onUpdateTimelineSlider($event.value / 10000)"
+        max="10000"
+        vertical
+        invert
+      ></mat-slider>
+    </div>
+
+  </div>
+  <div style="flex: 0;">
+    <div style="margin-left: 20px; height: 60px;">
+      <mat-form-field>
+        <mat-label>Select a template</mat-label>
+        <mat-select
+          [(value)]="referenceTemplateId"
+          (valueChange)="updateReferenceTemplate($event)"
+        >
+          <mat-option *ngFor="let option of structureTemplateService.getOptions()"
+            [value]="option.id"
+          >
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button
+        style="margin-left: 20px;"
+        [disabled]="structureTemplateService.getOptions().length === 1"
+        (click)="deleteTemplate()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <beat-card-list
+      [storyStructure]="referenceTemplate"
+      [showHighlight]="true"
+      [highlightSec]="sliderSec"
+    ></beat-card-list>
+  </div>
+  <span style="flex: 1;">&nbsp;</span>
+</div>
+
+
+<h3>Current as JSON:</h3>
+<pre>{{editingStructure.toString()}}</pre>
