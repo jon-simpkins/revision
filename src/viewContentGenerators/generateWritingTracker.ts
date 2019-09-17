@@ -1,5 +1,6 @@
 import {ScrapPile} from '../types/ScrapPile';
 import ViewContentBlock, {buildHeader, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 
 function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
   const blocks = [];
@@ -14,7 +15,7 @@ function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
   });
 
   blocks.push(buildParagraph(`${numScraps} total scraps written`));
-  blocks.push(buildParagraph(`${totalMs} ms spent writing`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(totalMs/1000)} spent writing`));
 
   return blocks;
 }
