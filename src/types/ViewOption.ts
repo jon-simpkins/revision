@@ -47,6 +47,14 @@ class ViewOption {
         )
       );
     }
+    if (scrapPile.hasOneOfSingularPrototypes([ScrapPrototype.STRUCTURE_SPEC])) {
+      options.push(
+        new ViewOption(
+          ViewOptionGenerators.STORY_STRUCTURE,
+          'Story Structure'
+        )
+      );
+    }
 
     return options;
   }

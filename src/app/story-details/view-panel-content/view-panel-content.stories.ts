@@ -44,7 +44,7 @@ class ViewPanelContent implements OnInit {
 storiesOf('View Panel Content', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [ViewPanelContentComponent],
+      declarations: [ViewPanelContent],
       imports: [AppModule],
       providers: [],
     }),
@@ -57,6 +57,13 @@ storiesOf('View Panel Content', module)
       component: ViewPanelContent,
       props: {
         viewOption: new ViewOption(ViewOptionGenerators.WRITING_TRACKER, null, null)
+      }
+    };
+  }).add('Renders story structure', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, null, null)
       }
     };
   }).add('Renders changelog', () => {

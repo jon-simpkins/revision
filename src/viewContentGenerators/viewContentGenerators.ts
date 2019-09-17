@@ -7,6 +7,7 @@ import {ScrapPile} from '../types/ScrapPile';
 import generateCharacterListing from './generateCharacterListing';
 import generateCharacterDetails from './generateCharacterDetails';
 import generateWritingTracker from './generateWritingTracker';
+import generateStructurePage from './generateStructurePage';
 
 enum ViewOptionGenerators {
   CHANGELOG,
@@ -15,6 +16,7 @@ enum ViewOptionGenerators {
   CHARACTER_LISTING,
   CHARACTER_DETAILS,
   WRITING_TRACKER,
+  STORY_STRUCTURE,
 }
 
 export type ViewContentGeneratorFunction = (scrapPile: ScrapPile, scrapId: string, refId: string) => ViewContentBlock[];
@@ -35,5 +37,7 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateCharacterDetails;
     case ViewOptionGenerators.WRITING_TRACKER:
       return generateWritingTracker;
+    case ViewOptionGenerators.STORY_STRUCTURE:
+      return generateStructurePage;
   }
 }
