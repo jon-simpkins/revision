@@ -2,15 +2,11 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 
 import { Component } from '@angular/core';
 
-import {MatButtonModule} from '@angular/material/button';
-import {MatToolbarModule} from '@angular/material';
-import {MatListModule} from '@angular/material';
-
-import {StoryListComponent} from './story-list.component';
 import {StoryService} from '../story.service';
 import {ScreenService} from '../screen.service';
 
 import StorySummary from '../../types/StorySummary';
+import {AppModule} from '../app.module';
 
 @Component({
   template: `<story-list></story-list>`,
@@ -55,8 +51,8 @@ class StoryListWithNoEntries {
 storiesOf('Story List', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [StoryListComponent, StoryListWithStubs, StoryListWithNoEntries],
-      imports: [MatButtonModule, MatToolbarModule, MatListModule],
+      declarations: [StoryListWithStubs, StoryListWithNoEntries],
+      imports: [AppModule],
       providers: [],
     }),
   ).add('Renders correctly with entries', () => {

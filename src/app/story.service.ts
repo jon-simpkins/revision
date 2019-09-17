@@ -22,7 +22,7 @@ export class StoryService {
 
   storySummaries: StorySummary[] = [];
   currentId: string = null;
-  currentScrapPile: ScrapPile;
+  currentScrapPile: ScrapPile = new ScrapPile();
 
   constructor(private appRef: ApplicationRef, private screenService: ScreenService, private storybookService: StorybookService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {

@@ -2,8 +2,6 @@ import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import {ViewPanelContentComponent} from './view-panel-content.component';
 
-import {MatButtonModule, MatIconModule, MatListModule,} from '@angular/material';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import ViewOption, {ViewOptionGenerators} from '../../../types/ViewOption';
 
 import {stubStory001} from '../../../stubStoryData/stubStory001';
@@ -11,8 +9,12 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ScreenService} from '../../screen.service';
 import {StoryService} from '../../story.service';
 import Scrap from '../../../types/Scrap';
+import {AppModule} from '../../app.module';
 
-const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><view-panel-content [viewContentBlocks]="screenService.viewContent"></view-panel-content></div>';
+const TEMPLATE = `
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <div style="width: 90%;"><view-panel-content [viewContentBlocks]="screenService.viewContent"></view-panel-content></div>
+`;
 
 @Component({
   template: TEMPLATE,
@@ -42,8 +44,8 @@ class ViewPanelContent implements OnInit {
 storiesOf('View Panel Content', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [ViewPanelContent, ViewPanelContentComponent],
-      imports: [MatButtonModule, MatIconModule, MatListModule, BrowserAnimationsModule],
+      declarations: [ViewPanelContentComponent],
+      imports: [AppModule],
       providers: [],
     }),
   ).add('Renders with no view content', () => {

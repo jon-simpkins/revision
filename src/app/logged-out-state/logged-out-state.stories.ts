@@ -2,11 +2,9 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 
 import { Component } from '@angular/core';
 
-import { LoggedOutStateComponent } from './logged-out-state.component';
 import { LoginGateService } from '../login-gate.service';
 
-import {MatButtonModule} from '@angular/material/button';
-import {MatDividerModule} from '@angular/material';
+import {AppModule} from '../app.module';
 
 @Component({
   template: `<logged-out-state></logged-out-state>`,
@@ -24,8 +22,8 @@ class LoggedOutStateWithStubs {
 storiesOf('Logged Out State', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [LoggedOutStateComponent, LoggedOutStateWithStubs],
-      imports: [MatButtonModule, MatDividerModule],
+      declarations: [LoggedOutStateWithStubs],
+      imports: [AppModule],
       providers: [],
     }),
   )

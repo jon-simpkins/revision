@@ -1,25 +1,13 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-  MatButtonModule, MatCardModule,
-  MatFormFieldModule,
-  MatIconModule,
-  MatInputModule,
-  MatListModule,
-  MatSelectModule, MatSliderModule,
-  MatSlideToggleModule,
-  MatToolbarModule
-} from '@angular/material';
-import {EditPanelContentComponent} from './edit-panel-content/edit-panel-content.component';
 import Scrap, {ScrapPrototype} from '../../types/Scrap';
 import {Component, Input, OnInit} from '@angular/core';
 import {ScreenService} from '../screen.service';
 import {StoryService} from '../story.service';
 import {stubStory001} from '../../stubStoryData/stubStory001';
 import {ContentEditService} from '../content-edit.service';
-import {StructureEditPanelComponent} from './edit-panel-content/structure-edit-panel/structure-edit-panel.component';
-import {BeatCardListComponent} from '../structure-editor/beat-card-list/beat-card-list.component';
+
+import {AppModule} from '../app.module';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-panel-content [editContext]="contentEditService.editContext" [editContent]="contentEditService.currentContent"></edit-panel-content></div>';
 
@@ -74,8 +62,8 @@ const EXAMPLE_TYPES = [
 let editStoryModule = storiesOf('Edit Panel Content', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [BeatCardListComponent,  EditPanelContentComponent, EditPanelContent, StructureEditPanelComponent],
-      imports: [MatCardModule, MatSliderModule, MatSlideToggleModule, MatSelectModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, MatToolbarModule, MatListModule, BrowserAnimationsModule],
+      declarations: [EditPanelContent],
+      imports: [AppModule],
       providers: [],
     })
   );
