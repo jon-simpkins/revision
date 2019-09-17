@@ -2,12 +2,13 @@ import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import {MatButtonModule} from '@angular/material/button';
 import {
+  MatCardModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
   MatListModule,
   MatSelectModule,
-  MatSidenavModule, MatSlideToggleModule,
+  MatSidenavModule, MatSliderModule, MatSlideToggleModule,
   MatToolbarModule
 } from '@angular/material';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -20,12 +21,14 @@ import {ContentEditService} from '../content-edit.service';
 import {StoryService} from '../story.service';
 import {EditHeaderComponent} from './edit-header/edit-header.component';
 import {EditNavComponent} from './edit-nav/edit-nav.component';
-import Scrap, {ScrapPrototype, TextLineContent} from '../../types/Scrap';
+import Scrap from '../../types/Scrap';
 
 import {stubStory001} from '../../stubStoryData/stubStory001';
 
 import {ViewPanelContentComponent} from './view-panel-content/view-panel-content.component';
 import {StorybookService} from '../storybook.service';
+import {StructureEditPanelComponent} from './edit-panel-content/structure-edit-panel/structure-edit-panel.component';
+import {BeatCardListComponent} from '../structure-editor/beat-card-list/beat-card-list.component';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><story-details></story-details></div>';
 
@@ -72,8 +75,8 @@ class StoryDetailsWithViewOptions {
 storiesOf('Story Details', module)
   .addDecorator(
     moduleMetadata({
-      declarations: [ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsBlankSlate, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent],
-      imports: [MatSlideToggleModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
+      declarations: [StructureEditPanelComponent, BeatCardListComponent, ViewPanelContentComponent, EditNavComponent, EditHeaderComponent, StoryDetailsBlankSlate, EditPanelContentComponent, StoryDetailsComponent, StoryDetailsWithViewOptions, ViewNavComponent],
+      imports: [MatCardModule, MatSliderModule, MatSlideToggleModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatToolbarModule, MatListModule, MatSidenavModule, BrowserAnimationsModule],
       providers: [],
     }),
   ).add('Renders correctly with a blank slate', () => {

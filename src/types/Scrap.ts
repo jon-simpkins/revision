@@ -1,7 +1,8 @@
-import UserEdit from './UserEdit';
 import * as LZString from 'lz-string/libs/lz-string.js';
 import {NLineContent} from './ScrapTypes/NLineContent';
+import {TextLineContent} from './ScrapTypes/TextLineContent';
 import { ScrapContent } from './ScrapTypes/ScrapContent';
+import {StructureSpecContent} from './ScrapTypes/StructureSpecContent';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
@@ -13,50 +14,14 @@ enum ScrapPrototype {
   CHARACTER_GENDER,
   CHARACTER_DRIVE,
   MOVIE_DURATION,
+  STRUCTURE_SPEC,
 }
 
 enum ScrapContentType {
   TEXT_LINE,
   N_LINES,
+  STORY_STRUCTURE
 }
-
-class TextLineContent extends ScrapContent {
-  text = '';
-
-  constructor(text?: string) {
-    super();
-
-    this.text = text ? text : '';
-  }
-
-  toString() {
-    return JSON.stringify({t: this.text});
-  }
-
-  static parse(stringified: string): TextLineContent {
-    let retVal = new TextLineContent();
-
-    if (!stringified) {
-      return retVal;
-    }
-
-    retVal.text = JSON.parse(stringified).t;
-
-    return retVal;
-  }
-
-  clone(): TextLineContent {
-    let newContent = new TextLineContent();
-    newContent.text = this.text;
-    return newContent;
-  }
-
-  receiveEdit(userEdit: UserEdit) {
-    this.text = userEdit.textValue;
-  }
-}
-
-
 
 // Class for individual story scraps
 class Scrap {
@@ -75,7 +40,6 @@ class Scrap {
   refId: string;
 
   content: ScrapContent;
-
 
   generateSerialization(): string {
     const ARRAY_CHUNK_LENGTH = 20;
@@ -136,19 +100,23 @@ class Scrap {
       case ScrapPrototype.SIMILAR_MOVIES:
       case ScrapPrototype.CHARACTER_LISTING:
         return ScrapContentType.N_LINES;
+      case ScrapPrototype.STRUCTURE_SPEC:
+        return ScrapContentType.STORY_STRUCTURE;
     }
 
     return null;
   }
 
   static parseScrapContent(serializedContent: string, prototype: ScrapPrototype) {
-    let contentType = Scrap.determineTypeFromPrototype(prototype);
+    const contentType = Scrap.determineTypeFromPrototype(prototype);
 
     switch (contentType) {
       case ScrapContentType.TEXT_LINE:
         return TextLineContent.parse(serializedContent);
       case ScrapContentType.N_LINES:
         return NLineContent.parse(serializedContent);
+      case ScrapContentType.STORY_STRUCTURE:
+        return StructureSpecContent.parse(serializedContent);
     }
 
     return null;
@@ -156,6 +124,6 @@ class Scrap {
 
 }
 
-export {ScrapPrototype, TextLineContent};
+export {ScrapPrototype};
 
 export default Scrap;

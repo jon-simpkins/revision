@@ -78,6 +78,10 @@
 
     </form>
   </div>
+  <structure-edit-panel *ngSwitchCase="editTypes.STRUCTURE_SELECTION"
+    [editContext]="editContext"
+    [editContent]="editContent"
+  ></structure-edit-panel>
   <div *ngSwitchDefault>Unknown content type!</div>
 </div>
 <div *ngIf="editContext.viewOptions">

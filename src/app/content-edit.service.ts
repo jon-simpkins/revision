@@ -57,7 +57,11 @@ export class ContentEditService {
       this.storyService.setViewContent(this.editContext.viewOptions[0]);
     }
 
-    this.originalContent = this.storyService.fetchEditScrapContent(scrapId, prototype);
+    this.originalContent = EditContext.applyConstraints(
+      this.storyService.fetchEditScrapContent(scrapId, prototype),
+      this.editContext.constraints
+    );
+
     this.currentContent = this.originalContent.clone(); // Create isolated clone
 
     this.editStartEpoch = Date.now();

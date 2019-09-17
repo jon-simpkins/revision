@@ -7,8 +7,9 @@ class ScrapPile {
   newestScrapByRefAndPrototype = new Map<string, Map<ScrapPrototype, Scrap>>();
 
   importFromSerialization(serializedContent: string) {
-    let newScrap = Scrap.parseSerialization(serializedContent);
-    this.addScrap(newScrap);
+    this.addScrap(
+      Scrap.parseSerialization(serializedContent)
+    );
   }
 
   addScrap(scrap: Scrap) {
@@ -67,6 +68,17 @@ class ScrapPile {
     }
 
     return this.newestScrapByRefAndPrototype.get(refId).get(scrapPrototype);
+  }
+
+  // Convenience function for fetching the constraining duration for a structure
+  fetchConstraintDurationSec(refId: string): number {
+    if (!refId) {
+      // If not a reference to a child structure, fetch the top-level story duration
+      return Number(this.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION).content.text) * 60;
+    }
+
+    // TODO: IMPLEMENT THIS
+    console.error('Child structure duration not implemented!');
   }
 }
 

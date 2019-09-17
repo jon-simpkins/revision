@@ -1,11 +1,11 @@
 import * as uuid from 'uuid/v4';
 import {isNumber} from 'util';
-import {min} from 'rxjs/operators';
 
 class StructureBlock {
   startTime: number;
   label: string;
   description: string;
+  refId: string = uuid();
 
   static convertTimeFromStr(timeStr: string): number {
     const parsed = timeStr.trim().split(':').map(subStr => {
@@ -60,6 +60,7 @@ class StructureBlock {
     newBlock.startTime = parseFloat(json.startTime);
     newBlock.label = json.label;
     newBlock.description = json.description;
+    newBlock.refId = json.refId;
     return newBlock;
   }
 
@@ -67,7 +68,8 @@ class StructureBlock {
     return {
       startTime: this.startTime,
       label: this.label,
-      description: this.description
+      description: this.description,
+      refId: this.refId
     };
   }
 }
@@ -124,6 +126,9 @@ class StoryStructure {
     const cloned = this.clone();
     cloned.name = 'Clone of ' + cloned.name;
     cloned.id = uuid();
+    cloned.blocks.forEach(block => {
+      block.refId = uuid();
+    });
 
     return cloned;
   }

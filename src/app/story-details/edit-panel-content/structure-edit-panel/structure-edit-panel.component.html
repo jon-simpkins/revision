@@ -1,0 +1,53 @@
+<h3>{{editContext.headerPrompt}}:</h3>
+<p *ngIf="editContext.userGuidance">
+  {{editContext.userGuidance}}
+</p>
+<p>Duration: {{formatDurationSec(editContext.constraints.durationSec)}}</p>
+
+<div
+  style="display: flex; flex-direction: row;"
+>
+  <span style="flex: 1;">&nbsp;</span>
+  <div style="flex: 0;">
+    <div style="height: 60px;">
+      &nbsp;
+    </div>
+    <beat-card-list
+      [storyStructure]="editContent.storyStructure"
+      [allowEditTitles]="true"
+    ></beat-card-list>
+  </div>
+
+  <div
+    style="flex: 1;"
+  >
+    <div style="height: 60px;">
+      <button mat-button style="margin: auto; text-align: center;"
+              (click)="copyFromTemplate()"
+      >
+        <mat-icon>chevron_left</mat-icon> from Template
+      </button>
+    </div>
+  </div>
+  <div style="flex: 0;">
+    <div style="margin-left: 20px; height: 60px;">
+      <mat-form-field>
+        <mat-label>Select a template</mat-label>
+        <mat-select
+          [(value)]="referenceTemplateId"
+          (valueChange)="updateReferenceTemplate($event)"
+        >
+          <mat-option *ngFor="let option of structureTemplateService.getOptions()"
+                      [value]="option.id"
+          >
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <beat-card-list
+      [storyStructure]="referenceTemplate"
+    ></beat-card-list>
+  </div>
+  <span style="flex: 1;">&nbsp;</span>
+</div>

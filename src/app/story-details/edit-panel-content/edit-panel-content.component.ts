@@ -2,10 +2,11 @@ import { Component, Input } from '@angular/core';
 import {ContentEditService} from '../../content-edit.service';
 import UserEdit from '../../../types/UserEdit';
 import EditContext, {EditType} from '../../../types/EditContext';
-import {TextLineContent} from '../../../types/Scrap';
 import ViewOption from '../../../types/ViewOption';
 import {StoryService} from '../../story.service';
 import {NLineContent} from '../../../types/ScrapTypes/NLineContent';
+import {TextLineContent} from '../../../types/ScrapTypes/TextLineContent';
+import {StructureSpecContent} from '../../../types/ScrapTypes/StructureSpecContent';
 
 @Component({
   selector: 'edit-panel-content',
@@ -14,7 +15,7 @@ import {NLineContent} from '../../../types/ScrapTypes/NLineContent';
 })
 export class EditPanelContentComponent {
 
-  @Input() editContent: TextLineContent | NLineContent;
+  @Input() editContent: TextLineContent | NLineContent | StructureSpecContent;
   @Input() editContext: EditContext;
 
   editTypes = EditType; // Allow the template to see the enum

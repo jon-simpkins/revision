@@ -32,6 +32,7 @@ import { EditHeaderComponent } from './story-details/edit-header/edit-header.com
 import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
 import { StructureEditorComponent } from './structure-editor/structure-editor.component';
 import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-card-list.component';
+import { StructureEditPanelComponent } from './story-details/edit-panel-content/structure-edit-panel/structure-edit-panel.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-ca
     EditHeaderComponent,
     EditNavComponent,
     StructureEditorComponent,
-    BeatCardListComponent
+    BeatCardListComponent,
+    StructureEditPanelComponent
   ],
   imports: [
     BrowserModule,

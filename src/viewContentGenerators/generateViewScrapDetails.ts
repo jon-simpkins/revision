@@ -71,6 +71,8 @@ function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewCo
 
   blocks.push(buildParagraph('Raw JSON content (for debugging):'));
   blocks.push(buildParagraph(relevantScrap.content.toString()));
+  blocks.push(buildParagraph('scrapId: ' + relevantScrap.id));
+  blocks.push(buildParagraph('refId: ' + relevantScrap.refId));
 
   const relevantViews = fetchRelevantViews(relevantScrap, scrapPile);
   if (relevantViews && relevantViews.length) {

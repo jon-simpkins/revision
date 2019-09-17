@@ -8,6 +8,7 @@ SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIM
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.CHARACTER_LISTING, new Set([ScrapPrototype.LOG_LINE]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STRUCTURE_SPEC, new Set([ScrapPrototype.MOVIE_DURATION]));
 
 class EditOption {
   prototype: ScrapPrototype;
@@ -169,6 +170,8 @@ class EditOption {
         return 'Character Gender';
       case ScrapPrototype.CHARACTER_DRIVE:
         return 'Character Drive';
+      case ScrapPrototype.STRUCTURE_SPEC:
+        return 'Structure Spec';
     }
   }
 }
