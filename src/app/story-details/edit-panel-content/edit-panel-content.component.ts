@@ -1,4 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, NgZone, ViewChild } from '@angular/core';
+import {CdkTextareaAutosize} from '@angular/cdk/text-field';
+import {take} from 'rxjs/operators';
+
 import {ContentEditService} from '../../content-edit.service';
 import UserEdit from '../../../types/UserEdit';
 import EditContext, {EditType} from '../../../types/EditContext';
@@ -20,7 +23,15 @@ export class EditPanelContentComponent {
 
   editTypes = EditType; // Allow the template to see the enum
 
-  constructor(private contentEditService: ContentEditService, private storyService: StoryService) { }
+  constructor(private _ngZone: NgZone, private contentEditService: ContentEditService, private storyService: StoryService) { }
+
+  // Resize content from: https://material.angular.io/components/input/examples
+  @ViewChild('autosize', {static: false}) autosize: CdkTextareaAutosize;
+  triggerResize() {
+    // Wait for changes to be applied, then trigger textarea resize.
+    this._ngZone.onStable.pipe(take(1))
+      .subscribe(() => this.autosize.resizeToFitContent(true));
+  }
 
   sendPlaintextEdit(update: string) {
     this.contentEditService.receiveEdit(new UserEdit(update, null));

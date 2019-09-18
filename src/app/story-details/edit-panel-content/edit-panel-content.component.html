@@ -22,6 +22,10 @@
       <mat-form-field style="width: 100%;">
         <textarea matInput
           (input)="sendPlaintextEdit($event.target.value)"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="10"
         >{{editContent.text}}</textarea>
       </mat-form-field>
     </form>
