@@ -1,11 +1,18 @@
 import {ScrapPile} from '../types/ScrapPile';
-import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewContentBlock, {
+  buildHeader,
+  buildListEntry,
+  buildParagraph,
+  buildParagraphsFromTextArea,
+  ViewContentBlockType
+} from '../app/story-details/view-panel-content/ViewContentBlock';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 import Scrap, {ScrapPrototype} from '../types/Scrap';
 import ViewOption from '../types/ViewOption';
+import EditOption from '../types/EditOption';
 
 function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: string): ViewContentBlock[] {
-  const blocks = [];
+  let blocks = [];
 
   let relevantStructureScrap: Scrap;
   let actualDurationSec: number;
@@ -42,14 +49,26 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
     ViewOption.detailsForScrap(relevantDurationScrap)
   ));
 
+  blocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
   relevantStructureScrap.content.storyStructure.blocks.forEach((structureBlock: StructureBlock, idx: number) => {
     const durationStr = relevantStructureScrap.content.storyStructure.getTimeRangeStr(idx);
 
-    blocks.push(buildParagraph(structureBlock.label));
-    blocks.push(buildListEntry(durationStr));
-    blocks.push(buildParagraph(''));
+    const blockSummaryScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
 
-    const blockRefId = structureBlock.refId; // TODO: USE THIS TO FETCH SUMMARY AND CONTENT OR OFFER TO EDIT
+    blocks.push(buildHeader(structureBlock.label));
+    blocks.push(buildListEntry(durationStr));
+
+    if (blockSummaryScrap) {
+      blocks.push(buildHeader('Block Summary:', ViewOption.detailsForScrap(blockSummaryScrap)));
+      blocks = buildParagraphsFromTextArea(blockSummaryScrap.content.text, blocks);
+    } else {
+      const summaryEditOption = new EditOption();
+      summaryEditOption.refId = structureBlock.refId;
+      summaryEditOption.prototype = ScrapPrototype.STRUCTURE_BLOCK_SUMMARY;
+      blocks.push(buildHeader('Block Summary: TBD', null, summaryEditOption));
+    }
+
+    blocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
   });
 
   return blocks;

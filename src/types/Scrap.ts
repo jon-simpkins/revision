@@ -15,6 +15,7 @@ enum ScrapPrototype {
   CHARACTER_DRIVE,
   MOVIE_DURATION,
   STRUCTURE_SPEC,
+  STRUCTURE_BLOCK_SUMMARY,
 }
 
 enum ScrapContentType {
@@ -96,6 +97,7 @@ class Scrap {
       case ScrapPrototype.CHARACTER_NAME:
       case ScrapPrototype.CHARACTER_GENDER:
       case ScrapPrototype.CHARACTER_DRIVE:
+      case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
       case ScrapPrototype.CHARACTER_LISTING:

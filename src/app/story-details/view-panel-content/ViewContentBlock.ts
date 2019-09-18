@@ -6,6 +6,7 @@ enum ViewContentBlockType {
   PARAGRAPH,
   LIST_ENTRY,
   NEXT_PREV_NAV,
+  HORIZONTAL_DIVIDER,
 }
 
 // Class to represent a single block of renderable content for viewing
@@ -16,7 +17,7 @@ class ViewContentBlock {
   viewOption: ViewOption; // Optional, allows linkages to other views
   prevOption: ViewOption; // Also optional, used only for next / prev nav
 
-  constructor(type: ViewContentBlockType, text: string, viewOption?: ViewOption, editOption?: EditOption) {
+  constructor(type: ViewContentBlockType, text?: string, viewOption?: ViewOption, editOption?: EditOption) {
     this.type = type;
     this.text = text;
     this.viewOption = viewOption;

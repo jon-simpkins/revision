@@ -1,6 +1,7 @@
 import Scrap, {ScrapPrototype} from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {ScrapPile} from './ScrapPile';
+import {StoryStructure} from './StoryStructure/StoryStructure';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_DURATION, new Set([ScrapPrototype.SIMILAR_MOVIES]));
@@ -70,6 +71,51 @@ class EditOption {
     return singularOptions;
   }
 
+  static buildStructureOptions(scrapPile: ScrapPile): EditOption[] {
+    const allOptions = [];
+
+    const allStructures: StoryStructure[] = [];
+
+    if (scrapPile.newestScrapBySingularPrototype.has(ScrapPrototype.STRUCTURE_SPEC)) {
+      allStructures.push(
+        scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.STRUCTURE_SPEC).content.storyStructure
+      );
+    }
+
+    // TODO: GRAB OTHER STRUCTURE OPTIONS
+
+    const BLOCK_PROTOTYPES = new Set([
+      ScrapPrototype.STRUCTURE_BLOCK_SUMMARY
+    ]);
+
+    allStructures.forEach(structure => {
+      structure.blocks.forEach(block => {
+        BLOCK_PROTOTYPES.forEach(prototype => {
+          // yikes, 3 nested for loops is not super great
+
+          const newOption = new EditOption();
+          newOption.prototype = prototype;
+          newOption.iterations = 0;
+          newOption.lastEdited = 0;
+          newOption.scrapId = 'null';
+          newOption.refId = block.refId;
+
+          if (scrapPile.getByRefId(block.refId, prototype)) {
+            const relevantScrap = scrapPile.getByRefId(block.refId, prototype);
+
+            newOption.scrapId = relevantScrap.id;
+            newOption.lastEdited = relevantScrap.completedEpoch;
+            newOption.iterations = 1; // Inaccurrate, but performant; we really just care if it has ever been completed, and when
+          }
+
+          allOptions.push(newOption);
+        });
+      });
+    });
+
+    return allOptions;
+  }
+
   static buildCharacterOptions(scrapPile: ScrapPile): EditOption[] {
     const allOptions = [];
 
@@ -112,7 +158,8 @@ class EditOption {
   static buildOptions(scrapPile: ScrapPile): EditOption[] {
     const allOptions = []
       .concat(EditOption.buildSingularOptions(scrapPile))
-      .concat(EditOption.buildCharacterOptions(scrapPile));
+      .concat(EditOption.buildCharacterOptions(scrapPile))
+      .concat(EditOption.buildStructureOptions(scrapPile));
 
     // Return the sorted version, where less-iterated things are on top,
     // and recency of edit is the tiebreaker
@@ -172,6 +219,8 @@ class EditOption {
         return 'Character Drive';
       case ScrapPrototype.STRUCTURE_SPEC:
         return 'Structure Spec';
+      case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
+        return 'Structure Block Summary';
     }
   }
 }

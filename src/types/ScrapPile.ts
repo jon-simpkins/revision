@@ -64,6 +64,9 @@ class ScrapPile {
 
   getByRefId(refId: string, scrapPrototype: ScrapPrototype): Scrap {
     if (!this.newestScrapByRefAndPrototype.get(refId)) {
+      if (this.newestScrapBySingularPrototype.has(scrapPrototype)) {
+        return this.newestScrapBySingularPrototype.get(scrapPrototype);
+      }
       return null; // No scraps for this refId yet
     }
 
@@ -79,6 +82,22 @@ class ScrapPile {
 
     // TODO: IMPLEMENT THIS
     console.error('Child structure duration not implemented!');
+  }
+
+  fetchStructureBlockParentRefId(blockRefId: string): string {
+    // First off check if this block is referenced in the top-level structure
+    if (this.newestScrapBySingularPrototype.has(ScrapPrototype.STRUCTURE_SPEC)) {
+      const topLevelStructure = this.newestScrapBySingularPrototype
+        .get(ScrapPrototype.STRUCTURE_SPEC).content.storyStructure;
+      for (let i = 0; i < topLevelStructure.blocks.length; i++) {
+        if (topLevelStructure.blocks[i].refId === blockRefId) {
+          return null; // Since the refId of the top-level structure is null
+        }
+      }
+    }
+
+
+    throw new Error('Unable to find refId of structure containing block: ' + blockRefId);
   }
 }
 

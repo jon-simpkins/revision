@@ -43,6 +43,9 @@
           (click)="updateViewContent(block.viewOption)"
         >Next {{block.text}}</button>
       </div>
+      <div *ngSwitchCase="viewContentBlockTypes.HORIZONTAL_DIVIDER">
+        <hr/>
+      </div>
     </div>
   </div>
 </div>

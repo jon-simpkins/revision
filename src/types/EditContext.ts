@@ -1,5 +1,5 @@
 import {ScrapPrototype} from './Scrap';
-import ViewOption, {buildCharacterDetailsViewOption, buildStorySummaryViewOption} from './ViewOption';
+import ViewOption, {buildCharacterDetailsViewOption, buildStorySummaryViewOption, ViewOptionGenerators} from './ViewOption';
 import {ScrapPile} from './ScrapPile';
 import {GENDER_OPTIONS} from './GenderOptions';
 import {MultiOption} from './MultiOption';
@@ -89,6 +89,32 @@ class EditContext {
           'Character Name',
           null,
           [buildCharacterDetailsViewOption(refId)]
+        );
+
+        return ctx;
+      case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
+        const parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(refId);
+
+        const parentStructureBlocks = scrapPile.getByRefId(
+          parentStructureRefId,
+          ScrapPrototype.STRUCTURE_SPEC
+        ).content.storyStructure.blocks;
+
+        let parentStructureBlockLabel = 'NOT FOUND';
+        parentStructureBlocks.forEach(block => {
+          if (block.refId === refId) {
+            parentStructureBlockLabel = block.label;
+          }
+        });
+
+        ctx = new EditContext(
+          EditType.TEXT_AREA,
+          `Summarize the Story Beat: "${parentStructureBlockLabel}"`,
+          null,
+          [
+            new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+          ],
+          'What happens in this beat? What arc happens, where does it start and end?'
         );
 
         return ctx;
