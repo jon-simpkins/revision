@@ -2,10 +2,17 @@ import {LineContent} from './LineContent';
 import UserEdit from '../UserEdit';
 import {StoryStructure} from '../StoryStructure/StoryStructure';
 
+enum TARGET_CONTENT_TYPE {
+  SCRIPT_SCRAP, // Small bit of writing
+  SUB_STRUCTURE, // StoryStructure
+}
+
 abstract class ScrapContent {
   text = '';
   lines: LineContent[] = [];
   storyStructure: StoryStructure;
+  targetRefId: string;
+  targetType: TARGET_CONTENT_TYPE;
 
   abstract toString(): string;
 
@@ -14,4 +21,4 @@ abstract class ScrapContent {
   abstract receiveEdit(userEdit: UserEdit);
 }
 
-export {ScrapContent};
+export {ScrapContent, TARGET_CONTENT_TYPE};

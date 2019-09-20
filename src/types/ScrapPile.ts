@@ -63,10 +63,11 @@ class ScrapPile {
   }
 
   getByRefId(refId: string, scrapPrototype: ScrapPrototype): Scrap {
+    if (!refId) {
+      return this.newestScrapBySingularPrototype.get(scrapPrototype);
+    }
+
     if (!this.newestScrapByRefAndPrototype.get(refId)) {
-      if (this.newestScrapBySingularPrototype.has(scrapPrototype)) {
-        return this.newestScrapBySingularPrototype.get(scrapPrototype);
-      }
       return null; // No scraps for this refId yet
     }
 
@@ -81,7 +82,7 @@ class ScrapPile {
     }
 
     // TODO: IMPLEMENT THIS
-    console.error('Child structure duration not implemented!');
+    throw new Error('Child structure duration not implemented!');
   }
 
   fetchStructureBlockParentRefId(blockRefId: string): string {
@@ -98,6 +99,21 @@ class ScrapPile {
 
 
     throw new Error('Unable to find refId of structure containing block: ' + blockRefId);
+  }
+
+  // This is to deal with the fact that the duration of the structure is determined elsewhere by a parent entity
+  fetchProperlyRescaledStructureScrap(refId: string): Scrap {
+    if (!refId) {
+      // Easy, let's grab the top-level duration
+      const durationSec = 60 * Number(this.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION).content.text);
+
+      const structureScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.STRUCTURE_SPEC).clone();
+      structureScrap.content.storyStructure.rescaleToDuraction(durationSec);
+
+      return structureScrap;
+    }
+
+    throw new Error('Non-top-level structure not implemented yet');
   }
 }
 

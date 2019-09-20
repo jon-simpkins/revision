@@ -34,6 +34,7 @@ import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
 import { StructureEditorComponent } from './structure-editor/structure-editor.component';
 import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-card-list.component';
 import { StructureEditPanelComponent } from './story-details/edit-panel-content/structure-edit-panel/structure-edit-panel.component';
+import {StructureBlockContentEditPanelComponent} from './story-details/edit-panel-content/structure-block-content-edit-panel/structure-block-content-edit-panel.component';
 
 const APP_COMPONENTS = [
   AppComponent,
@@ -49,7 +50,8 @@ const APP_COMPONENTS = [
   EditNavComponent,
   StructureEditorComponent,
   BeatCardListComponent,
-  StructureEditPanelComponent
+  StructureEditPanelComponent,
+  StructureBlockContentEditPanelComponent,
 ];
 
 const MATERIAL_IMPORTS = [

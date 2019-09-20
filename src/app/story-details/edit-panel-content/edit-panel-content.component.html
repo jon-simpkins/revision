@@ -89,6 +89,10 @@
     [editContext]="editContext"
     [editContent]="editContent"
   ></structure-edit-panel>
+  <structure-block-content-edit-panel *ngSwitchCase="editTypes.CONTENT_ASSIGNMENT"
+    [editContext]="editContext"
+    [editContent]="editContent"
+  ></structure-block-content-edit-panel>
   <div *ngSwitchDefault>Unknown content type!</div>
 </div>
 <div *ngIf="editContext.viewOptions">

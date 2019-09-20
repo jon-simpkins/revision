@@ -8,6 +8,7 @@ import {stubStory001} from '../../stubStoryData/stubStory001';
 import {ContentEditService} from '../content-edit.service';
 
 import {AppModule} from '../app.module';
+import {HackUpdateService} from '../hack-update.service';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-panel-content [editContext]="contentEditService.editContext" [editContent]="contentEditService.currentContent"></edit-panel-content></div>';
 
@@ -20,7 +21,7 @@ class EditPanelContent implements OnInit {
   @Input() prototype;
   @Input() refId;
 
-  constructor(public screenService: ScreenService, public storyService: StoryService, public contentEditService: ContentEditService) {
+  constructor(public hackUpdateService: HackUpdateService, public screenService: ScreenService, public storyService: StoryService, public contentEditService: ContentEditService) {
     // Import the appropriate story scraps
     storyService.clearStory();
     storyService.currentId = 'myStory1234';
@@ -61,6 +62,12 @@ const EXAMPLE_TYPES = [
     storyName: 'Structure Block Summary',
     scrapId: '7cdb4e5f-f362-446d-851f-19511d448688',
     prototype: ScrapPrototype.STRUCTURE_BLOCK_SUMMARY,
+    refId: 'f7bbed38-584f-4b50-b72c-138a84e4f534'
+  },
+  {
+    storyName: 'Structure Block Content (New)',
+    scrapId: null,
+    prototype: ScrapPrototype.STRUCTURE_BLOCK_CONTENT,
     refId: 'f7bbed38-584f-4b50-b72c-138a84e4f534'
   }
 ];

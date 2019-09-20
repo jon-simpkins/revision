@@ -3,6 +3,7 @@ import {NLineContent} from './ScrapTypes/NLineContent';
 import {TextLineContent} from './ScrapTypes/TextLineContent';
 import { ScrapContent } from './ScrapTypes/ScrapContent';
 import {StructureSpecContent} from './ScrapTypes/StructureSpecContent';
+import {StructureBlockContent} from './ScrapTypes/StructureBlockContent';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
@@ -16,12 +17,16 @@ enum ScrapPrototype {
   MOVIE_DURATION,
   STRUCTURE_SPEC,
   STRUCTURE_BLOCK_SUMMARY,
+  STRUCTURE_BLOCK_CONTENT,
+  SCRIPT,
 }
 
 enum ScrapContentType {
   TEXT_LINE,
   N_LINES,
-  STORY_STRUCTURE
+  STORY_STRUCTURE,
+  BLOCK_CONTENT_ASSIGNMENT,
+  SCRIPT
 }
 
 // Class for individual story scraps
@@ -88,6 +93,10 @@ class Scrap {
     return newScrap;
   }
 
+  clone() {
+    return Scrap.parseSerialization(this.generateSerialization());
+  }
+
   static determineTypeFromPrototype(prototype: ScrapPrototype): ScrapContentType {
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
@@ -104,6 +113,10 @@ class Scrap {
         return ScrapContentType.N_LINES;
       case ScrapPrototype.STRUCTURE_SPEC:
         return ScrapContentType.STORY_STRUCTURE;
+      case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
+        return ScrapContentType.BLOCK_CONTENT_ASSIGNMENT;
+      case ScrapPrototype.SCRIPT:
+        return ScrapContentType.SCRIPT;
     }
 
     return null;
@@ -119,9 +132,11 @@ class Scrap {
         return NLineContent.parse(serializedContent);
       case ScrapContentType.STORY_STRUCTURE:
         return StructureSpecContent.parse(serializedContent);
+      case ScrapContentType.BLOCK_CONTENT_ASSIGNMENT:
+        return StructureBlockContent.parse(serializedContent);
     }
 
-    return null;
+    throw Error('Unrecognized scrap prototype');
   }
 
 }

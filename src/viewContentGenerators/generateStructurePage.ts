@@ -10,6 +10,8 @@ import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 import Scrap, {ScrapPrototype} from '../types/Scrap';
 import ViewOption from '../types/ViewOption';
 import EditOption from '../types/EditOption';
+import {TARGET_CONTENT_TYPE} from '../types/ScrapTypes/ScrapContent';
+import {StructureBlockContent} from '../types/ScrapTypes/StructureBlockContent';
 
 function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: string): ViewContentBlock[] {
   let blocks = [];
@@ -54,6 +56,7 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
     const durationStr = relevantStructureScrap.content.storyStructure.getTimeRangeStr(idx);
 
     const blockSummaryScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
+    const blockContentScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_CONTENT);
 
     blocks.push(buildHeader(structureBlock.label));
     blocks.push(buildListEntry(durationStr));
@@ -66,6 +69,29 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
       summaryEditOption.refId = structureBlock.refId;
       summaryEditOption.prototype = ScrapPrototype.STRUCTURE_BLOCK_SUMMARY;
       blocks.push(buildHeader('Block Summary: TBD', null, summaryEditOption));
+    }
+    if (blockContentScrap) {
+      blocks.push(buildHeader('Block Content:', ViewOption.detailsForScrap(blockContentScrap)));
+
+      const blockContent: StructureBlockContent = blockContentScrap.content as StructureBlockContent;
+
+      let contentTypeStr = '';
+      if (blockContentScrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
+        contentTypeStr = 'Script Scrap';
+      } else {
+        contentTypeStr = 'Sub-Structure';
+      }
+
+      const contentPrototype = blockContent.getScrapPrototypeOfTarget();
+      const doesExist = !!scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
+      const doesExistStr = doesExist ? 'Does Exist' : 'Does Not Exist';
+
+      blocks.push(buildParagraph(`${contentTypeStr}: (${doesExistStr})`));
+    } else {
+      const summaryEditOption = new EditOption();
+      summaryEditOption.refId = structureBlock.refId;
+      summaryEditOption.prototype = ScrapPrototype.STRUCTURE_BLOCK_CONTENT;
+      blocks.push(buildHeader('Block Content: TBD', null, summaryEditOption));
     }
 
     blocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));

@@ -144,9 +144,13 @@ class StoryStructure {
   getTimeRangeStr(idx: number): string {
     const startRangeStr = StructureBlock.convertSecToStr(this.blocks[idx].startTime);
     const endRangeStr = StructureBlock.convertSecToStr(this.getBlockEndSec(idx));
-    const durationStr = StructureBlock.convertDurationToStr(this.getBlockEndSec(idx) - this.blocks[idx].startTime);
+    const durationStr = this.getBlockDurationStr(idx);
 
     return `${startRangeStr} - ${endRangeStr} (${durationStr})`;
+  }
+
+  getBlockDurationStr(idx: number): string {
+    return StructureBlock.convertDurationToStr(this.getBlockEndSec(idx) - this.blocks[idx].startTime);
   }
 
   getBlockEndSec(idx: number): number {

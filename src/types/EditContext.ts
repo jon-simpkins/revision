@@ -4,6 +4,8 @@ import {ScrapPile} from './ScrapPile';
 import {GENDER_OPTIONS} from './GenderOptions';
 import {MultiOption} from './MultiOption';
 import {ScrapContent} from './ScrapTypes/ScrapContent';
+import {StructureBlock} from './StoryStructure/StoryStructure';
+import {BlockContentRefOption, buildBlockContentContext} from './EditContexts/buildBlockContentContext';
 
 enum EditType {
   TEXT_LINE,
@@ -11,6 +13,7 @@ enum EditType {
   N_LINES,
   MULTI_CHOICE,
   STRUCTURE_SELECTION,
+  CONTENT_ASSIGNMENT,
 }
 
 class EditConstraints {
@@ -24,6 +27,7 @@ class EditContext {
   multiOptions: MultiOption[]; // For selection entries, define the set of options
   viewOptions: ViewOption[]; // Optional, list of view options for the bottom of the edit
   constraints: EditConstraints;
+  contentRefOptions: BlockContentRefOption[];
 
   constructor(editType: EditType, headerPrompt: string, multiOptions?: MultiOption[], viewOptions?: ViewOption[], userGuidance?: string) {
     this.editType = editType;
@@ -36,6 +40,9 @@ class EditContext {
 
   static fromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
     let ctx: EditContext;
+    let parentStructureRefId: string;
+    let parentStructureBlocks: StructureBlock[];
+    let parentStructureBlockLabel: string;
 
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
@@ -92,15 +99,17 @@ class EditContext {
         );
 
         return ctx;
+      case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
+        return buildBlockContentContext(refId, scrapPile);
       case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
-        const parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(refId);
+        parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(refId);
 
-        const parentStructureBlocks = scrapPile.getByRefId(
+        parentStructureBlocks = scrapPile.getByRefId(
           parentStructureRefId,
           ScrapPrototype.STRUCTURE_SPEC
         ).content.storyStructure.blocks;
 
-        let parentStructureBlockLabel = 'NOT FOUND';
+        parentStructureBlockLabel = 'NOT FOUND';
         parentStructureBlocks.forEach(block => {
           if (block.refId === refId) {
             parentStructureBlockLabel = block.label;

@@ -85,13 +85,33 @@ class EditOption {
     // TODO: GRAB OTHER STRUCTURE OPTIONS
 
     const BLOCK_PROTOTYPES = new Set([
-      ScrapPrototype.STRUCTURE_BLOCK_SUMMARY
+      ScrapPrototype.STRUCTURE_BLOCK_SUMMARY,
+      ScrapPrototype.STRUCTURE_BLOCK_CONTENT
     ]);
+
+    const BLOCK_PROTOTYPE_DEPENDENCIES = new Map<ScrapPrototype, Set<ScrapPrototype>>();
+    BLOCK_PROTOTYPE_DEPENDENCIES.set(ScrapPrototype.STRUCTURE_BLOCK_CONTENT, new Set([ScrapPrototype.STRUCTURE_BLOCK_SUMMARY]));
 
     allStructures.forEach(structure => {
       structure.blocks.forEach(block => {
         BLOCK_PROTOTYPES.forEach(prototype => {
           // yikes, 3 nested for loops is not super great
+
+          // Check if dependencies have been met
+          let allDependenciesMet = true;
+
+          const dependencies = BLOCK_PROTOTYPE_DEPENDENCIES.get(prototype);
+          if (dependencies) {
+            dependencies.forEach(dependentPrototype => {
+              if (!scrapPile.getByRefId(block.refId, dependentPrototype)) {
+                allDependenciesMet = false;
+              }
+            });
+          }
+
+          if (!allDependenciesMet) {
+            return;
+          }
 
           const newOption = new EditOption();
           newOption.prototype = prototype;
@@ -221,6 +241,8 @@ class EditOption {
         return 'Structure Spec';
       case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
         return 'Structure Block Summary';
+      case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
+        return 'Structure Block Content';
     }
   }
 }
