@@ -2,7 +2,7 @@ import {ScrapPile} from '../types/ScrapPile';
 import ViewContentBlock, {
   buildHeader,
   buildParagraph,
-  buildParagraphsFromTextArea
+  buildParagraphsFromTextArea, buildScrapDetailsSection, buildSubheader
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import Character from '../types/Character';
@@ -17,43 +17,53 @@ function generateCharacterDetails(scrapPile: ScrapPile, scrapId: string, refId: 
   blocks.push(buildHeader('Character Details'));
   blocks.push(buildParagraph(myCharacter.refId));
 
-  if (myCharacter.nameScrapId) {
-    blocks.push(buildHeader('Name:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, myCharacter.nameScrapId)));
-    blocks.push(buildParagraph(myCharacter.name));
-  } else {
-    const nameEditOption = new EditOption();
-    nameEditOption.refId = myCharacter.refId;
-    nameEditOption.prototype = ScrapPrototype.CHARACTER_NAME;
+  blocks = blocks.concat(
+    buildScrapDetailsSection(scrapPile,
+      ScrapPrototype.CHARACTER_NAME,
+      refId,
+      blocks,
+      'Name',
+      (nameScrap) => {
+        return [
+          buildParagraph(nameScrap.content.text)
+        ];
+      }
+    )
+  );
 
-    blocks.push(buildHeader('Unknown Name', null, nameEditOption));
-  }
+  blocks = blocks.concat(
+    buildScrapDetailsSection(scrapPile,
+      ScrapPrototype.CHARACTER_GENDER,
+      refId,
+      blocks,
+      'Gender',
+      (genderScrap) => {
+        return [
+          buildParagraph(genderScrap.content.text)
+        ];
+      }
+    )
+  );
 
-  if (myCharacter.genderScrapId) {
-    blocks.push(buildHeader('Gender:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, myCharacter.genderScrapId)));
-    blocks.push(buildParagraph(myCharacter.gender));
-  } else {
-    const genderEditOption = new EditOption();
-    genderEditOption.refId = myCharacter.refId;
-    genderEditOption.prototype = ScrapPrototype.CHARACTER_GENDER;
+  blocks.push(buildSubheader('Summary:', scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING)));
+  const listingScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
+  listingScrap.content.lines.forEach(line => {
+    if (line.refId === refId && line.active) {
+      blocks.push(buildParagraph(line.text));
+    }
+  });
 
-    blocks.push(buildHeader('Unknown Gender', null, genderEditOption));
-  }
-
-  blocks.push(buildHeader('Summary:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING).id)));
-  blocks.push(buildParagraph(myCharacter.summary));
-
-  if (myCharacter.driveScrapId) {
-    blocks.push(buildHeader('Drive:', new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, myCharacter.driveScrapId)));
-    blocks = buildParagraphsFromTextArea(myCharacter.drive, blocks);
-  } else {
-    const driveEditOption = new EditOption();
-    driveEditOption.refId = myCharacter.refId;
-    driveEditOption.prototype = ScrapPrototype.CHARACTER_DRIVE;
-
-    blocks.push(buildHeader('Unknown Motivation', null, driveEditOption));
-  }
-
-  blocks.push(buildHeader('See all characters', new ViewOption(ViewOptionGenerators.CHARACTER_LISTING, null)));
+  blocks = blocks.concat(
+    buildScrapDetailsSection(scrapPile,
+      ScrapPrototype.CHARACTER_DRIVE,
+      refId,
+      blocks,
+      'Motivation',
+      (driveScrap) => {
+        return buildParagraphsFromTextArea(driveScrap.content.text, []);
+      }
+    )
+  );
 
   return blocks;
 }

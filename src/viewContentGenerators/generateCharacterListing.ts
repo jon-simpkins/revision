@@ -1,5 +1,9 @@
 import {ScrapPile} from '../types/ScrapPile';
-import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
+import ViewContentBlock, {
+  buildHeader,
+  buildListEntry,
+  buildSubheader
+} from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import {ScrapPrototype} from '../types/Scrap';
 import Character from '../types/Character';
@@ -9,10 +13,10 @@ function generateCharacterListing(scrapPile: ScrapPile): ViewContentBlock[] {
 
   const listingScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
 
-  blocks.push(buildHeader('Character Listing', ViewOption.detailsForScrap(listingScrap)));
+  blocks.push(buildSubheader('Character Listing', listingScrap));
 
   const characterListBlocks = [];
-  let characterCountByGender = {
+  const characterCountByGender = {
     male: 0,
     female: 0,
     'non-binary': 0,

@@ -3,7 +3,7 @@ import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildNexPrevNav,
-  buildParagraph
+  buildParagraph, buildSubheader
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
@@ -59,7 +59,7 @@ function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewCo
     // If there is no next iteration of the scrap, then include the edit button
     editOption = EditOption.buildFromScrap(relevantScrap);
   }
-  blocks.push(buildHeader('Scrap Details', null, editOption));
+  blocks.push(buildSubheader('Scrap Details', null, editOption));
 
   blocks.push(buildListEntry(`Created by ${relevantScrap.editedBy} on ${new Date(relevantScrap.completedEpoch).toLocaleString()}`));
 

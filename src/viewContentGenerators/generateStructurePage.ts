@@ -3,7 +3,7 @@ import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildParagraph,
-  buildParagraphsFromTextArea,
+  buildParagraphsFromTextArea, buildScrapDetailsSection, buildSubheader,
   ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
@@ -41,69 +41,73 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
   // Necessary, since the duration is determined in an independent scrap
   relevantStructureScrap.content.storyStructure.rescaleToDuraction(actualDurationSec);
 
-  blocks.push(buildHeader(
+  blocks.push(buildSubheader(
     'Story Structure',
-    ViewOption.detailsForScrap(relevantStructureScrap)
+    relevantStructureScrap
   ));
 
-  blocks.push(buildHeader(
+  blocks.push(buildSubheader(
     `Duration: ${StructureBlock.convertSecToStr(actualDurationSec)}`,
-    ViewOption.detailsForScrap(relevantDurationScrap)
+    relevantDurationScrap
   ));
 
   blocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
   relevantStructureScrap.content.storyStructure.blocks.forEach((structureBlock: StructureBlock, idx: number) => {
     const durationStr = relevantStructureScrap.content.storyStructure.getTimeRangeStr(idx);
 
-    const blockSummaryScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
-    const blockContentScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_CONTENT);
-
-    blocks.push(buildHeader(structureBlock.label));
+    blocks.push(buildSubheader(structureBlock.label));
     blocks.push(buildListEntry(durationStr));
 
-    if (blockSummaryScrap) {
-      blocks.push(buildHeader('Block Summary:', ViewOption.detailsForScrap(blockSummaryScrap)));
-      blocks = buildParagraphsFromTextArea(blockSummaryScrap.content.text, blocks);
-    } else {
-      const summaryEditOption = new EditOption();
-      summaryEditOption.refId = structureBlock.refId;
-      summaryEditOption.prototype = ScrapPrototype.STRUCTURE_BLOCK_SUMMARY;
-      blocks.push(buildHeader('Block Summary: TBD', null, summaryEditOption));
-    }
-    if (blockContentScrap) {
-      blocks.push(buildHeader('Block Content:', ViewOption.detailsForScrap(blockContentScrap)));
+    blocks = blocks.concat(
+      buildScrapDetailsSection(scrapPile,
+        ScrapPrototype.STRUCTURE_BLOCK_SUMMARY,
+        structureBlock.refId,
+        blocks,
+        'Summary',
+        (blockSummaryScrap) => {
+          return buildParagraphsFromTextArea(blockSummaryScrap.content.text, []);
+        }
+      )
+    );
 
-      const blockContent: StructureBlockContent = blockContentScrap.content as StructureBlockContent;
+    blocks = blocks.concat(
+      buildScrapDetailsSection(scrapPile,
+        ScrapPrototype.STRUCTURE_BLOCK_CONTENT,
+        structureBlock.refId,
+        blocks,
+        'Content',
+        (blockContentScrap) => {
+          const additionalBlocks = [];
 
-      let contentTypeStr = '';
-      if (blockContentScrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
-        contentTypeStr = 'Script Scrap';
-      } else {
-        contentTypeStr = 'Sub-Structure';
-      }
+          const blockContent: StructureBlockContent = blockContentScrap.content as StructureBlockContent;
 
-      const contentPrototype = blockContent.getScrapPrototypeOfTarget();
-      const doesExist = !!scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
-      const doesExistStr = doesExist ? 'Does Exist' : 'Does Not Exist';
+          let contentTypeStr = '';
+          if (blockContentScrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
+            contentTypeStr = 'Script Scrap';
+          } else {
+            contentTypeStr = 'Sub-Structure';
+          }
 
-      const blockContentStr = `${contentTypeStr}: (${doesExistStr})`;
+          const contentPrototype = blockContent.getScrapPrototypeOfTarget();
+          const doesExist = !!scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
+          const doesExistStr = doesExist ? 'Does Exist' : 'Does Not Exist';
 
-      if (doesExist) {
-        const contentScrap = scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
-        blocks.push(buildParagraph(blockContentStr, ViewOption.detailsForScrap(contentScrap)));
-      } else {
-        const editOption = new EditOption();
-        editOption.prototype = contentPrototype;
-        editOption.refId = blockContent.targetRefId;
-        blocks.push(buildParagraph(blockContentStr, null, editOption));
-      }
+          const blockContentStr = `${contentTypeStr}: (${doesExistStr})`;
 
-    } else {
-      const summaryEditOption = new EditOption();
-      summaryEditOption.refId = structureBlock.refId;
-      summaryEditOption.prototype = ScrapPrototype.STRUCTURE_BLOCK_CONTENT;
-      blocks.push(buildHeader('Block Content: TBD', null, summaryEditOption));
-    }
+          if (doesExist) {
+            const contentScrap = scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
+            additionalBlocks.push(buildParagraph(blockContentStr, ViewOption.detailsForScrap(contentScrap)));
+          } else {
+            const editOption = new EditOption();
+            editOption.prototype = contentPrototype;
+            editOption.refId = blockContent.targetRefId;
+            additionalBlocks.push(buildParagraph(blockContentStr, null, editOption));
+          }
+
+          return additionalBlocks;
+        }
+      )
+    );
 
     blocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
   });

@@ -4,22 +4,27 @@
       <div *ngSwitchCase="viewContentBlockTypes.HEADER">
         <h3>
           {{block.text}}
-          <button
-            *ngIf="block.viewOption"
-            mat-button
-            (click)="updateViewContent(block.viewOption)"
-          >
-            <mat-icon>double_arrow</mat-icon>
-          </button>
-          <button
-            *ngIf="block.editOption"
-            mat-button
-            (click)="initiateEdit(block.editOption)"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
         </h3>
       </div>
+      <h4 *ngSwitchCase="viewContentBlockTypes.SUB_HEADER">
+        {{block.text}}
+      </h4>
+      <h4 *ngSwitchCase="viewContentBlockTypes.LINK_SUBHEADER">
+        {{block.text}}
+        <button
+          [disabled]="!block.viewOption"
+          mat-icon-button
+          (click)="updateViewContent(block.viewOption)"
+        >
+          <mat-icon>arrow_right</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="initiateEdit(block.editOption)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </h4>
       <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
         <p>{{block.text}}</p>
         <button
