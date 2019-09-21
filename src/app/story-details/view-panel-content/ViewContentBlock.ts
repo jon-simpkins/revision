@@ -29,8 +29,8 @@ function buildHeader(text, viewOption?: ViewOption, editOption?: EditOption): Vi
   return new ViewContentBlock(ViewContentBlockType.HEADER, text, viewOption, editOption);
 }
 
-function buildParagraph(text: string): ViewContentBlock {
-  return new ViewContentBlock(ViewContentBlockType.PARAGRAPH, text);
+function buildParagraph(text: string, viewOption?: ViewOption, editOption?: EditOption): ViewContentBlock {
+  return new ViewContentBlock(ViewContentBlockType.PARAGRAPH, text, viewOption, editOption);
 }
 
 function buildParagraphsFromTextArea(text: string, viewContent: ViewContentBlock[]): ViewContentBlock[] {

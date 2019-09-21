@@ -86,7 +86,18 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
       const doesExist = !!scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
       const doesExistStr = doesExist ? 'Does Exist' : 'Does Not Exist';
 
-      blocks.push(buildParagraph(`${contentTypeStr}: (${doesExistStr})`));
+      const blockContentStr = `${contentTypeStr}: (${doesExistStr})`;
+
+      if (doesExist) {
+        const contentScrap = scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
+        blocks.push(buildParagraph(blockContentStr, ViewOption.detailsForScrap(contentScrap)));
+      } else {
+        const editOption = new EditOption();
+        editOption.prototype = contentPrototype;
+        editOption.refId = blockContent.targetRefId;
+        blocks.push(buildParagraph(blockContentStr, null, editOption));
+      }
+
     } else {
       const summaryEditOption = new EditOption();
       summaryEditOption.refId = structureBlock.refId;

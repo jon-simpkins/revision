@@ -22,6 +22,20 @@
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
         <p>{{block.text}}</p>
+        <button
+          *ngIf="block.viewOption"
+          mat-button
+          (click)="updateViewContent(block.viewOption)"
+        >
+          <mat-icon>double_arrow</mat-icon>
+        </button>
+        <button
+          *ngIf="block.editOption"
+          mat-button
+          (click)="initiateEdit(block.editOption)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
       </div>
       <div *ngSwitchCase="viewContentBlockTypes.LIST_ENTRY">
         <div *ngIf="!!(block.viewOption); else noLinkListEntry">

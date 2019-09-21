@@ -4,6 +4,7 @@ import {TextLineContent} from './ScrapTypes/TextLineContent';
 import { ScrapContent } from './ScrapTypes/ScrapContent';
 import {StructureSpecContent} from './ScrapTypes/StructureSpecContent';
 import {StructureBlockContent} from './ScrapTypes/StructureBlockContent';
+import {ScriptContent} from './ScrapTypes/ScriptContent';
 
 enum ScrapPrototype {
   MOVIE_TITLE,
@@ -119,7 +120,7 @@ class Scrap {
         return ScrapContentType.SCRIPT;
     }
 
-    return null;
+    throw new Error('Unknown scrap prototype');
   }
 
   static parseScrapContent(serializedContent: string, prototype: ScrapPrototype) {
@@ -134,6 +135,8 @@ class Scrap {
         return StructureSpecContent.parse(serializedContent);
       case ScrapContentType.BLOCK_CONTENT_ASSIGNMENT:
         return StructureBlockContent.parse(serializedContent);
+      case ScrapContentType.SCRIPT:
+        return ScriptContent.parse(serializedContent);
     }
 
     throw Error('Unrecognized scrap prototype');

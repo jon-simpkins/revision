@@ -2,6 +2,7 @@ import Scrap, {ScrapPrototype} from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {ScrapPile} from './ScrapPile';
 import {StoryStructure} from './StoryStructure/StoryStructure';
+import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
 
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_DURATION, new Set([ScrapPrototype.SIMILAR_MOVIES]));
@@ -136,6 +137,37 @@ class EditOption {
     return allOptions;
   }
 
+  static buildContentOptions(scrapPile: ScrapPile): EditOption[] {
+    const allOptions = [];
+    scrapPile.forEachNewestByRefId(ScrapPrototype.STRUCTURE_BLOCK_CONTENT, (scrap) => {
+      let intendedPrototype = ScrapPrototype.STRUCTURE_SPEC;
+
+      if (scrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
+        intendedPrototype = ScrapPrototype.SCRIPT;
+      }
+
+      // Check if the script scrap is written
+      const newOption = new EditOption();
+      newOption.prototype = intendedPrototype;
+      newOption.iterations = 0;
+      newOption.lastEdited = 0;
+      newOption.scrapId = 'null';
+      newOption.refId = scrap.content.targetRefId;
+
+      if (scrapPile.getByRefId(newOption.refId, newOption.prototype)) {
+        const relevantScrap = scrapPile.getByRefId(newOption.refId, newOption.prototype);
+
+        newOption.scrapId = relevantScrap.id;
+        newOption.lastEdited = relevantScrap.completedEpoch;
+        newOption.iterations = 1; // Inaccurrate, but performant; we really just care if it has ever been completed, and when
+      }
+
+      allOptions.push(newOption);
+    });
+
+    return allOptions;
+  }
+
   static buildCharacterOptions(scrapPile: ScrapPile): EditOption[] {
     const allOptions = [];
 
@@ -179,7 +211,8 @@ class EditOption {
     const allOptions = []
       .concat(EditOption.buildSingularOptions(scrapPile))
       .concat(EditOption.buildCharacterOptions(scrapPile))
-      .concat(EditOption.buildStructureOptions(scrapPile));
+      .concat(EditOption.buildStructureOptions(scrapPile))
+      .concat(EditOption.buildContentOptions(scrapPile));
 
     // Return the sorted version, where less-iterated things are on top,
     // and recency of edit is the tiebreaker
@@ -243,6 +276,8 @@ class EditOption {
         return 'Structure Block Summary';
       case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
         return 'Structure Block Content';
+      case ScrapPrototype.SCRIPT:
+        return 'Script Scrap';
     }
   }
 }

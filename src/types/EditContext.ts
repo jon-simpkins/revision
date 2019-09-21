@@ -6,6 +6,7 @@ import {MultiOption} from './MultiOption';
 import {ScrapContent} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
 import {BlockContentRefOption, buildBlockContentContext} from './EditContexts/buildBlockContentContext';
+import {buildScriptContentContext} from './EditContexts/buildScriptContentContext';
 
 enum EditType {
   TEXT_LINE,
@@ -14,6 +15,7 @@ enum EditType {
   MULTI_CHOICE,
   STRUCTURE_SELECTION,
   CONTENT_ASSIGNMENT,
+  SCRIPT,
 }
 
 class EditConstraints {
@@ -101,6 +103,8 @@ class EditContext {
         return ctx;
       case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
         return buildBlockContentContext(refId, scrapPile);
+      case ScrapPrototype.SCRIPT:
+        return buildScriptContentContext(refId, scrapPile);
       case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
         parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(refId);
 

@@ -74,6 +74,14 @@ class ScrapPile {
     return this.newestScrapByRefAndPrototype.get(refId).get(scrapPrototype);
   }
 
+  forEachNewestByRefId(scrapPrototype: ScrapPrototype, callback: (foundScrap: Scrap) => void) {
+    this.newestScrapByRefAndPrototype.forEach((refIdMap) => {
+      if (refIdMap.has(scrapPrototype)) {
+        callback(refIdMap.get(scrapPrototype));
+      }
+    });
+  }
+
   // Convenience function for fetching the constraining duration for a structure
   fetchConstraintDurationSec(refId: string): number {
     if (!refId) {
