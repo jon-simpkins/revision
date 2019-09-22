@@ -3,12 +3,14 @@ import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildParagraph,
-  buildParagraphsFromTextArea, buildScrapDetailsSection, buildSubheader,
+  buildParagraphsFromTextArea,
+  buildScrapDetailsSection,
+  buildSubheader,
   ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 import Scrap, {ScrapPrototype} from '../types/Scrap';
-import ViewOption from '../types/ViewOption';
+import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
 import {TARGET_CONTENT_TYPE} from '../types/ScrapTypes/ScrapContent';
 import {StructureBlockContent} from '../types/ScrapTypes/StructureBlockContent';
@@ -16,10 +18,22 @@ import {StructureBlockContent} from '../types/ScrapTypes/StructureBlockContent';
 function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: string): ViewContentBlock[] {
   let blocks = [];
 
-  let relevantStructureScrap: Scrap;
-  let actualDurationSec: number;
+  const relevantStructureScrap = scrapPile.fetchProperlyRescaledStructureScrap(refId);
+  const actualDurationSec = scrapPile.fetchConstraintDurationSec(refId);
   let relevantDurationScrap: Scrap;
   if (!refId) {
+    relevantDurationScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION);
+  } else {
+    const contentBlockRefId = scrapPile.fetchContentBlockByContentRefId(refId);
+    const parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(contentBlockRefId);
+
+    relevantDurationScrap = scrapPile.getByRefId(
+      parentStructureRefId,
+      ScrapPrototype.STRUCTURE_SPEC
+    );
+  }
+
+  /*if (!refId) {
     // Fetch the top-level structure
     relevantStructureScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.STRUCTURE_SPEC);
     if (relevantStructureScrap) {
@@ -27,9 +41,11 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
       actualDurationSec = Number(relevantDurationScrap.content.text) * 60;
     }
   } else {
-    console.error('NOT IMPLEMENTED YET!');
-    return null;
-  }
+    blocks.push(buildHeader(
+      'Story Structure for sub-structures not available yet'
+    ));
+    return blocks;
+  }*/
 
   if (!relevantStructureScrap) {
     blocks.push(buildHeader(
@@ -37,9 +53,6 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
     ));
     return blocks;
   }
-
-  // Necessary, since the duration is determined in an independent scrap
-  relevantStructureScrap.content.storyStructure.rescaleToDuraction(actualDurationSec);
 
   blocks.push(buildSubheader(
     'Story Structure',
@@ -96,7 +109,13 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
 
           if (doesExist) {
             const contentScrap = scrapPile.getByRefId(blockContent.targetRefId, contentPrototype);
-            additionalBlocks.push(buildParagraph(blockContentStr, ViewOption.detailsForScrap(contentScrap)));
+            // TODO: include rendering of sub-structure
+            let viewOption = ViewOption.detailsForScrap(contentScrap);
+            if (contentScrap.prototype === ScrapPrototype.STRUCTURE_SPEC) {
+              viewOption = new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, null, null, contentScrap.refId);
+            }
+
+            additionalBlocks.push(buildParagraph(blockContentStr, viewOption));
           } else {
             const editOption = new EditOption();
             editOption.prototype = contentPrototype;

@@ -1,20 +1,10 @@
 import {ScrapPile} from '../ScrapPile';
 import EditContext, {EditType} from '../EditContext';
-import Scrap, {ScrapPrototype} from '../Scrap';
 import ViewOption, {ViewOptionGenerators} from '../ViewOption';
 
 function buildScriptContentContext(refId: string, scrapPile: ScrapPile): EditContext {
   // Fetch the content block that was pointing to this script scrap
-  let contentBlockRefId;
-
-  scrapPile.forEachNewestByRefId(
-    ScrapPrototype.STRUCTURE_BLOCK_CONTENT,
-    (scrap: Scrap) => {
-      if (scrap.content.targetRefId === refId) {
-        contentBlockRefId = scrap.refId;
-      }
-    }
-  );
+  const contentBlockRefId = scrapPile.fetchContentBlockByContentRefId(refId);
 
   if (!contentBlockRefId) {
     throw new Error('Could not find referencing block');

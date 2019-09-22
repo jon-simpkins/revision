@@ -7,6 +7,7 @@ import {ScrapContent} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
 import {BlockContentRefOption, buildBlockContentContext} from './EditContexts/buildBlockContentContext';
 import {buildScriptContentContext} from './EditContexts/buildScriptContentContext';
+import {buildStructureContext} from './EditContexts/buildStructureContext';
 
 enum EditType {
   TEXT_LINE,
@@ -148,18 +149,7 @@ class EditContext {
         ctx.userGuidance = 'What drives this character? What do they want / need?';
         return ctx;
       case ScrapPrototype.STRUCTURE_SPEC:
-        ctx = new EditContext(
-          EditType.STRUCTURE_SELECTION,
-          'Structure Spec',
-          null,
-          [buildStorySummaryViewOption()]
-        );
-
-        ctx.userGuidance = 'Select the structure, name the major story beats';
-
-        ctx.constraints.durationSec = scrapPile.fetchConstraintDurationSec(refId);
-
-        return ctx;
+        return buildStructureContext(refId, scrapPile);
     }
   }
 

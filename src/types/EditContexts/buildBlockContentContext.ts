@@ -77,7 +77,6 @@ function appendFloatingContent(
 
 function buildBlockContentContext(refId: string, scrapPile: ScrapPile) {
   const parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(refId);
-
   const parentStructureScrap = scrapPile.fetchProperlyRescaledStructureScrap(parentStructureRefId);
 
   const parentStructureBlocks = parentStructureScrap.content.storyStructure.blocks;
