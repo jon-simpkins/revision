@@ -9,6 +9,7 @@ import generateCharacterDetails from './generateCharacterDetails';
 import generateWritingTracker from './generateWritingTracker';
 import generateStructurePage from './generateStructurePage';
 import generateListAllScraps from './generateListAllScraps';
+import generateFlattenedScript from './generateFlattenedScript';
 
 enum ViewOptionGenerators {
   CHANGELOG,
@@ -19,6 +20,7 @@ enum ViewOptionGenerators {
   WRITING_TRACKER,
   STORY_STRUCTURE,
   DEBUG_LIST_ALL_SCRAPS,
+  FLATTENED_SCRIPT,
 }
 
 export type ViewContentGeneratorFunction = (scrapPile: ScrapPile, scrapId: string, refId: string) => ViewContentBlock[];
@@ -43,5 +45,7 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateStructurePage;
     case ViewOptionGenerators.DEBUG_LIST_ALL_SCRAPS:
       return generateListAllScraps;
+    case ViewOptionGenerators.FLATTENED_SCRIPT:
+      return generateFlattenedScript;
   }
 }

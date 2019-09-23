@@ -26,7 +26,7 @@
         </button>
       </h4>
       <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
-        <p>{{block.text}}</p>
+        <p>{{block.text.length ? block.text : '&nbsp;'}}</p>
         <button
           *ngIf="block.viewOption"
           mat-button

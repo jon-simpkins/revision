@@ -101,4 +101,11 @@ storiesOf('View Panel Content', module)
         viewOption: new ViewOption(ViewOptionGenerators.CHARACTER_DETAILS, null, null, '67bdf7e3-db18-4e66-a09e-0cb35203b31c')
       }
     };
+  }).add('Renders the flattened script', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.FLATTENED_SCRIPT, null)
+      }
+    };
   });
