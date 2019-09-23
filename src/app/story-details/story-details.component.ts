@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import * as uuid from 'uuid/v4';
+
+import {Component} from '@angular/core';
 import {StoryService} from '../story.service';
 import {ScreenService} from '../screen.service';
 import {ContentEditService} from '../content-edit.service';
 import EditOption from '../../types/EditOption';
 import {ScrapPrototype} from '../../types/Scrap';
+
 
 @Component({
   selector: 'story-details',
@@ -30,5 +33,9 @@ export class StoryDetailsComponent {
     const option = EditOption.selectRandom(this.screenService.editOptions, preferredPrototype);
 
     this.contentEditService.startEdit(option.scrapId, option.prototype, option.refId);
+  }
+
+  startRandomScript() {
+    this.contentEditService.startEdit(null, ScrapPrototype.SCRIPT, uuid());
   }
 }

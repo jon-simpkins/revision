@@ -7,7 +7,14 @@ function buildScriptContentContext(refId: string, scrapPile: ScrapPile): EditCon
   const contentBlockRefId = scrapPile.fetchContentBlockByContentRefId(refId);
 
   if (!contentBlockRefId) {
-    throw new Error('Could not find referencing block');
+    // Assume new one-off scene
+    return new EditContext(
+      EditType.SCRIPT,
+      'New Script Entry',
+      null,
+      [],
+      'Feel free to write whatever scene you feel like! You can link it into a story structure later'
+    );
   }
 
   const parentStructureRefId = scrapPile.fetchStructureBlockParentRefId(contentBlockRefId);
