@@ -223,7 +223,18 @@ class EditOption {
     });
   }
 
-  static selectRandom(options: EditOption[]): EditOption {
+  static selectRandom(options: EditOption[], preferredPrototype?: ScrapPrototype): EditOption {
+    if (preferredPrototype) {
+      let incompletePreferredOptions = options.filter(option => {
+        return !option.iterations && option.prototype === preferredPrototype;
+      });
+      if (incompletePreferredOptions.length) {
+        let randomIdx = Math.floor(Math.random() * incompletePreferredOptions.length);
+
+        return incompletePreferredOptions[randomIdx];
+      }
+    }
+
     let incompleteOptions = options.filter(option => {
       return !option.iterations;
     });

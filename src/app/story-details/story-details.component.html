@@ -90,13 +90,21 @@
             ></edit-panel-content>
           </div>
           <ng-template #editPlaceholder>
-            <h3>Please select a scrap to edit</h3>
-            <button mat-button
-              [color]="'primary'"
-              (click)="chooseRandomEdit()"
-            >
-              <mat-icon>shuffle</mat-icon>
-            </button>
+            <div *ngIf="screenService.editOptionsByPrototype.length">
+              <h3>Please select a category of scrap to edit</h3>
+              <button
+                *ngFor="let prototypeOption of screenService.editOptionsByPrototype"
+                mat-stroked-button
+                style="display: block; width: 100%"
+                (click)="chooseRandomEdit(prototypeOption.prototype)"
+              >{{prototypeOption.label}} ({{prototypeOption.count}})</button>
+            </div>
+            <div *ngIf="!screenService.editOptionsByPrototype.length">
+              <h3>Congrat!</h3>
+              <p>All available scraps have at least 1 draft completed!</p>
+              <p>Feel free to revise away and improve the story,
+                or head back to the story list and start work on the next one!</p>
+            </div>
           </ng-template>
         </div>
       </div>
