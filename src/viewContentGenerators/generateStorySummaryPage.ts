@@ -5,15 +5,11 @@ import ViewContentBlock, {
   buildParagraph,
   buildParagraphsFromTextArea,
   buildScrapDetailsSection,
-  buildSubheader
 } from '../app/story-details/view-panel-content/ViewContentBlock';
-import ViewOption from '../types/ViewOption';
 
 import {ScrapPile} from '../types/ScrapPile';
 
 function generateStorySummaryPage(scrapPile: ScrapPile): ViewContentBlock[] {
-
-  const scrapsByPrototype = scrapPile.newestScrapBySingularPrototype;
   let blocks = [];
 
   blocks.push(buildHeader('Story Summary'));
