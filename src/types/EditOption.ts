@@ -83,8 +83,6 @@ class EditOption {
       );
     }
 
-    // TODO: GRAB OTHER STRUCTURE OPTIONS
-
     const BLOCK_PROTOTYPES = new Set([
       ScrapPrototype.STRUCTURE_BLOCK_SUMMARY,
       ScrapPrototype.STRUCTURE_BLOCK_CONTENT

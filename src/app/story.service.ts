@@ -101,6 +101,10 @@ export class StoryService {
   updateViewEditOptions() {
     this.updateEditOptions();
     this.screenService.setViewOptions(ViewOption.generateViewOptions(this.currentScrapPile));
+    if (!this.screenService.currentViewOption) {
+      this.screenService.currentViewOption = this.screenService.viewOptions[0];
+      this.refreshViewContent();
+    }
   }
 
   fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype): ScrapContent {

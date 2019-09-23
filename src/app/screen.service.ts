@@ -34,10 +34,6 @@ export class ScreenService {
 
   setViewOptions(options: ViewOption[]) {
     this.viewOptions = options;
-    if (!this.viewOptions.length) {
-      // If there are no view options, then insist on edit mode
-      this.setDetailPanelView('edit');
-    }
   }
 
   setEditOptions(options: EditOption[]) {
