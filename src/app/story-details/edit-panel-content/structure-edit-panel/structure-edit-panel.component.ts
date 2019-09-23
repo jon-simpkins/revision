@@ -14,6 +14,8 @@ export class StructureEditPanelComponent implements OnInit {
   @Input() editContent: StructureSpecContent;
   @Input() editContext: EditContext;
 
+  referenceViewOpen = true;
+
   referenceTemplateId: string;
   referenceTemplate: StoryStructure;
 
@@ -39,6 +41,14 @@ export class StructureEditPanelComponent implements OnInit {
 
   copyFromTemplate() {
     this.editContent.storyStructure = this.referenceTemplate.duplicate();
+  }
+
+  showReferenceView() {
+    this.referenceViewOpen = true;
+  }
+
+  hideReferenceView() {
+    this.referenceViewOpen = false;
   }
 
 }

@@ -19,17 +19,24 @@
   </div>
 
   <div
-    style="flex: 1;"
+    style="flex: 1; text-align: center;"
   >
     <div style="height: 60px;">
-      <button mat-button style="margin: auto; text-align: center;"
-              (click)="copyFromTemplate()"
-      >
-        <mat-icon>chevron_left</mat-icon> from Template
+      <button *ngIf="referenceViewOpen"  mat-stroked-button (click)="hideReferenceView()">
+        Hide Templates
+      </button>
+      <button *ngIf="!referenceViewOpen"  mat-stroked-button (click)="showReferenceView()">
+        Show Templates
       </button>
     </div>
+    <button *ngIf="referenceViewOpen"  mat-button style="margin: auto; text-align: center;"
+            (click)="copyFromTemplate()"
+    >
+      <mat-icon>chevron_left</mat-icon> from Template
+    </button>
+
   </div>
-  <div style="flex: 0;">
+  <div *ngIf="referenceViewOpen"  style="flex: 0;">
     <div style="margin-left: 20px; height: 60px;">
       <mat-form-field>
         <mat-label>Select a template</mat-label>
