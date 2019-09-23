@@ -154,7 +154,7 @@ export class StoryService {
   }
 
   setViewContent(viewOption: ViewOption) {
-    this.screenService.currentViewOption = viewOption;
+    this.screenService.setViewOption(viewOption);
     this.refreshViewContent();
   }
 

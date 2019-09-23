@@ -59,12 +59,21 @@ export class ScreenService {
     return this.currentDetailsPanelView === 'split' || this.currentDetailsPanelView === 'edit';
   }
 
+  setViewOption(viewOption: ViewOption) {
+    this.showViewNav = false; // Hide nav on select
+    this.currentViewOption = viewOption;
+  }
+
   toggleViewNav() {
     this.showViewNav = !this.showViewNav;
   }
 
   toggleEditNav() {
     this.showEditNav = !this.showEditNav;
+  }
+
+  hideEditNav() {
+    this.showEditNav = false;
   }
 
 }

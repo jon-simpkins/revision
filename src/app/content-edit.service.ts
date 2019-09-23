@@ -8,6 +8,7 @@ import EditContext from '../types/EditContext';
 import UserEdit from '../types/UserEdit';
 import {LoginGateService} from './login-gate.service';
 import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
+import {ScreenService} from './screen.service';
 
 // A service for tracking the current editing state of a Scrap
 @Injectable({
@@ -23,7 +24,7 @@ export class ContentEditService {
   currentContent: ScrapContent = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
 
-  constructor(private appRef: ApplicationRef, private storyService: StoryService, private loginGateService: LoginGateService) {}
+  constructor(private appRef: ApplicationRef, private storyService: StoryService, private loginGateService: LoginGateService, private screenService: ScreenService) {}
 
   getElapsedTimeStr(): string {
     let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
@@ -64,6 +65,7 @@ export class ContentEditService {
 
     this.currentContent = this.originalContent.clone(); // Create isolated clone
 
+    this.screenService.hideEditNav(); // Hide edit nav when starting edit
     this.editStartEpoch = Date.now();
   }
 
