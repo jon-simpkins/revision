@@ -33,3 +33,12 @@
     </ng-container>
   </mat-select>
 </mat-form-field>
+
+<div *ngIf="currentOption && currentOption.exists">
+  <button mat-stroked-button
+    (click)="previewCurrentOption()"
+  >
+    <mat-icon>chevron_left</mat-icon>
+    Preview Content
+  </button>
+</div>

@@ -16,7 +16,7 @@ class ViewOption {
   scrapId: string;
   refId: string;
 
-  constructor(generatorSpec: ViewOptionGenerators, label: string, scrapId?: string, refId?: string) {
+  constructor(generatorSpec: ViewOptionGenerators, label?: string, scrapId?: string, refId?: string) {
     this.generatorSpec = generatorSpec;
     this.label = label;
     this.scrapId = scrapId;

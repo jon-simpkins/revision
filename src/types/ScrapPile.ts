@@ -6,6 +6,7 @@ class ScrapPile {
   newestScrapBySingularPrototype = new Map<ScrapPrototype, Scrap>();
   newestScrapByRefAndPrototype = new Map<string, Map<ScrapPrototype, Scrap>>();
 
+
   importFromSerialization(serializedContent: string) {
     this.addScrap(
       Scrap.parseSerialization(serializedContent)
@@ -158,6 +159,7 @@ class ScrapPile {
     return structureScrap;
   }
 
+  // TODO: UPDATE THIS TO BE CONSTANT TIME INSTEAD OF LINEAR
   fetchContentBlockByContentRefId(refId: string): string {
     let contentBlockRefId: string = null;
 

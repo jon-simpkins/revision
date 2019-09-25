@@ -3,6 +3,9 @@ import EditContext from '../../../../types/EditContext';
 import {StructureBlockContent} from '../../../../types/ScrapTypes/StructureBlockContent';
 
 import {TARGET_CONTENT_TYPE} from '../../../../types/ScrapTypes/ScrapContent';
+import {BlockContentRefOption} from '../../../../types/EditContexts/buildBlockContentContext';
+import {StoryService} from '../../../story.service';
+import ViewOption, {ViewOptionGenerators} from '../../../../types/ViewOption';
 
 @Component({
   selector: 'structure-block-content-edit-panel',
@@ -13,6 +16,7 @@ export class StructureBlockContentEditPanelComponent implements OnInit {
 
   @Input() editContent: StructureBlockContent;
   @Input() editContext: EditContext;
+  currentOption: BlockContentRefOption;
 
   contentTypes = [
     {
@@ -25,9 +29,10 @@ export class StructureBlockContentEditPanelComponent implements OnInit {
     },
   ];
 
-  constructor() {}
+  constructor(private storyService: StoryService) {}
 
   ngOnInit() {
+    this.updateCurrentOption();
   }
 
   updateTargetType(newType: TARGET_CONTENT_TYPE) {
@@ -36,6 +41,25 @@ export class StructureBlockContentEditPanelComponent implements OnInit {
 
   updateTargetId(newId: string) {
     this.editContent.targetRefId = newId;
+
+    this.updateCurrentOption();
+  }
+
+  updateCurrentOption() {
+    this.currentOption = this.editContext.contentRefOptions.filter(option => {
+      return option.refId === this.editContent.targetRefId && option.type === this.editContent.targetType;
+    })[0];
+  }
+
+  previewCurrentOption() {
+    let viewOption;
+    if (this.currentOption.type === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
+      viewOption = new ViewOption(ViewOptionGenerators.INDIVIDUAL_SCRIPT_SCRAP, null, null, this.currentOption.refId);
+    } else {
+      viewOption = new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, null, null, this.currentOption.refId);
+    }
+
+    this.storyService.setViewContent(viewOption);
   }
 
 }

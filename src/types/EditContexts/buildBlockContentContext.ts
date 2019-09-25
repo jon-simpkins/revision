@@ -70,7 +70,18 @@ function appendFloatingContent(
   options: BlockContentRefOption[]
 ): BlockContentRefOption[] {
 
-  // TODO: ACTUALLY DO STUFF HERE
+  scrapPile.forEachNewestByRefId(ScrapPrototype.SCRIPT, (scrap) => {
+    const referencingBlockId = scrapPile.fetchContentBlockByContentRefId(scrap.refId);
+    if (!referencingBlockId) {
+      // We found a script scrap that's free to reference!
+      options.push(new BlockContentRefOption(
+        TARGET_CONTENT_TYPE.SCRIPT_SCRAP,
+        new Date(scrap.completedEpoch).toLocaleString(),
+        scrap.refId,
+        true
+      ));
+    }
+  });
 
   return options;
 }
