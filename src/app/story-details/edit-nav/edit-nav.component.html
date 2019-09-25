@@ -1,11 +1,9 @@
-<div style="width:250px;">
-  <mat-action-list dense>
-    <div *ngFor="let editOption of screenService.editOptions">
-      <mat-list-item
-        (click)="contentEditService.startEdit(editOption.scrapId, editOption.prototype, editOption.refId)"
-      >
-        {{editOption.getHeader()}} ({{editOption.iterations}})
-      </mat-list-item>
-    </div>
-  </mat-action-list>
-</div>
+<mat-action-list dense>
+  <div *ngFor="let editOption of screenService.editOptions">
+    <mat-list-item
+      (click)="contentEditService.startEdit(editOption.scrapId, editOption.prototype, editOption.refId)"
+    >
+      {{editOption.getHeader()}} ({{editOption.iterations}})
+    </mat-list-item>
+  </div>
+</mat-action-list>

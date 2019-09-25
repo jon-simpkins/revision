@@ -1,4 +1,6 @@
-<div *ngIf="!!storyService.currentId; else loadingScreen" >
+<div *ngIf="!!storyService.currentId; else loadingScreen"
+  style="display: flex; flex-direction: column;"
+>
   <div style="margin-bottom: 25px; display: flex; padding: 12px;">
     <button mat-button
       style="flex: 0 0 50px; text-align: left"
@@ -18,7 +20,7 @@
     </a>
   </div>
 
-  <div>
+  <div style="flex: 1;">
     <div style="display: flex;">
     <span style="flex: 0 0 100px;">
       <button mat-button
@@ -33,21 +35,21 @@
       <span style="flex: 1; text-align: center;">
       <button mat-button
         [color]="screenService.currentDetailsPanelView === 'view' ? 'primary' : null"
-        (click)="screenService.setDetailPanelView('view', true)"
+        (click)="screenService.setDetailPanelView('view')"
         [disabled]="!screenService.viewOptions.length"
       >
         <mat-icon>description</mat-icon>
       </button>
       <button mat-button
         [color]="screenService.currentDetailsPanelView === 'split' ? 'primary' : null"
-        (click)="screenService.setDetailPanelView('split', true)"
+        (click)="screenService.setDetailPanelView('split')"
         [disabled]="!screenService.viewOptions.length"
       >
         <mat-icon>compare</mat-icon>
       </button>
       <button mat-button
         [color]="screenService.currentDetailsPanelView === 'edit' ? 'primary' : null"
-        (click)="screenService.setDetailPanelView('edit', true)"
+        (click)="screenService.setDetailPanelView('edit')"
       >
         <mat-icon>edit</mat-icon>
       </button>
@@ -63,66 +65,58 @@
       </button>
     </span>
     </div>
-    <mat-sidenav-container>
-      <mat-sidenav mode="side"
-        [opened]="screenService.showViewNav"
+    <div style="display: flex; height: 80vh;">
+      <view-nav *ngIf="screenService.showViewNav"
+        style="width:250px; overflow: scroll;"
+      ></view-nav>
+      <div
+        style="border: 1px solid green; flex: 1; padding: 12px; overflow: scroll;"
+        *ngIf="screenService.showViewPanel()"
       >
-        <view-nav></view-nav>
-      </mat-sidenav>
-
-      <div style="display: flex; border: 1px solid black;">
-        <div
-          style="border: 1px solid green; flex: 1; padding: 12px;"
-          *ngIf="screenService.showViewPanel()"
-        >
-          <view-panel-content
-            [viewContentBlocks]="screenService.viewContent"
-          ></view-panel-content>
-        </div>
-        <div
-          style="border: 1px solid red; flex: 1; padding: 12px;"
-          *ngIf="screenService.showEditPanel()"
-        >
-          <div *ngIf="contentEditService.currentScrapId; else editPlaceholder">
-            <edit-panel-content
-              [editContext]="contentEditService.editContext"
-              [editContent]="contentEditService.currentContent"
-            ></edit-panel-content>
-          </div>
-          <ng-template #editPlaceholder>
-            <div *ngIf="screenService.editOptionsByPrototype.length">
-              <h3>Please select a category of scrap to edit</h3>
-              <button
-                *ngFor="let prototypeOption of screenService.editOptionsByPrototype"
-                mat-stroked-button
-                style="display: block; width: 100%"
-                (click)="chooseRandomEdit(prototypeOption.prototype)"
-              >{{prototypeOption.label}} ({{prototypeOption.count}})</button>
-            </div>
-            <div *ngIf="!screenService.editOptionsByPrototype.length">
-              <h3>Congrat!</h3>
-              <p>All available scraps have at least 1 draft completed!</p>
-              <p>Feel free to revise away and improve the story,
-                or head back to the story list and start work on the next one!</p>
-            </div>
-            <div>
-              <h4>Or, just write!</h4>
-              <button
-                mat-stroked-button
-                style="display: block; width: 100%"
-                (click)="startRandomScript()"
-              >Write new scene</button>
-            </div>
-          </ng-template>
-        </div>
+        <view-panel-content
+          [viewContentBlocks]="screenService.viewContent"
+        ></view-panel-content>
       </div>
-      <mat-sidenav mode="side" position="end"
-         [opened]="screenService.showEditNav"
+      <div
+        style="border: 1px solid red; flex: 1; padding: 12px; overflow: scroll;"
+        *ngIf="screenService.showEditPanel()"
       >
-        <edit-nav></edit-nav>
-      </mat-sidenav>
-
-    </mat-sidenav-container>
+        <div *ngIf="contentEditService.currentScrapId; else editPlaceholder">
+          <edit-panel-content
+            [editContext]="contentEditService.editContext"
+            [editContent]="contentEditService.currentContent"
+          ></edit-panel-content>
+        </div>
+        <ng-template #editPlaceholder>
+          <div *ngIf="screenService.editOptionsByPrototype.length">
+            <h3>Please select a category of scrap to edit</h3>
+            <button
+              *ngFor="let prototypeOption of screenService.editOptionsByPrototype"
+              mat-stroked-button
+              style="display: block; width: 100%"
+              (click)="chooseRandomEdit(prototypeOption.prototype)"
+            >{{prototypeOption.label}} ({{prototypeOption.count}})</button>
+          </div>
+          <div *ngIf="!screenService.editOptionsByPrototype.length">
+            <h3>Congrat!</h3>
+            <p>All available scraps have at least 1 draft completed!</p>
+            <p>Feel free to revise away and improve the story,
+              or head back to the story list and start work on the next one!</p>
+          </div>
+          <div>
+            <h4>Or, just write!</h4>
+            <button
+              mat-stroked-button
+              style="display: block; width: 100%"
+              (click)="startRandomScript()"
+            >Write new scene</button>
+          </div>
+        </ng-template>
+      </div>
+      <edit-nav *ngIf="screenService.showEditNav"
+        style="width:250px; overflow: scroll;"
+      ></edit-nav>
+    </div>
   </div>
 </div>
 
