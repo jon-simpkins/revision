@@ -1,8 +1,14 @@
 <h3>{{editContext.headerPrompt}}</h3>
 <p>{{editContext.userGuidance}}</p>
 
-<mat-form-field style="width: 100%;">
-    <textarea matInput
-        (input)="sendPlaintextEdit($event.target.value)"
-    >{{editContent.script.rawText}}</textarea>
-</mat-form-field>
+<quill-editor
+  [modules]="quillModules"
+  [readOnly]="false"
+  (onContentChanged)="onQuillContentChanged($event)"
+  format="text"
+  [ngModel]="editContent.script.rawText"
+>
+  <div quill-editor-toolbar>
+    Custom toolbar coming soon
+  </div>
+</quill-editor>

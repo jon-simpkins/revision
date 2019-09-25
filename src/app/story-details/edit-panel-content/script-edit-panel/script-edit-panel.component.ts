@@ -11,13 +11,17 @@ export class ScriptEditPanelComponent implements OnInit {
 
   @Input() editContent: ScriptContent;
   @Input() editContext: EditContext;
+  quillModules = {
+    toolbar: []
+  };
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
   }
 
-  sendPlaintextEdit(newText) {
-    this.editContent.script.rawText = newText;
+  onQuillContentChanged(change) {
+    // console.log(change);
+    this.editContent.script.rawText = change.text;
   }
 }

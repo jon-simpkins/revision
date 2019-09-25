@@ -9,6 +9,8 @@ import {ContentEditService} from '../content-edit.service';
 
 import {AppModule} from '../app.module';
 import {HackUpdateService} from '../hack-update.service';
+import {QuillModule} from 'ngx-quill';
+import {ReactiveFormsModule} from '@angular/forms';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-panel-content [editContext]="contentEditService.editContext" [editContent]="contentEditService.currentContent"></edit-panel-content></div>';
 
