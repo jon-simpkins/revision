@@ -5,17 +5,7 @@ import {ScrapPrototype} from '../Scrap';
 import ViewOption, {ViewOptionGenerators} from '../ViewOption';
 import EditContext, {EditType} from '../EditContext';
 import {ScrapPile} from '../ScrapPile';
-
-class BlockContentRefOption {
-
-  constructor(
-    public type: TARGET_CONTENT_TYPE,
-    public label: string,
-    public refId: string,
-    public exists: boolean
-  ) {}
-
-}
+import BlockContentRefOption from './BlockContentRefOption';
 
 function addNewOptions(
   options: BlockContentRefOption[],
@@ -143,4 +133,4 @@ function buildBlockContentContext(refId: string, scrapPile: ScrapPile) {
   return ctx;
 }
 
-export {BlockContentRefOption, buildBlockContentContext};
+export {buildBlockContentContext};

@@ -8,7 +8,7 @@ import {ScreenService} from './screen.service';
 import Scrap, {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
 import ViewOption from '../types/ViewOption';
-import {generateAppropriateGenerator} from '../viewContentGenerators/viewContentGenerators';
+import {generateAppropriateGenerator} from '../viewContentGenerators/generateAppropriateViewGenerator';
 import {StorybookService} from './storybook.service';
 import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
 import {ScrapPile} from '../types/ScrapPile';

@@ -5,9 +5,10 @@ import {GENDER_OPTIONS} from './GenderOptions';
 import {MultiOption} from './MultiOption';
 import {ScrapContent} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
-import {BlockContentRefOption, buildBlockContentContext} from './EditContexts/buildBlockContentContext';
+import {buildBlockContentContext} from './EditContexts/buildBlockContentContext';
 import {buildScriptContentContext} from './EditContexts/buildScriptContentContext';
 import {buildStructureContext} from './EditContexts/buildStructureContext';
+import BlockContentRefOption from './EditContexts/BlockContentRefOption';
 
 enum EditType {
   TEXT_LINE,

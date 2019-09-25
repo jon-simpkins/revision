@@ -3,9 +3,9 @@ import EditContext from '../../../../types/EditContext';
 import {StructureBlockContent} from '../../../../types/ScrapTypes/StructureBlockContent';
 
 import {TARGET_CONTENT_TYPE} from '../../../../types/ScrapTypes/ScrapContent';
-import {BlockContentRefOption} from '../../../../types/EditContexts/buildBlockContentContext';
 import {StoryService} from '../../../story.service';
 import ViewOption, {ViewOptionGenerators} from '../../../../types/ViewOption';
+import BlockContentRefOption from '../../../../types/EditContexts/BlockContentRefOption';
 
 @Component({
   selector: 'structure-block-content-edit-panel',
