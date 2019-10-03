@@ -19,8 +19,6 @@ import {
   MatSidenavModule
 } from '@angular/material';
 
-import { QuillModule } from 'ngx-quill';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginGateComponent } from './login-gate/login-gate.component';
@@ -38,7 +36,6 @@ import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-ca
 import { StructureEditPanelComponent } from './story-details/edit-panel-content/structure-edit-panel/structure-edit-panel.component';
 import {StructureBlockContentEditPanelComponent} from './story-details/edit-panel-content/structure-block-content-edit-panel/structure-block-content-edit-panel.component';
 import {ScriptEditPanelComponent} from './story-details/edit-panel-content/script-edit-panel/script-edit-panel.component';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 const APP_COMPONENTS = [
   AppComponent,
@@ -77,15 +74,9 @@ const MATERIAL_IMPORTS = [
   BrowserAnimationsModule,
 ];
 
-const QUILL_IMPORTS = [
-  FormsModule,
-  ReactiveFormsModule,
-  QuillModule.forRoot()
-];
-
 @NgModule({
   declarations: [].concat(APP_COMPONENTS),
-  imports: [].concat(MATERIAL_IMPORTS).concat(QUILL_IMPORTS),
+  imports: [].concat(MATERIAL_IMPORTS),
   exports: [].concat(APP_COMPONENTS).concat(MATERIAL_IMPORTS), // Export everything, so Storybook creation is easier
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
   bootstrap: [AppComponent]

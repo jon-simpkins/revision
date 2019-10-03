@@ -1,16 +1,7 @@
 <h3>{{editContext.headerPrompt}}</h3>
 <p>{{editContext.userGuidance}}</p>
 
-<quill-editor
-  [modules]="quillModules"
-  [readOnly]="false"
-  customToolbarPosition="bottom"
-  (onContentChanged)="onQuillContentChanged($event)"
-  format="text"
-  [ngModel]="editContent.script.rawText"
-  (onEditorCreated)="setFocus($event)"
->
-  <div quill-editor-toolbar>
-    Word count: {{wordCount}}
-  </div>
-</quill-editor>
+<div id="{{editorId}}-toolbar">
+  Word count: {{wordCount}}
+</div>
+<div id="{{editorId}}"></div>
