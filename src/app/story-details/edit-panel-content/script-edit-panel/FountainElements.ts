@@ -64,6 +64,33 @@ class FountainElement {
     throw new Error(`Unexpected type: ${this.type}`);
   }
 
+  getNumRenderedLines(): number {
+    // These are all based on measuring the maximum number of characters
+    // in Highland before it caused a linebreak, for each type of element
+    const trimmedText = this.text.trim();
+
+    switch (this.type) {
+      case FountainElementType.SCENE_HEADER:
+        return Math.ceil(trimmedText.replace(/^\./, '').length / 55);
+      case FountainElementType.CHARACTER:
+        return Math.ceil(trimmedText.replace(/^@/, '').length / 34);
+      case FountainElementType.PARENTHETICAL:
+        return Math.ceil(trimmedText.length / 29);
+      case FountainElementType.DIALOGUE:
+        return Math.ceil(trimmedText.length / 34);
+      case FountainElementType.CENTERED:
+        return Math.ceil(trimmedText.replace(/^>/, '').replace(/<$/, '').length / 63);
+      case FountainElementType.ACTION:
+        return Math.ceil(trimmedText.length / 63);
+      case FountainElementType.TRANSITION:
+        return Math.ceil(trimmedText.replace(/^>/, '').length / 63);
+      case FountainElementType.EMPTY:
+        return 1;
+    }
+
+    throw new Error(`Unexpected type: ${this.type}`);
+  }
+
   sameElement(other: FountainElement) {
     return other.type === this.type;
   }
@@ -98,7 +125,7 @@ class FountainElements {
     return this.lines[idx - 1].type === FountainElementType.EMPTY;
   }
 
-  emptyAfter(idx: number, interpretEndAsEmpty = true): boolean {
+  emptyAfter(idx: number, interpretEndAsEmpty: boolean = true): boolean {
     if (idx + 1 === this.lines.length) {
       return interpretEndAsEmpty;
     }
@@ -173,7 +200,7 @@ class FountainElements {
           isCharacter = true;
         } else {
           // Insist on capital letters, except in parentheticals at the end where anything goes
-          const CHARACTER_REGEX = /^[\sA-Z\d-_]+(\s+\(.+)?$/;
+          const CHARACTER_REGEX = /^[\sA-Z\d\.-_]+(\s+\(.+)?$/;
           if (line.text.match(CHARACTER_REGEX)) {
             isCharacter = true;
           }
@@ -224,18 +251,15 @@ class FountainElements {
     outputDeltas.push(currentDelta);
     return outputDeltas;
   }
+
+  getEstimatedPageCount(): number {
+    let lineCount = 0;
+    this.lines.forEach(line => {
+      lineCount += line.getNumRenderedLines();
+    });
+
+    return lineCount / 55;
+  }
 }
 
-
-
-
-export function parseQuillFromFountain(text: string): Op[] {
-
-  const begin = Date.now();
-
-  const parsedElements = FountainElements.fromTextLines(text.split('\n'));
-
-  console.log(`Parsed ${parsedElements.lines.length} lines in ${Date.now() - begin} ms`);
-
-  return parsedElements.getQuillDeltas();
-}
+export {FountainElementType, FountainElement, FountainElements};

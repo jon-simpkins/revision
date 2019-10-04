@@ -4,7 +4,7 @@ import {ScriptContent} from '../../../../types/ScrapTypes/ScriptContent';
 
 import * as Quill from 'quill';
 import Delta from 'quill-delta/dist/Delta';
-import {parseQuillFromFountain} from './parseQuillFromFountain';
+import {FountainElements} from './FountainElements';
 
 @Component({
   selector: 'script-edit-panel',
@@ -17,6 +17,8 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
   @Input() editContext: EditContext;
 
   wordCount = 0;
+  pageCount = 0;
+
   formattedContent = [];
   editor: Quill;
 
@@ -35,7 +37,8 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
     });
 
     this.updateWordCount();
-    this.editor.setContents(this.formatText());
+    this.updatePageCountAndFormatText();
+    this.editor.setContents(this.formattedContent);
     this.editor.focus();
 
     this.editor.on('text-change', (delta: Delta, oldDelta: Delta, source) => {
@@ -57,7 +60,7 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
           return lineDelta.insert;
         }).join('');
         this.updateWordCount();
-        this.formattedContent = this.formatText();
+        this.updatePageCountAndFormatText();
 
         // Allow Quill to complete whatever synchronous stuff it's doing
         setTimeout(() => {
@@ -73,10 +76,14 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
     this.wordCount = this.editContent.script.rawText.split(/\w+/).length - 1;
   }
 
-  formatText() {
-    return parseQuillFromFountain(
+  updatePageCountAndFormatText() {
+    const parsedScript = FountainElements.fromTextLines(
       this.editContent.script.rawText
-        .replace(/\n$/, '') // Remove the mandatory trailing newline (we'll add it back)
+        .replace(/\n$/, '') // Remove the mandatory trailing newline (we'll add it back))
+        .split('\n')
     );
+
+    this.pageCount = parsedScript.getEstimatedPageCount();
+    this.formattedContent = parsedScript.getQuillDeltas();
   }
 }

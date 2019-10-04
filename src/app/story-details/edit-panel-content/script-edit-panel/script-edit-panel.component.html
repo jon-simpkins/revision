@@ -2,6 +2,9 @@
 <p>{{editContext.userGuidance}}</p>
 
 <div id="{{editorId}}-toolbar">
-  Word count: {{wordCount}}
+  <span>Word Count: {{wordCount}}</span>
+  <span style="margin-left: 1em; border-left: 1px solid black; padding-left: 1em;">
+    Approx. Page Count: {{pageCount | number: '1.0-2'}}
+  </span>
 </div>
-<div id="{{editorId}}"></div>
+<div style="max-height: 40vh; overflow: scroll;" id="{{editorId}}"></div>
