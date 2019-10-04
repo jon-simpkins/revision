@@ -9,6 +9,9 @@
       <h4 *ngSwitchCase="viewContentBlockTypes.SUB_HEADER">
         {{block.text}}
       </h4>
+      <quill-readonly *ngSwitchCase="viewContentBlockTypes.SCRIPT_SECTION"
+        [plaintext]="block.text"
+      ></quill-readonly>
       <h4 *ngSwitchCase="viewContentBlockTypes.LINK_SUBHEADER">
         {{block.text}}
         <button

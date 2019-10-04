@@ -11,6 +11,7 @@ enum ViewContentBlockType {
   LIST_ENTRY,
   NEXT_PREV_NAV,
   HORIZONTAL_DIVIDER,
+  SCRIPT_SECTION,
 }
 
 // Class to represent a single block of renderable content for viewing
