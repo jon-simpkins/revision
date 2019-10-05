@@ -3,18 +3,26 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 import { Component } from '@angular/core';
 
 import { LoginGateService } from '../login-gate.service';
-import { StorybookService } from '../storybook.service';
 
 import {AppModule} from '../app.module';
 
 @Component({
   template: `<login-gate></login-gate>`,
 })
+class LoginGateSplashScreen {
+  constructor(loginGateService: LoginGateService) {
+    loginGateService.stillInitializing = true;
+  }
+}
+
+@Component({
+  template: `<login-gate></login-gate>`,
+})
 class LoginGateLoggedIn {
-  constructor(loginGateService: LoginGateService, storybookService: StorybookService) {
+  constructor(loginGateService: LoginGateService) {
+    loginGateService.stillInitializing = false;
     loginGateService.loggedIn = true;
     loginGateService.loggedInEmail = 'my.account@gmail.com';
-    storybookService.isInStorybook = true;
   }
 }
 
@@ -22,10 +30,10 @@ class LoginGateLoggedIn {
   template: `<login-gate></login-gate>`,
 })
 class LoginGateLoggedOut {
-  constructor(loginGateService: LoginGateService, storybookService: StorybookService) {
+  constructor(loginGateService: LoginGateService) {
+    loginGateService.stillInitializing = false;
     loginGateService.loggedIn = false;
     loginGateService.loggedInEmail = null;
-    storybookService.isInStorybook = true;
   }
 }
 
@@ -37,6 +45,11 @@ storiesOf('Login Gate', module)
       providers: [],
     }),
   )
+  .add('Splash Screen', () => {
+    return {
+      component: LoginGateSplashScreen
+    };
+  }, { notes: 'Login state is determined by the LoginGateService' })
   .add('Logged In', () => {
     return {
       component: LoginGateLoggedIn
