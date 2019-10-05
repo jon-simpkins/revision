@@ -22,16 +22,6 @@
 
   <div style="flex: 1;">
     <div style="display: flex;">
-    <span style="flex: 0 0 100px;">
-      <button mat-button
-        *ngIf="screenService.showViewPanel()"
-        (click)="screenService.toggleViewNav()"
-      >
-        <mat-icon>
-          {{screenService.showViewNav ? 'chevron_left' : 'more_horiz'}}
-        </mat-icon>
-      </button>
-    </span>
       <span style="flex: 1; text-align: center;">
       <button mat-button
         [color]="screenService.currentDetailsPanelView === 'view' ? 'primary' : null"
@@ -54,21 +44,8 @@
         <mat-icon>edit</mat-icon>
       </button>
     </span>
-      <span style="flex: 0 0 100px; text-align: right;">
-      <button mat-button
-        *ngIf="screenService.showEditPanel()"
-        (click)="screenService.toggleEditNav()"
-      >
-        <mat-icon>
-          {{screenService.showEditNav ? 'chevron_right' : 'more_horiz'}}
-        </mat-icon>
-      </button>
-    </span>
     </div>
     <div style="display: flex; height: 80vh;">
-      <view-nav *ngIf="screenService.showViewNav"
-        style="width:250px; overflow: scroll;"
-      ></view-nav>
       <div
         style="border: 1px solid green; flex: 1; padding: 12px; overflow: scroll;"
         *ngIf="screenService.showViewPanel()"
@@ -113,9 +90,6 @@
           </div>
         </ng-template>
       </div>
-      <edit-nav *ngIf="screenService.showEditNav"
-        style="width:250px; overflow: scroll;"
-      ></edit-nav>
     </div>
   </div>
 </div>

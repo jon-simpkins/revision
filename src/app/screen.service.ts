@@ -19,6 +19,8 @@ export class ScreenService {
   showEditNav = false;
 
   currentViewOption: ViewOption;
+  prevViewOptions: ViewOption[] = []; // For back-button functionality
+  nextViewOptions: ViewOption[] = []; // For forward-button functionality
   viewContent: ViewContentBlock[] = [];
   viewOptions = [];
   editOptions: EditOption[] = [];
@@ -100,7 +102,19 @@ export class ScreenService {
 
   setViewOption(viewOption: ViewOption) {
     this.showViewNav = false; // Hide nav on select
+    this.prevViewOptions.push(this.currentViewOption);
+    this.nextViewOptions = [];
     this.currentViewOption = viewOption;
+  }
+
+  navigateViewBack() {
+    this.nextViewOptions.push(this.currentViewOption);
+    this.currentViewOption = this.prevViewOptions.pop();
+  }
+
+  navigateViewForward() {
+    this.prevViewOptions.push(this.currentViewOption);
+    this.currentViewOption = this.nextViewOptions.pop();
   }
 
   toggleViewNav() {

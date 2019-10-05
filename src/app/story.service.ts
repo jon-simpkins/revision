@@ -158,6 +158,24 @@ export class StoryService {
     this.refreshViewContent();
   }
 
+  canNavigateViewBack(): boolean {
+    return !!this.screenService.prevViewOptions.length;
+  }
+
+  navigateViewBack() {
+    this.screenService.navigateViewBack();
+    this.refreshViewContent();
+  }
+
+  canNavigateViewForward(): boolean {
+    return !!this.screenService.nextViewOptions.length;
+  }
+
+  navigateViewForward() {
+    this.screenService.navigateViewForward();
+    this.refreshViewContent();
+  }
+
   refreshViewContent() {
     const viewOption = this.screenService.currentViewOption;
     this.screenService.viewContent = generateAppropriateGenerator(viewOption)(

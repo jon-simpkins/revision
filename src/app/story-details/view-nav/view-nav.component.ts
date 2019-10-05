@@ -12,4 +12,8 @@ export class ViewNavComponent {
 
   constructor(public screenService: ScreenService, public storyService: StoryService) { }
 
+  closeViewNav() {
+    this.screenService.showViewNav = false;
+  }
+
 }
