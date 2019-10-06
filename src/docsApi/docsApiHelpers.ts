@@ -4,13 +4,15 @@ import { credentials } from '../credentials';
 
 declare var gapi: any; // TODO: actually import the types for this
 
+let API_SUCCESSFULLY_INITIALIZED = false;
+
 // Read in the credentials from a git-ignored file
 const API_KEY = credentials.API_KEY;
 const CLIENT_ID = credentials.CLIENT_ID;
 
 // Function to initialize the GAPI global object
-function initApi() : void {
-  if (typeof gapi == 'undefined') {
+function initApi(): void {
+  if (typeof gapi === 'undefined') {
     return; // If GAPI didn't load, abort
   }
 
@@ -30,32 +32,42 @@ function initApi() : void {
       clientId: CLIENT_ID,
       discoveryDocs: DISCOVERY_DOCS,
       scope: 'https://www.googleapis.com/auth/documents'
-    });
+    }).then(
+      () => {
+        console.log('init success!');
+        API_SUCCESSFULLY_INITIALIZED = true;
+      },
+      (e) => {
+        console.error('error initializing!');
+        console.error(e);
+      }
+    );
   });
 }
 
 initApi();
 
-function signIn() : void {
+function signIn(): void {
   gapi.auth2.getAuthInstance().signIn();
 }
 
-function signOut() : void {
+function signOut(): void {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-function registerSignedInListener(callback) : void {
-  if (typeof gapi == 'undefined') {
+function registerSignedInListener(callback): void {
+  if (typeof gapi === 'undefined') {
     return; // If GAPI didn't load, abort
   }
 
-  if (!gapi || !gapi.auth2) {
+  if (!API_SUCCESSFULLY_INITIALIZED) {
     setTimeout(() => {
       registerSignedInListener(callback);
     }, 50);
     return;
   }
 
+  callback(gapi.auth2.getAuthInstance().isSignedIn.get());
   gapi.auth2.getAuthInstance().isSignedIn.listen(callback);
 }
 

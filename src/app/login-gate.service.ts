@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { signIn, registerSignedInListener, signOut, getLoginEmail } from '../docsApi/docsApiHelpers';
+import {Router} from '@angular/router';
 
 const SPLASH_SCREEN_MIN_DURATION = 1000;
 
@@ -13,25 +14,36 @@ export class LoginGateService {
   loggedInEmail = '';
   stillInitializing = true;
 
-  constructor() {
+  constructor(private router: Router) {
     const startEpochMs = Date.now();
     registerSignedInListener((loggedIn) => {
-      this.updateSignedIn(loggedIn);
       const remainingSplashDuration = SPLASH_SCREEN_MIN_DURATION - (Date.now() - startEpochMs);
       if (remainingSplashDuration <= 0) {
         this.stillInitializing = false;
+        this.updateSignedIn(loggedIn);
       } else {
         setTimeout(() => {
           this.stillInitializing = false;
+          this.updateSignedIn(loggedIn);
         }, remainingSplashDuration);
       }
-
     });
   }
 
-  updateSignedIn(loggedIn) {
+  updateSignedIn(loggedIn: boolean) {
     this.loggedIn = loggedIn;
-    this.loggedInEmail = getLoginEmail();
+    if (this.loggedIn) {
+      this.loggedInEmail = getLoginEmail();
+
+      const currentUrl = this.router.url;
+      if (currentUrl === '/loggedOut') {
+        this.router.navigate(['/']);
+      }
+    } else {
+      this.loggedInEmail = null;
+
+      this.router.navigate(['/loggedOut']);
+    }
   }
 
   signIn(): void {

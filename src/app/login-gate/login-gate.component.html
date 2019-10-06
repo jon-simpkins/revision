@@ -5,8 +5,9 @@
   </div>
 </div>
 <ng-template #initialized>
-  <logged-in-state  *ngIf="loginGateService.loggedIn; else notLoggedIn"></logged-in-state>
+  <router-outlet></router-outlet>
+  <!--<logged-in-state  *ngIf="loginGateService.loggedIn; else notLoggedIn"></logged-in-state>
   <ng-template #notLoggedIn>
     <logged-out-state></logged-out-state>
-  </ng-template>
+  </ng-template>-->
 </ng-template>

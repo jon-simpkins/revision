@@ -37,6 +37,7 @@ import { StructureEditPanelComponent } from './story-details/edit-panel-content/
 import {StructureBlockContentEditPanelComponent} from './story-details/edit-panel-content/structure-block-content-edit-panel/structure-block-content-edit-panel.component';
 import {ScriptEditPanelComponent} from './story-details/edit-panel-content/script-edit-panel/script-edit-panel.component';
 import {QuillReadonlyComponent} from './story-details/view-panel-content/quill-readonly/quill-readonly.component';
+import {TutorialComponent} from './tutorial/tutorial.component';
 
 const APP_COMPONENTS = [
   AppComponent,
@@ -56,6 +57,7 @@ const APP_COMPONENTS = [
   StructureBlockContentEditPanelComponent,
   ScriptEditPanelComponent,
   QuillReadonlyComponent,
+  TutorialComponent,
 ];
 
 const MATERIAL_IMPORTS = [
