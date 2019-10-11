@@ -32,6 +32,7 @@ class EditContext {
   viewOptions: ViewOption[]; // Optional, list of view options for the bottom of the edit
   constraints: EditConstraints;
   contentRefOptions: BlockContentRefOption[];
+  characterMap: Map<string, string>;
 
   constructor(editType: EditType, headerPrompt: string, multiOptions?: MultiOption[], viewOptions?: ViewOption[], userGuidance?: string) {
     this.editType = editType;

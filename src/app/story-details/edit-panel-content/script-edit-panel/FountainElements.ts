@@ -16,6 +16,7 @@ enum FountainElementType {
 class FountainElement {
   text: string;
   type = FountainElementType.ACTION;
+  refId: string;
 
   constructor(text: string) {
     this.text = text;
@@ -47,10 +48,17 @@ class FountainElement {
           align: 'right'
         };
       case FountainElementType.CHARACTER:
-        return {
+        const attributes = {
           bold: true,
-          indent: 4
+          indent: 4,
+          character: null
         };
+
+        if (this.refId) {
+          attributes.character = this.refId;
+        }
+
+        return attributes;
       case FountainElementType.PARENTHETICAL:
         return {
           indent: 3
@@ -92,14 +100,14 @@ class FountainElement {
   }
 
   sameElement(other: FountainElement) {
-    return other.type === this.type;
+    return other.type === this.type && other.refId === this.refId;
   }
 }
 
 class FountainElements {
   lines: FountainElement[];
 
-  static fromTextLines(textLines: string[]): FountainElements {
+  static fromTextLines(textLines: string[], characterMap: Map<string, string>): FountainElements {
     const retVal = new FountainElements();
     retVal.lines = textLines.map(textLine => new FountainElement(textLine));
 
@@ -107,7 +115,7 @@ class FountainElements {
     retVal.applySceneHeaders();
     retVal.applyCentered();
     retVal.applySceneTransitions();
-    retVal.applyCharacters();
+    retVal.applyCharacters(characterMap);
     retVal.applyParentheticalDialogue();
 
     return retVal;
@@ -191,7 +199,7 @@ class FountainElements {
     });
   }
 
-  applyCharacters() {
+  applyCharacters(characterMap: Map<string, string>) {
     this.lines = this.lines.map((line, idx) => {
       let isCharacter = false;
 
@@ -209,6 +217,11 @@ class FountainElements {
 
       if (isCharacter) {
         line.type = FountainElementType.CHARACTER;
+
+        const dialogueCharacterName = line.text.trim().replace(/^@/, '').toUpperCase();
+        if (characterMap.has(dialogueCharacterName)) {
+          line.refId = characterMap.get(dialogueCharacterName);
+        }
       }
       return line;
     });

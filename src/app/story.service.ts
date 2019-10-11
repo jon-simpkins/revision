@@ -7,13 +7,17 @@ import {generateHeaderCommands, updateContentLine} from '../docsApi/docsContentH
 import {ScreenService} from './screen.service';
 import Scrap, {ScrapPrototype} from '../types/Scrap';
 import EditOption from '../types/EditOption';
-import ViewOption from '../types/ViewOption';
+import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import {generateAppropriateGenerator} from '../viewContentGenerators/generateAppropriateViewGenerator';
 import {StorybookService} from './storybook.service';
 import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
 import {ScrapPile} from '../types/ScrapPile';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
+
+// Generic singleton for story service, to allow
+// exposing it in the CharacterBlot click handler
+export let storyServiceSingleton: StoryService;
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +33,8 @@ export class StoryService {
       this.storySummaries = JSON.parse(localStorage.getItem(STORY_SUMMARIES_KEY))
         .map(StorySummary.buildFromJSON);
     }
+
+    storyServiceSingleton = this;
   }
 
   persistStorySummaries() {
@@ -185,4 +191,14 @@ export class StoryService {
     );
   }
 
+  navigateToCharacter(refId) {
+    const characterViewOption = new ViewOption(
+      ViewOptionGenerators.CHARACTER_DETAILS,
+      null,
+      null,
+      refId
+    );
+
+    this.setViewContent(characterViewOption);
+  }
 }

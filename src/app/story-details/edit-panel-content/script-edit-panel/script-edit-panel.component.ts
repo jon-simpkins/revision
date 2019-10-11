@@ -1,15 +1,18 @@
-import {Component, Input, OnInit, AfterViewInit} from '@angular/core';
+import {Component, Input, OnInit, AfterViewInit, ViewEncapsulation} from '@angular/core';
 import EditContext from '../../../../types/EditContext';
 import {ScriptContent} from '../../../../types/ScrapTypes/ScriptContent';
 
 import * as Quill from 'quill';
 import Delta from 'quill-delta/dist/Delta';
+
 import {FountainElements} from './FountainElements';
+import CharacterBlot from './CharacterBlot';
 
 @Component({
   selector: 'script-edit-panel',
   templateUrl: './script-edit-panel.component.html',
-  styleUrls: ['./script-edit-panel.component.scss']
+  styleUrls: ['./script-edit-panel.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
 
@@ -35,6 +38,8 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
         toolbar: `#${this.editorId}-toolbar`
       }
     });
+
+    Quill.register({'formats/character': CharacterBlot}, true);
 
     this.updateWordCount();
     this.updatePageCountAndFormatText();
@@ -80,7 +85,8 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
     const parsedScript = FountainElements.fromTextLines(
       this.editContent.script.rawText
         .replace(/\n$/, '') // Remove the mandatory trailing newline (we'll add it back))
-        .split('\n')
+        .split('\n'),
+      this.editContext.characterMap
     );
 
     this.pageCount = parsedScript.getEstimatedPageCount();
