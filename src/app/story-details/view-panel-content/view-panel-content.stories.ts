@@ -6,8 +6,8 @@ import ViewOption, {ViewOptionGenerators} from '../../../types/ViewOption';
 
 import {stubStory001} from '../../../stubStoryData/stubStory001';
 import {Component, Input, OnInit} from '@angular/core';
-import {ScreenService} from '../../screen.service';
-import {StoryService} from '../../story.service';
+import {ScreenService} from '../../services/screen.service';
+import {StoryService} from '../../services/story.service';
 import Scrap from '../../../types/Scrap';
 import {AppModule} from '../../app.module';
 

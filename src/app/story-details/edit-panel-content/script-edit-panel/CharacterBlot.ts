@@ -1,5 +1,5 @@
 import * as Quill from 'quill';
-import {storyServiceSingleton} from '../../../story.service';
+import {storyServiceSingleton} from '../../../services/story.service';
 
 const Inline = Quill.import('blots/inline');
 

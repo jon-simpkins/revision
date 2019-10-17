@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import {ScreenService} from '../../screen.service';
-import {StoryService} from '../../story.service';
+import {ScreenService} from '../../services/screen.service';
+import {StoryService} from '../../services/story.service';
 
 @Component({
   selector: 'view-nav',

@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {StructureSpecContent} from '../../../../types/ScrapTypes/StructureSpecContent';
 import EditContext from '../../../../types/EditContext';
 import {StoryStructure, StructureBlock} from '../../../../types/StoryStructure/StoryStructure';
-import {StructureTemplateService} from '../../../structure-template.service';
+import {StructureTemplateService} from '../../../services/structure-template.service';
 
 @Component({
   selector: 'structure-edit-panel',

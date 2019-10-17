@@ -1,10 +1,10 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 import {Component} from '@angular/core';
-import {ContentEditService} from '../../content-edit.service';
+import {ContentEditService} from '../../services/content-edit.service';
 
 import {ScrapPrototype} from '../../../types/Scrap';
 import {AppModule} from '../../app.module';
-import {HackUpdateService} from '../../hack-update.service';
+import {HackUpdateService} from '../../services/hack-update.service';
 
 const TEMPLATE = `
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

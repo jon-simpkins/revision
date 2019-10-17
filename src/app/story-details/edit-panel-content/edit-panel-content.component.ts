@@ -2,11 +2,11 @@ import { Component, Input, NgZone, ViewChild } from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
 import {take} from 'rxjs/operators';
 
-import {ContentEditService} from '../../content-edit.service';
+import {ContentEditService} from '../../services/content-edit.service';
 import UserEdit from '../../../types/UserEdit';
 import EditContext, {EditType} from '../../../types/EditContext';
 import ViewOption from '../../../types/ViewOption';
-import {StoryService} from '../../story.service';
+import {StoryService} from '../../services/story.service';
 import {NLineContent} from '../../../types/ScrapTypes/NLineContent';
 import {TextLineContent} from '../../../types/ScrapTypes/TextLineContent';
 import {StructureSpecContent} from '../../../types/ScrapTypes/StructureSpecContent';

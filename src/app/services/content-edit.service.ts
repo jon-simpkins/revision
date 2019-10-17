@@ -3,11 +3,11 @@ import {Injectable} from '@angular/core';
 import * as uuid from 'uuid/v4';
 
 import {StoryService} from './story.service';
-import Scrap, {ScrapPrototype} from '../types/Scrap';
-import EditContext from '../types/EditContext';
-import UserEdit from '../types/UserEdit';
+import Scrap, {ScrapPrototype} from '../../types/Scrap';
+import EditContext from '../../types/EditContext';
+import UserEdit from '../../types/UserEdit';
 import {LoginGateService} from './login-gate.service';
-import {ScrapContent} from '../types/ScrapTypes/ScrapContent';
+import {ScrapContent} from '../../types/ScrapTypes/ScrapContent';
 import {ScreenService} from './screen.service';
 
 // A service for tracking the current editing state of a Scrap

@@ -3,7 +3,7 @@ import EditContext from '../../../../types/EditContext';
 import {StructureBlockContent} from '../../../../types/ScrapTypes/StructureBlockContent';
 
 import {TARGET_CONTENT_TYPE} from '../../../../types/ScrapTypes/ScrapContent';
-import {StoryService} from '../../../story.service';
+import {StoryService} from '../../../services/story.service';
 import ViewOption, {ViewOptionGenerators} from '../../../../types/ViewOption';
 import BlockContentRefOption from '../../../../types/EditContexts/BlockContentRefOption';
 

@@ -2,8 +2,8 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 
 import { Component } from '@angular/core';
 
-import {StoryService} from '../story.service';
-import {ScreenService} from '../screen.service';
+import {StoryService} from '../services/story.service';
+import {ScreenService} from '../services/screen.service';
 
 import StorySummary from '../../types/StorySummary';
 import {AppModule} from '../app.module';

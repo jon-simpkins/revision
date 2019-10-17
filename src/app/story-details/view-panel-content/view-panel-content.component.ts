@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import ViewContentBlock, {ViewContentBlockType} from './ViewContentBlock';
 import ViewOption from '../../../types/ViewOption';
-import {StoryService} from '../../story.service';
-import {ContentEditService} from '../../content-edit.service';
+import {StoryService} from '../../services/story.service';
+import {ContentEditService} from '../../services/content-edit.service';
 import EditOption from '../../../types/EditOption';
-import {ScreenService} from '../../screen.service';
+import {ScreenService} from '../../services/screen.service';
 
 @Component({
   selector: 'view-panel-content',

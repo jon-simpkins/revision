@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { signIn, registerSignedInListener, signOut, getLoginEmail } from '../docsApi/docsApiHelpers';
+import { signIn, registerSignedInListener, signOut, getLoginEmail } from '../../docsApi/docsApiHelpers';
 import {Router} from '@angular/router';
 
 const SPLASH_SCREEN_MIN_DURATION = 1000;

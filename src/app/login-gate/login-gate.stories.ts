@@ -2,7 +2,7 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 
 import { Component } from '@angular/core';
 
-import { LoginGateService } from '../login-gate.service';
+import { LoginGateService } from '../services/login-gate.service';
 
 import {AppModule} from '../app.module';
 

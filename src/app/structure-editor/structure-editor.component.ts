@@ -2,8 +2,8 @@ import {ApplicationRef, Component, OnInit} from '@angular/core';
 import {StoryStructure, StructureBlock} from '../../types/StoryStructure/StoryStructure';
 
 import 'hammerjs';
-import {StructureTemplateService} from '../structure-template.service';
-import {ScreenService} from '../screen.service';
+import {StructureTemplateService} from '../services/structure-template.service';
+import {ScreenService} from '../services/screen.service';
 
 @Component({
   selector: 'structure-editor',

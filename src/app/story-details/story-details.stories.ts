@@ -1,15 +1,15 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import {Component} from '@angular/core';
-import {ScreenService} from '../screen.service';
-import {ContentEditService} from '../content-edit.service';
-import {StoryService} from '../story.service';
+import {ScreenService} from '../services/screen.service';
+import {ContentEditService} from '../services/content-edit.service';
+import {StoryService} from '../services/story.service';
 
 import Scrap from '../../types/Scrap';
 
 import {stubStory001} from '../../stubStoryData/stubStory001';
 
-import {StorybookService} from '../storybook.service';
+import {StorybookService} from '../services/storybook.service';
 
 import {AppModule} from '../app.module';
 

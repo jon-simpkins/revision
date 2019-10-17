@@ -1,9 +1,9 @@
 import * as uuid from 'uuid/v4';
 
 import {Component} from '@angular/core';
-import {StoryService} from '../story.service';
-import {ScreenService} from '../screen.service';
-import {ContentEditService} from '../content-edit.service';
+import {StoryService} from '../services/story.service';
+import {ScreenService} from '../services/screen.service';
+import {ContentEditService} from '../services/content-edit.service';
 import EditOption from '../../types/EditOption';
 import {ScrapPrototype} from '../../types/Scrap';
 

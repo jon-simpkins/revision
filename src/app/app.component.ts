@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {HackUpdateService} from './hack-update.service';
+import {HackUpdateService} from './services/hack-update.service';
 
 @Component({
   selector: 'app-root',

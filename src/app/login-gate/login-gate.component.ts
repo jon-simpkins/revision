@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { LoginGateService } from '../login-gate.service';
-import { StorybookService } from '../storybook.service';
+import { LoginGateService } from '../services/login-gate.service';
+import { StorybookService } from '../services/storybook.service';
 
 @Component({
   selector: 'login-gate',

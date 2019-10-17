@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {ContentEditService} from '../../content-edit.service';
+import {ContentEditService} from '../../services/content-edit.service';
 
 @Component({
   selector: 'edit-header',

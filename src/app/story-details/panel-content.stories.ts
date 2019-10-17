@@ -2,13 +2,13 @@ import {moduleMetadata, storiesOf} from '@storybook/angular';
 
 import Scrap, {ScrapPrototype} from '../../types/Scrap';
 import {Component, Input, OnInit} from '@angular/core';
-import {ScreenService} from '../screen.service';
-import {StoryService} from '../story.service';
+import {ScreenService} from '../services/screen.service';
+import {StoryService} from '../services/story.service';
 import {stubStory001} from '../../stubStoryData/stubStory001';
-import {ContentEditService} from '../content-edit.service';
+import {ContentEditService} from '../services/content-edit.service';
 
 import {AppModule} from '../app.module';
-import {HackUpdateService} from '../hack-update.service';
+import {HackUpdateService} from '../services/hack-update.service';
 
 const TEMPLATE = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><div style="width: 90%;"><edit-panel-content [editContext]="contentEditService.editContext" [editContent]="contentEditService.currentContent"></edit-panel-content></div>';
 

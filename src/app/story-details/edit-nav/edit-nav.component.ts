@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {ContentEditService} from '../../content-edit.service';
-import {ScreenService} from '../../screen.service';
+import {ContentEditService} from '../../services/content-edit.service';
+import {ScreenService} from '../../services/screen.service';
 
 @Component({
   selector: 'edit-nav',

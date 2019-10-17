@@ -1,5 +1,5 @@
 import {ApplicationRef, Injectable} from '@angular/core';
-import {StoryStructure} from '../types/StoryStructure/StoryStructure';
+import {StoryStructure} from '../../types/StoryStructure/StoryStructure';
 
 export class StructureOption {
   constructor(public label: string, public id: string) {

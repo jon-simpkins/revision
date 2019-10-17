@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import {StoryService} from '../story.service';
-import {ScreenService} from '../screen.service';
+import {StoryService} from '../services/story.service';
+import {ScreenService} from '../services/screen.service';
 
 @Component({
   selector: 'story-list',
