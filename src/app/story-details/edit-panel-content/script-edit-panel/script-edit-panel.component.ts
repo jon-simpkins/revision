@@ -82,10 +82,9 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
   }
 
   updatePageCountAndFormatText() {
-    const parsedScript = FountainElements.fromTextLines(
+    const parsedScript = FountainElements.fromFullText(
       this.editContent.script.rawText
-        .replace(/\n$/, '') // Remove the mandatory trailing newline (we'll add it back))
-        .split('\n'),
+        .replace(/\n$/, ''), // Remove the mandatory trailing newline (we'll add it back))
       this.editContext.characterMap
     );
 

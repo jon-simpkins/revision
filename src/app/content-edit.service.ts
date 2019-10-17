@@ -1,4 +1,4 @@
-import {ApplicationRef, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import * as uuid from 'uuid/v4';
 
@@ -24,7 +24,7 @@ export class ContentEditService {
   currentContent: ScrapContent = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
 
-  constructor(private appRef: ApplicationRef, private storyService: StoryService, private loginGateService: LoginGateService, private screenService: ScreenService) {}
+  constructor(private storyService: StoryService, private loginGateService: LoginGateService, private screenService: ScreenService) {}
 
   getElapsedTimeStr(): string {
     let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
@@ -58,12 +58,15 @@ export class ContentEditService {
       this.storyService.setViewContent(this.editContext.viewOptions[0]);
     }
 
-    this.originalContent = EditContext.applyConstraints(
-      this.storyService.fetchEditScrapContent(scrapId, prototype),
-      this.editContext.constraints
-    );
-
-    this.currentContent = this.originalContent.clone(); // Create isolated clone
+    this.originalContent = this.storyService.fetchEditScrapContent(scrapId, prototype);
+    if (this.editContext.prepareContentForEditing) {
+      this.currentContent = this.editContext.prepareContentForEditing(
+        this.originalContent.clone(),
+        this.editContext
+      );
+    } else {
+      this.currentContent = this.originalContent.clone();
+    }
 
     this.screenService.hideEditNav(); // Hide edit nav when starting edit
     this.editStartEpoch = Date.now();
@@ -82,11 +85,18 @@ export class ContentEditService {
   }
 
   acceptEdit() {
-    let newScrap = new Scrap();
+    const newScrap = new Scrap();
     newScrap.id = this.currentScrapId;
     newScrap.refId = this.currentRefId;
     newScrap.prototype = this.editPrototype;
     newScrap.content = this.currentContent;
+    if (this.editContext.prepareContentForPersistence) {
+      newScrap.content = this.editContext.prepareContentForPersistence(
+        newScrap.content,
+        this.editContext
+      );
+    }
+
     newScrap.startedEpoch = this.editStartEpoch;
     newScrap.completedEpoch = Date.now();
     newScrap.editedBy = this.getCurrentUserEmail();

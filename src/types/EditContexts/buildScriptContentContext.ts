@@ -2,6 +2,7 @@ import {ScrapPile} from '../ScrapPile';
 import EditContext, {EditType} from '../EditContext';
 import ViewOption, {ViewOptionGenerators} from '../ViewOption';
 import {ScrapPrototype} from '../Scrap';
+import {ScrapContent} from '../ScrapTypes/ScrapContent';
 
 function buildCharacterMap(scrapPile: ScrapPile): Map<string, string> {
   const characterMap = new Map<string, string>();
@@ -25,23 +26,35 @@ function buildCharacterMap(scrapPile: ScrapPile): Map<string, string> {
   return characterMap;
 }
 
+const CONVERT_CHARACTER_REFID_TO_NAME = (scrapContent: ScrapContent, editContext: EditContext) => {
+  scrapContent.script.convertCharacterRefIdsToNames(editContext.characterMap);
+  return scrapContent;
+};
+
+const CONVERT_CHARACTER_NAME_TO_REFID = (scrapContent: ScrapContent, editContext: EditContext) => {
+  scrapContent.script.convertCharacterNamesToRefIds(editContext.characterMap);
+  return scrapContent;
+};
+
 function buildScriptContentContext(refId: string, scrapPile: ScrapPile): EditContext {
   // Fetch the content block that was pointing to this script scrap
   const contentBlockRefId = scrapPile.fetchContentBlockByContentRefId(refId);
 
   const characterMap = buildCharacterMap(scrapPile);
 
+  const context = new EditContext(
+    EditType.SCRIPT,
+    'New Script Entry',
+    null,
+    [],
+    'Feel free to write whatever scene you feel like! You can link it into a story structure later'
+  );
+  context.characterMap = characterMap;
+  context.prepareContentForEditing = CONVERT_CHARACTER_REFID_TO_NAME;
+  context.prepareContentForPersistence = CONVERT_CHARACTER_NAME_TO_REFID;
+
   if (!contentBlockRefId) {
     // Assume new one-off scene
-    const context = new EditContext(
-      EditType.SCRIPT,
-      'New Script Entry',
-      null,
-      [],
-      'Feel free to write whatever scene you feel like! You can link it into a story structure later'
-    );
-
-    context.characterMap = characterMap;
     return context;
   }
 
@@ -58,20 +71,14 @@ function buildScriptContentContext(refId: string, scrapPile: ScrapPile): EditCon
     }
   });
 
-  const userGuidance = `Expected duration: ${parentStructureBlockDurationStr}`;
 
-  const retVal = new EditContext(
-    EditType.SCRIPT,
-    `Script entry for Story Beat: "${parentStructureBlockLabel}"`,
-    null,
-    [
-      new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
-    ],
-    userGuidance
-  );
-  retVal.characterMap = characterMap;
+  context.headerPrompt = `Script entry for Story Beat: "${parentStructureBlockLabel}"`;
+  context.userGuidance = `Expected duration: ${parentStructureBlockDurationStr}`;
+  context.viewOptions = [
+    new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+  ];
 
-  return retVal;
+  return context;
 }
 
 export {buildScriptContentContext};

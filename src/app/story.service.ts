@@ -28,7 +28,7 @@ export class StoryService {
   currentId: string = null;
   currentScrapPile: ScrapPile = new ScrapPile();
 
-  constructor(private appRef: ApplicationRef, private screenService: ScreenService, private storybookService: StorybookService) {
+  constructor(private screenService: ScreenService, private storybookService: StorybookService) {
     if (localStorage.getItem(STORY_SUMMARIES_KEY)) {
       this.storySummaries = JSON.parse(localStorage.getItem(STORY_SUMMARIES_KEY))
         .map(StorySummary.buildFromJSON);
@@ -133,9 +133,9 @@ export class StoryService {
       // No associated story, skip
     }
 
-    let newSerialized = newScrap.generateSerialization();
+    const newSerialized = newScrap.generateSerialization();
 
-    let updateCommand = updateContentLine(
+    const updateCommand = updateContentLine(
       null,
       newSerialized
     );

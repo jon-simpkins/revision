@@ -33,6 +33,8 @@ class EditContext {
   constraints: EditConstraints;
   contentRefOptions: BlockContentRefOption[];
   characterMap: Map<string, string>;
+  prepareContentForEditing: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
+  prepareContentForPersistence: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
 
   constructor(editType: EditType, headerPrompt: string, multiOptions?: MultiOption[], viewOptions?: ViewOption[], userGuidance?: string) {
     this.editType = editType;
@@ -153,14 +155,6 @@ class EditContext {
       case ScrapPrototype.STRUCTURE_SPEC:
         return buildStructureContext(refId, scrapPile);
     }
-  }
-
-  static applyConstraints(scrapContent: ScrapContent, editConstraints: EditConstraints): ScrapContent {
-    if (editConstraints && editConstraints.durationSec && scrapContent.storyStructure) {
-      scrapContent.storyStructure.rescaleToDuraction(editConstraints.durationSec);
-    }
-
-    return scrapContent;
   }
 }
 

@@ -1,6 +1,7 @@
 import EditContext, {EditType} from '../EditContext';
 import {ScrapPile} from '../ScrapPile';
 import ViewOption, {buildStorySummaryViewOption, ViewOptionGenerators} from '../ViewOption';
+import {ScrapContent} from '../ScrapTypes/ScrapContent';
 
 
 function buildStructureContext(refId: string, scrapPile: ScrapPile): EditContext {
@@ -36,8 +37,12 @@ function buildStructureContext(refId: string, scrapPile: ScrapPile): EditContext
   );
 
   ctx.userGuidance = 'Select the structure, name the major story beats';
-
   ctx.constraints.durationSec = scrapPile.fetchConstraintDurationSec(refId);
+
+  ctx.prepareContentForEditing = (scrapContent: ScrapContent, editContext: EditContext) => {
+    scrapContent.storyStructure.rescaleToDuraction(editContext.constraints.durationSec);
+    return scrapContent;
+  };
 
   return ctx;
 }

@@ -107,7 +107,9 @@ class FountainElement {
 class FountainElements {
   lines: FountainElement[];
 
-  static fromTextLines(textLines: string[], characterMap: Map<string, string>): FountainElements {
+  static fromFullText(fullText: string, characterMap: Map<string, string>): FountainElements {
+    const textLines = fullText.split('\n');
+
     const retVal = new FountainElements();
     retVal.lines = textLines.map(textLine => new FountainElement(textLine));
 
@@ -119,6 +121,10 @@ class FountainElements {
     retVal.applyParentheticalDialogue();
 
     return retVal;
+  }
+
+  backToRawText(): string {
+    return this.lines.map(line => line.text).join('\n');
   }
 
   emptyBeforeAfter(idx: number): boolean {
@@ -218,12 +224,39 @@ class FountainElements {
       if (isCharacter) {
         line.type = FountainElementType.CHARACTER;
 
-        const dialogueCharacterName = line.text.trim().replace(/^@/, '').toUpperCase();
-        if (characterMap.has(dialogueCharacterName)) {
-          line.refId = characterMap.get(dialogueCharacterName);
+        const dialogueCharacterName = this.getDialogueNameFromLine(line.text);
+        if (characterMap.has(dialogueCharacterName.toUpperCase())) {
+          line.refId = characterMap.get(dialogueCharacterName.toUpperCase());
         }
       }
       return line;
+    });
+  }
+
+  getDialogueNameFromLine(dialogueLineText: string): string {
+    return dialogueLineText.trim().replace(/^@/, ''); // TODO: HANDLE PARENTHESIS ON LINE
+  }
+
+  replaceDialogueNamesWithRefId() {
+    this.lines.forEach(line => {
+      if (line.type === FountainElementType.CHARACTER && line.refId) {
+        const dialogueCharacterName = this.getDialogueNameFromLine(line.text);
+
+        line.text = line.text.trim().replace(/^@/, '').replace(dialogueCharacterName, `@${line.refId}`);
+      }
+    });
+  }
+
+  replaceDialogueRefIdsWithDialogNames(reverseCharacterMap: Map<string, string>) {
+    this.lines.forEach(line => {
+      if (line.type === FountainElementType.CHARACTER) {
+        const dialogueRefId = this.getDialogueNameFromLine(line.text);
+
+        if (reverseCharacterMap.has(dialogueRefId)) {
+          const dialogueName = reverseCharacterMap.get(dialogueRefId);
+          line.text = line.text.trim().replace(/^@/, '').replace(dialogueRefId, `${dialogueName.toUpperCase()}`);
+        }
+      }
     });
   }
 

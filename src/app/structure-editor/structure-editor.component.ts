@@ -18,7 +18,7 @@ export class StructureEditorComponent implements OnInit {
 
   sliderSec: number; // Time in sec for the timeline slider
 
-  constructor(public structureTemplateService: StructureTemplateService, public screenService: ScreenService, private appRef: ApplicationRef) {
+  constructor(public structureTemplateService: StructureTemplateService, public screenService: ScreenService) {
     this.sliderSec = 0;
   }
 
