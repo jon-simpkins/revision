@@ -34,8 +34,6 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
     );
 
     this.contentToShow = parsedScript.getQuillDeltas();
-
-    debugger;
   }
 
   ngOnInit() {
