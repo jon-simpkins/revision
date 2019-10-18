@@ -201,4 +201,8 @@ export class StoryService {
 
     this.setViewContent(characterViewOption);
   }
+
+  buildCharacterMap(): Map<string, string> {
+    return this.currentScrapPile.buildCharacterMap();
+  }
 }

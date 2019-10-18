@@ -2,6 +2,7 @@ import {Component, Input, OnInit, AfterViewInit, ViewEncapsulation} from '@angul
 import EditContext from '../../../../types/EditContext';
 import {ScriptContent} from '../../../../types/ScrapTypes/ScriptContent';
 
+import * as uuid from 'uuid/v4';
 import * as Quill from 'quill';
 import Delta from 'quill-delta/dist/Delta';
 
@@ -25,7 +26,7 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
   formattedContent = [];
   editor: Quill;
 
-  editorId = 'editorId' + Date.now();
+  editorId = 'editorId' + uuid().replace('-', '');
 
   constructor() {}
 

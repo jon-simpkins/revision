@@ -3,6 +3,7 @@ import EditContext, {EditType} from '../EditContext';
 import ViewOption, {ViewOptionGenerators} from '../ViewOption';
 import {ScrapPrototype} from '../Scrap';
 import {ScrapContent} from '../ScrapTypes/ScrapContent';
+import {Script} from '../Script/Script';
 
 function buildCharacterMap(scrapPile: ScrapPile): Map<string, string> {
   const characterMap = new Map<string, string>();
@@ -27,7 +28,7 @@ function buildCharacterMap(scrapPile: ScrapPile): Map<string, string> {
 }
 
 const CONVERT_CHARACTER_REFID_TO_NAME = (scrapContent: ScrapContent, editContext: EditContext) => {
-  scrapContent.script.convertCharacterRefIdsToNames(editContext.characterMap);
+  scrapContent.script.rawText = Script.convertCharacterRefIdsToNames(scrapContent.script.rawText, editContext.characterMap);
   return scrapContent;
 };
 

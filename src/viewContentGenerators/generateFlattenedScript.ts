@@ -7,6 +7,7 @@ import ViewContentBlock, {
 
 import {ScrapPile} from '../types/ScrapPile';
 import {TARGET_CONTENT_TYPE} from '../types/ScrapTypes/ScrapContent';
+import {Script} from '../types/Script/Script';
 
 function buildSectionHeader(depth: number, headerText: string): string {
   let output = '';
@@ -68,12 +69,15 @@ function generateFlattenedScript(scrapPile: ScrapPile): ViewContentBlock[] {
 
   const topStructureScrap = scrapPile.fetchProperlyRescaledStructureScrap(null);
 
+  let flattenedScript = generateFlattenedScriptFromStructure(
+    scrapPile,
+    topStructureScrap,
+    1
+  );
+  flattenedScript = Script.convertCharacterRefIdsToNames(flattenedScript, scrapPile.buildCharacterMap());
+
   blocks.push(new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
-    generateFlattenedScriptFromStructure(
-      scrapPile,
-      topStructureScrap,
-      1
-    )
+    flattenedScript
   ));
 
   return blocks;

@@ -174,6 +174,28 @@ class ScrapPile {
 
     return contentBlockRefId;
   }
+
+  buildCharacterMap(): Map<string, string> {
+    const characterMap = new Map<string, string>();
+    const characterListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
+
+    const characterRefIds = [];
+    characterListingScrap.content.lines.forEach(line => {
+      if (line.active) {
+        characterRefIds.push(line.refId);
+      }
+    });
+    characterRefIds.forEach(characterRefId => {
+      const nameScrap = this.getByRefId(characterRefId, ScrapPrototype.CHARACTER_NAME);
+
+      if (nameScrap) {
+        const name = nameScrap.content.text;
+        characterMap.set(name.toUpperCase(), characterRefId);
+      }
+    });
+
+    return characterMap;
+  }
 }
 
 export {ScrapPile};

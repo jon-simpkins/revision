@@ -16,19 +16,14 @@ class Script {
     return script;
   }
 
-  toString(): string {
-    return JSON.stringify({
-      r: this.rawText
-    });
-  }
-
   /**
    * Replaces all dialogue instances of the character refId in the script with the corresponding uppercase character name
    *
+   * @param rawText The original Fountain-formatted string
    * @param characterMap A map from CHAR_NAME_UPPERCASE -> refId
    */
-  convertCharacterRefIdsToNames(characterMap: Map<string, string>) {
-    const parsedScript = FountainElements.fromFullText(this.rawText, characterMap);
+  static convertCharacterRefIdsToNames(rawText: string, characterMap: Map<string, string>): string {
+    const parsedScript = FountainElements.fromFullText(rawText, characterMap);
 
     // Build the reverse map of refId -> character name
     const reverseCharacterMap = new Map<string, string>();
@@ -37,7 +32,13 @@ class Script {
     });
 
     parsedScript.replaceDialogueRefIdsWithDialogNames(reverseCharacterMap);
-    this.rawText = parsedScript.backToRawText();
+    return parsedScript.backToRawText();
+  }
+
+  toString(): string {
+    return JSON.stringify({
+      r: this.rawText
+    });
   }
 
   /**

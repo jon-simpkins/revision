@@ -10,6 +10,8 @@ enum FountainElementType {
   CHARACTER,
   PARENTHETICAL,
   DIALOGUE,
+  SECTION_HEADER, // ## My subsection
+  BONEYARD, // /* something */
 }
 
 // Element constituting a line in a .fountain-formatted document
@@ -67,6 +69,16 @@ class FountainElement {
         return {
           indent: 2
         };
+      case FountainElementType.SECTION_HEADER:
+        return {
+          bold: true,
+          background: '#a7c2ff',
+        };
+      case FountainElementType.BONEYARD:
+        return {
+          italic: true,
+          background: '#f0f0f0'
+        };
     }
 
     throw new Error(`Unexpected type: ${this.type}`);
@@ -94,6 +106,9 @@ class FountainElement {
         return Math.ceil(trimmedText.replace(/^>/, '').length / 63);
       case FountainElementType.EMPTY:
         return 1;
+      case FountainElementType.SECTION_HEADER:
+      case FountainElementType.BONEYARD:
+        return 0;
     }
 
     throw new Error(`Unexpected type: ${this.type}`);
@@ -114,6 +129,8 @@ class FountainElements {
     retVal.lines = textLines.map(textLine => new FountainElement(textLine));
 
     retVal.applyEmpty();
+    retVal.applySectionHeaders();
+    retVal.applyBoneyard();
     retVal.applySceneHeaders();
     retVal.applyCentered();
     retVal.applySceneTransitions();
@@ -136,7 +153,7 @@ class FountainElements {
       return true;
     }
 
-    return this.lines[idx - 1].type === FountainElementType.EMPTY;
+    return [FountainElementType.EMPTY, FountainElementType.BONEYARD].includes(this.lines[idx - 1].type);
   }
 
   emptyAfter(idx: number, interpretEndAsEmpty: boolean = true): boolean {
@@ -144,7 +161,7 @@ class FountainElements {
       return interpretEndAsEmpty;
     }
 
-    return this.lines[idx + 1].type === FountainElementType.EMPTY;
+    return [FountainElementType.EMPTY, FountainElementType.BONEYARD].includes(this.lines[idx + 1].type);
   }
 
   applyEmpty() {
@@ -275,6 +292,31 @@ class FountainElements {
         } else {
           this.lines[i].type = FountainElementType.DIALOGUE;
         }
+      }
+    }
+  }
+
+  applySectionHeaders() {
+    for (let i = 0; i < this.lines.length; i++) {
+      if (this.lines[i].text.startsWith('#')) {
+        this.lines[i].type = FountainElementType.SECTION_HEADER;
+      }
+    }
+  }
+
+  applyBoneyard() {
+    let inBoneyard = false;
+    let startIdx = -1;
+    for (let i = 0; i < this.lines.length; i++) {
+      if (this.lines[i].text.startsWith('/*') && !inBoneyard) {
+        startIdx = i;
+        inBoneyard = true;
+      }
+      if (this.lines[i].text.endsWith('*/') && inBoneyard) {
+        for (let j = startIdx; j <= i; j++) {
+          this.lines[j].type = FountainElementType.BONEYARD;
+        }
+        inBoneyard = false;
       }
     }
   }
