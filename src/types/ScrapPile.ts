@@ -1,11 +1,25 @@
 import Scrap, {ScrapPrototype} from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
+import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
+import {StructureBlock} from './StoryStructure/StoryStructure';
+
+// Convenience class for the callback of iterateOverStructure
+class StructureIterationContent {
+  constructor(
+    public summaryScrap: Scrap,
+    public durationSec: number,
+    public scriptScrap: Scrap,
+    public substructureScrap: Scrap,
+    public block: StructureBlock,
+    public depth: number,
+    public parentStructureScrap: Scrap
+  ) {}
+}
 
 class ScrapPile {
   scrapById = new Map<string, Scrap>();
   newestScrapBySingularPrototype = new Map<ScrapPrototype, Scrap>();
   newestScrapByRefAndPrototype = new Map<string, Map<ScrapPrototype, Scrap>>();
-
 
   importFromSerialization(serializedContent: string) {
     this.addScrap(
@@ -175,6 +189,9 @@ class ScrapPile {
     return contentBlockRefId;
   }
 
+  /**
+   * Build out the map of character name -> refId
+   */
   buildCharacterMap(): Map<string, string> {
     const characterMap = new Map<string, string>();
     const characterListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
@@ -196,6 +213,55 @@ class ScrapPile {
 
     return characterMap;
   }
+
+  /**
+   * Convenience function to iterate over the entire story structure
+   *
+   * @param callback Called at every block in the structure (before iterating into sub-blocks)
+   * @param structureScrap The structure or sub-structure to iterate over
+   * @param depth The current depth of iteration
+   */
+  iterateOverStructure(callback: (StructureIterationContent) => void, structureScrap?: Scrap, depth?: number) {
+    if (!structureScrap) {
+      // Start at the top if this is the first iterative call
+      structureScrap = this.fetchProperlyRescaledStructureScrap(null);
+      depth = 1;
+    }
+
+    const storyStructure = this.fetchProperlyRescaledStructureScrap(structureScrap.refId).content.storyStructure;
+
+    storyStructure.blocks.forEach((block, idx) => {
+
+      const summary = this.getByRefId(block.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
+      const contentScrap = this.getByRefId(block.refId, ScrapPrototype.STRUCTURE_BLOCK_CONTENT);
+      const duration = storyStructure.getBlockDurationSec(idx);
+
+      let scriptScrap = null;
+      let substructureScrap = null;
+
+      if (contentScrap) {
+        if (contentScrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
+          scriptScrap = this.getByRefId(contentScrap.content.targetRefId, ScrapPrototype.SCRIPT);
+        } else {
+          substructureScrap = this.getByRefId(contentScrap.content.targetRefId, ScrapPrototype.STRUCTURE_SPEC);
+        }
+      }
+
+      callback(new StructureIterationContent(
+        summary,
+        duration,
+        scriptScrap,
+        substructureScrap,
+        block,
+        depth,
+        structureScrap,
+      ));
+
+      if (substructureScrap) {
+        this.iterateOverStructure(callback, substructureScrap, depth + 1);
+      }
+    });
+  }
 }
 
-export {ScrapPile};
+export {ScrapPile, StructureIterationContent};

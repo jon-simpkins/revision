@@ -5,7 +5,6 @@ import ViewContentBlock, {
   buildNexPrevNav,
   buildParagraph, buildSubheader
 } from '../app/story-details/view-panel-content/ViewContentBlock';
-import {SINGULAR_PROTOTYPES} from '../types/SingularPrototypes';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
 import EditContext from '../types/EditContext';
