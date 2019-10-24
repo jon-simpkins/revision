@@ -38,22 +38,30 @@
         <quill-readonly *ngSwitchCase="viewContentBlockTypes.SCRIPT_SECTION"
                         [plaintext]="block.text"
         ></quill-readonly>
-        <h4 *ngSwitchCase="viewContentBlockTypes.LINK_SUBHEADER">
-          {{block.text}}
-          <button
-            [disabled]="!block.viewOption"
-            mat-icon-button
-            (click)="updateViewContent(block.viewOption)"
-          >
-            <mat-icon>arrow_right</mat-icon>
-          </button>
-          <button
-            mat-icon-button
+        <div *ngSwitchCase="viewContentBlockTypes.LINK_SUBHEADER"
+          style="margin-top: 1em;"
+        >
+          <button *ngIf="!block.viewOption"
+            mat-raised-button
+            color="primary"
             (click)="initiateEdit(block.editOption)"
           >
-            <mat-icon>edit</mat-icon>
+            {{block.text}}
+            <mat-icon>
+              edit
+            </mat-icon>
           </button>
-        </h4>
+          <button *ngIf="!!block.viewOption"
+            mat-stroked-button
+            color="accent"
+            (click)="updateViewContent(block.viewOption)"
+          >
+            {{block.text}}
+            <mat-icon>
+              arrow_right
+            </mat-icon>
+          </button>
+        </div>
         <div *ngSwitchCase="viewContentBlockTypes.PARAGRAPH">
           <p>{{block.text.length ? block.text : '&nbsp;'}}</p>
           <button
