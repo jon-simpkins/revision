@@ -38,7 +38,7 @@ class Character {
 
     const driveScrap = scrapPile.getByRefId(refId, ScrapPrototype.CHARACTER_DRIVE);
     if (driveScrap) {
-      myCharacter.drive = driveScrap.content.text;
+      myCharacter.drive = driveScrap.content.script.rawText;
       myCharacter.driveScrapId = driveScrap.id;
     }
 

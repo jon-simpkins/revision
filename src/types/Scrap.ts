@@ -101,13 +101,10 @@ class Scrap {
   static determineTypeFromPrototype(prototype: ScrapPrototype): ScrapContentType {
     switch (prototype) {
       case ScrapPrototype.MOVIE_TITLE:
-      case ScrapPrototype.LOG_LINE:
       case ScrapPrototype.TIME_FRAME:
       case ScrapPrototype.MOVIE_DURATION:
       case ScrapPrototype.CHARACTER_NAME:
       case ScrapPrototype.CHARACTER_GENDER:
-      case ScrapPrototype.CHARACTER_DRIVE:
-      case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
       case ScrapPrototype.CHARACTER_LISTING:
@@ -117,6 +114,9 @@ class Scrap {
       case ScrapPrototype.STRUCTURE_BLOCK_CONTENT:
         return ScrapContentType.BLOCK_CONTENT_ASSIGNMENT;
       case ScrapPrototype.SCRIPT:
+      case ScrapPrototype.LOG_LINE:
+      case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
+      case ScrapPrototype.CHARACTER_DRIVE:
         return ScrapContentType.SCRIPT;
     }
 

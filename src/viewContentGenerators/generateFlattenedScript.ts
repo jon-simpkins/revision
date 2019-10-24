@@ -30,7 +30,7 @@ function generateFlattenedScript(scrapPile: ScrapPile): ViewContentBlock[] {
     flattenedScript += `/* ${StructureBlock.convertDurationToStr(contents.durationSec)} */\n`;
 
     if (contents.summaryScrap) {
-      flattenedScript += `/* Summary:\n${contents.summaryScrap.content.text}\n*/\n`;
+      flattenedScript += `/* Summary:\n${contents.summaryScrap.content.script.rawText}\n*/\n`;
     }
 
     if (contents.scriptScrap) {

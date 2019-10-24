@@ -45,7 +45,7 @@ class EditContext {
     this.constraints = new EditConstraints();
   }
 
-  static fromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
+  static basicFromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
     let ctx: EditContext;
     let parentStructureRefId: string;
     let parentStructureBlocks: StructureBlock[];
@@ -68,7 +68,7 @@ class EditContext {
         );
       case ScrapPrototype.LOG_LINE:
         return new EditContext(
-          EditType.TEXT_AREA,
+          EditType.SCRIPT,
           'Log Line',
           null,
           [buildStorySummaryViewOption()]
@@ -125,8 +125,8 @@ class EditContext {
           }
         });
 
-        ctx = new EditContext(
-          EditType.TEXT_AREA,
+        return new EditContext(
+          EditType.SCRIPT,
           `Summarize the Story Beat: "${parentStructureBlockLabel}"`,
           null,
           [
@@ -134,8 +134,6 @@ class EditContext {
           ],
           'What happens in this beat? What arc happens, where does it start and end?'
         );
-
-        return ctx;
       case ScrapPrototype.CHARACTER_GENDER:
         return new EditContext(
           EditType.MULTI_CHOICE,
@@ -145,7 +143,7 @@ class EditContext {
         );
       case ScrapPrototype.CHARACTER_DRIVE:
         ctx = new EditContext(
-          EditType.TEXT_AREA,
+          EditType.SCRIPT,
           'Character Drive',
           null,
           [buildCharacterDetailsViewOption(refId)]
@@ -155,6 +153,16 @@ class EditContext {
       case ScrapPrototype.STRUCTURE_SPEC:
         return buildStructureContext(refId, scrapPile);
     }
+  }
+
+  static fromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: string): EditContext {
+    const ctx = EditContext.basicFromPrototype(prototype, scrapPile, refId);
+
+    if (ctx.editType === EditType.SCRIPT) {
+      ctx.characterMap = scrapPile.buildCharacterMap();
+    }
+
+    return ctx;
   }
 }
 

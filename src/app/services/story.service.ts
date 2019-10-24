@@ -1,4 +1,4 @@
-import { ApplicationRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
 

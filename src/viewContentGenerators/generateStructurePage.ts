@@ -3,7 +3,6 @@ import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildParagraph,
-  buildParagraphsFromTextArea,
   buildScrapDetailsSection,
   buildSubheader,
   ViewContentBlockType
@@ -32,20 +31,6 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
       ScrapPrototype.STRUCTURE_SPEC
     );
   }
-
-  /*if (!refId) {
-    // Fetch the top-level structure
-    relevantStructureScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.STRUCTURE_SPEC);
-    if (relevantStructureScrap) {
-      relevantDurationScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION);
-      actualDurationSec = Number(relevantDurationScrap.content.text) * 60;
-    }
-  } else {
-    blocks.push(buildHeader(
-      'Story Structure for sub-structures not available yet'
-    ));
-    return blocks;
-  }*/
 
   if (!relevantStructureScrap) {
     blocks.push(buildHeader(
@@ -78,7 +63,11 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
         blocks,
         'Summary',
         (blockSummaryScrap) => {
-          return buildParagraphsFromTextArea(blockSummaryScrap.content.text, []);
+          return [
+            new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
+              blockSummaryScrap.content.script.rawText
+            )
+          ];
         }
       )
     );

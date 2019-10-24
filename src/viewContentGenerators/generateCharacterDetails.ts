@@ -4,7 +4,7 @@ import ViewContentBlock, {
   buildParagraph,
   buildParagraphsFromTextArea,
   buildScrapDetailsSection,
-  buildSubheader
+  buildSubheader, ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import Character from '../types/Character';
 import {ScrapPrototype} from '../types/Scrap';
@@ -128,7 +128,9 @@ function generateCharacterDetails(scrapPile: ScrapPile, scrapId: string, refId: 
       blocks,
       'Motivation',
       (driveScrap) => {
-        return buildParagraphsFromTextArea(driveScrap.content.text, []);
+        return [new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
+          driveScrap.content.script.rawText
+        )];
       }
     )
   );

@@ -19,7 +19,8 @@ function generateListAllScraps(scrapPile: ScrapPile): ViewContentBlock[] {
       header: `${new Date(scrap.completedEpoch).toLocaleString()}: ${ScrapPrototype[scrap.prototype]}`,
       id: scrap.id,
       refId: scrap.refId,
-      content: scrap.content.toString()
+      content: scrap.content.toString(),
+      serialization: scrap.generateSerialization()
     });
   });
 
@@ -32,6 +33,10 @@ function generateListAllScraps(scrapPile: ScrapPile): ViewContentBlock[] {
     blocks.push(buildParagraph(`refId: ${summary.refId}`));
     blocks.push(buildParagraph(summary.content));
   });
+
+  blocks.push(new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION, JSON.stringify(orderedScrapSummaries.map(summary => {
+    return summary.serialization;
+  }), null, 4)));
 
   return blocks;
 }

@@ -167,7 +167,12 @@ class ScrapPile {
   fetchProperlyRescaledStructureScrap(refId: string): Scrap {
     const durationSec = this.fetchConstraintDurationSec(refId);
 
-    const structureScrap = this.getByRefId(refId, ScrapPrototype.STRUCTURE_SPEC).clone();
+    let structureScrap = this.getByRefId(refId, ScrapPrototype.STRUCTURE_SPEC);
+    if (!structureScrap || !durationSec) {
+      return null;
+    }
+
+    structureScrap = structureScrap.clone();
     structureScrap.content.storyStructure.rescaleToDuraction(durationSec);
 
     return structureScrap;
@@ -195,6 +200,10 @@ class ScrapPile {
   buildCharacterMap(): Map<string, string> {
     const characterMap = new Map<string, string>();
     const characterListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
+
+    if (!characterListingScrap) {
+      return new Map<string, string>();
+    }
 
     const characterRefIds = [];
     characterListingScrap.content.lines.forEach(line => {
@@ -226,6 +235,10 @@ class ScrapPile {
       // Start at the top if this is the first iterative call
       structureScrap = this.fetchProperlyRescaledStructureScrap(null);
       depth = 1;
+    }
+
+    if (!structureScrap) {
+      return; // Entirely possible that the structure is not defined yet
     }
 
     const storyStructure = this.fetchProperlyRescaledStructureScrap(structureScrap.refId).content.storyStructure;

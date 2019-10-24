@@ -13,23 +13,6 @@
       </mat-form-field>
     </form>
   </div>
-  <div *ngSwitchCase="editTypes.TEXT_AREA">
-    <form style="padding: 12px;">
-      <h3>{{editContext.headerPrompt}}:</h3>
-      <p *ngIf="editContext.userGuidance">
-        {{editContext.userGuidance}}
-      </p>
-      <mat-form-field style="width: 100%;">
-        <textarea matInput
-          (input)="sendPlaintextEdit($event.target.value)"
-          cdkTextareaAutosize
-          #autosize="cdkTextareaAutosize"
-          cdkAutosizeMinRows="3"
-          cdkAutosizeMaxRows="10"
-        >{{editContent.text}}</textarea>
-      </mat-form-field>
-    </form>
-  </div>
   <div *ngSwitchCase="editTypes.N_LINES">
     <form style="padding: 12px;">
       <h3>{{editContext.headerPrompt}}:</h3>
