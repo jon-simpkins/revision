@@ -9,6 +9,7 @@ import {buildBlockContentContext} from './EditContexts/buildBlockContentContext'
 import {buildScriptContentContext} from './EditContexts/buildScriptContentContext';
 import {buildStructureContext} from './EditContexts/buildStructureContext';
 import BlockContentRefOption from './EditContexts/BlockContentRefOption';
+import {Script} from './Script/Script';
 
 enum EditType {
   TEXT_LINE,
@@ -160,6 +161,14 @@ class EditContext {
 
     if (ctx.editType === EditType.SCRIPT) {
       ctx.characterMap = scrapPile.buildCharacterMap();
+      ctx.prepareContentForEditing = (scrapContent: ScrapContent, editContext: EditContext) => {
+        scrapContent.script.rawText = Script.convertCharacterRefIdsToNames(scrapContent.script.rawText, editContext.characterMap);
+        return scrapContent;
+      };
+      ctx.prepareContentForPersistence = (scrapContent: ScrapContent, editContext: EditContext) => {
+        scrapContent.script.convertCharacterNamesToRefIds(editContext.characterMap);
+        return scrapContent;
+      };
     }
 
     return ctx;

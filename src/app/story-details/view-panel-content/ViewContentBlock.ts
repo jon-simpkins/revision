@@ -2,6 +2,7 @@ import ViewOption from '../../../types/ViewOption';
 import EditOption from '../../../types/EditOption';
 import Scrap, {ScrapPrototype} from '../../../types/Scrap';
 import {ScrapPile} from '../../../types/ScrapPile';
+import {Script} from '../../../types/Script/Script';
 
 enum ViewContentBlockType {
   HEADER,
@@ -106,6 +107,14 @@ function buildScrapDetailsSection(
   return outputBlocks;
 }
 
-export {ViewContentBlockType, buildHeader, buildParagraph, buildParagraphsFromTextArea, buildScrapDetailsSection, buildListEntry, buildNexPrevNav, buildSubheader};
+function buildScriptSection(rawText: string, scrapPile: ScrapPile): ViewContentBlock {
+  const formattedScript = Script.convertCharacterRefIdsToNames(rawText, scrapPile.buildCharacterMap());
+
+  return new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
+    formattedScript
+  );
+}
+
+export {ViewContentBlockType, buildHeader, buildParagraph, buildParagraphsFromTextArea, buildScrapDetailsSection, buildListEntry, buildNexPrevNav, buildSubheader, buildScriptSection};
 
 export default ViewContentBlock;

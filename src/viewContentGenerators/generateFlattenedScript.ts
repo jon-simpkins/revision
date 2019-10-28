@@ -1,11 +1,9 @@
 import ViewContentBlock, {
   buildHeader,
-  buildParagraph,
-  ViewContentBlockType,
+  buildParagraph, buildScriptSection,
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 
 import {ScrapPile, StructureIterationContent} from '../types/ScrapPile';
-import {Script} from '../types/Script/Script';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 
 function buildSectionHeader(depth: number, headerText: string): string {
@@ -38,11 +36,7 @@ function generateFlattenedScript(scrapPile: ScrapPile): ViewContentBlock[] {
     }
   });
 
-  flattenedScript = Script.convertCharacterRefIdsToNames(flattenedScript, scrapPile.buildCharacterMap());
-
-  blocks.push(new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
-    flattenedScript
-  ));
+  blocks.push(buildScriptSection(flattenedScript, scrapPile));
 
   return blocks;
 }

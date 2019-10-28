@@ -2,7 +2,6 @@ import {ScrapPile, StructureIterationContent} from '../types/ScrapPile';
 import ViewContentBlock, {
   buildHeader, buildListEntry,
   buildParagraph,
-  buildParagraphsFromTextArea,
   buildScrapDetailsSection,
   buildSubheader, ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
@@ -15,8 +14,6 @@ import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 function fetchScenePresence(scrapPile: ScrapPile, characterRefId: string, blocks: ViewContentBlock[]): ViewContentBlock[] {
   const allSections = [];
 
-  const characterMap = scrapPile.buildCharacterMap();
-
   scrapPile.iterateOverStructure((contents: StructureIterationContent) => {
     if (!contents.substructureScrap) {
       const section = {
@@ -27,18 +24,28 @@ function fetchScenePresence(scrapPile: ScrapPile, characterRefId: string, blocks
 
       if (contents.scriptScrap) {
         section.sectionScrapId = contents.scriptScrap.id;
-        const parsedScript = FountainElements.fromFullText(contents.scriptScrap.content.script.rawText, characterMap);
+
+        const parsedScript = FountainElements.fromFullText(contents.scriptScrap.content.script.rawText);
 
         parsedScript.lines.forEach(line => {
-          if (line.type === FountainElementType.CHARACTER) {
-            const characterName = parsedScript.getDialogueNameFromLine(line.text);
-            if (characterName === characterRefId) {
+          if (line.type === FountainElementType.CHARACTER || line.type === FountainElementType.ACTION) {
+            if (line.text.includes(`{@${characterRefId}}`)) {
               section.mentionsCharacter = true;
             }
           }
         });
       } else if (contents.summaryScrap) {
         section.sectionScrapId = contents.summaryScrap.id;
+
+        const parsedScript = FountainElements.fromFullText(contents.summaryScrap.content.script.rawText);
+
+        parsedScript.lines.forEach(line => {
+          if (line.type === FountainElementType.CHARACTER || line.type === FountainElementType.ACTION) {
+            if (line.text.includes(`{@${characterRefId}}`)) {
+              section.mentionsCharacter = true;
+            }
+          }
+        });
       } else {
         section.sectionScrapId = contents.parentStructureScrap.id;
       }

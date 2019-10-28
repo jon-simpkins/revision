@@ -18,20 +18,68 @@ enum FountainElementType {
 class FountainElement {
   text: string;
   type = FountainElementType.ACTION;
-  refId: string;
 
   constructor(text: string) {
     this.text = text;
   }
 
-  toDelta(): Op {
-    return {
-      insert: this.text + '\n',
-      attributes: this.getDeltaAttributes()
-    };
+  toDeltas(characterMap: Map<string, string>): Op[] {
+    const splitTokens = (this.text + '\n').split('{@');
+
+    if (splitTokens.length === 1 || (![FountainElementType.CHARACTER, FountainElementType.ACTION].includes(this.type))) {
+      return [{
+        insert: this.text + '\n',
+        attributes: this.getDeltaAttributes()
+      }];
+    }
+
+    // Correctly parse out any tokens wrapped in {@ }
+    const outputDeltas: Op[] = [];
+    for (let i = 0; i < splitTokens.length; i++) {
+      let startedWithBrackets = false;
+      if (i > 0) {
+        startedWithBrackets = true;
+      }
+
+      if (i === 0) {
+        if (splitTokens[0].length) {
+          outputDeltas.push({
+            insert: splitTokens[i],
+            attributes: this.getDeltaAttributes()
+          });
+        }
+      } else {
+        const subSplitToken = splitTokens[i].split('}');
+        if (subSplitToken.length === 1) {
+          // No trailing }
+          outputDeltas.push({
+            insert: '{@' + splitTokens[i],
+            attributes: this.getDeltaAttributes()
+          });
+        } else {
+          const tokenValue = subSplitToken[0];
+          const tokenAttributes = this.getDeltaAttributes();
+
+          if (characterMap.has(tokenValue.toUpperCase())) {
+            tokenAttributes.character = characterMap.get(tokenValue.toUpperCase());
+          }
+
+          outputDeltas.push({
+            insert: '{@' + tokenValue + '}',
+            attributes: tokenAttributes
+          });
+          outputDeltas.push({
+            insert: subSplitToken.slice(1).join('}'),
+            attributes: this.getDeltaAttributes()
+          });
+        }
+      }
+    }
+
+    return outputDeltas;
   }
 
-  getDeltaAttributes() {
+  getDeltaAttributes(): any {
     switch (this.type) {
       case FountainElementType.EMPTY:
       case FountainElementType.ACTION:
@@ -50,17 +98,10 @@ class FountainElement {
           align: 'right'
         };
       case FountainElementType.CHARACTER:
-        const attributes = {
+        return {
           bold: true,
-          indent: 4,
-          character: null
+          indent: 4
         };
-
-        if (this.refId) {
-          attributes.character = this.refId;
-        }
-
-        return attributes;
       case FountainElementType.PARENTHETICAL:
         return {
           indent: 3
@@ -113,16 +154,12 @@ class FountainElement {
 
     throw new Error(`Unexpected type: ${this.type}`);
   }
-
-  sameElement(other: FountainElement) {
-    return other.type === this.type && other.refId === this.refId;
-  }
 }
 
 class FountainElements {
   lines: FountainElement[];
 
-  static fromFullText(fullText: string, characterMap: Map<string, string>): FountainElements {
+  static fromFullText(fullText: string): FountainElements {
     const textLines = fullText.split('\n');
 
     const retVal = new FountainElements();
@@ -134,7 +171,7 @@ class FountainElements {
     retVal.applySceneHeaders();
     retVal.applyCentered();
     retVal.applySceneTransitions();
-    retVal.applyCharacters(characterMap);
+    retVal.applyCharacters();
     retVal.applyParentheticalDialogue();
 
     return retVal;
@@ -222,56 +259,33 @@ class FountainElements {
     });
   }
 
-  applyCharacters(characterMap: Map<string, string>) {
+  applyCharacters() {
     this.lines = this.lines.map((line, idx) => {
-      let isCharacter = false;
-
       if (this.emptyBefore(idx) && !this.emptyAfter(idx, false)) {
-        if (line.text.startsWith('@')) {
-          isCharacter = true;
-        } else {
-          // Insist on capital letters, except in parentheticals at the end where anything goes
-          const CHARACTER_REGEX = /^[\sA-Z\d\.-_]+(\s+\(.+)?$/;
+        // Insist on {@Name} or {@abc-123|3}, allow for optional parenthetical at end of line
+          const CHARACTER_REGEX = /^[\s]*{@[\w._|\-]+}[\s]*(\([^\)]+\))?[\s]*$/;
           if (line.text.match(CHARACTER_REGEX)) {
-            isCharacter = true;
+            line.type = FountainElementType.CHARACTER;
           }
-        }
-      }
-
-      if (isCharacter) {
-        line.type = FountainElementType.CHARACTER;
-
-        const dialogueCharacterName = this.getDialogueNameFromLine(line.text);
-        if (characterMap.has(dialogueCharacterName.toUpperCase())) {
-          line.refId = characterMap.get(dialogueCharacterName.toUpperCase());
-        }
       }
       return line;
     });
   }
 
-  getDialogueNameFromLine(dialogueLineText: string): string {
-    return dialogueLineText.trim().replace(/^@/, ''); // TODO: HANDLE PARENTHESIS ON LINE
-  }
-
-  replaceDialogueNamesWithRefId() {
+  replaceTokenValues(tokenMap: Map<string, string>, tokenPrefix: string) {
     this.lines.forEach(line => {
-      if (line.type === FountainElementType.CHARACTER && line.refId) {
-        const dialogueCharacterName = this.getDialogueNameFromLine(line.text);
+      if (line.type === FountainElementType.CHARACTER || line.type === FountainElementType.ACTION) {
+        const regex = new RegExp(`{${tokenPrefix}([^}]+)}`, 'g');
+        let match = regex.exec(line.text);
+        while (match !== null) {
+          const characterName = match[1];
+          const dialogueRefId = tokenMap.get(characterName.toUpperCase());
+          if (dialogueRefId) {
+            line.text = line.text.replace(`{${tokenPrefix}${characterName}}`, `{${tokenPrefix}${dialogueRefId}}`);
+            regex.lastIndex = 0;
+          }
 
-        line.text = line.text.trim().replace(/^@/, '').replace(dialogueCharacterName, `@${line.refId}`);
-      }
-    });
-  }
-
-  replaceDialogueRefIdsWithDialogNames(reverseCharacterMap: Map<string, string>) {
-    this.lines.forEach(line => {
-      if (line.type === FountainElementType.CHARACTER) {
-        const dialogueRefId = this.getDialogueNameFromLine(line.text);
-
-        if (reverseCharacterMap.has(dialogueRefId)) {
-          const dialogueName = reverseCharacterMap.get(dialogueRefId);
-          line.text = line.text.trim().replace(/^@/, '').replace(dialogueRefId, `${dialogueName.toUpperCase()}`);
+          match = regex.exec(line.text);
         }
       }
     });
@@ -321,19 +335,24 @@ class FountainElements {
     }
   }
 
-  getQuillDeltas(): Op[] {
+  getQuillDeltas(characterMap: Map<string, string>): Op[] {
     // Now, consolidate the lines and output
+    let allDeltas = [];
+    this.lines.forEach(line => {
+      allDeltas = allDeltas.concat(line.toDeltas(characterMap));
+    });
+
     const outputDeltas = [];
-    let currentDelta = this.lines[0].toDelta();
-    let currentElement = this.lines[0];
-    for (let i = 1; i < this.lines.length; i++) {
-      if (currentElement.sameElement(this.lines[i])) {
+    let currentDelta = allDeltas[0];
+    let currentAttributes = JSON.stringify(currentDelta.attributes);
+    for (let i = 1; i < allDeltas.length; i++) {
+      if (currentAttributes === JSON.stringify(allDeltas[i].attributes)) {
         // Just append line to string
-        currentDelta.insert += this.lines[i].text + '\n';
+        currentDelta.insert += allDeltas[i].insert;
       } else {
         outputDeltas.push(currentDelta);
-        currentDelta = this.lines[i].toDelta();
-        currentElement = this.lines[i];
+        currentDelta = allDeltas[i];
+        currentAttributes = JSON.stringify(currentDelta.attributes);
       }
     }
     outputDeltas.push(currentDelta);

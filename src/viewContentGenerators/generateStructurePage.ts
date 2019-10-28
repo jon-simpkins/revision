@@ -3,7 +3,7 @@ import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildParagraph,
-  buildScrapDetailsSection,
+  buildScrapDetailsSection, buildScriptSection,
   buildSubheader,
   ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
@@ -64,9 +64,7 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
         'Summary',
         (blockSummaryScrap) => {
           return [
-            new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
-              blockSummaryScrap.content.script.rawText
-            )
+            buildScriptSection(blockSummaryScrap.content.script.rawText, scrapPile)
           ];
         }
       )

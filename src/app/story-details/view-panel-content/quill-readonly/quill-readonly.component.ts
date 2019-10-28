@@ -30,10 +30,9 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
     const parsedScript = FountainElements.fromFullText(
       this.plaintext
         .replace(/\n$/, ''), // Remove the mandatory trailing newline (we'll add it back))
-      this.characterMap
     );
 
-    this.contentToShow = parsedScript.getQuillDeltas();
+    this.contentToShow = parsedScript.getQuillDeltas(this.characterMap);
   }
 
   ngOnInit() {

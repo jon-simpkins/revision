@@ -23,15 +23,15 @@ class Script {
    * @param characterMap A map from CHAR_NAME_UPPERCASE -> refId
    */
   static convertCharacterRefIdsToNames(rawText: string, characterMap: Map<string, string>): string {
-    const parsedScript = FountainElements.fromFullText(rawText, characterMap);
+    const parsedScript = FountainElements.fromFullText(rawText);
 
     // Build the reverse map of refId -> character name
     const reverseCharacterMap = new Map<string, string>();
     characterMap.forEach((refId: string, uppercaseName: string) => {
-      reverseCharacterMap.set(refId, uppercaseName);
+      reverseCharacterMap.set(refId.toUpperCase(), uppercaseName);
     });
 
-    parsedScript.replaceDialogueRefIdsWithDialogNames(reverseCharacterMap);
+    parsedScript.replaceTokenValues(reverseCharacterMap, '@');
     return parsedScript.backToRawText();
   }
 
@@ -47,8 +47,8 @@ class Script {
    * @param characterMap A map from CHAR_NAME_UPPERCASE -> refId
    */
   convertCharacterNamesToRefIds(characterMap: Map<string, string>) {
-    const parsedScript = FountainElements.fromFullText(this.rawText, characterMap);
-    parsedScript.replaceDialogueNamesWithRefId();
+    const parsedScript = FountainElements.fromFullText(this.rawText);
+    parsedScript.replaceTokenValues(characterMap, '@');
 
     this.rawText = parsedScript.backToRawText();
   }

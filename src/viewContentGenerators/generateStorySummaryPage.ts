@@ -4,7 +4,7 @@ import ViewContentBlock, {
   buildListEntry,
   buildParagraph,
   buildParagraphsFromTextArea,
-  buildScrapDetailsSection, ViewContentBlockType,
+  buildScrapDetailsSection, buildScriptSection, ViewContentBlockType,
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 
 import {ScrapPile} from '../types/ScrapPile';
@@ -50,9 +50,7 @@ function generateStorySummaryPage(scrapPile: ScrapPile): ViewContentBlock[] {
       'Log Line',
       (logLineScrap) => {
         return [
-          new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
-            logLineScrap.content.script.rawText
-          )
+          buildScriptSection(logLineScrap.content.script.rawText, scrapPile)
         ];
       }
     )
