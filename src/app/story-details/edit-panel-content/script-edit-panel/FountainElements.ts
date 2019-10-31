@@ -23,7 +23,7 @@ class FountainElement {
     this.text = text;
   }
 
-  toDeltas(characterMap: Map<string, string>): Op[] {
+  toDeltas(characterMap: Map<string, object>): Op[] {
     const splitTokens = (this.text + '\n').split('{@');
 
     if (splitTokens.length === 1 || (![FountainElementType.CHARACTER, FountainElementType.ACTION].includes(this.type))) {
@@ -61,7 +61,8 @@ class FountainElement {
           const tokenAttributes = this.getDeltaAttributes();
 
           if (characterMap.has(tokenValue.toUpperCase())) {
-            tokenAttributes.character = characterMap.get(tokenValue.toUpperCase());
+            // @ts-ignore
+            tokenAttributes.character = characterMap.get(tokenValue.toUpperCase()).refId;
           }
 
           outputDeltas.push({
@@ -335,7 +336,7 @@ class FountainElements {
     }
   }
 
-  getQuillDeltas(characterMap: Map<string, string>): Op[] {
+  getQuillDeltas(characterMap: Map<string, object>): Op[] {
     // Now, consolidate the lines and output
     let allDeltas = [];
     this.lines.forEach(line => {

@@ -7,4 +7,7 @@
     Approx. Page Count: {{pageCount | number: '1.0-2'}}
   </span>
 </div>
-<div style="max-height: 40vh; overflow: scroll;" id="{{editorId}}"></div>
+<div style="position: relative;"><!-- Just for overflow handling of tooltips -->
+  <div style="max-height: 40vh; overflow: scroll; position: relative; padding-bottom: 2em;" id="{{editorId}}"></div>
+</div>
+

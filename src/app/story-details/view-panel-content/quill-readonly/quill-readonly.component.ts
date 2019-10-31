@@ -17,7 +17,7 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
   @Input() plaintext: string;
 
   contentToShow;
-  characterMap: Map<string, string>;
+  characterMap: Map<string, object>;
 
   editor: Quill;
 

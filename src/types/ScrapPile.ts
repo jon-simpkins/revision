@@ -195,14 +195,14 @@ class ScrapPile {
   }
 
   /**
-   * Build out the map of character name -> refId
+   * Build out the map of upper-case character name -> {refId, name}
    */
-  buildCharacterMap(): Map<string, string> {
-    const characterMap = new Map<string, string>();
+  buildCharacterMap(): Map<string, object> {
+    const characterMap = new Map<string, object>();
     const characterListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
 
     if (!characterListingScrap) {
-      return new Map<string, string>();
+      return new Map<string, object>();
     }
 
     const characterRefIds = [];
@@ -216,7 +216,10 @@ class ScrapPile {
 
       if (nameScrap) {
         const name = nameScrap.content.text;
-        characterMap.set(name.toUpperCase(), characterRefId);
+        characterMap.set(name.toUpperCase(), {
+          refId: characterRefId,
+          name
+        });
       }
     });
 

@@ -4,3 +4,19 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+.ql-container .token-list {
+  position: absolute;
+  width: auto;
+  height: auto;
+  background: white;
+  border: 1px solid black;
+  margin: 0;
+  padding: 3px;
+
+  cursor: pointer;
+
+  :first-child {
+    background: lightgray;
+  }
+}

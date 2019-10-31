@@ -33,7 +33,7 @@ class EditContext {
   viewOptions: ViewOption[]; // Optional, list of view options for the bottom of the edit
   constraints: EditConstraints;
   contentRefOptions: BlockContentRefOption[];
-  characterMap: Map<string, string>;
+  characterMap: Map<string, object>;
   prepareContentForEditing: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
   prepareContentForPersistence: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
 

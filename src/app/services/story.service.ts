@@ -202,7 +202,7 @@ export class StoryService {
     this.setViewContent(characterViewOption);
   }
 
-  buildCharacterMap(): Map<string, string> {
+  buildCharacterMap(): Map<string, object> {
     return this.currentScrapPile.buildCharacterMap();
   }
 }

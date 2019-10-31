@@ -8,6 +8,7 @@ import Delta from 'quill-delta/dist/Delta';
 
 import {FountainElements} from './FountainElements';
 import CharacterBlot from './CharacterBlot';
+import {ScriptAutocompleteModule} from './ScriptAutocompleteModule';
 
 @Component({
   selector: 'script-edit-panel',
@@ -33,14 +34,31 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
+    Quill.register({'formats/character': CharacterBlot}, true);
+    Quill.register('modules/scriptAutocomplete', ScriptAutocompleteModule, true);
+
     this.editor = new Quill(`#${this.editorId}`, {
       theme: 'snow',
       modules: {
-        toolbar: `#${this.editorId}-toolbar`
+        toolbar: `#${this.editorId}-toolbar`,
+        scriptAutocomplete: {
+          getMatchesCallback: (stringToMatch, prefixCharacter) => {
+            if (prefixCharacter === '@') {
+              const matches = [];
+              this.editContext.characterMap.forEach((mapEntry, characterName) => {
+                if (!stringToMatch.length || characterName.toUpperCase().startsWith(stringToMatch.toUpperCase())) {
+                  // @ts-ignore
+                  matches.push(mapEntry.name);
+                }
+              });
+              return matches;
+            } else {
+              return []; // TODO: add map for #
+            }
+          }
+        }
       }
     });
-
-    Quill.register({'formats/character': CharacterBlot}, true);
 
     this.updateWordCount();
     this.updatePageCountAndFormatText();

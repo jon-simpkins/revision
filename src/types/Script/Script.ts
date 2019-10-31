@@ -22,13 +22,14 @@ class Script {
    * @param rawText The original Fountain-formatted string
    * @param characterMap A map from CHAR_NAME_UPPERCASE -> refId
    */
-  static convertCharacterRefIdsToNames(rawText: string, characterMap: Map<string, string>): string {
+  static convertCharacterRefIdsToNames(rawText: string, characterMap: Map<string, object>): string {
     const parsedScript = FountainElements.fromFullText(rawText);
 
-    // Build the reverse map of refId -> character name
+    // Build the reverse map of uppercase refId -> character name
     const reverseCharacterMap = new Map<string, string>();
-    characterMap.forEach((refId: string, uppercaseName: string) => {
-      reverseCharacterMap.set(refId.toUpperCase(), uppercaseName);
+    characterMap.forEach((mapEntry: object) => {
+      // @ts-ignore
+      reverseCharacterMap.set(mapEntry.refId.toUpperCase(), mapEntry.name);
     });
 
     parsedScript.replaceTokenValues(reverseCharacterMap, '@');
@@ -46,9 +47,16 @@ class Script {
    *
    * @param characterMap A map from CHAR_NAME_UPPERCASE -> refId
    */
-  convertCharacterNamesToRefIds(characterMap: Map<string, string>) {
+  convertCharacterNamesToRefIds(characterMap: Map<string, object>) {
     const parsedScript = FountainElements.fromFullText(this.rawText);
-    parsedScript.replaceTokenValues(characterMap, '@');
+
+    const tokenReplaceMap = new Map<string, string>();
+    characterMap.forEach((mapEntry: object, upperCaseCharacterName: string) => {
+      // @ts-ignore
+      tokenReplaceMap.set(upperCaseCharacterName, mapEntry.refId);
+    });
+
+    parsedScript.replaceTokenValues(tokenReplaceMap, '@');
 
     this.rawText = parsedScript.backToRawText();
   }
