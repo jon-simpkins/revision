@@ -73,6 +73,14 @@ class EditContext {
           null,
           [buildStorySummaryViewOption()]
         );
+      case ScrapPrototype.QUESTIONS_TO_EXPLORE:
+        return new EditContext(
+          EditType.SCRIPT,
+          'Questions to Explore',
+          null,
+          [buildStorySummaryViewOption()],
+          'What questions do you want the story to explore?'
+        );
       case ScrapPrototype.TIME_FRAME:
         return new EditContext(
           EditType.TEXT_LINE,

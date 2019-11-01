@@ -72,6 +72,20 @@ function generateStorySummaryPage(scrapPile: ScrapPile): ViewContentBlock[] {
 
   blocks = blocks.concat(
     buildScrapDetailsSection(scrapPile,
+      ScrapPrototype.QUESTIONS_TO_EXPLORE,
+      null,
+      blocks,
+      'Questions to Explore',
+      (questionsToExploreScrap) => {
+        return [
+          buildScriptSection(questionsToExploreScrap.content.script.rawText, scrapPile)
+        ];
+      }
+    )
+  );
+
+  blocks = blocks.concat(
+    buildScrapDetailsSection(scrapPile,
       ScrapPrototype.SIMILAR_MOVIES,
       null,
       blocks,

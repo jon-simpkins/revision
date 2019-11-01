@@ -34,6 +34,7 @@ class ViewOption {
       ScrapPrototype.SIMILAR_MOVIES,
       ScrapPrototype.MOVIE_DURATION,
       ScrapPrototype.LOG_LINE,
+      ScrapPrototype.QUESTIONS_TO_EXPLORE,
       ScrapPrototype.TIME_FRAME,
       ScrapPrototype.MOVIE_TITLE
     ])) {

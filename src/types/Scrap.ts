@@ -20,6 +20,7 @@ enum ScrapPrototype {
   STRUCTURE_BLOCK_SUMMARY,
   STRUCTURE_BLOCK_CONTENT,
   SCRIPT,
+  QUESTIONS_TO_EXPLORE,
 }
 
 enum ScrapContentType {
@@ -117,6 +118,7 @@ class Scrap {
       case ScrapPrototype.LOG_LINE:
       case ScrapPrototype.STRUCTURE_BLOCK_SUMMARY:
       case ScrapPrototype.CHARACTER_DRIVE:
+      case ScrapPrototype.QUESTIONS_TO_EXPLORE:
         return ScrapContentType.SCRIPT;
     }
 

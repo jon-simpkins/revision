@@ -7,9 +7,16 @@ import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
 const SINGULAR_DEPENDENCY_MAP = new Map<ScrapPrototype, Set<ScrapPrototype>>();
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_DURATION, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.LOG_LINE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.QUESTIONS_TO_EXPLORE, new Set([ScrapPrototype.SIMILAR_MOVIES]));
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TIME_FRAME, new Set([ScrapPrototype.SIMILAR_MOVIES]));
-SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.MOVIE_TITLE, new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE]));
-SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.CHARACTER_LISTING, new Set([ScrapPrototype.LOG_LINE]));
+SINGULAR_DEPENDENCY_MAP.set(
+  ScrapPrototype.MOVIE_TITLE,
+  new Set([ScrapPrototype.TIME_FRAME, ScrapPrototype.LOG_LINE, ScrapPrototype.QUESTIONS_TO_EXPLORE])
+);
+SINGULAR_DEPENDENCY_MAP.set(
+  ScrapPrototype.CHARACTER_LISTING,
+  new Set([ScrapPrototype.LOG_LINE, ScrapPrototype.QUESTIONS_TO_EXPLORE])
+);
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STRUCTURE_SPEC, new Set([ScrapPrototype.MOVIE_DURATION]));
 
 class EditOption {
@@ -287,6 +294,8 @@ class EditOption {
         return 'Structure Block Content';
       case ScrapPrototype.SCRIPT:
         return 'Script Scrap';
+      case ScrapPrototype.QUESTIONS_TO_EXPLORE:
+        return 'Questions to Explore';
     }
   }
 }
