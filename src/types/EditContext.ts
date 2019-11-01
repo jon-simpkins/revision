@@ -103,7 +103,7 @@ class EditContext {
           null,
           null
         );
-        ctx.userGuidance = 'Give a quick summary of who\'s in the story. "The main spy" or "Marine biologist, love interest" is all the granularity you need for now. You\'ll get to come back and revise later';
+        ctx.userGuidance = 'Give a quick summary of who\'s in the story. "The main spy" or "Marine biologist, love interest" is all the granularity you need for now. You\'ll get to come back and add / replace / revise later.';
         return ctx;
       case ScrapPrototype.CHARACTER_NAME:
         ctx = new EditContext(
