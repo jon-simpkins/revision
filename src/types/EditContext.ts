@@ -13,7 +13,6 @@ import {Script} from './Script/Script';
 
 enum EditType {
   TEXT_LINE,
-  TEXT_AREA,
   N_LINES,
   MULTI_CHOICE,
   STRUCTURE_SELECTION,
