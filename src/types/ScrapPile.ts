@@ -2,6 +2,7 @@ import Scrap, {ScrapPrototype} from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
+import {isNumber} from 'util';
 
 // Convenience class for the callback of iterateOverStructure
 class StructureIterationContent {
@@ -281,6 +282,18 @@ class ScrapPile {
         this.iterateOverStructure(callback, substructureScrap, depth + 1);
       }
     });
+  }
+
+  validateAddition(scrap: Scrap): string | null {
+    if (scrap.prototype === ScrapPrototype.MOVIE_DURATION) {
+      // Validate that the duration is a number
+      const parsed = parseInt(scrap.content.text, 10);
+      if (!parsed || parsed < 0) {
+        return 'Movie duration must be a positive integer';
+      }
+    }
+
+    return null;
   }
 }
 

@@ -101,6 +101,13 @@ export class ContentEditService {
     newScrap.completedEpoch = Date.now();
     newScrap.editedBy = this.getCurrentUserEmail();
 
+    const validationError = this.storyService.currentScrapPile.validateAddition(newScrap);
+
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
     this.storyService.updateScrap(
       newScrap
     ).then(() => {
