@@ -101,7 +101,11 @@ class ScrapPile {
   fetchConstraintDurationSec(refId: string): number {
     if (!refId) {
       // If not a reference to a child structure, fetch the top-level story duration
-      return Number(this.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION).content.text) * 60;
+      const durationScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION);
+      if (durationScrap) {
+        return Number(durationScrap.content.text) * 60;
+      }
+      return null; // Not able to fetch
     }
 
     // Grab the content block that's pointing to this refId
