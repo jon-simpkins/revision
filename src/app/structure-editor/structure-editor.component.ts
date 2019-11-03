@@ -1,9 +1,8 @@
-import {ApplicationRef, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {StoryStructure, StructureBlock} from '../../types/StoryStructure/StoryStructure';
 
 import 'hammerjs';
 import {StructureTemplateService} from '../services/structure-template.service';
-import {ScreenService} from '../services/screen.service';
 
 @Component({
   selector: 'structure-editor',
@@ -18,7 +17,7 @@ export class StructureEditorComponent implements OnInit {
 
   sliderSec: number; // Time in sec for the timeline slider
 
-  constructor(public structureTemplateService: StructureTemplateService, public screenService: ScreenService) {
+  constructor(public structureTemplateService: StructureTemplateService) {
     this.sliderSec = 0;
   }
 
@@ -72,9 +71,5 @@ export class StructureEditorComponent implements OnInit {
   deleteTemplate() {
     this.structureTemplateService.deleteTemplate(this.referenceTemplateId);
     this.updateReferenceTemplate(this.structureTemplateService.knownStructures[0].id);
-  }
-
-  backToStoryList() {
-    this.screenService.updateShowStructureTemplateEditor(false);
   }
 }

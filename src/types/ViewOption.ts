@@ -55,9 +55,9 @@ class ViewOption {
           'Story Structure'
         )
       );
+      options.push(new ViewOption(ViewOptionGenerators.FLATTENED_SCRIPT, 'Flattened Script'));
     }
 
-    options.push(new ViewOption(ViewOptionGenerators.FLATTENED_SCRIPT, 'Flattened Script'));
     options.push(new ViewOption(ViewOptionGenerators.DEBUG_LIST_ALL_SCRAPS, 'Debug: List all'));
 
     return options;

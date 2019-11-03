@@ -1,4 +1,3 @@
-import ViewContentBlock from '../app/story-details/view-panel-content/ViewContentBlock';
 import generateChangelog from './generateChangelog';
 import generateViewScrapDetails from './generateViewScrapDetails';
 import generateStorySummaryPage from './generateStorySummaryPage';

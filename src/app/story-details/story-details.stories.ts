@@ -15,7 +15,7 @@ import {AppModule} from '../app.module';
 
 const TEMPLATE = `
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <div style="width: 90%;"><story-details></story-details></div>
+  <div style="width: 90%;"><story-details [storyId]="'myStory1234'"></story-details></div>
 `;
 
 @Component({
@@ -31,7 +31,6 @@ class StoryDetailsBlankSlate {
     storyService.currentId = 'myStory1234';
 
     // Notably, don't create any scraps
-
     storyService.updateViewEditOptions();
   }
 }
@@ -49,7 +48,7 @@ class StoryDetailsWithViewOptions {
     storyService.clearStory();
     storyService.currentId = 'myStory1234';
     stubStory001.forEach(line => {
-      let scrap = Scrap.parseSerialization(line.trim());
+      const scrap = Scrap.parseSerialization(line.trim());
 
       storyService.currentScrapPile.addScrap(scrap);
     });

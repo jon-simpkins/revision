@@ -10,8 +10,6 @@ import {ScrapPrototype} from '../../types/Scrap';
 })
 export class ScreenService {
 
-  showStructureTemplateEditor = false;
-  showStoryDetails = false;
   currentViewScrapId: string = null;
 
   currentDetailsPanelView = 'split';
@@ -28,13 +26,6 @@ export class ScreenService {
 
   constructor() { }
 
-  updateShowStoryDetails(newValue: boolean): void {
-    this.showStoryDetails = newValue;
-  }
-
-  updateShowStructureTemplateEditor(newValue: boolean): void {
-    this.showStructureTemplateEditor = newValue;
-  }
 
   setViewOptions(options: ViewOption[]) {
     this.viewOptions = options;
@@ -115,14 +106,6 @@ export class ScreenService {
   navigateViewForward() {
     this.prevViewOptions.push(this.currentViewOption);
     this.currentViewOption = this.nextViewOptions.pop();
-  }
-
-  toggleViewNav() {
-    this.showViewNav = !this.showViewNav;
-  }
-
-  toggleEditNav() {
-    this.showEditNav = !this.showEditNav;
   }
 
   hideEditNav() {

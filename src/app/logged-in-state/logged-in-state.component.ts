@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {LoginGateService} from '../services/login-gate.service';
 import {ScreenService} from '../services/screen.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 @Component({
   selector: 'logged-in-state',
@@ -10,13 +10,29 @@ import {Router} from '@angular/router';
 })
 export class LoggedInStateComponent implements OnInit {
 
-  constructor(public loginGateService: LoginGateService, public screenService: ScreenService, private router: Router) { }
+  constructor(public loginGateService: LoginGateService, public screenService: ScreenService, private router: Router, private route: ActivatedRoute) { }
+
+  url: string;
+  storyId: string;
+
 
   ngOnInit() {
     if (!this.loginGateService.loggedIn && !this.loginGateService.stillInitializing) {
       // Redirect to logged out page
       this.router.navigate(['/loggedOut']);
     }
+
+    this.route.queryParamMap.subscribe((map: ParamMap) => {
+      this.storyId = map.get('storyId');
+    });
+
+    this.route.url.subscribe((url) => {
+      this.url = url.join('/');
+    });
+  }
+
+  goToLandingPage() {
+    this.router.navigate(['/']);
   }
 
   signOut() {

@@ -38,6 +38,7 @@ import {StructureBlockContentEditPanelComponent} from './story-details/edit-pane
 import {ScriptEditPanelComponent} from './story-details/edit-panel-content/script-edit-panel/script-edit-panel.component';
 import {QuillReadonlyComponent} from './story-details/view-panel-content/quill-readonly/quill-readonly.component';
 import {TutorialComponent} from './tutorial/tutorial.component';
+import {LandingPageComponent} from './logged-in-state/landing-page/landing-page.component';
 
 const APP_COMPONENTS = [
   AppComponent,
@@ -58,6 +59,7 @@ const APP_COMPONENTS = [
   ScriptEditPanelComponent,
   QuillReadonlyComponent,
   TutorialComponent,
+  LandingPageComponent,
 ];
 
 const MATERIAL_IMPORTS = [

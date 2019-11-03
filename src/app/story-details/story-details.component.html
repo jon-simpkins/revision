@@ -1,25 +1,6 @@
 <div *ngIf="!!storyService.currentId; else loadingScreen"
   style="display: flex; flex-direction: column;"
 >
-  <div style="margin-bottom: 25px; display: flex; padding: 12px;">
-    <button mat-button
-      style="flex: 0 0 50px; text-align: left"
-      (click)="backToList()"
-    >
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <span style="flex: 1; text-align: center;">
-      <edit-header></edit-header>
-    </span>
-    <a target="_blank" href="https://docs.google.com/document/d/{{storyService.currentId}}/edit"
-       style="flex: 0 0 50px; margin: auto; text-align: right"
-    >
-      <button mat-button>
-        <mat-icon>exit_to_app</mat-icon>
-      </button>
-    </a>
-  </div>
-
   <div style="flex: 1;">
     <div style="display: flex;">
       <span style="flex: 1; text-align: center;">
@@ -59,6 +40,7 @@
         *ngIf="screenService.showEditPanel()"
       >
         <div *ngIf="contentEditService.currentScrapId; else editPlaceholder">
+          <edit-header></edit-header>
           <edit-panel-content
             [editContext]="contentEditService.editContext"
             [editContent]="contentEditService.currentContent"

@@ -95,11 +95,10 @@ export class StoryService {
           textContent = section.paragraph.elements[0].textRun.content;
 
           this.currentScrapPile.importFromSerialization(textContent);
-        } catch (e) {
-          console.error(e);
-        }
+        } catch (e) {}
       });
 
+      this.screenService.currentViewOption = null; // Clear the view panel on load
       this.updateViewEditOptions();
     });
   }
@@ -111,6 +110,7 @@ export class StoryService {
       this.screenService.currentViewOption = this.screenService.viewOptions[0];
       this.refreshViewContent();
     }
+    this.screenService.showViewNav = false;
   }
 
   fetchEditScrapContent(scrapId: string, prototype: ScrapPrototype): ScrapContent {

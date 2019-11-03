@@ -1,6 +1,6 @@
 import * as uuid from 'uuid/v4';
 
-import {Component} from '@angular/core';
+import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {StoryService} from '../services/story.service';
 import {ScreenService} from '../services/screen.service';
 import {ContentEditService} from '../services/content-edit.service';
@@ -13,7 +13,9 @@ import {ScrapPrototype} from '../../types/Scrap';
   templateUrl: './story-details.component.html',
   styleUrls: ['./story-details.component.scss']
 })
-export class StoryDetailsComponent {
+export class StoryDetailsComponent implements OnInit, OnChanges {
+
+  @Input() storyId: string;
 
   constructor(
     public storyService: StoryService,
@@ -21,12 +23,12 @@ export class StoryDetailsComponent {
     public contentEditService: ContentEditService
   ) { }
 
-  // Take the user back to the story list view
-  backToList() {
-    // Close the nav views, to avoid weirdness
-    this.screenService.showEditNav = false;
-    this.screenService.showViewNav = false;
-    this.screenService.updateShowStoryDetails(false);
+  ngOnInit(): void {
+    this.storyService.fetchStory(this.storyId);
+  }
+
+  ngOnChanges(): void {
+    this.storyService.fetchStory(this.storyId);
   }
 
   chooseRandomEdit(preferredPrototype?: ScrapPrototype) {

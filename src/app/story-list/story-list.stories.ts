@@ -3,21 +3,20 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 import { Component } from '@angular/core';
 
 import {StoryService} from '../services/story.service';
-import {ScreenService} from '../services/screen.service';
 
 import StorySummary from '../../types/StorySummary';
 import {AppModule} from '../app.module';
 
+const TEMPLATE = `
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <story-list></story-list>
+`;
+
 @Component({
-  template: `<story-list></story-list>`,
+  template: TEMPLATE,
 })
 class StoryListWithStubs {
-  constructor(storyService: StoryService, screenService: ScreenService) {
-    screenService.showStoryDetails = false;
-    screenService.updateShowStoryDetails = (newValue) => {
-      alert('Changed showDetails to: ' + newValue);
-    };
-
+  constructor(storyService: StoryService) {
     storyService.storySummaries = [
       new StorySummary(
         'abc123',
@@ -34,15 +33,10 @@ class StoryListWithStubs {
 }
 
 @Component({
-  template: `<story-list></story-list>`,
+  template: TEMPLATE,
 })
 class StoryListWithNoEntries {
-  constructor(storyService: StoryService, screenService: ScreenService) {
-    screenService.showStoryDetails = false;
-    screenService.updateShowStoryDetails = (newValue) => {
-      alert('Changed showDetails to: ' + newValue);
-    };
-
+  constructor(storyService: StoryService) {
     storyService.storySummaries = [];
   }
 }

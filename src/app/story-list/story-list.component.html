@@ -8,13 +8,14 @@
       <ng-container *ngFor="let summary of storyService.storySummaries">
         <button mat-list-item (click)="seeDetails(summary.documentId)">
           {{summary.getLastUpdateStr()}}
+          <a target="_blank" href="https://docs.google.com/document/d/{{summary.documentId}}/edit">
+            <button mat-button>
+              <mat-icon>exit_to_app</mat-icon>
+            </button>
+          </a>
         </button>
       </ng-container>
     </mat-action-list>
-  </div>
-  <div style="flex:1; margin-top: 2em;">
-    <button mat-raised-button color="accent" (click)="seeStructureEditor()"
-    >Edit Structure Templates</button>
   </div>
 </div>
 

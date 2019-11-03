@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import {StoryService} from '../services/story.service';
-import {ScreenService} from '../services/screen.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'story-list',
@@ -10,19 +10,14 @@ import {ScreenService} from '../services/screen.service';
 })
 export class StoryListComponent implements OnInit {
 
-  constructor(public storyService: StoryService, private screenService: ScreenService) { }
+  constructor(public storyService: StoryService, private router: Router) { }
 
   createStory() {
     this.storyService.createStory();
   }
 
   seeDetails(documentId: string) {
-    this.storyService.fetchStory(documentId);
-    this.screenService.updateShowStoryDetails(true);
-  }
-
-  seeStructureEditor() {
-    this.screenService.updateShowStructureTemplateEditor(true);
+    this.router.navigate(['/writing'], {queryParams: {storyId: documentId}});
   }
 
   ngOnInit() {
