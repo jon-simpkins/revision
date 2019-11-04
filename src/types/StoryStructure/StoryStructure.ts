@@ -36,6 +36,10 @@ class StructureBlock {
   }
 
   static convertDurationToStr(sec: number): string {
+    if (!sec) {
+      return '0 min';
+    }
+
     const hrs = Math.floor(sec / 3600);
     sec -= 3600 * hrs;
     const minutes = Math.floor(sec / 60);

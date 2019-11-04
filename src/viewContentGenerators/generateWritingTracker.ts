@@ -10,15 +10,21 @@ function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
 
   let numScraps = 0;
   let totalMs = 0;
+  let totalMsToday = 0;
   scrapPile.scrapById.forEach((scrap) => {
     numScraps += 1;
-    totalMs += (scrap.completedEpoch - scrap.startedEpoch);
+    const writingDuration = (scrap.completedEpoch - scrap.startedEpoch);
+    totalMs += writingDuration;
+    if (new Date(scrap.startedEpoch).getDate() === new Date().getDate()) {
+      totalMsToday += writingDuration;
+    }
   });
 
   const editOptions = EditOption.buildOptions(scrapPile);
 
   blocks.push(buildParagraph(`${numScraps} total scraps written, including all revisions`));
   blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(totalMs * 0.001)} spent writing`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(totalMsToday * 0.001)} spent writing today`));
 
   const newEditOptions = editOptions.filter(option => {
     return !option.iterations;
