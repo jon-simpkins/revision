@@ -23,11 +23,10 @@
         <ng-template #titlePlain>{{block.label}}</ng-template>
       </mat-card-title>
       <mat-card-subtitle>
-        <input *ngIf="allowEditDescriptions; else descPlain" matInput
-           (input)="storyStructure.updateBlockDescription($event.target.value, i)"
-           value="{{block.description}}"
-           placeholder="Block Description"
-        >
+        <textarea *ngIf="allowEditDescriptions; else descPlain" matInput
+          style="height: 22px; resize: none; overflow-y: scroll"
+          (input)="storyStructure.updateBlockDescription($event.target.value, i)"
+        >{{block.description}}</textarea>
         <ng-template #descPlain>{{block.description}}</ng-template>
       </mat-card-subtitle>
       <mat-card-content>
@@ -48,9 +47,9 @@
         </button>
       </mat-card-content>
     </div>
-    <div style="flex: 0;">
+    <div style="flex: 0; margin-top: -25%; margin-bottom: 25%;">
       <mat-slider
-        style="height: 100%;"
+        style="height: 100%; background: white; border: 1px solid lightgrey; border-radius: 12px;"
         *ngIf="storyStructure.canChangeStart(i) && allowEditSequence"
         min="0"
         value="{{10000 * storyStructure.getFractionalStart(i)}}"
@@ -58,6 +57,7 @@
         vertical
         invert
         (input)="storyStructure.updateBlockStart($event.value / 10000, i)"
+        (dblclick)="handleDoubleClick(i);"
       ></mat-slider>
     </div>
   </mat-card>

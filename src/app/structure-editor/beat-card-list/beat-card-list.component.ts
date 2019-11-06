@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import {StoryStructure} from '../../../types/StoryStructure/StoryStructure';
+import {StoryStructure, StructureBlock} from '../../../types/StoryStructure/StoryStructure';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'beat-card-list',
@@ -28,7 +29,7 @@ export class BeatCardListComponent implements OnInit {
     return this._highlightSec;
   }
 
-  constructor() { }
+  constructor(private snackBar: MatSnackBar) { }
 
   ngOnInit() {
   }
@@ -63,6 +64,34 @@ export class BeatCardListComponent implements OnInit {
         }
       }
     });
+  }
+
+  handleDoubleClick(cardIdx) {
+    const startTime = this.storyStructure.blocks[cardIdx - 1].startTime;
+    const endTime = this.storyStructure.getBlockEndSec(cardIdx);
+    const currentSplit = this.storyStructure.blocks[cardIdx].startTime;
+
+    const entry = window.prompt(
+      `Where should the beat start? ${StructureBlock.convertSecToStr(startTime)} - ${StructureBlock.convertSecToStr(endTime)}`,
+      StructureBlock.convertSecToStr(currentSplit)
+    ).split(':');
+
+    if (entry.length !== 3) {
+      this.snackBar.open('Must be entered in format "hh:mm:ss"', null, {
+        duration: 2000
+      });
+      return;
+    }
+
+    const splitSec = (3600 * parseInt(entry[0], 10)) + (60 * parseInt(entry[1], 10)) + parseInt(entry[2], 10);
+    if (!splitSec || splitSec < startTime || splitSec > endTime) {
+      this.snackBar.open('Time entered is outside of allowed range', null, {
+        duration: 2000
+      });
+      return;
+    }
+
+    this.storyStructure.blocks[cardIdx].startTime = splitSec;
   }
 
 }

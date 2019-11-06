@@ -103,7 +103,7 @@ const BohemianStr = `
             "refId": "6d26fcaf-e311-44b5-b288-af774e6e500a"
         }
     ],
-    "name": "Bohemian Rhapsody",
+    "name": "Bohemian Rhapsody (Song)",
     "id": "cf93a4a6-3391-4b23-83a9-2841c1219a4d"
 }
 `;

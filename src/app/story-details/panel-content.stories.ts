@@ -75,6 +75,12 @@ const EXAMPLE_TYPES = [
     scrapId: null,
     prototype: ScrapPrototype.SCRIPT,
     refId: 'b3cc9e5f-1c09-443f-befa-219d61d101e0'
+  },
+  {
+    storyName: 'Sub-Structure',
+    scrapId: null,
+    prototype: ScrapPrototype.STRUCTURE_SPEC,
+    refId: '2e30ef1d-3d1c-44e9-b499-6a60c05b0972'
   }
 ];
 

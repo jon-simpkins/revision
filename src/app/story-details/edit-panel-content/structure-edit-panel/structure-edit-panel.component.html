@@ -10,18 +10,6 @@
   <span style="flex: 1;">&nbsp;</span>
   <div style="flex: 0;">
     <div style="height: 60px;">
-      &nbsp;
-    </div>
-    <beat-card-list
-      [storyStructure]="editContent.storyStructure"
-      [allowEditTitles]="true"
-    ></beat-card-list>
-  </div>
-
-  <div
-    style="flex: 1; text-align: center;"
-  >
-    <div style="height: 60px;">
       <button *ngIf="referenceViewOpen"  mat-stroked-button (click)="hideReferenceView()">
         Hide Templates
       </button>
@@ -29,11 +17,47 @@
         Show Templates
       </button>
     </div>
-    <button *ngIf="referenceViewOpen"  mat-button style="margin: auto; text-align: center;"
-            (click)="copyFromTemplate()"
-    >
-      <mat-icon>chevron_left</mat-icon> from Template
-    </button>
+    <beat-card-list
+      [storyStructure]="editContent.storyStructure"
+      [allowEditSequence]="true"
+      [allowEditTitles]="true"
+      [allowEditDescriptions]="true"
+      [showHighlight]="true"
+      [highlightSec]="sliderSec"
+    ></beat-card-list>
+    <div style="height: 60px; margin-top: 1em;">
+      <button mat-stroked-button style="margin: auto; text-align: center;"
+        (click)="saveTemplate()"
+      >
+        Save as Template
+      </button>
+    </div>
+  </div>
+
+  <div
+    style="flex: 1; text-align: center;"
+  >
+    <div style="height: 60px;">
+      <button *ngIf="referenceViewOpen" mat-button style="margin: auto; text-align: center;"
+              (click)="copyFromTemplate()"
+      >
+        <mat-icon>chevron_left</mat-icon> from Template
+      </button>
+      &nbsp;
+    </div>
+
+    <div style="display: flex; flex-direction: column; height: 400px;">
+      <p style="flex: 0; text-align: center;">{{getTimelineSliderStr()}}</p>
+      <mat-slider
+        style="flex: 1; margin: auto;"
+        min="0"
+        value="{{getTimelineSliderFrac() * 10000}}"
+        (input)="onUpdateTimelineSlider($event.value / 10000)"
+        max="10000"
+        vertical
+        invert
+      ></mat-slider>
+    </div>
 
   </div>
   <div *ngIf="referenceViewOpen"  style="flex: 0;">
@@ -51,9 +75,17 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
+      <a target="_blank" href="#/structure-editor">
+        <button mat-stroked-button style="margin-left: 1em;">
+          Edit Template Options
+        </button>
+
+      </a>
     </div>
     <beat-card-list
       [storyStructure]="referenceTemplate"
+      [showHighlight]="true"
+      [highlightSec]="sliderSec"
     ></beat-card-list>
   </div>
   <span style="flex: 1;">&nbsp;</span>

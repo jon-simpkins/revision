@@ -26,7 +26,7 @@ class FountainElement {
   toDeltas(characterMap: Map<string, object>): Op[] {
     const splitTokens = (this.text + '\n').split('{@');
 
-    if (splitTokens.length === 1 || (![FountainElementType.CHARACTER, FountainElementType.ACTION].includes(this.type))) {
+    if (splitTokens.length === 1 || (![FountainElementType.BONEYARD, FountainElementType.CHARACTER, FountainElementType.ACTION].includes(this.type))) {
       return [{
         insert: this.text + '\n',
         attributes: this.getDeltaAttributes()
@@ -275,7 +275,7 @@ class FountainElements {
 
   replaceTokenValues(tokenMap: Map<string, string>, tokenPrefix: string) {
     this.lines.forEach(line => {
-      if (line.type === FountainElementType.CHARACTER || line.type === FountainElementType.ACTION) {
+      if (line.type === FountainElementType.CHARACTER || line.type === FountainElementType.ACTION || line.type === FountainElementType.BONEYARD) {
         const regex = new RegExp(`{${tokenPrefix}([^}]+)}`, 'g');
         let match = regex.exec(line.text);
         while (match !== null) {

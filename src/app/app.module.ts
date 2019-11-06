@@ -16,7 +16,7 @@ import {
   MatSliderModule,
   MatDividerModule,
   MatToolbarModule,
-  MatSidenavModule
+  MatSidenavModule, MatSnackBarModule
 } from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -77,6 +77,7 @@ const MATERIAL_IMPORTS = [
   MatSlideToggleModule,
   MatCardModule,
   MatSliderModule,
+  MatSnackBarModule,
   BrowserAnimationsModule,
 ];
 
