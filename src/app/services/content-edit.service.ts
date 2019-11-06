@@ -84,7 +84,7 @@ export class ContentEditService {
     this.currentScrapId = null;
   }
 
-  acceptEdit() {
+  acceptEdit(errCallback: (errMMsg: string) => void) {
     const newScrap = new Scrap();
     newScrap.id = this.currentScrapId;
     newScrap.refId = this.currentRefId;
@@ -104,7 +104,7 @@ export class ContentEditService {
     const validationError = this.storyService.currentScrapPile.validateAddition(newScrap);
 
     if (validationError) {
-      alert(validationError);
+      errCallback(validationError);
       return;
     }
 

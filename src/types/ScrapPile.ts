@@ -287,9 +287,9 @@ class ScrapPile {
   validateAddition(scrap: Scrap): string | null {
     if (scrap.prototype === ScrapPrototype.MOVIE_DURATION) {
       // Validate that the duration is a number
-      const parsed = parseInt(scrap.content.text, 10);
+      const parsed = Number(scrap.content.text);
       if (!parsed || parsed < 0) {
-        return 'Movie duration must be a positive integer';
+        return 'Movie duration must be a positive number';
       }
     }
 
