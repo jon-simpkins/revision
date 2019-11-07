@@ -11,10 +11,16 @@ import {StructureBlock} from '../../types/StoryStructure/StoryStructure';
 })
 export class StoryListComponent implements OnInit {
 
+  creatingStory = false;
+
   constructor(public storyService: StoryService, private router: Router) { }
 
   createStory() {
-    this.storyService.createStory();
+    this.creatingStory = true;
+    this.storyService.createStory().then((newDocumentId) => {
+      this.creatingStory = false;
+      this.seeDetails(newDocumentId);
+    });
   }
 
   seeDetails(documentId: string) {

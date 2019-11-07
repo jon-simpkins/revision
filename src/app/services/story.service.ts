@@ -64,7 +64,7 @@ export class StoryService {
   }
 
   createStory() {
-    createDoc('Revision Story ' + Date.now())
+    return createDoc('Revision Story ' + Date.now())
       .then((response) => {
         const newDocumentId = response.result.documentId;
 
@@ -80,7 +80,9 @@ export class StoryService {
 
         this.persistStorySummaries();
 
-        return this.writeHeader(newDocumentId);
+        return this.writeHeader(newDocumentId).then(() => {
+          return newDocumentId;
+        });
       });
   }
 
