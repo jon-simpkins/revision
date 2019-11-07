@@ -58,6 +58,11 @@ export class StoryService {
     this.persistStorySummaries();
   }
 
+  selectRandomId(): string {
+    const randomIdx = Math.floor(Math.random() * this.storySummaries.length);
+    return this.storySummaries[randomIdx].documentId;
+  }
+
   createStory() {
     createDoc('Revision Story ' + Date.now())
       .then((response) => {

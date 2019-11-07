@@ -28,4 +28,10 @@ export class StoryListComponent implements OnInit {
     return StructureBlock.convertSecToStr(sec);
   }
 
+  selectRandom() {
+    this.seeDetails(
+      this.storyService.selectRandomId()
+    );
+  }
+
 }

@@ -3,6 +3,7 @@
   <div style="flex: 1;">
     <h2>Story List</h2>
     <button mat-raised-button color="primary" (click)="createStory()">Create New</button>
+    <button mat-stroked-button color="primary" style="margin-left: 1em;" (click)="selectRandom()">Select Random</button>
 
     <mat-action-list>
       <ng-container *ngFor="let summary of storyService.storySummaries">
