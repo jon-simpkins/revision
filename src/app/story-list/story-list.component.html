@@ -7,7 +7,8 @@
     <mat-action-list>
       <ng-container *ngFor="let summary of storyService.storySummaries">
         <button mat-list-item (click)="seeDetails(summary.documentId)">
-          {{summary.getLastUpdateStr()}}
+          {{summary.percentComplete.toFixed(2)}}% Complete,
+          {{convertSecToStr(summary.timeSpentSec)}} spent writing so far
           <a target="_blank" href="https://docs.google.com/document/d/{{summary.documentId}}/edit">
             <button mat-button>
               <mat-icon>exit_to_app</mat-icon>

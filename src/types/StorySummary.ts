@@ -4,18 +4,24 @@ class StorySummary {
   documentId: string;
   revisionId: string;
   lastFetched: number;
+  timeSpentSec: number;
+  percentComplete: number;
 
-  constructor(documentId: string, revisionId: string, lastFetched: number) {
+  constructor(documentId: string, revisionId: string, lastFetched: number, timeSpentSec: number, percentComplete: number) {
     this.documentId = documentId;
     this.revisionId = revisionId;
     this.lastFetched = lastFetched;
+    this.timeSpentSec = timeSpentSec;
+    this.percentComplete = percentComplete;
   }
 
   static buildFromJSON(jsonObj: any): StorySummary {
     return new StorySummary(
       jsonObj.documentId,
       jsonObj.revisionId,
-      jsonObj.lastFetched
+      jsonObj.lastFetched,
+      jsonObj.timeSpentSec || 0,
+      jsonObj.percentComplete || 0
     );
   }
 
@@ -23,14 +29,11 @@ class StorySummary {
     return {
       documentId: this.documentId,
       revisionId: this.revisionId,
-      lastFetched: this.lastFetched
+      lastFetched: this.lastFetched,
+      timeSpentSec: this.timeSpentSec,
+      percentComplete: this.percentComplete
     };
   }
-
-  getLastUpdateStr(): string {
-    return new Date(this.lastFetched).toLocaleString();
-  }
-
 }
 
 export default StorySummary;

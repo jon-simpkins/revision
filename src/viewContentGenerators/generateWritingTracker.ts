@@ -1,7 +1,6 @@
 import {ScrapPile} from '../types/ScrapPile';
 import ViewContentBlock, {buildHeader, buildParagraph} from '../app/story-details/view-panel-content/ViewContentBlock';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
-import EditOption from '../types/EditOption';
 
 function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
   const blocks = [];
@@ -19,20 +18,17 @@ function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
       totalMsToday += writingDuration;
     }
   });
-
-  const editOptions = EditOption.buildOptions(scrapPile);
+  const timeSpentWriting = scrapPile.determineTimeSpentWriting();
 
   blocks.push(buildParagraph(`${numScraps} total scraps written, including all revisions`));
-  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(totalMs * 0.001)} spent writing`));
-  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(totalMsToday * 0.001)} spent writing today`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(timeSpentWriting.lastDay * 0.001)} spent writing today`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(timeSpentWriting.lastWeek * 0.001)} spent writing in the last week`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(timeSpentWriting.lastMonth * 0.001)} spent writing in the last month`));
+  blocks.push(buildParagraph(`${StructureBlock.convertDurationToStr(timeSpentWriting.allTime * 0.001)} spent writing total`));
 
-  const newEditOptions = editOptions.filter(option => {
-    return !option.iterations;
-  });
+  const remainingWork = scrapPile.determineRemainingWork();
 
-  const percentComplete = 100.0 * (1.0 - newEditOptions.length / editOptions.length);
-
-  blocks.push(buildParagraph(`${newEditOptions.length} scraps still need to be completed (${percentComplete.toFixed(2)}% complete)`));
+  blocks.push(buildParagraph(`${remainingWork.numRemainingScraps} scraps still need to be completed (${remainingWork.percentComplete.toFixed(2)}% complete)`));
 
   return blocks;
 }

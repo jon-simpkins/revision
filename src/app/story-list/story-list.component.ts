@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import {StoryService} from '../services/story.service';
 import {Router} from '@angular/router';
+import {StructureBlock} from '../../types/StoryStructure/StoryStructure';
 
 @Component({
   selector: 'story-list',
@@ -21,6 +22,10 @@ export class StoryListComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  convertSecToStr(sec: number): string {
+    return StructureBlock.convertSecToStr(sec);
   }
 
 }

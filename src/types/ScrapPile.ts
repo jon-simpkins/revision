@@ -3,6 +3,7 @@ import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
 import {isNumber} from 'util';
+import EditOption from './EditOption';
 
 // Convenience class for the callback of iterateOverStructure
 class StructureIterationContent {
@@ -294,6 +295,52 @@ class ScrapPile {
     }
 
     return null;
+  }
+
+  determineRemainingWork(): any {
+    const editOptions = EditOption.buildOptions(this);
+
+    const newEditOptions = editOptions.filter(option => {
+      return !option.iterations;
+    });
+
+    return {
+      percentComplete: (100.0 * (1.0 - newEditOptions.length / editOptions.length)),
+      numRemainingScraps: newEditOptions.length
+    } ;
+  }
+
+  determineTimeSpentWriting(): any {
+    const timeSpentMs = {
+      lastDay: 0,
+      lastWeek: 0,
+      lastMonth: 0,
+      allTime: 0,
+    };
+
+    const now = Date.now();
+    const monthCutoff = 30.5 * 24 * 3600 * 1000;
+    const weekCutoff = 7 * 24 * 3600 * 1000;
+    const dayCutoff = 24 * 3600 * 1000;
+
+    this.scrapById.forEach(scrap => {
+      const writingDuration = (scrap.completedEpoch - scrap.startedEpoch);
+      const timeSinceCompleted = now - scrap.completedEpoch;
+
+      timeSpentMs.allTime += writingDuration;
+      if (timeSinceCompleted < monthCutoff) {
+        timeSpentMs.lastMonth += writingDuration;
+        if (timeSinceCompleted < weekCutoff) {
+          timeSpentMs.lastWeek += writingDuration;
+          if (timeSinceCompleted < dayCutoff) {
+            timeSpentMs.lastDay += writingDuration;
+          }
+        }
+      }
+
+    });
+
+    return timeSpentMs;
   }
 }
 

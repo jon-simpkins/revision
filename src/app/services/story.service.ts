@@ -45,15 +45,30 @@ export class StoryService {
       })));
   }
 
+  updateSummaryProgress() {
+    this.storySummaries.forEach(summary => {
+      if (summary.documentId !== this.currentId) {
+        return;
+      }
+
+      summary.percentComplete = this.currentScrapPile.determineRemainingWork().percentComplete;
+      summary.timeSpentSec = 0.001 * this.currentScrapPile.determineTimeSpentWriting().allTime;
+
+    });
+    this.persistStorySummaries();
+  }
+
   createStory() {
     createDoc('Revision Story ' + Date.now())
       .then((response) => {
-        let newDocumentId = response.result.documentId;
+        const newDocumentId = response.result.documentId;
 
-        let newSummary = new StorySummary(
+        const newSummary = new StorySummary(
           newDocumentId,
           response.result.revisionId,
-          Date.now()
+          Date.now(),
+          0,
+          0
         );
 
         this.storySummaries.push(newSummary);

@@ -111,6 +111,7 @@ export class ContentEditService {
     this.storyService.updateScrap(
       newScrap
     ).then(() => {
+      this.storyService.updateSummaryProgress();
       this.storyService.refreshViewContent();
       this.cancelEdit();
     });
