@@ -5,6 +5,6 @@ rm -rf dist/
 rm -rf docs/
 mkdir docs
 
-ng build --prod --base-href "revision"
+ng build --prod
 
 mv dist/* docs
