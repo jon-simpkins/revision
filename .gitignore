@@ -2,6 +2,7 @@
 
 # Ignore local credentials file for dev
 src/credentials.js
+src/github-credentials.js
 
 # compiled output
 /dist
