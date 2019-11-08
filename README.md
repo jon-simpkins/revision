@@ -33,7 +33,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Building for GitHub Pages
 
-`ng build --prod --base-href "revision"`, move the output into the docs folder, and commit / push.
+`./buildDeployment.sh`, and commit / push.
 
 ## Running unit tests
 
