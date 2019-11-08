@@ -2,7 +2,7 @@ import {ScrapContent, TARGET_CONTENT_TYPE} from './ScrapContent';
 import UserEdit from '../UserEdit';
 
 import * as uuid from 'uuid/v4';
-import {ScrapPrototype} from '../Scrap';
+import ScrapPrototype from '../ScrapPrototype';
 
 class StructureBlockContent extends ScrapContent {
   targetRefId: string;

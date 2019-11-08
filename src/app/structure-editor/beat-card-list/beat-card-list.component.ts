@@ -15,7 +15,7 @@ export class BeatCardListComponent implements OnInit {
   @Input() allowEditDescriptions: boolean;
   @Input() allowEditTitles: boolean;
 
-  private idPrefix = String(Math.round(Date.now() + (Math.random() * 1000)));
+  public idPrefix = String(Math.round(Date.now() + (Math.random() * 1000)));
 
   private _highlightSec: number;
   @Input() set highlightSec(value: number) {

@@ -40,7 +40,7 @@ import {QuillReadonlyComponent} from './story-details/view-panel-content/quill-r
 import {TutorialComponent} from './tutorial/tutorial.component';
 import {LandingPageComponent} from './logged-in-state/landing-page/landing-page.component';
 
-const APP_COMPONENTS = [
+const DECLARATIONS = [
   AppComponent,
   LoginGateComponent,
   LoggedOutStateComponent,
@@ -62,7 +62,7 @@ const APP_COMPONENTS = [
   LandingPageComponent,
 ];
 
-const MATERIAL_IMPORTS = [
+const IMPORTS = [
   BrowserModule,
   AppRoutingModule,
   MatButtonModule,
@@ -83,9 +83,9 @@ const MATERIAL_IMPORTS = [
 ];
 
 @NgModule({
-  declarations: [].concat(APP_COMPONENTS),
-  imports: [].concat(MATERIAL_IMPORTS),
-  exports: [].concat(APP_COMPONENTS).concat(MATERIAL_IMPORTS), // Export everything, so Storybook creation is easier
+  declarations: DECLARATIONS,
+  imports: IMPORTS,
+  exports: [].concat(DECLARATIONS).concat(IMPORTS), // Export everything, so Storybook creation is easier
   providers: [{provide: APP_BASE_HREF, useValue : '/' }],
   bootstrap: [AppComponent]
 })

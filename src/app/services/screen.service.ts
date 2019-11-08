@@ -1,8 +1,8 @@
-import {ApplicationRef, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import EditOption from '../../types/EditOption';
 import ViewContentBlock from '../story-details/view-panel-content/ViewContentBlock';
 import ViewOption from '../../types/ViewOption';
-import {ScrapPrototype} from '../../types/Scrap';
+import ScrapPrototype from '../../types/ScrapPrototype';
 
 // Service to manage the state of "what screen am I on right now" when logged in
 @Injectable({

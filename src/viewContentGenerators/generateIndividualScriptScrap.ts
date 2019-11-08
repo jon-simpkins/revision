@@ -3,7 +3,7 @@ import ViewContentBlock, {
   buildHeader,
   buildParagraphsFromTextArea
 } from '../app/story-details/view-panel-content/ViewContentBlock';
-import {ScrapPrototype} from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 
 function generateIndividualScriptScrap(scrapPile: ScrapPile, scrapId: string, refId: string): ViewContentBlock[] {
   let blocks = [];

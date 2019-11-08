@@ -5,7 +5,7 @@ import ViewContentBlock, {
   buildSubheader
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
-import {ScrapPrototype} from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 import Character from '../types/Character';
 
 function generateCharacterListing(scrapPile: ScrapPile): ViewContentBlock[] {

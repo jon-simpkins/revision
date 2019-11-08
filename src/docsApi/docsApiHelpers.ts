@@ -1,14 +1,23 @@
 // A set of helper functions for manipulating the Google Docs API
 
+import {environment} from '../environments/environment';
+import { credentials as githubCredentials } from '../github-credentials';
 import { credentials } from '../credentials';
 
 declare var gapi: any; // TODO: actually import the types for this
 
-let API_SUCCESSFULLY_INITIALIZED = false;
-
 // Read in the credentials from a git-ignored file
-const API_KEY = credentials.API_KEY;
-const CLIENT_ID = credentials.CLIENT_ID;
+let API_KEY;
+let CLIENT_ID;
+if (environment.production) {
+  API_KEY = githubCredentials.API_KEY;
+  CLIENT_ID = githubCredentials.CLIENT_ID;
+} else {
+  API_KEY = credentials.API_KEY;
+  CLIENT_ID = credentials.CLIENT_ID;
+}
+
+let API_SUCCESSFULLY_INITIALIZED = false;
 
 // Function to initialize the GAPI global object
 function initApi(): void {

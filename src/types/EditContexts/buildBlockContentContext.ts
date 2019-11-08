@@ -1,7 +1,7 @@
 import * as uuid from 'uuid/v4';
 
 import {TARGET_CONTENT_TYPE} from '../ScrapTypes/ScrapContent';
-import {ScrapPrototype} from '../Scrap';
+import ScrapPrototype from '../ScrapPrototype';
 import ViewOption, {ViewOptionGenerators} from '../ViewOption';
 import EditContext, {EditType} from '../EditContext';
 import {ScrapPile} from '../ScrapPile';

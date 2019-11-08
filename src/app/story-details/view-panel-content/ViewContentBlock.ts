@@ -1,6 +1,7 @@
 import ViewOption from '../../../types/ViewOption';
 import EditOption from '../../../types/EditOption';
-import Scrap, {ScrapPrototype} from '../../../types/Scrap';
+import Scrap from '../../../types/Scrap';
+import ScrapPrototype from '../../../types/ScrapPrototype';
 import {ScrapPile} from '../../../types/ScrapPile';
 import {Script} from '../../../types/Script/Script';
 

@@ -8,7 +8,8 @@ import ViewContentBlock, {
   ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
-import Scrap, {ScrapPrototype} from '../types/Scrap';
+import Scrap from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
 import {TARGET_CONTENT_TYPE} from '../types/ScrapTypes/ScrapContent';

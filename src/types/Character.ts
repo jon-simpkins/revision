@@ -1,4 +1,4 @@
-import {ScrapPrototype} from './Scrap';
+import ScrapPrototype from './ScrapPrototype';
 import {ScrapPile} from './ScrapPile';
 
 class Character {

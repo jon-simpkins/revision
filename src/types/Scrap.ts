@@ -6,22 +6,7 @@ import {StructureSpecContent} from './ScrapTypes/StructureSpecContent';
 import {StructureBlockContent} from './ScrapTypes/StructureBlockContent';
 import {ScriptContent} from './ScrapTypes/ScriptContent';
 
-enum ScrapPrototype {
-  MOVIE_TITLE,
-  SIMILAR_MOVIES,
-  LOG_LINE,
-  TIME_FRAME,
-  CHARACTER_LISTING,
-  CHARACTER_NAME,
-  CHARACTER_GENDER,
-  CHARACTER_DRIVE,
-  MOVIE_DURATION,
-  STRUCTURE_SPEC,
-  STRUCTURE_BLOCK_SUMMARY,
-  STRUCTURE_BLOCK_CONTENT,
-  SCRIPT,
-  QUESTIONS_TO_EXPLORE,
-}
+import ScrapPrototype from './ScrapPrototype';
 
 enum ScrapContentType {
   TEXT_LINE,
@@ -145,7 +130,5 @@ class Scrap {
   }
 
 }
-
-export {ScrapPrototype};
 
 export default Scrap;

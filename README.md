@@ -31,6 +31,10 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
+## Building for GitHub Pages
+
+`ng build --prod --base-href "revision"`, move the output into the docs folder, and commit / push.
+
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).

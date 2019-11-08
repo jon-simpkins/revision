@@ -3,12 +3,14 @@ import {Injectable} from '@angular/core';
 import * as uuid from 'uuid/v4';
 
 import {StoryService} from './story.service';
-import Scrap, {ScrapPrototype} from '../../types/Scrap';
+import Scrap from '../../types/Scrap';
 import EditContext from '../../types/EditContext';
 import UserEdit from '../../types/UserEdit';
 import {LoginGateService} from './login-gate.service';
 import {ScrapContent} from '../../types/ScrapTypes/ScrapContent';
 import {ScreenService} from './screen.service';
+import buildEditContextFromPrototype from '../../types/buildEditContextFromPrototype';
+import ScrapPrototype from '../../types/ScrapPrototype';
 
 // A service for tracking the current editing state of a Scrap
 @Injectable({
@@ -51,7 +53,7 @@ export class ContentEditService {
     this.currentRefId = refId;
     this.editPrototype = prototype;
 
-    this.editContext = EditContext.fromPrototype(prototype, this.storyService.currentScrapPile, refId);
+    this.editContext = buildEditContextFromPrototype(prototype, this.storyService.currentScrapPile, refId);
 
     // If the edit suggests a set of content to view, load that content
     if (this.editContext.viewOptions && this.editContext.viewOptions.length) {

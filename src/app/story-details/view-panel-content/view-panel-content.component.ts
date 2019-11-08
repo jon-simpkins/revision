@@ -18,7 +18,7 @@ export class ViewPanelContentComponent {
 
   @Input() viewContentBlocks: ViewContentBlock[];
 
-  constructor(private screenService: ScreenService, private storyService: StoryService, private contentEditService: ContentEditService) { }
+  constructor(public screenService: ScreenService, private storyService: StoryService, private contentEditService: ContentEditService) { }
 
   showViewPanelBtn(): boolean {
     return !this.screenService.showViewNav;

@@ -1,4 +1,5 @@
-import Scrap, {ScrapPrototype} from './Scrap';
+import Scrap from './Scrap';
+import ScrapPrototype from './ScrapPrototype';
 import {ViewOptionGenerators} from '../viewContentGenerators/viewContentGenerators';
 import {ScrapPile} from './ScrapPile';
 

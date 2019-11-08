@@ -4,7 +4,7 @@ import ViewContentBlock, {
   ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import {ScrapPile} from '../types/ScrapPile';
-import {ScrapPrototype} from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 
 function generateListAllScraps(scrapPile: ScrapPile): ViewContentBlock[] {
   const blocks = [];

@@ -9,6 +9,7 @@ import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import EditOption from '../types/EditOption';
 import EditContext from '../types/EditContext';
 import {ScrapPile} from '../types/ScrapPile';
+import buildEditContextFromPrototype from '../types/buildEditContextFromPrototype';
 
 function fetchNexPrevIterations(relevantScrap: Scrap, scrapPile: ScrapPile) {
   let previousScrap: Scrap = null;
@@ -44,7 +45,7 @@ function fetchNexPrevIterations(relevantScrap: Scrap, scrapPile: ScrapPile) {
 
 // Convenience function to build the relevant list of views for this scrap (identical to what would show in the bottom of the edit panel)
 function fetchRelevantViews(scrap: Scrap, scrapPile: ScrapPile): ViewOption[] {
-  return EditContext.fromPrototype(scrap.prototype, scrapPile, scrap.refId).viewOptions;
+  return buildEditContextFromPrototype(scrap.prototype, scrapPile, scrap.refId).viewOptions;
 }
 
 function generateViewScrapDetails(scrapPile: ScrapPile, scrapId: string): ViewContentBlock[] {

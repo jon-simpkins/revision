@@ -1,4 +1,5 @@
-import Scrap, {ScrapPrototype} from './Scrap';
+import Scrap from './Scrap';
+import ScrapPrototype from './ScrapPrototype';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {ScrapPile} from './ScrapPile';
 import {StoryStructure} from './StoryStructure/StoryStructure';

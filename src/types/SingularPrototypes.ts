@@ -1,4 +1,4 @@
-import {ScrapPrototype} from './Scrap';
+import ScrapPrototype from './ScrapPrototype';
 
 const SINGULAR_PROTOTYPES = new Set([
   ScrapPrototype.SIMILAR_MOVIES,

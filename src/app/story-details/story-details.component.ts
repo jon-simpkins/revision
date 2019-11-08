@@ -5,8 +5,7 @@ import {StoryService} from '../services/story.service';
 import {ScreenService} from '../services/screen.service';
 import {ContentEditService} from '../services/content-edit.service';
 import EditOption from '../../types/EditOption';
-import {ScrapPrototype} from '../../types/Scrap';
-
+import ScrapPrototype from '../../types/ScrapPrototype';
 
 @Component({
   selector: 'story-details',

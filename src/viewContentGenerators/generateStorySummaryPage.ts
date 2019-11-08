@@ -1,10 +1,9 @@
-import {ScrapPrototype} from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 import ViewContentBlock, {
   buildHeader,
   buildListEntry,
   buildParagraph,
-  buildParagraphsFromTextArea,
-  buildScrapDetailsSection, buildScriptSection, ViewContentBlockType,
+  buildScrapDetailsSection, buildScriptSection,
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 
 import {ScrapPile} from '../types/ScrapPile';

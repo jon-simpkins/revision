@@ -6,7 +6,7 @@ import ViewContentBlock, {
   buildSubheader, ViewContentBlockType
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import Character from '../types/Character';
-import {ScrapPrototype} from '../types/Scrap';
+import ScrapPrototype from '../types/ScrapPrototype';
 import {FountainElements, FountainElementType} from '../app/story-details/edit-panel-content/script-edit-panel/FountainElements';
 import {StructureBlock} from '../types/StoryStructure/StoryStructure';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';

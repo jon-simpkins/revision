@@ -5,13 +5,14 @@ import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
 import StorySummary from '../../types/StorySummary';
 import {generateHeaderCommands, updateContentLine} from '../../docsApi/docsContentHelpers';
 import {ScreenService} from './screen.service';
-import Scrap, {ScrapPrototype} from '../../types/Scrap';
+import Scrap from '../../types/Scrap';
 import EditOption from '../../types/EditOption';
 import ViewOption, {ViewOptionGenerators} from '../../types/ViewOption';
 import {generateAppropriateGenerator} from '../../viewContentGenerators/generateAppropriateViewGenerator';
 import {StorybookService} from './storybook.service';
 import {ScrapContent} from '../../types/ScrapTypes/ScrapContent';
 import {ScrapPile} from '../../types/ScrapPile';
+import ScrapPrototype from '../../types/ScrapPrototype';
 
 const STORY_SUMMARIES_KEY = 'STORY_SUMMARIES';
 

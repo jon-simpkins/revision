@@ -1,8 +1,8 @@
-import Scrap, {ScrapPrototype} from './Scrap';
+import Scrap from './Scrap';
 import {SINGULAR_PROTOTYPES} from './SingularPrototypes';
 import {TARGET_CONTENT_TYPE} from './ScrapTypes/ScrapContent';
 import {StructureBlock} from './StoryStructure/StoryStructure';
-import {isNumber} from 'util';
+import ScrapPrototype from './ScrapPrototype';
 import EditOption from './EditOption';
 
 // Convenience class for the callback of iterateOverStructure
