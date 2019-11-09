@@ -6,6 +6,9 @@ different levels of completion, and help encourage incremental progress.
 No more staring at a blank page: now you can chip away at the stories that you
 know you want to write, bit by bit.
 
+Check it out live at:
+https://jon-simpkins.github.io/revision/
+
 # Disclaimer
 This is **not** an official Google product.
 
