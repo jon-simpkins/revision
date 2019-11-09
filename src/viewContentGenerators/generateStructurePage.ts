@@ -55,6 +55,7 @@ function generateStructurePage(scrapPile: ScrapPile, scrapId: string, refId: str
     const durationStr = relevantStructureScrap.content.storyStructure.getTimeRangeStr(idx);
 
     blocks.push(buildSubheader(structureBlock.label));
+    blocks.push(buildParagraph(structureBlock.description));
     blocks.push(buildListEntry(durationStr));
 
     blocks = blocks.concat(
