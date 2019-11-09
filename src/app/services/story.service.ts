@@ -47,15 +47,30 @@ export class StoryService {
   }
 
   updateSummaryProgress() {
+    let foundSummary = false;
     this.storySummaries.forEach(summary => {
       if (summary.documentId !== this.currentId) {
         return;
       }
 
+      foundSummary = true;
+
       summary.percentComplete = this.currentScrapPile.determineRemainingWork().percentComplete;
       summary.timeSpentSec = 0.001 * this.currentScrapPile.determineTimeSpentWriting().allTime;
 
     });
+
+    if (!foundSummary) {
+      // First encounter, let's update
+      const newSummary = new StorySummary(
+        this.currentId,
+        '', // TODO: either access actual revision Id, or deprecate field
+        Date.now(),
+        0.001 * this.currentScrapPile.determineTimeSpentWriting().allTime,
+        this.currentScrapPile.determineRemainingWork().percentComplete
+      );
+      this.storySummaries.push(newSummary);
+    }
     this.persistStorySummaries();
   }
 
@@ -91,7 +106,7 @@ export class StoryService {
   writeHeader(id) {
     return updateBatch(
       id,
-      generateHeaderCommands()
+      generateHeaderCommands(id)
     );
   }
 
@@ -121,6 +136,7 @@ export class StoryService {
         } catch (e) {}
       });
 
+      this.updateSummaryProgress();
       this.screenService.currentViewOption = null; // Clear the view panel on load
       this.updateViewEditOptions();
     });
