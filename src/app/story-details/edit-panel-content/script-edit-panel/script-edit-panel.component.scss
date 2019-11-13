@@ -5,6 +5,13 @@
   cursor: pointer;
 }
 
+.ql-editor .css-trait {
+  background: lightgreen;
+  padding: 3px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .ql-container .token-list {
   position: absolute;
   width: auto;

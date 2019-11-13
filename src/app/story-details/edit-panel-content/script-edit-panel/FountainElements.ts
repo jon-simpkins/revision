@@ -23,8 +23,8 @@ class FountainElement {
     this.text = text;
   }
 
-  toDeltas(characterMap: Map<string, object>): Op[] {
-    const splitTokens = (this.text + '\n').split('{@');
+  toDeltas(characterMap: Map<string, object>, traitMap: Map<string, object>): Op[] {
+    const splitTokens = (this.text + '\n').split('{');
 
     if (splitTokens.length === 1 || (![FountainElementType.BONEYARD, FountainElementType.CHARACTER, FountainElementType.ACTION].includes(this.type))) {
       return [{
@@ -33,7 +33,7 @@ class FountainElement {
       }];
     }
 
-    // Correctly parse out any tokens wrapped in {@ }
+    // Correctly parse out any tokens wrapped in {@ } or {# }
     const outputDeltas: Op[] = [];
     for (let i = 0; i < splitTokens.length; i++) {
       let startedWithBrackets = false;
@@ -53,20 +53,23 @@ class FountainElement {
         if (subSplitToken.length === 1) {
           // No trailing }
           outputDeltas.push({
-            insert: '{@' + splitTokens[i],
+            insert: '{' + splitTokens[i],
             attributes: this.getDeltaAttributes()
           });
         } else {
           const tokenValue = subSplitToken[0];
           const tokenAttributes = this.getDeltaAttributes();
 
-          if (characterMap.has(tokenValue.toUpperCase())) {
+          if (tokenValue.startsWith('@') && characterMap.has(tokenValue.substr(1).toUpperCase())) {
             // @ts-ignore
-            tokenAttributes.character = characterMap.get(tokenValue.toUpperCase()).refId;
+            tokenAttributes.character = characterMap.get(tokenValue.substr(1).toUpperCase()).refId;
+          } else if (tokenValue.startsWith('#') && traitMap.has(tokenValue.substr(1).toUpperCase())) {
+            // @ts-ignore
+            tokenAttributes.trait = traitMap.get(tokenValue.substr(1).toUpperCase()).refId;
           }
 
           outputDeltas.push({
-            insert: '{@' + tokenValue + '}',
+            insert: '{' + tokenValue + '}',
             attributes: tokenAttributes
           });
           outputDeltas.push({
@@ -336,11 +339,11 @@ class FountainElements {
     }
   }
 
-  getQuillDeltas(characterMap: Map<string, object>): Op[] {
+  getQuillDeltas(characterMap: Map<string, object>, traitMap: Map<string, object>): Op[] {
     // Now, consolidate the lines and output
     let allDeltas = [];
     this.lines.forEach(line => {
-      allDeltas = allDeltas.concat(line.toDeltas(characterMap));
+      allDeltas = allDeltas.concat(line.toDeltas(characterMap, traitMap));
     });
 
     const outputDeltas = [];

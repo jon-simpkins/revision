@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
-import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
+import {createDoc, fetchDoc, updateBatch} from '../../docsApi/docsApiHelpers';
 
 import StorySummary from '../../types/StorySummary';
 import {generateHeaderCommands, updateContentLine} from '../../docsApi/docsContentHelpers';
@@ -241,7 +241,22 @@ export class StoryService {
     this.setViewContent(characterViewOption);
   }
 
+  navigateToTrait(refId) {
+    const traitViewOption = new ViewOption(
+      ViewOptionGenerators.TRAIT_DETAILS,
+      null,
+      null,
+      refId
+    );
+
+    this.setViewContent(traitViewOption);
+  }
+
   buildCharacterMap(): Map<string, object> {
     return this.currentScrapPile.buildCharacterMap();
+  }
+
+  buildTraitMap(): Map<string, object> {
+    return this.currentScrapPile.buildTraitMap();
   }
 }

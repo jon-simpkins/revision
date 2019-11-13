@@ -25,6 +25,7 @@ class EditContext {
   constraints: EditConstraints;
   contentRefOptions: BlockContentRefOption[];
   characterMap: Map<string, object>;
+  traitMap: Map<string, object>;
   prepareContentForEditing: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
   prepareContentForPersistence: (scrapContent: ScrapContent, editContext: EditContext) => ScrapContent;
 

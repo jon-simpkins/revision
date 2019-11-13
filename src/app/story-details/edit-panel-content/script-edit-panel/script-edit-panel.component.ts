@@ -9,6 +9,7 @@ import Delta from 'quill-delta/dist/Delta';
 import {FountainElements} from './FountainElements';
 import CharacterBlot from './CharacterBlot';
 import {ScriptAutocompleteModule} from './ScriptAutocompleteModule';
+import TraitBlot from './TraitBlot';
 
 @Component({
   selector: 'script-edit-panel',
@@ -35,6 +36,7 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     Quill.register({'formats/character': CharacterBlot}, true);
+    Quill.register({'formats/trait': TraitBlot}, true);
     Quill.register('modules/scriptAutocomplete', ScriptAutocompleteModule, true);
 
     this.editor = new Quill(`#${this.editorId}`, {
@@ -53,7 +55,14 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
               });
               return matches;
             } else {
-              return []; // TODO: add map for #
+              const matches = [];
+              this.editContext.traitMap.forEach((mapEntry, traitName) => {
+                if (!stringToMatch.length || traitName.toUpperCase().startsWith(stringToMatch.toUpperCase())) {
+                  // @ts-ignore
+                  matches.push(mapEntry.name);
+                }
+              });
+              return matches;
             }
           }
         }
@@ -107,6 +116,6 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
     );
 
     this.pageCount = parsedScript.getEstimatedPageCount();
-    this.formattedContent = parsedScript.getQuillDeltas(this.editContext.characterMap);
+    this.formattedContent = parsedScript.getQuillDeltas(this.editContext.characterMap, this.editContext.traitMap);
   }
 }

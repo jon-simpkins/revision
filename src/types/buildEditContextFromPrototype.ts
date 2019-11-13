@@ -140,12 +140,17 @@ export default function(prototype: ScrapPrototype, scrapPile: ScrapPile, refId: 
 
   if (ctx.editType === EditType.SCRIPT) {
     ctx.characterMap = scrapPile.buildCharacterMap();
+    ctx.traitMap = scrapPile.buildTraitMap();
     ctx.prepareContentForEditing = (scrapContent: ScrapContent, editContext: EditContext) => {
-      scrapContent.script.rawText = Script.convertCharacterRefIdsToNames(scrapContent.script.rawText, editContext.characterMap);
+      scrapContent.script.rawText = Script.convertTraitRefIdsToNames(
+        Script.convertCharacterRefIdsToNames(scrapContent.script.rawText, editContext.characterMap),
+        editContext.traitMap
+      );
       return scrapContent;
     };
     ctx.prepareContentForPersistence = (scrapContent: ScrapContent, editContext: EditContext) => {
       scrapContent.script.convertCharacterNamesToRefIds(editContext.characterMap);
+      scrapContent.script.convertTraitNamesToRefIds(editContext.traitMap);
       return scrapContent;
     };
   }

@@ -109,7 +109,10 @@ function buildScrapDetailsSection(
 }
 
 function buildScriptSection(rawText: string, scrapPile: ScrapPile): ViewContentBlock {
-  const formattedScript = Script.convertCharacterRefIdsToNames(rawText, scrapPile.buildCharacterMap());
+  const formattedScript = Script.convertTraitRefIdsToNames(
+    Script.convertCharacterRefIdsToNames(rawText, scrapPile.buildCharacterMap()),
+    scrapPile.buildTraitMap()
+  );
 
   return new ViewContentBlock(ViewContentBlockType.SCRIPT_SECTION,
     formattedScript

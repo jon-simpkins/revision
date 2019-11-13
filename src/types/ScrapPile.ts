@@ -208,7 +208,7 @@ class ScrapPile {
     const characterListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.CHARACTER_LISTING);
 
     if (!characterListingScrap) {
-      return new Map<string, object>();
+      return characterMap;
     }
 
     const characterRefIds = [];
@@ -230,6 +230,26 @@ class ScrapPile {
     });
 
     return characterMap;
+  }
+
+  buildTraitMap(): Map<string, object> {
+    const traitMap = new Map<string, object>();
+    const traitListingScrap = this.newestScrapBySingularPrototype.get(ScrapPrototype.TRAITS);
+
+    if (!traitListingScrap) {
+      return traitMap;
+    }
+
+    traitListingScrap.content.lines.forEach(line => {
+      if (line.active) {
+        traitMap.set(line.text.toUpperCase(), {
+          refId: line.refId,
+          name: line.text
+        });
+      }
+    });
+
+    return traitMap;
   }
 
   /**

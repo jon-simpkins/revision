@@ -5,6 +5,7 @@ import * as Quill from 'quill';
 import {FountainElements} from '../../edit-panel-content/script-edit-panel/FountainElements';
 import CharacterBlot from '../../edit-panel-content/script-edit-panel/CharacterBlot';
 import {StoryService} from '../../../services/story.service';
+import TraitBlot from '../../edit-panel-content/script-edit-panel/TraitBlot';
 
 @Component({
   selector: 'quill-readonly',
@@ -18,6 +19,7 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
 
   contentToShow;
   characterMap: Map<string, object>;
+  traitMap: Map<string, object>;
 
   editor: Quill;
 
@@ -27,12 +29,13 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
 
   buildContentToShow() {
     this.characterMap = this.storyService.buildCharacterMap();
+    this.traitMap = this.storyService.buildTraitMap();
     const parsedScript = FountainElements.fromFullText(
       this.plaintext
         .replace(/\n$/, ''), // Remove the mandatory trailing newline (we'll add it back))
     );
 
-    this.contentToShow = parsedScript.getQuillDeltas(this.characterMap);
+    this.contentToShow = parsedScript.getQuillDeltas(this.characterMap, this.traitMap);
   }
 
   ngOnInit() {
@@ -55,6 +58,7 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
       }
     });
     Quill.register({'formats/character': CharacterBlot}, true);
+    Quill.register({'formats/trait': TraitBlot}, true);
 
     this.editor.setContents(this.contentToShow);
   }

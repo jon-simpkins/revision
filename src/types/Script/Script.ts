@@ -1,4 +1,5 @@
 import {FountainElements} from '../../app/story-details/edit-panel-content/script-edit-panel/FountainElements';
+import {reverse} from 'dns';
 
 class Script {
   rawText = '';
@@ -36,6 +37,20 @@ class Script {
     return parsedScript.backToRawText();
   }
 
+  static convertTraitRefIdsToNames(rawText: string, traitMap: Map<string, object>): string {
+    const parsedScript = FountainElements.fromFullText(rawText);
+
+    // Build the reverse map of uppercase refId -> character name
+    const reverseTraitMap = new Map<string, string>();
+    traitMap.forEach((mapEntry: object) => {
+      // @ts-ignore
+      reverseTraitMap.set(mapEntry.refId.toUpperCase(), mapEntry.name);
+    });
+
+    parsedScript.replaceTokenValues(reverseTraitMap, '#');
+    return parsedScript.backToRawText();
+  }
+
   toString(): string {
     return JSON.stringify({
       r: this.rawText
@@ -57,6 +72,20 @@ class Script {
     });
 
     parsedScript.replaceTokenValues(tokenReplaceMap, '@');
+
+    this.rawText = parsedScript.backToRawText();
+  }
+
+  convertTraitNamesToRefIds(traitMap: Map<string, object>) {
+    const parsedScript = FountainElements.fromFullText(this.rawText);
+
+    const tokenReplaceMap = new Map<string, string>();
+    traitMap.forEach((mapEntry: object, upperCaseTraitName: string) => {
+      // @ts-ignore
+      tokenReplaceMap.set(upperCaseTraitName, mapEntry.refId);
+    });
+
+    parsedScript.replaceTokenValues(tokenReplaceMap, '#');
 
     this.rawText = parsedScript.backToRawText();
   }
