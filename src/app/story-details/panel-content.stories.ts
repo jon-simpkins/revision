@@ -1,6 +1,7 @@
 import {moduleMetadata, storiesOf} from '@storybook/angular';
 
-import Scrap, {ScrapPrototype} from '../../types/Scrap';
+import Scrap from '../../types/Scrap';
+import ScrapPrototype from '../../types/ScrapPrototype';
 import {Component, Input, OnInit} from '@angular/core';
 import {ScreenService} from '../services/screen.service';
 import {StoryService} from '../services/story.service';

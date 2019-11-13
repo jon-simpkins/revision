@@ -1,7 +1,7 @@
 import * as LZString from 'lz-string/libs/lz-string.js';
 import {NLineContent} from './ScrapTypes/NLineContent';
 import {TextLineContent} from './ScrapTypes/TextLineContent';
-import { ScrapContent } from './ScrapTypes/ScrapContent';
+import {ScrapContent} from './ScrapTypes/ScrapContent';
 import {StructureSpecContent} from './ScrapTypes/StructureSpecContent';
 import {StructureBlockContent} from './ScrapTypes/StructureBlockContent';
 import {ScriptContent} from './ScrapTypes/ScriptContent';
@@ -94,6 +94,7 @@ class Scrap {
         return ScrapContentType.TEXT_LINE;
       case ScrapPrototype.SIMILAR_MOVIES:
       case ScrapPrototype.CHARACTER_LISTING:
+      case ScrapPrototype.TRAITS:
         return ScrapContentType.N_LINES;
       case ScrapPrototype.STRUCTURE_SPEC:
         return ScrapContentType.STORY_STRUCTURE;

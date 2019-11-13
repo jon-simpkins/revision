@@ -21,12 +21,16 @@ class StoryListWithStubs {
       new StorySummary(
         'abc123',
         'def456',
-        Date.now() - 150000000
+        Date.now() - 150000000,
+        121,
+        31
       ),
       new StorySummary(
         'ghi789',
         'jkl012',
-        Date.now() - 150
+        Date.now() - 150,
+        1000,
+        78
       )
     ];
   }

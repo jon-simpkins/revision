@@ -19,6 +19,7 @@ SINGULAR_DEPENDENCY_MAP.set(
   new Set([ScrapPrototype.LOG_LINE, ScrapPrototype.QUESTIONS_TO_EXPLORE])
 );
 SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.STRUCTURE_SPEC, new Set([ScrapPrototype.MOVIE_DURATION]));
+SINGULAR_DEPENDENCY_MAP.set(ScrapPrototype.TRAITS, new Set([ScrapPrototype.LOG_LINE]));
 
 class EditOption {
   prototype: ScrapPrototype;
@@ -297,6 +298,8 @@ class EditOption {
         return 'Script Scrap';
       case ScrapPrototype.QUESTIONS_TO_EXPLORE:
         return 'Questions to Explore';
+      case ScrapPrototype.TRAITS:
+        return 'Traits';
     }
   }
 }

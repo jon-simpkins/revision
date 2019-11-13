@@ -2,7 +2,7 @@ import {moduleMetadata, storiesOf} from '@storybook/angular';
 import {Component} from '@angular/core';
 import {ContentEditService} from '../../services/content-edit.service';
 
-import {ScrapPrototype} from '../../../types/Scrap';
+import ScrapPrototype from '../../../types/ScrapPrototype';
 import {AppModule} from '../../app.module';
 import {HackUpdateService} from '../../services/hack-update.service';
 

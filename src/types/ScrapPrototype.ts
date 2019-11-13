@@ -13,6 +13,7 @@ enum ScrapPrototype {
   STRUCTURE_BLOCK_CONTENT,
   SCRIPT,
   QUESTIONS_TO_EXPLORE,
-};
+  TRAITS,
+}
 
 export default ScrapPrototype;

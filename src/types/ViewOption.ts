@@ -49,6 +49,14 @@ class ViewOption {
         )
       );
     }
+    if (scrapPile.hasOneOfSingularPrototypes([ScrapPrototype.TRAITS])) {
+      options.push(
+        new ViewOption(
+          ViewOptionGenerators.TRAIT_LISTING,
+          'Trait Listing'
+        )
+      );
+    }
     if (scrapPile.hasOneOfSingularPrototypes([ScrapPrototype.STRUCTURE_SPEC])) {
       options.push(
         new ViewOption(

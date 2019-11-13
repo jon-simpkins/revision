@@ -294,6 +294,25 @@ class ScrapPile {
       }
     }
 
+    if (scrap.prototype === ScrapPrototype.TRAITS) {
+      // Validate that no entries are the same
+      const traitMap = {};
+      let validationError = null;
+      scrap.content.lines.forEach(line => {
+        if (line.text) {
+          if (traitMap[line.text]) {
+            validationError = `Duplicate trait: "${line.text}"`;
+          } else {
+            traitMap[line.text] = true;
+          }
+        }
+      });
+
+      if (validationError) {
+        return validationError;
+      }
+    }
+
     return null;
   }
 

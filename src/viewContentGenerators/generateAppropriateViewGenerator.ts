@@ -10,6 +10,8 @@ import generateListAllScraps from './generateListAllScraps';
 import generateFlattenedScript from './generateFlattenedScript';
 import generateIndividualScriptScrap from './generateIndividualScriptScrap';
 import {ViewContentGeneratorFunction} from './viewContentGenerators';
+import generateTraitListing from './generateTraitListing';
+import generateTraitDetails from './generateTraitDetails';
 
 export function generateAppropriateGenerator(viewOption: ViewOption): ViewContentGeneratorFunction {
   switch (viewOption.generatorSpec) {
@@ -33,5 +35,10 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateFlattenedScript;
     case ViewOptionGenerators.INDIVIDUAL_SCRIPT_SCRAP:
       return generateIndividualScriptScrap;
+    case ViewOptionGenerators.TRAIT_LISTING:
+      return generateTraitListing;
+    case ViewOptionGenerators.TRAIT_DETAILS:
+      return generateTraitDetails;
   }
+  throw new Error(`Unknown view option generator: ${ViewOptionGenerators[viewOption.generatorSpec]}`);
 }

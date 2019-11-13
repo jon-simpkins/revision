@@ -115,16 +115,23 @@ function basicFromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, ref
         [buildCharacterDetailsViewOption(refId)]
       );
     case ScrapPrototype.CHARACTER_DRIVE:
-      ctx = new EditContext(
+      return new EditContext(
         EditType.SCRIPT,
         'Character Drive',
         null,
-        [buildCharacterDetailsViewOption(refId)]
+        [buildCharacterDetailsViewOption(refId)],
+        'What drives this character? What do they want / need?'
       );
-      ctx.userGuidance = 'What drives this character? What do they want / need?';
-      return ctx;
     case ScrapPrototype.STRUCTURE_SPEC:
       return buildStructureContext(refId, scrapPile);
+    case ScrapPrototype.TRAITS:
+      return new EditContext(
+        EditType.N_LINES,
+        'List Traits',
+        null,
+        [buildStorySummaryViewOption()],
+        'These will help you graph / track usage throughout the script with {#My Trait} notation.'
+      );
   }
 }
 
