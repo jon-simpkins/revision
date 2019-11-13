@@ -1,5 +1,4 @@
 import {FountainElements} from '../../app/story-details/edit-panel-content/script-edit-panel/FountainElements';
-import {reverse} from 'dns';
 
 class Script {
   rawText = '';
