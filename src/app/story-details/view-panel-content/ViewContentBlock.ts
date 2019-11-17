@@ -4,6 +4,7 @@ import Scrap from '../../../types/Scrap';
 import ScrapPrototype from '../../../types/ScrapPrototype';
 import {ScrapPile} from '../../../types/ScrapPile';
 import {Script} from '../../../types/Script/Script';
+import TimelineBlock from '../../../types/TimelineBlock';
 
 enum ViewContentBlockType {
   HEADER,
@@ -14,6 +15,7 @@ enum ViewContentBlockType {
   NEXT_PREV_NAV,
   HORIZONTAL_DIVIDER,
   SCRIPT_SECTION,
+  TIMELINE,
 }
 
 // Class to represent a single block of renderable content for viewing
@@ -23,6 +25,7 @@ class ViewContentBlock {
   editOption: EditOption; // Optional, allows initiation of arbitrary edits
   viewOption: ViewOption; // Optional, allows linkages to other views
   prevOption: ViewOption; // Also optional, used only for next / prev nav
+  timelineBlocks: TimelineBlock[];
 
   constructor(type: ViewContentBlockType, text?: string, viewOption?: ViewOption, editOption?: EditOption) {
     this.type = type;
@@ -30,6 +33,12 @@ class ViewContentBlock {
     this.viewOption = viewOption;
     this.editOption = editOption;
   }
+}
+
+function buildTimeline(timelineBlocks: TimelineBlock[]): ViewContentBlock {
+  const newBlock = new ViewContentBlock(ViewContentBlockType.TIMELINE);
+  newBlock.timelineBlocks = timelineBlocks;
+  return newBlock;
 }
 
 function buildHeader(text): ViewContentBlock {
@@ -119,6 +128,6 @@ function buildScriptSection(rawText: string, scrapPile: ScrapPile): ViewContentB
   );
 }
 
-export {ViewContentBlockType, buildHeader, buildParagraph, buildParagraphsFromTextArea, buildScrapDetailsSection, buildListEntry, buildNexPrevNav, buildSubheader, buildScriptSection};
+export {ViewContentBlockType, buildTimeline, buildHeader, buildParagraph, buildParagraphsFromTextArea, buildScrapDetailsSection, buildListEntry, buildNexPrevNav, buildSubheader, buildScriptSection};
 
 export default ViewContentBlock;

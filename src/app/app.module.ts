@@ -39,6 +39,7 @@ import {ScriptEditPanelComponent} from './story-details/edit-panel-content/scrip
 import {QuillReadonlyComponent} from './story-details/view-panel-content/quill-readonly/quill-readonly.component';
 import {TutorialComponent} from './tutorial/tutorial.component';
 import {LandingPageComponent} from './logged-in-state/landing-page/landing-page.component';
+import {TimelineChartComponent} from './timeline-chart/timeline-chart.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -60,6 +61,7 @@ const DECLARATIONS = [
   QuillReadonlyComponent,
   TutorialComponent,
   LandingPageComponent,
+  TimelineChartComponent
 ];
 
 const IMPORTS = [

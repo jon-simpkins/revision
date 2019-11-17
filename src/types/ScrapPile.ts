@@ -5,6 +5,9 @@ import {StructureBlock} from './StoryStructure/StoryStructure';
 import ScrapPrototype from './ScrapPrototype';
 import EditOption from './EditOption';
 
+import TimelineBlock from './TimelineBlock';
+import ViewOption, {ViewOptionGenerators} from './ViewOption';
+
 // Convenience class for the callback of iterateOverStructure
 class StructureIterationContent {
   constructor(
@@ -14,8 +17,51 @@ class StructureIterationContent {
     public substructureScrap: Scrap,
     public block: StructureBlock,
     public depth: number,
-    public parentStructureScrap: Scrap
+    public parentStructureScrap: Scrap,
+    public startSec: number
   ) {}
+
+  scriptContainsSubstring(substring: string): boolean {
+    if (!this.scriptScrap) {
+      return false;
+    }
+
+    return this.scriptScrap.content.script.rawText.includes(substring);
+  }
+
+  summaryContainsSubstring(substring: string): boolean {
+    if (!this.summaryScrap) {
+      return false;
+    }
+
+    return this.summaryScrap.content.script.rawText.includes(substring);
+  }
+
+  // Convenience function to build "view" linkages to structure blocks from timelines
+  buildTimelineBlock(rowLabel: string, blockLabel: string): TimelineBlock {
+    let sectionScrapId = null;
+    if (this.scriptScrap) {
+      sectionScrapId = this.scriptScrap.id;
+    } else if (this.summaryScrap) {
+      sectionScrapId = this.summaryScrap.id;
+    } else {
+      sectionScrapId = this.parentStructureScrap.id;
+    }
+
+    const startTime = this.startSec;
+    const endTime = this.startSec + this.durationSec;
+
+    return new TimelineBlock(rowLabel,
+      blockLabel,
+      startTime,
+      endTime,
+      new ViewOption(
+        ViewOptionGenerators.SCRAP_DETAILS,
+        null,
+        sectionScrapId
+      )
+    );
+  }
 }
 
 class ScrapPile {
@@ -258,12 +304,14 @@ class ScrapPile {
    * @param callback Called at every block in the structure (before iterating into sub-blocks)
    * @param structureScrap The structure or sub-structure to iterate over
    * @param depth The current depth of iteration
+   * @param startSec The second at which this st
    */
-  iterateOverStructure(callback: (StructureIterationContent) => void, structureScrap?: Scrap, depth?: number) {
+  iterateOverStructure(callback: (StructureIterationContent) => void, structureScrap?: Scrap, depth?: number, startSec?: number) {
     if (!structureScrap) {
       // Start at the top if this is the first iterative call
       structureScrap = this.fetchProperlyRescaledStructureScrap(null);
       depth = 1;
+      startSec = 0;
     }
 
     if (!structureScrap) {
@@ -277,6 +325,7 @@ class ScrapPile {
       const summary = this.getByRefId(block.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
       const contentScrap = this.getByRefId(block.refId, ScrapPrototype.STRUCTURE_BLOCK_CONTENT);
       const duration = storyStructure.getBlockDurationSec(idx);
+      const absoluteStartSec = block.startTime + startSec;
 
       let scriptScrap = null;
       let substructureScrap = null;
@@ -297,10 +346,11 @@ class ScrapPile {
         block,
         depth,
         structureScrap,
+        absoluteStartSec
       ));
 
       if (substructureScrap) {
-        this.iterateOverStructure(callback, substructureScrap, depth + 1);
+        this.iterateOverStructure(callback, substructureScrap, depth + 1, absoluteStartSec);
       }
     });
   }
@@ -380,6 +430,24 @@ class ScrapPile {
     });
 
     return timeSpentMs;
+  }
+
+  // Build the array of timeline blocks necessary to fill a "story" row that just allows linkage to the most specific existing parts
+  // of the timeline
+  buildStoryTimelineBlocks(): TimelineBlock[] {
+    const timelineBlocks = [];
+
+    this.iterateOverStructure((contents: StructureIterationContent) => {
+      if (contents.substructureScrap) {
+        return; // Only consider the deepest level
+      }
+
+      timelineBlocks.push(
+        contents.buildTimelineBlock('Story', '')
+      );
+    });
+
+    return timelineBlocks;
   }
 }
 

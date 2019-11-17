@@ -108,4 +108,11 @@ storiesOf('View Panel Content', module)
         viewOption: new ViewOption(ViewOptionGenerators.FLATTENED_SCRIPT, null)
       }
     };
+  }).add('Renders the Trait Listing', () => {
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.TRAIT_LISTING, null)
+      }
+    };
   });

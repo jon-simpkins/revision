@@ -101,6 +101,11 @@
         <div *ngSwitchCase="viewContentBlockTypes.HORIZONTAL_DIVIDER">
           <hr/>
         </div>
+        <div *ngSwitchCase="viewContentBlockTypes.TIMELINE">
+          <timeline-chart
+            [blocks]="block.timelineBlocks"
+          ></timeline-chart>
+        </div>
       </div>
     </div>
   </div>

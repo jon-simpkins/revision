@@ -1,11 +1,42 @@
-import {ScrapPile} from '../types/ScrapPile';
+import {ScrapPile, StructureIterationContent} from '../types/ScrapPile';
 import ViewContentBlock, {
   buildHeader,
-  buildListEntry,
-  buildSubheader
+  buildListEntry, buildParagraph,
+  buildSubheader, buildTimeline
 } from '../app/story-details/view-panel-content/ViewContentBlock';
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import ScrapPrototype from '../types/ScrapPrototype';
+import {LineContent} from '../types/ScrapTypes/LineContent';
+
+function buildTimelineBlock(scrapPile: ScrapPile, traits: LineContent[]): ViewContentBlock | null {
+
+  const timelineBlocks = scrapPile.buildStoryTimelineBlocks();
+
+  scrapPile.iterateOverStructure((contents: StructureIterationContent) => {
+    if (contents.substructureScrap) {
+      return; // Only consider the deepest level
+    }
+
+    traits.forEach(line => {
+      if (!line.active) {
+        return;
+      }
+
+      const substring = `{#${line.refId}}`;
+      if (contents.summaryContainsSubstring(substring) || contents.scriptContainsSubstring(substring)) {
+        timelineBlocks.push(
+          contents.buildTimelineBlock(line.text, line.text)
+        );
+      }
+    });
+  });
+
+  if (!timelineBlocks.length) {
+    return null;
+  }
+
+  return buildTimeline(timelineBlocks);
+}
 
 function generateTraitListing(scrapPile: ScrapPile): ViewContentBlock[] {
   let blocks = [];
@@ -13,6 +44,10 @@ function generateTraitListing(scrapPile: ScrapPile): ViewContentBlock[] {
   const traitScrap = scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.TRAITS);
 
   blocks.push(buildSubheader('Trait Listing', traitScrap));
+  if (!traitScrap) {
+    blocks.push(buildParagraph('No traits listed yet'));
+    return blocks;
+  }
 
   const traitListBlocks = [];
 
@@ -33,6 +68,12 @@ function generateTraitListing(scrapPile: ScrapPile): ViewContentBlock[] {
 
   blocks.push(buildHeader('List of Traits:'));
   blocks = blocks.concat(traitListBlocks);
+
+  const timelineBlock = buildTimelineBlock(scrapPile, traitScrap.content.lines);
+  if (timelineBlock) {
+    blocks.push(buildHeader('Timeline:'));
+    blocks.push(timelineBlock);
+  }
 
   return blocks;
 }

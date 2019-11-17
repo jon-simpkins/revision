@@ -1,0 +1,11 @@
+<button (click)="zoomOut()" [disabled]="minWidth === currentWidth">Zoom Out</button>
+<button (click)="zoomIn()">Zoom In</button>
+<div style="height: 400px; overflow: scroll; border: 1px solid grey;"
+  [style.width.px]="minWidth"
+>
+  <div id="{{chartId}}"
+   [style.width.px]="currentWidth"
+   style="cursor: pointer;"
+  ></div>
+</div>
+
