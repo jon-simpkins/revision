@@ -12,6 +12,7 @@ import generateIndividualScriptScrap from './generateIndividualScriptScrap';
 import {ViewContentGeneratorFunction} from './viewContentGenerators';
 import generateTraitListing from './generateTraitListing';
 import generateTraitDetails from './generateTraitDetails';
+import generateFullTimeline from './generateFullTimeline';
 
 export function generateAppropriateGenerator(viewOption: ViewOption): ViewContentGeneratorFunction {
   switch (viewOption.generatorSpec) {
@@ -39,6 +40,8 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateTraitListing;
     case ViewOptionGenerators.TRAIT_DETAILS:
       return generateTraitDetails;
+    case ViewOptionGenerators.TIMELINE:
+      return generateFullTimeline;
   }
   throw new Error(`Unknown view option generator: ${ViewOptionGenerators[viewOption.generatorSpec]}`);
 }

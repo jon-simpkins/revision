@@ -13,7 +13,8 @@ enum ViewOptionGenerators {
   FLATTENED_SCRIPT,
   INDIVIDUAL_SCRIPT_SCRAP,
   TRAIT_LISTING,
-  TRAIT_DETAILS
+  TRAIT_DETAILS,
+  TIMELINE,
 }
 
 export type ViewContentGeneratorFunction = (scrapPile: ScrapPile, scrapId: string, refId: string) => ViewContentBlock[];

@@ -115,4 +115,11 @@ storiesOf('View Panel Content', module)
         viewOption: new ViewOption(ViewOptionGenerators.TRAIT_LISTING, null)
       }
     };
-  });
+  }).add('Renders the full timeline', () => {
+  return {
+    component: ViewPanelContent,
+    props: {
+      viewOption: new ViewOption(ViewOptionGenerators.TIMELINE, null)
+    }
+  };
+});
