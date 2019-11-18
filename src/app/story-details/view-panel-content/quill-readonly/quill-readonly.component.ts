@@ -6,6 +6,7 @@ import {FountainElements} from '../../edit-panel-content/script-edit-panel/Fount
 import CharacterBlot from '../../edit-panel-content/script-edit-panel/CharacterBlot';
 import {StoryService} from '../../../services/story.service';
 import TraitBlot from '../../edit-panel-content/script-edit-panel/TraitBlot';
+import QuillAllowedFormats from '../../edit-panel-content/script-edit-panel/QuillAllowedFormats';
 
 @Component({
   selector: 'quill-readonly',
@@ -53,6 +54,7 @@ export class QuillReadonlyComponent implements OnInit, OnChanges, AfterViewInit 
     this.editor = new Quill(`#${this.editorId}`, {
       theme: 'snow',
       readOnly: true,
+      formats: QuillAllowedFormats,
       modules: {
         toolbar: false
       }

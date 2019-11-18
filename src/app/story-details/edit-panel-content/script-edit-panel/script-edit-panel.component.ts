@@ -10,6 +10,7 @@ import {FountainElements} from './FountainElements';
 import CharacterBlot from './CharacterBlot';
 import {ScriptAutocompleteModule} from './ScriptAutocompleteModule';
 import TraitBlot from './TraitBlot';
+import QuillAllowedFormats from './QuillAllowedFormats';
 
 @Component({
   selector: 'script-edit-panel',
@@ -41,6 +42,7 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
 
     this.editor = new Quill(`#${this.editorId}`, {
       theme: 'snow',
+      formats: QuillAllowedFormats,
       modules: {
         toolbar: `#${this.editorId}-toolbar`,
         scriptAutocomplete: {
