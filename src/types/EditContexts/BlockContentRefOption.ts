@@ -5,7 +5,7 @@ class BlockContentRefOption {
     public type: TARGET_CONTENT_TYPE,
     public label: string,
     public refId: string,
-    public exists: boolean
+    public existingScrapId: string,
   ) {}
 }
 

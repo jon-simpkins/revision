@@ -60,7 +60,7 @@ class ViewOption {
     if (scrapPile.hasOneOfSingularPrototypes([ScrapPrototype.STRUCTURE_SPEC])) {
       options.push(
         new ViewOption(
-          ViewOptionGenerators.STORY_STRUCTURE,
+          ViewOptionGenerators.STRUCTURE_BLOCK_VIEW,
           'Story Structure'
         )
       );

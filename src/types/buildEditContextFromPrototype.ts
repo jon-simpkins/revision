@@ -103,7 +103,7 @@ function basicFromPrototype(prototype: ScrapPrototype, scrapPile: ScrapPile, ref
         `Summarize the Story Beat: "${parentStructureBlockLabel}"`,
         null,
         [
-          new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+          new ViewOption(ViewOptionGenerators.STRUCTURE_BLOCK_VIEW, 'Block Details', null, refId)
         ],
         'What happens in this beat? What arc happens, where does it start and end?'
       );

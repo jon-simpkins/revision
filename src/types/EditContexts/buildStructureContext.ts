@@ -25,7 +25,7 @@ function buildStructureContext(refId: string, scrapPile: ScrapPile): EditContext
     });
 
     parentStoryViewOptions = [
-      new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+      new ViewOption(ViewOptionGenerators.STRUCTURE_BLOCK_VIEW, 'Block Details', null, contentBlockRefId)
     ];
   }
 

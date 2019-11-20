@@ -39,14 +39,7 @@ class StructureIterationContent {
 
   // Convenience function to build "view" linkages to structure blocks from timelines
   buildTimelineBlock(rowLabel: string, blockLabel: string): TimelineBlock {
-    let sectionScrapId = null;
-    if (this.scriptScrap) {
-      sectionScrapId = this.scriptScrap.id;
-    } else if (this.summaryScrap) {
-      sectionScrapId = this.summaryScrap.id;
-    } else {
-      sectionScrapId = this.parentStructureScrap.id;
-    }
+    const blockRefId = this.block.refId;
 
     const startTime = this.startSec;
     const endTime = this.startSec + this.durationSec;
@@ -56,9 +49,10 @@ class StructureIterationContent {
       startTime,
       endTime,
       new ViewOption(
-        ViewOptionGenerators.SCRAP_DETAILS,
+        ViewOptionGenerators.STRUCTURE_BLOCK_VIEW,
         null,
-        sectionScrapId
+        null,
+        blockRefId
       )
     );
   }
@@ -212,6 +206,7 @@ class ScrapPile {
       return foundParentRefId;
     }
 
+    debugger;
     throw new Error('Unable to find refId of structure containing block: ' + blockRefId);
   }
 

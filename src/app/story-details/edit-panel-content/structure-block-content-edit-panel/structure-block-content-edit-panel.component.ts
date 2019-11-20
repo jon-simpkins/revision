@@ -52,14 +52,7 @@ export class StructureBlockContentEditPanelComponent implements OnInit {
   }
 
   previewCurrentOption() {
-    let viewOption;
-    if (this.currentOption.type === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
-      viewOption = new ViewOption(ViewOptionGenerators.INDIVIDUAL_SCRIPT_SCRAP, null, null, this.currentOption.refId);
-    } else {
-      viewOption = new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, null, null, this.currentOption.refId);
-    }
-
-    this.storyService.setViewContent(viewOption);
+    this.storyService.setViewContent(new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, this.currentOption.existingScrapId));
   }
 
 }

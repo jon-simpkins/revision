@@ -5,7 +5,6 @@ import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import generateCharacterListing from './generateCharacterListing';
 import generateCharacterDetails from './generateCharacterDetails';
 import generateWritingTracker from './generateWritingTracker';
-import generateStructurePage from './generateStructurePage';
 import generateListAllScraps from './generateListAllScraps';
 import generateFlattenedScript from './generateFlattenedScript';
 import generateIndividualScriptScrap from './generateIndividualScriptScrap';
@@ -13,6 +12,7 @@ import {ViewContentGeneratorFunction} from './viewContentGenerators';
 import generateTraitListing from './generateTraitListing';
 import generateTraitDetails from './generateTraitDetails';
 import generateFullTimeline from './generateFullTimeline';
+import generateStructureBlockView from './generateStructureBlockView';
 
 export function generateAppropriateGenerator(viewOption: ViewOption): ViewContentGeneratorFunction {
   switch (viewOption.generatorSpec) {
@@ -28,8 +28,6 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateCharacterDetails;
     case ViewOptionGenerators.WRITING_TRACKER:
       return generateWritingTracker;
-    case ViewOptionGenerators.STORY_STRUCTURE:
-      return generateStructurePage;
     case ViewOptionGenerators.DEBUG_LIST_ALL_SCRAPS:
       return generateListAllScraps;
     case ViewOptionGenerators.FLATTENED_SCRIPT:
@@ -42,6 +40,8 @@ export function generateAppropriateGenerator(viewOption: ViewOption): ViewConten
       return generateTraitDetails;
     case ViewOptionGenerators.TIMELINE:
       return generateFullTimeline;
+    case ViewOptionGenerators.STRUCTURE_BLOCK_VIEW:
+      return generateStructureBlockView;
   }
   throw new Error(`Unknown view option generator: ${ViewOptionGenerators[viewOption.generatorSpec]}`);
 }

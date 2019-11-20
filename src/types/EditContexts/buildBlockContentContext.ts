@@ -11,15 +11,15 @@ function addNewOptions(
   options: BlockContentRefOption[],
   currentRefId: string,
   currentRefType: TARGET_CONTENT_TYPE,
-  currentExists: boolean
+  currentExistingScrapId: string
 ): BlockContentRefOption[] {
   if (currentRefType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
     options.push(
       new BlockContentRefOption(
         TARGET_CONTENT_TYPE.SCRIPT_SCRAP,
-        currentExists ? 'Current Script Scrap' : 'New Script Scrap',
+        !!currentExistingScrapId ? 'Current Script Scrap' : 'New Script Scrap',
         currentRefId,
-        currentExists
+        currentExistingScrapId
       )
     );
   } else {
@@ -28,7 +28,7 @@ function addNewOptions(
         TARGET_CONTENT_TYPE.SCRIPT_SCRAP,
         'Add new Script Scrap',
         uuid(),
-        false
+        null
       )
     );
   }
@@ -37,9 +37,9 @@ function addNewOptions(
     options.push(
       new BlockContentRefOption(
         TARGET_CONTENT_TYPE.SUB_STRUCTURE,
-        currentExists ? 'Current Sub-Structure' : 'New Sub-Structure',
+        !!currentExistingScrapId ? 'Current Sub-Structure' : 'New Sub-Structure',
         currentRefId,
-        currentExists
+        currentExistingScrapId
       )
     );
   } else {
@@ -48,7 +48,7 @@ function addNewOptions(
         TARGET_CONTENT_TYPE.SUB_STRUCTURE,
         'Add new Sub-Structure',
         uuid(),
-        false
+        null
       )
     );
   }
@@ -68,7 +68,7 @@ function appendFloatingContent(
         TARGET_CONTENT_TYPE.SCRIPT_SCRAP,
         new Date(scrap.completedEpoch).toLocaleString(),
         scrap.refId,
-        true
+        scrap.id
       ));
     }
   });
@@ -98,7 +98,7 @@ function buildBlockContentContext(refId: string, scrapPile: ScrapPile) {
     `Content for Story Beat: "${parentStructureBlockLabel}"`,
     null,
     [
-      new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+      new ViewOption(ViewOptionGenerators.STRUCTURE_BLOCK_VIEW, 'Block Details', null, refId)
     ],
     userGuidance
   );
@@ -109,23 +109,28 @@ function buildBlockContentContext(refId: string, scrapPile: ScrapPile) {
   const currentContentRefScrap = scrapPile.getByRefId(refId, ScrapPrototype.STRUCTURE_BLOCK_CONTENT);
   if (currentContentRefScrap) {
     // A type was created, but was the corresponding content created?
-    let contentCreated = false;
+    let existingScrapId: string = null;
     if (currentContentRefScrap.content.targetType === TARGET_CONTENT_TYPE.SCRIPT_SCRAP) {
-      contentCreated = !!scrapPile.getByRefId(currentContentRefScrap.content.targetRefId, ScrapPrototype.SCRIPT);
+      const scriptScrap = scrapPile.getByRefId(currentContentRefScrap.content.targetRefId, ScrapPrototype.SCRIPT);
+      if (scriptScrap) {
+        existingScrapId = scriptScrap.id;
+      }
     } else {
-      console.log(scrapPile.getByRefId(currentContentRefScrap.content.targetRefId, ScrapPrototype.STRUCTURE_SPEC));
-      contentCreated = !!scrapPile.getByRefId(currentContentRefScrap.content.targetRefId, ScrapPrototype.STRUCTURE_SPEC);
+      const structureScrap = scrapPile.getByRefId(currentContentRefScrap.content.targetRefId, ScrapPrototype.STRUCTURE_SPEC);
+      if (structureScrap) {
+        existingScrapId = structureScrap.id;
+      }
     }
 
     ctx.contentRefOptions = addNewOptions(
       ctx.contentRefOptions,
       currentContentRefScrap.content.targetRefId,
       currentContentRefScrap.content.targetType,
-      contentCreated
+      existingScrapId
     );
   } else {
     // Brand new, let's just add the 'new' options
-    ctx.contentRefOptions = addNewOptions(ctx.contentRefOptions, null, null, false);
+    ctx.contentRefOptions = addNewOptions(ctx.contentRefOptions, null, null, null);
   }
 
   ctx.contentRefOptions = appendFloatingContent(scrapPile, ctx.contentRefOptions);

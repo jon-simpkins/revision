@@ -63,7 +63,7 @@ storiesOf('View Panel Content', module)
     return {
       component: ViewPanelContent,
       props: {
-        viewOption: new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, null, null)
+        viewOption: new ViewOption(ViewOptionGenerators.STRUCTURE_BLOCK_VIEW, null, null)
       }
     };
   }).add('Renders changelog', () => {
@@ -116,10 +116,10 @@ storiesOf('View Panel Content', module)
       }
     };
   }).add('Renders the full timeline', () => {
-  return {
-    component: ViewPanelContent,
-    props: {
-      viewOption: new ViewOption(ViewOptionGenerators.TIMELINE, null)
-    }
-  };
-});
+    return {
+      component: ViewPanelContent,
+      props: {
+        viewOption: new ViewOption(ViewOptionGenerators.TIMELINE, null)
+      }
+    };
+  });

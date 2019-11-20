@@ -34,7 +34,7 @@
   </mat-select>
 </mat-form-field>
 
-<div *ngIf="currentOption && currentOption.exists">
+<div *ngIf="currentOption && !!currentOption.existingScrapId">
   <button mat-stroked-button
     (click)="previewCurrentOption()"
   >

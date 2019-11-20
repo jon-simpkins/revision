@@ -36,7 +36,7 @@ function buildScriptContentContext(refId: string, scrapPile: ScrapPile): EditCon
   context.headerPrompt = `Script entry for Story Beat: "${parentStructureBlockLabel}"`;
   context.userGuidance = `Expected duration: ${parentStructureBlockDurationStr}`;
   context.viewOptions = [
-    new ViewOption(ViewOptionGenerators.STORY_STRUCTURE, 'Story Structure', null, parentStructureRefId)
+    new ViewOption(ViewOptionGenerators.STRUCTURE_BLOCK_VIEW, 'Block Details', null, contentBlockRefId)
   ];
 
   return context;
