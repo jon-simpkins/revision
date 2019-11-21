@@ -173,7 +173,7 @@ class ScriptAutocompleteModule {
 
     this.quillEditor.deleteText(indexToDeleteFrom, deleteLength);
 
-    this.quillEditor.insertText(indexToDeleteFrom, valueToInsert);
+    this.quillEditor.insertText(indexToDeleteFrom, valueToInsert, 'user');
     this.quillEditor.setSelection(indexToDeleteFrom + valueToInsert.length);
 
     this.quillEditor.focus();
