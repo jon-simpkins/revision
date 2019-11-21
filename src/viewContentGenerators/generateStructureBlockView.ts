@@ -12,9 +12,8 @@ import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import ScrapPrototype from '../types/ScrapPrototype';
 import {StoryStructure, StructureBlock} from '../types/StoryStructure/StoryStructure';
 import {TARGET_CONTENT_TYPE} from '../types/ScrapTypes/ScrapContent';
-import EditOption from '../types/EditOption';
 
-function buildSubstructureContent(storyStructure: StoryStructure): ViewContentBlock[] {
+function buildSubstructureContent(storyStructure: StoryStructure, scrapPile: ScrapPile): ViewContentBlock[] {
   const structureBlocks = [];
   structureBlocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
 
@@ -29,6 +28,11 @@ function buildSubstructureContent(storyStructure: StoryStructure): ViewContentBl
     ));
     structureBlocks.push(buildParagraph(structureBlock.description));
     structureBlocks.push(buildListEntry(durationStr));
+
+    const blockSummaryScrap = scrapPile.getByRefId(structureBlock.refId, ScrapPrototype.STRUCTURE_BLOCK_SUMMARY);
+    if (blockSummaryScrap) {
+      structureBlocks.push(buildScriptSection(blockSummaryScrap.content.script.rawText, scrapPile));
+    }
 
     structureBlocks.push(new ViewContentBlock(ViewContentBlockType.HORIZONTAL_DIVIDER));
   });
@@ -100,7 +104,7 @@ function generateStructureBlockView(scrapPile: ScrapPile, scrapId: string, block
           'Structure',
           (subStructureScrap) => {
             subStructureScrap = scrapPile.fetchProperlyRescaledStructureScrap(contentScrap.content.targetRefId);
-            return buildSubstructureContent(subStructureScrap.content.storyStructure);
+            return buildSubstructureContent(subStructureScrap.content.storyStructure, scrapPile);
           }
         );
       }
@@ -131,7 +135,7 @@ function generateStructureBlockView(scrapPile: ScrapPile, scrapId: string, block
       (structureScrap) => {
         structureScrap = scrapPile.fetchProperlyRescaledStructureScrap(null);
 
-        return buildSubstructureContent(structureScrap.content.storyStructure);
+        return buildSubstructureContent(structureScrap.content.storyStructure, scrapPile);
       }
     );
   }
