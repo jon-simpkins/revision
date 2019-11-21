@@ -91,6 +91,9 @@ class EditOption {
         scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.STRUCTURE_SPEC).content.storyStructure
       );
     }
+    scrapPile.forEachNewestByRefId(ScrapPrototype.STRUCTURE_SPEC, (subStructureScrap) => {
+      allStructures.push(subStructureScrap.content.storyStructure);
+    });
 
     const BLOCK_PROTOTYPES = new Set([
       ScrapPrototype.STRUCTURE_BLOCK_SUMMARY,
