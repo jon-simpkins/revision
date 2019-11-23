@@ -34,14 +34,16 @@ function generateFullTimeline(scrapPile: ScrapPile): ViewContentBlock[] {
 
   const durationMin = Number(scrapPile.newestScrapBySingularPrototype.get(ScrapPrototype.MOVIE_DURATION).content.text);
 
-  const timelineBlocks = [];
+  let timelineBlocks = [];
   timelineBlocks.push(
     new TimelineBlock(
       'Entire Film',
       '',
       0,
       durationMin * 60,
-      null
+      null,
+      -1,
+      false
     )
   );
 
@@ -49,8 +51,8 @@ function generateFullTimeline(scrapPile: ScrapPile): ViewContentBlock[] {
     if (!contents.scriptScrap) {
       timelineBlocks.push(
         contents.buildTimelineBlock(
-          `Outline, depth: ${contents.depth}`,
-          ''
+          `Outline`,
+          true
         )
       );
     }
@@ -61,11 +63,13 @@ function generateFullTimeline(scrapPile: ScrapPile): ViewContentBlock[] {
       timelineBlocks.push(
         contents.buildTimelineBlock(
           'Script',
-          ''
+          false
         )
       );
     }
   });
+
+  timelineBlocks = scrapPile.sortTimelineBlocksAndAppendDepth(timelineBlocks);
 
   blocks.push(buildTimeline(timelineBlocks));
 

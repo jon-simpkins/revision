@@ -25,7 +25,7 @@ function buildTimelineBlock(scrapPile: ScrapPile, traits: LineContent[]): ViewCo
       const substring = `{#${line.refId}}`;
       if (contents.summaryContainsSubstring(substring) || contents.scriptContainsSubstring(substring)) {
         timelineBlocks.push(
-          contents.buildTimelineBlock(line.text, line.text)
+          contents.buildTimelineBlock(line.text, false)
         );
       }
     });

@@ -38,14 +38,14 @@ class StructureIterationContent {
   }
 
   // Convenience function to build "view" linkages to structure blocks from timelines
-  buildTimelineBlock(rowLabel: string, blockLabel: string): TimelineBlock {
+  buildTimelineBlock(rowLabel: string, includeDepth: boolean): TimelineBlock {
     const blockRefId = this.block.refId;
 
     const startTime = this.startSec;
     const endTime = this.startSec + this.durationSec;
 
     return new TimelineBlock(rowLabel,
-      blockLabel,
+      rowLabel,
       startTime,
       endTime,
       new ViewOption(
@@ -53,7 +53,9 @@ class StructureIterationContent {
         null,
         null,
         blockRefId
-      )
+      ),
+      this.depth,
+      includeDepth
     );
   }
 }
@@ -438,11 +440,47 @@ class ScrapPile {
       }
 
       timelineBlocks.push(
-        contents.buildTimelineBlock('Story', '')
+        contents.buildTimelineBlock('Story', false)
       );
     });
 
     return timelineBlocks;
+  }
+
+  sortTimelineBlocksAndAppendDepth(timelineBlocks: TimelineBlock[]): TimelineBlock[] {
+
+    // Only for blocks where depth is appended, make sure larger depths are later in the array
+    timelineBlocks = timelineBlocks.sort((a, b) => {
+      if (a.appendDepthToLabel && b.appendDepthToLabel) {
+        return a.depth - b.depth;
+      } else {
+        return 1;
+      }
+    });
+
+    timelineBlocks = timelineBlocks.map((block: TimelineBlock) => {
+      if (block.appendDepthToLabel) {
+        block.rowLabel = `${block.rowLabel}: Depth ${block.depth}`;
+        block.blockLabel = block.rowLabel;
+      }
+      return block;
+    });
+
+    return timelineBlocks;
+  }
+
+  buildScriptAppearanceBlocks(substringToFind: string, label: string): TimelineBlock[] {
+    const timelineBlocks = this.buildStoryTimelineBlocks();
+
+    this.iterateOverStructure((contents: StructureIterationContent) => {
+      if (contents.summaryContainsSubstring(substringToFind) || contents.scriptContainsSubstring(substringToFind)) {
+        timelineBlocks.push(
+          contents.buildTimelineBlock(label, true)
+        );
+      }
+    });
+
+    return this.sortTimelineBlocksAndAppendDepth(timelineBlocks);
   }
 }
 
