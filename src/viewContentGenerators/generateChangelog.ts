@@ -2,8 +2,10 @@ import ViewContentBlock, {buildHeader, buildListEntry, buildParagraph} from '../
 import ViewOption, {ViewOptionGenerators} from '../types/ViewOption';
 import {ScrapPile} from '../types/ScrapPile';
 
-function prettyPrintDuration(completedEpoch, startEpoch) {
-  return `${Math.floor((completedEpoch - startEpoch) / 1000)} sec`;
+function prettyPrintDuration(completedEpoch, startEpoch, activeSec) {
+  const totalSec = Math.floor((completedEpoch - startEpoch) / 1000);
+  const pctActive = Math.min(100, Math.floor(activeSec / totalSec * 100.0));
+  return `${totalSec} sec, ${pctActive}% active`;
 }
 
 function generateChangelog(scrapPile: ScrapPile): ViewContentBlock[] {
@@ -16,7 +18,7 @@ function generateChangelog(scrapPile: ScrapPile): ViewContentBlock[] {
   scrapPile.scrapById.forEach((scrap) => {
     orderedScrapSummaries.push({
       created: scrap.completedEpoch,
-      content: `${new Date(scrap.completedEpoch).toLocaleString()} ${scrap.editedBy} (${prettyPrintDuration(scrap.completedEpoch, scrap.startedEpoch)})`,
+      content: `${new Date(scrap.completedEpoch).toLocaleString()} ${scrap.editedBy} (${prettyPrintDuration(scrap.completedEpoch, scrap.startedEpoch, scrap.secActiveEditing)})`,
       viewOption: new ViewOption(ViewOptionGenerators.SCRAP_DETAILS, null, scrap.id)
     });
   });

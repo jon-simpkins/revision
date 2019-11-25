@@ -25,11 +25,18 @@ export class ContentEditService {
   editContext: EditContext = null; // The prompt, description, hints for presentation sake
   currentContent: ScrapContent = null; // The current state, yet to be saved
   editStartEpoch: number = null; // Epoch (ms) when editing began
+  editTimeSec: number = null;
 
-  constructor(private storyService: StoryService, private loginGateService: LoginGateService, private screenService: ScreenService) {}
+  constructor(private storyService: StoryService, private loginGateService: LoginGateService, private screenService: ScreenService) {
+    setInterval(() => {
+      if (this.currentScrapId && !document.hidden) {
+        this.editTimeSec += 1;
+      }
+    }, 1000);
+  }
 
   getElapsedTimeStr(): string {
-    let secElapsed = Math.floor((Date.now() - this.editStartEpoch) / 1000);
+    let secElapsed = this.editTimeSec;
 
     const minElapsed = Math.floor(secElapsed / 60);
     secElapsed -= (60 * minElapsed);
@@ -72,6 +79,7 @@ export class ContentEditService {
 
     this.screenService.hideEditNav(); // Hide edit nav when starting edit
     this.editStartEpoch = Date.now();
+    this.editTimeSec = 0;
   }
 
   receiveEdit(userEdit: UserEdit) {
@@ -100,6 +108,7 @@ export class ContentEditService {
     }
 
     newScrap.startedEpoch = this.editStartEpoch;
+    newScrap.secActiveEditing = this.editTimeSec;
     newScrap.completedEpoch = Date.now();
     newScrap.editedBy = this.getCurrentUserEmail();
 

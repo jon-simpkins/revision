@@ -12,10 +12,10 @@ function generateWritingTracker(scrapPile: ScrapPile): ViewContentBlock[] {
   let totalMsToday = 0;
   scrapPile.scrapById.forEach((scrap) => {
     numScraps += 1;
-    const writingDuration = (scrap.completedEpoch - scrap.startedEpoch);
-    totalMs += writingDuration;
+    const writingDurationSec = (scrap.secActiveEditing);
+    totalMs += writingDurationSec * 1000;
     if (new Date(scrap.startedEpoch).getDate() === new Date().getDate()) {
-      totalMsToday += writingDuration;
+      totalMsToday += writingDurationSec * 1000;
     }
   });
   const timeSpentWriting = scrapPile.determineTimeSpentWriting();

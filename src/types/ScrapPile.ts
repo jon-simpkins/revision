@@ -410,7 +410,7 @@ class ScrapPile {
     const dayCutoff = 24 * 3600 * 1000;
 
     this.scrapById.forEach(scrap => {
-      const writingDuration = (scrap.completedEpoch - scrap.startedEpoch);
+      const writingDuration = 1000 * (scrap.secActiveEditing);
       const timeSinceCompleted = now - scrap.completedEpoch;
 
       timeSpentMs.allTime += writingDuration;

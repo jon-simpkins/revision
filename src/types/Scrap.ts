@@ -24,6 +24,7 @@ class Scrap {
   // Stuff that tracks when / who made the change
   startedEpoch: number;
   completedEpoch: number;
+  secActiveEditing: number;
   editedBy: string;
 
   prototype: ScrapPrototype;
@@ -42,7 +43,8 @@ class Scrap {
       this.completedEpoch,
       this.editedBy,
       this.refId,
-      this.content.toString()
+      this.content.toString(),
+      this.secActiveEditing
     ]));
 
     const contentArray = [];
@@ -76,6 +78,8 @@ class Scrap {
     newScrap.editedBy = jsonContent[2];
     newScrap.refId = jsonContent[3];
     newScrap.content = Scrap.parseScrapContent(jsonContent[4], newScrap.prototype);
+    newScrap.secActiveEditing = jsonContent[5]
+      || (0.001 * (newScrap.completedEpoch - newScrap.startedEpoch)); // Second term is for backwards compatibility
 
     return newScrap;
   }
