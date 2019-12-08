@@ -12,10 +12,12 @@ class ScriptAutocompleteModule {
   quillEditor: any;
 
   getMatchesCallback: any;
+  addElementCallback: any;
 
   tokenStartIndex = 0;
   tokenList: any;
   prefixCharacter: string;
+  tokenStringToAdd: string;
 
   optionsAreShown = false;
 
@@ -24,6 +26,7 @@ class ScriptAutocompleteModule {
   constructor(quillEditor, options) {
     this.quillEditor = quillEditor;
     this.getMatchesCallback = options.getMatchesCallback;
+    this.addElementCallback = options.addElementCallback;
 
     this.quillEditor.on('text-change', (delta, oldDelta, source) => {
       if (source === 'user') {
@@ -108,8 +111,13 @@ class ScriptAutocompleteModule {
     if (match) {
       const stringToMatch = match[2];
       this.prefixCharacter = match[1];
+      this.tokenStringToAdd = null;
 
       this.tokenMatches = this.getMatchesCallback(stringToMatch, this.prefixCharacter);
+      if (!this.tokenMatches.length && stringToMatch.split(' ').length === 1) {
+        this.tokenMatches = [`Add "${stringToMatch}"`];
+        this.tokenStringToAdd = stringToMatch;
+      }
 
       this.tokenStartIndex = startIndex + match.index;
       this.showTokenOptions();
@@ -151,6 +159,10 @@ class ScriptAutocompleteModule {
   }
 
   insertToken(prefixCharacter, tokenValue) {
+    if (this.tokenStringToAdd) {
+      tokenValue = this.tokenStringToAdd;
+      this.addElementCallback(prefixCharacter, this.tokenStringToAdd);
+    }
     const valueToInsert = `{${prefixCharacter}${tokenValue}}`;
 
     const insertLocation = this.tokenStartIndex;

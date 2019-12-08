@@ -66,6 +66,15 @@ export class ScriptEditPanelComponent implements OnInit, AfterViewInit {
               });
               return matches;
             }
+          },
+          addElementCallback: (prefixCharacter: string, tokenValue: string) => {
+            console.log(`Would add "${tokenValue}", of type ${prefixCharacter}`);
+            if (prefixCharacter === '@') {
+              this.editContext.characterMap.set(tokenValue.toUpperCase(), {name: tokenValue, refId: tokenValue});
+            } else {
+              this.editContext.traitMap.set(tokenValue.toUpperCase(), {name: tokenValue, refId: tokenValue});
+            }
+            // TODO: ACTUALLY PERSIST ANY OF THIS
           }
         }
       }

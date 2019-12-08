@@ -286,7 +286,7 @@ class FountainElements {
           const dialogueRefId = tokenMap.get(characterName.toUpperCase());
           if (dialogueRefId) {
             line.text = line.text.replace(`{${tokenPrefix}${characterName}}`, `{${tokenPrefix}${dialogueRefId}}`);
-            regex.lastIndex = 0;
+            regex.lastIndex = regex.lastIndex + 1;
           }
 
           match = regex.exec(line.text);
