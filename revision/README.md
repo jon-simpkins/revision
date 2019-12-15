@@ -9,7 +9,9 @@ When this migration is complete, you'll need the following to develop:
 A nice TODO will be to Dockerize all these, to reduce the dev setup time.
 
 
+## Courier Prime
 
+This application leverages the [Courier Prime](https://quoteunquoteapps.com/courierprime/) font, which the folks at Quote-Unquote Apps have been generous enough to share with the world.
 
 
 ## Getting Started
