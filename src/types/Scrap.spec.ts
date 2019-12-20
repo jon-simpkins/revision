@@ -1,6 +1,8 @@
-import Scrap, {ScrapPrototype, TextLineContent} from './Scrap';
-import {NLineContent} from './ScrapTypes/NLineContent';
-import {LineContent} from './ScrapTypes/LineContent';
+import Scrap from './Scrap';
+import ScrapPrototype from './ScrapPrototype';
+import { TextLineContent } from './ScrapTypes/TextLineContent';
+import { NLineContent } from './ScrapTypes/NLineContent';
+import { LineContent } from './ScrapTypes/LineContent';
 
 describe('Scrap', () => {
   it('Serializes and deserializes similar movies', () => {
