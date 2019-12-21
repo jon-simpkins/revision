@@ -23,14 +23,13 @@ export class Story {
             JSON.parse(serialized)
         );
 
-        if (!!story.similarMovies) {
-            story.similarMovies = story.similarMovies.map(similarMovie => {
-                return Object.assign(
-                    new SimilarMovie(),
-                    similarMovie
-                );
-            });
-        }
+        // Deal with nested type for SimilarMovie
+        story.similarMovies = story.similarMovies.map(similarMovie => {
+            return Object.assign(
+                new SimilarMovie(),
+                similarMovie
+            );
+        });
 
         return story;
     }
