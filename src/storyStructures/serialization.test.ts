@@ -1,9 +1,20 @@
-import { Story, SimilarMovie } from ".";
+import { Story, Workspace } from ".";
 import { generateDiffToSave, applyDiffs } from "./serialization";
+
+import { setCurrentlyMocking, resetMockCount } from './generateUuid';
 
 import { fullStory001, diff001, diff002 } from "./data";
 
 describe('generateDiffToSave', () => {
+    beforeEach(() => {
+        setCurrentlyMocking(true);
+        resetMockCount();
+    });
+
+    afterEach(() => {
+        setCurrentlyMocking(false);
+    });
+
     it('Correctly generates diff for no diff', () => {
         const story1 = new Story();
         const story2 = new Story();
@@ -19,7 +30,7 @@ describe('generateDiffToSave', () => {
     it('Correctly generates diff for single top-level change', () => {
         const story1 = new Story();
         const story2 = new Story();
-        story2.id = 'abc123';
+        story2.logLine = 'a movie';
 
         const diff = generateDiffToSave(
             story1.toString(),
@@ -31,9 +42,9 @@ describe('generateDiffToSave', () => {
 
     it('Correctly generates diff for single top-level no-change', () => {
         const story1 = new Story();
-        story1.id = 'abc123';
+        story1.logLine = 'a movie';
         const story2 = new Story();
-        story2.id = 'abc123';
+        story2.logLine = 'a movie';
 
         const diff = generateDiffToSave(
             story1.toString(),
@@ -44,19 +55,19 @@ describe('generateDiffToSave', () => {
     });
 
     it('Correctly generates diff for nested change', () => {
-        const story1 = new Story();
-        story1.logLine = 'Log Line 1';
-        const story2 = new Story();
-        story2.logLine = 'Log Line 2';
+        const workspace01 = new Workspace();
+        const storyId = workspace01.buildNewStory();
 
-        const similarMovie1 = new SimilarMovie();
-        similarMovie1.title = 'Tenet';
-        similarMovie1.runtimeMin = 123;
-        story2.similarMovies = [similarMovie1];
+        workspace01.stories.get(storyId).similarMovieIds.push('abc123');
+
+        const workspace02 = Workspace.parseFromString(workspace01.toString());
+
+        workspace02.stories.get(storyId).similarMovieIds.push('def456');
+        workspace02.buildNewSimilarMovie();
 
         const diff = generateDiffToSave(
-            story1.toString(),
-            story2.toString()
+            workspace01.toString(),
+            workspace02.toString()
         );
 
         expect(diff).toEqual(diff002);
@@ -81,26 +92,4 @@ describe('generateDiffToSave', () => {
 
         expect(!!reconstructionDiff).toEqual(false);
     });
-
-    it('Correctly computes nested difference', () => {
-        const story1 = new Story();
-
-        const similarMovie1 = new SimilarMovie();
-        similarMovie1.title = 'Tenet';
-
-        story1.similarMovies.push(similarMovie1);
-
-        const serialized01 = story1.toString();
-
-        story1.similarMovies[0].runtimeMin = 140;
-
-        const serialized02 = story1.toString();
-
-        const diff = generateDiffToSave(
-            serialized01,
-            serialized02
-        );
-
-        console.log(diff);
-    })
 });

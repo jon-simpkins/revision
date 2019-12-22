@@ -1,4 +1,6 @@
-export const fullStory001 = '{"similarMovies":[{"title":"Tenet","runtimeMin":145},{"title":"The Grinch","runtimeMin":90}],"id":"abc123","logLine":"A movie! That\'s full of stuff!","runtimeMin":100}';
+export const fullStory001 = '{"similarMovieIds":["def456","ghi789"],"logLine":"A movie! That\'s full of stuff!","runtimeMin":100}';
 
-export const diff001 = '[{"kind":"N","path":["id"],"rhs":"abc123"}]';
-export const diff002 = '[{"kind":"A","path":["similarMovies"],"index":0,"item":{"kind":"N","rhs":{"title":"Tenet","runtimeMin":123}}},{"kind":"E","path":["logLine"],"lhs":"Log Line 1","rhs":"Log Line 2"}]';
+export const diff001 = '[{"kind":"N","path":["logLine"],"rhs":"a movie"}]';
+export const diff002 = '[{"kind":"N","path":["similarMovies","uuid2"],"rhs":{}},{"kind":"A","path":["stories","uuid1","similarMovieIds"],"index":1,"item":{"kind":"N","rhs":"def456"}}]';
+
+export const fullWorkspace001 = '{"similarMovies":{"uuid2":{"title":"Tenet","runtimeMin":123}},"stories":{"uuid1":{"similarMovieIds":["uuid2"],"logLine":"My new log line"}},"history":[{"userEmail":"jon.simpkins@gmail.com","editStartEpochMs":12345,"editEndEpochMs":12346,"msSpendAnalyzing":1000}]}';
