@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
-import {LoginGateService} from '../services/login-gate.service';
-import {ScreenService} from '../services/screen.service';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { LoginGateService } from '../services/login-gate.service';
+import { ScreenService } from '../services/screen.service';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 @Component({
   selector: 'logged-in-state',
@@ -14,6 +14,7 @@ export class LoggedInStateComponent implements OnInit {
 
   url: string;
   storyId: string;
+  v2: boolean;
 
 
   ngOnInit() {
@@ -28,6 +29,8 @@ export class LoggedInStateComponent implements OnInit {
 
     this.route.url.subscribe((url) => {
       this.url = url.join('/');
+      this.v2 = this.url.startsWith('v2');
+      console.log(url);
     });
   }
 

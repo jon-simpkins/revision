@@ -1,0 +1,9 @@
+<!-- Up here, we'll eventually want to put the countdown timer stuff,
+     for showing progress on a particular task or action
+-->
+
+<h3>{{whichComponent}}</h3>
+<div [ngSwitch]="whichComponent">
+    <workspace-menu *ngSwitchCase="'workspace-selection'"></workspace-menu>
+    <action-menu *ngSwitchCase="'action-menu'"></action-menu>
+</div>

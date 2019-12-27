@@ -13,19 +13,14 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div [ngSwitch]="url">
-  <story-list *ngSwitchCase="'story-list'"></story-list>
-  <structure-editor *ngSwitchCase="'structure-editor'"></structure-editor>
-  <story-details *ngSwitchCase="'writing'"
-    [storyId]="storyId"
-  ></story-details>
-  <landing-page *ngSwitchDefault></landing-page>
-</div>
-
-<!--<story-details *ngIf="screenService.showStoryDetails; else structureEditor"></story-details>
-<ng-template #structureEditor>
-  <structure-editor *ngIf="screenService.showStructureTemplateEditor; else storyList"></structure-editor>
-  <ng-template #storyList>
-    <story-list></story-list>
-  </ng-template>
-</ng-template>-->
+<v2-router *ngIf="v2; else v1"></v2-router>
+<ng-template #v1>
+  <div [ngSwitch]="url">
+    <story-list *ngSwitchCase="'story-list'"></story-list>
+    <structure-editor *ngSwitchCase="'structure-editor'"></structure-editor>
+    <story-details *ngSwitchCase="'writing'"
+      [storyId]="storyId"
+    ></story-details>
+    <landing-page *ngSwitchDefault></landing-page>
+  </div>
+</ng-template>

@@ -2,8 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';
 
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatButtonModule} from '@angular/material/button';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule } from '@angular/material/button';
 
 import {
   MatSelectModule,
@@ -34,12 +34,15 @@ import { EditNavComponent } from './story-details/edit-nav/edit-nav.component';
 import { StructureEditorComponent } from './structure-editor/structure-editor.component';
 import { BeatCardListComponent } from './structure-editor/beat-card-list/beat-card-list.component';
 import { StructureEditPanelComponent } from './story-details/edit-panel-content/structure-edit-panel/structure-edit-panel.component';
-import {StructureBlockContentEditPanelComponent} from './story-details/edit-panel-content/structure-block-content-edit-panel/structure-block-content-edit-panel.component';
-import {ScriptEditPanelComponent} from './story-details/edit-panel-content/script-edit-panel/script-edit-panel.component';
-import {QuillReadonlyComponent} from './story-details/view-panel-content/quill-readonly/quill-readonly.component';
-import {TutorialComponent} from './tutorial/tutorial.component';
-import {LandingPageComponent} from './logged-in-state/landing-page/landing-page.component';
-import {TimelineChartComponent} from './timeline-chart/timeline-chart.component';
+import { StructureBlockContentEditPanelComponent } from './story-details/edit-panel-content/structure-block-content-edit-panel/structure-block-content-edit-panel.component';
+import { ScriptEditPanelComponent } from './story-details/edit-panel-content/script-edit-panel/script-edit-panel.component';
+import { QuillReadonlyComponent } from './story-details/view-panel-content/quill-readonly/quill-readonly.component';
+import { TutorialComponent } from './tutorial/tutorial.component';
+import { LandingPageComponent } from './logged-in-state/landing-page/landing-page.component';
+import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
+import { WorkspaceMenuComponent } from './workspace-menu/workspace-menu.component';
+import { V2RouterComponent } from './v2-router/v2-router.component';
+import { ActionMenuComponent } from './action-menu/action-menu.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -61,7 +64,10 @@ const DECLARATIONS = [
   QuillReadonlyComponent,
   TutorialComponent,
   LandingPageComponent,
-  TimelineChartComponent
+  TimelineChartComponent,
+  WorkspaceMenuComponent,
+  V2RouterComponent,
+  ActionMenuComponent
 ];
 
 const IMPORTS = [
@@ -88,7 +94,7 @@ const IMPORTS = [
   declarations: DECLARATIONS,
   imports: IMPORTS,
   exports: [].concat(DECLARATIONS).concat(IMPORTS), // Export everything, so Storybook creation is easier
-  providers: [{provide: APP_BASE_HREF, useValue : '/' }],
+  providers: [{ provide: APP_BASE_HREF, useValue: '/' }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
