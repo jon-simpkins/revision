@@ -2,8 +2,7 @@
      for showing progress on a particular task or action
 -->
 
-<h3>{{whichComponent}}</h3>
-<div [ngSwitch]="whichComponent">
-    <workspace-menu *ngSwitchCase="'workspace-selection'"></workspace-menu>
-    <action-menu *ngSwitchCase="'action-menu'"></action-menu>
+<div [ngSwitch]="pagePath">
+    <workspace-menu *ngSwitchCase="routes.WORKSPACE_MENU"></workspace-menu>
+    <action-menu *ngSwitchCase="routes.ACTION_MENU"></action-menu>
 </div>

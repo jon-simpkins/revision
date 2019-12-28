@@ -30,7 +30,6 @@ export class LoggedInStateComponent implements OnInit {
     this.route.url.subscribe((url) => {
       this.url = url.join('/');
       this.v2 = this.url.startsWith('v2');
-      console.log(url);
     });
   }
 

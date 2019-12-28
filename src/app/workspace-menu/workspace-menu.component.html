@@ -1,1 +1,17 @@
-<p>This would be the menu for the workspace</p>
+<h2>Workspace Menu</h2>
+<p>Here, you can select a workspace to work in, or start a new one.</p>
+
+<button *ngIf="!creatingWorkspace" mat-raised-button color="primary" (click)="createWorkspace()">Create New</button>
+<mat-spinner
+    *ngIf="creatingWorkspace"
+    style="vertical-align: middle; display: inline-block; margin: 0.5em;"
+    [diameter]="32"
+></mat-spinner>
+
+<mat-action-list>
+    <ng-container *ngFor="let option of options">
+      <button mat-list-item (click)="openWorkspace(option.id)">
+        {{option.title}} (last opened {{renderDate(option.lastOpened)}})
+      </button>
+    </ng-container>
+  </mat-action-list>

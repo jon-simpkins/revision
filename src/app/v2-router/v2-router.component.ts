@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
+import { ROUTES } from './routes';
 
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, UrlSegment } from '@angular/router';
+import { WorkspaceService } from '../services/workspace.service';
 
 /**
  * Router Wrapper for all V2 Pages
@@ -19,36 +21,46 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 })
 export class V2RouterComponent implements OnInit {
 
-  constructor(private router: Router, private route: ActivatedRoute) { }
+  constructor(private router: Router, private route: ActivatedRoute, private workspaceService: WorkspaceService) { }
 
-  whichComponent: string;
-
-  currentUrl: string;
-  currentParamMap: ParamMap;
+  pagePath: string;
+  routes = ROUTES;
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe((map: ParamMap) => {
-      this.currentParamMap = map;
-    });
-
+    this.route.queryParamMap.subscribe(map => this.paramMapHandler(map));
     this.route.url.subscribe(url => this.urlHandler(url));
   }
 
-  urlHandler(url) {
-    this.currentUrl = url.join('/');
+  paramMapHandler(map: ParamMap) {
+    const workspaceId = map.get('workspace');
 
-    let pagePath = '';
+    this.workspaceService.openWorkspace(workspaceId).then(wasChanged => {
+      if (wasChanged) {
+        if (!!workspaceId) {
+          this.navigateToUrl(this.routes.ACTION_MENU);
+        } else {
+          this.navigateToUrl(this.routes.WORKSPACE_MENU);
+        }
+      }
+    });
+  }
+
+  urlHandler(url: UrlSegment[]) {
+    this.pagePath = '';
     if (url[1]) {
-      pagePath = url[1].path;
+      this.pagePath = url[1].path;
     }
+  }
 
-    switch (pagePath) {
-      case 'workspace-selection':
-        this.whichComponent = 'workspace-selection';
-        break;
-      default:
-        this.whichComponent = 'action-menu';
-    }
+  navigateToUrl(route: string) {
+    // Why the timeout? To avoid some stupid race condition related to changing the route
+    // while still reacting to the old one
+    setTimeout(() => {
+      this.router.navigate(
+        [`/v2/${route}`],
+        { queryParams: { workspace: this.workspaceService.getCurrentWorkspaceId() } }
+      );
+    }, 250);
   }
 
 }
