@@ -18,7 +18,7 @@ import { ROUTES } from '../v2-router/routes';
 })
 export class WorkspaceMenuComponent implements OnInit {
 
-  private options: WorkspaceOption[];
+  public options: WorkspaceOption[];
   public creatingWorkspace = false;
 
   constructor(private workspaceService: WorkspaceService, private router: Router) { }
