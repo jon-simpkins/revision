@@ -11,7 +11,7 @@ describe('WorkspaceMenuComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ WorkspaceMenuComponent ],
-      imports: [MatProgressSpinnerModule, MatListModule, RouterTestingModule] // TODO: https://angular.io/api/router/testing/RouterTestingModule#example
+      imports: [MatProgressSpinnerModule, MatListModule, RouterTestingModule]
     })
     .compileComponents();
   }));

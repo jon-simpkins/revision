@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { WorkspaceOption, WorkspaceService } from '../services/workspace.service';
-import { Router } from '@angular/router';
 
 import { ROUTES } from '../v2-router/routes';
+import { RoutingService } from '../services/routing.service';
 
 /**
  * Component for selecting a known workspace
@@ -21,7 +21,7 @@ export class WorkspaceMenuComponent implements OnInit {
   public options: WorkspaceOption[];
   public creatingWorkspace = false;
 
-  constructor(private workspaceService: WorkspaceService, private router: Router) { }
+  constructor(private workspaceService: WorkspaceService, private routingService: RoutingService) { }
 
   ngOnInit() {
     this.options = this.workspaceService.getRecentWorkspaceOptions();
@@ -46,13 +46,8 @@ export class WorkspaceMenuComponent implements OnInit {
 
   openWorkspace(id: string) {
     this.workspaceService.openWorkspace(id).then(() => {
-      console.log('navigating!');
-      this.router.navigate(
-        [`/v2/${ROUTES.ACTION_MENU}`],
-        { queryParams: { workspace: this.workspaceService.getCurrentWorkspaceId() } }
-      );
+      this.routingService.navigateToUrl(ROUTES.ACTION_MENU);
     });
-
   }
 
 }

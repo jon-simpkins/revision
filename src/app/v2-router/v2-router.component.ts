@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 
 import { ROUTES } from './routes';
 
-import { ActivatedRoute, ParamMap, Router, UrlSegment } from '@angular/router';
+import { ActivatedRoute, ParamMap, UrlSegment } from '@angular/router';
 import { WorkspaceService } from '../services/workspace.service';
+import { RoutingService } from '../services/routing.service';
 
 /**
  * Router Wrapper for all V2 Pages
@@ -21,7 +22,7 @@ import { WorkspaceService } from '../services/workspace.service';
 })
 export class V2RouterComponent implements OnInit {
 
-  constructor(private router: Router, private route: ActivatedRoute, private workspaceService: WorkspaceService) { }
+  constructor(private route: ActivatedRoute, private workspaceService: WorkspaceService, private routingService: RoutingService) { }
 
   pagePath: string;
   routes = ROUTES;
@@ -37,9 +38,9 @@ export class V2RouterComponent implements OnInit {
     this.workspaceService.openWorkspace(workspaceId).then(wasChanged => {
       if (wasChanged) {
         if (!!workspaceId) {
-          this.navigateToUrl(this.routes.ACTION_MENU);
+          this.routingService.navigateToUrl(this.routes.ACTION_MENU);
         } else {
-          this.navigateToUrl(this.routes.WORKSPACE_MENU);
+          this.routingService.navigateToUrl(this.routes.WORKSPACE_MENU);
         }
       }
     });
@@ -51,16 +52,4 @@ export class V2RouterComponent implements OnInit {
       this.pagePath = url[1].path;
     }
   }
-
-  navigateToUrl(route: string) {
-    // Why the timeout? To avoid some stupid race condition related to changing the route
-    // while still reacting to the old one
-    setTimeout(() => {
-      this.router.navigate(
-        [`/v2/${route}`],
-        { queryParams: { workspace: this.workspaceService.getCurrentWorkspaceId() } }
-      );
-    }, 250);
-  }
-
 }
