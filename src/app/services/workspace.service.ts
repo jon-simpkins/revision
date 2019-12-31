@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
 import { generateV2HeaderCommands } from '../../docsApi/docsContentHelpers';
+import { Workspace } from 'src/storyStructures';
+import {applyDiffs, generateDiffToSave} from 'src/storyStructures/serialization';
 
 /**
  * Locally-stored information about a workspace
@@ -27,6 +29,9 @@ const WORKSPACE_LOCAL_STORAGE_KEY = 'workspace-options';
 export class WorkspaceService {
 
   private workspaceId?: string;
+  public currentWorkspace: Workspace;
+  private lastLoadedWorkspace: Workspace; // We keep a separate copy, so we know what changes to save
+  // TODO: there *has* to be a more efficient way of tracking changes, but this expedites things for dev
 
   constructor() { }
 
@@ -58,7 +63,9 @@ export class WorkspaceService {
     }
 
     if (!workspaceId) {
-      this.workspaceId = workspaceId;
+      this.workspaceId = null;
+      this.currentWorkspace = null;
+      this.lastLoadedWorkspace = null;
       return Promise.resolve(true); // Just nulling out
     }
 
@@ -69,20 +76,44 @@ export class WorkspaceService {
 
       this.persistOpenedOption(workspaceId, docName);
 
+      let workspaceProxyObject = JSON.parse(new Workspace().toString());
+
       response.result.body.content.forEach((section) => {
         let textContent = null;
         try {
           textContent = section.paragraph.elements[0].textRun.content;
 
-          // TODO: parse from text content
+          workspaceProxyObject = WorkspaceService.applyDiffs(workspaceProxyObject, textContent);
         } catch (e) { }
       });
 
-
-      console.log('Changed workspace to ' + this.workspaceId);
+      this.currentWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
+      this.lastLoadedWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
+      console.log('Workspace after importing:');
+      console.log(this.currentWorkspace);
 
       return Promise.resolve(true);
     });
+  }
+
+  /**
+   * Convenience function for applying serialized diffs to a workspace
+   * 
+   * @param initialWorkspaceProxy JSON object representing the current state of the workspace (before applying diffs)
+   * @param base64Diffs Base64-encoded JSON of array of diffs
+   * @returns JSON object representing the current state of the workspace after applying diffs
+   */
+  static applyDiffs(initialWorkspaceProxy: Object, base64Diffs: string): Object {
+    let diffString = atob(base64Diffs);
+    return applyDiffs(initialWorkspaceProxy, JSON.parse(diffString));
+  }
+
+  static determineBase64Diffs(oldWorkspaceStr, newWorkspaceStr): string {
+    let diffJSONStr = generateDiffToSave(
+      oldWorkspaceStr,
+      newWorkspaceStr
+    );
+    return btoa(diffJSONStr);
   }
 
   persistOpenedOption(id: string, title: string) {
