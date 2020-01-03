@@ -5,4 +5,6 @@
 <div [ngSwitch]="pagePath">
     <workspace-menu *ngSwitchCase="routes.WORKSPACE_MENU"></workspace-menu>
     <action-menu *ngSwitchCase="routes.ACTION_MENU"></action-menu>
+    <create-new-story *ngSwitchCase="routes.CREATE_NEW_STORY"></create-new-story>
+    <detail-similar-movies *ngSwitchCase="routes.DETAIL_SIMILAR_MOVIES"></detail-similar-movies>
 </div>

@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActionMenuComponent } from './action-menu.component';
+import { MatProgressSpinnerModule, MatListModule } from '@angular/material';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ActionMenuComponent', () => {
   let component: ActionMenuComponent;
@@ -8,9 +10,10 @@ describe('ActionMenuComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ActionMenuComponent ]
+      declarations: [ActionMenuComponent],
+      imports: [MatProgressSpinnerModule, MatListModule, RouterTestingModule]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

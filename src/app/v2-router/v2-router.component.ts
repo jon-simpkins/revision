@@ -24,7 +24,7 @@ export class V2RouterComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private workspaceService: WorkspaceService, private routingService: RoutingService) { }
 
-  pagePath: string;
+  pagePath?: ROUTES;
   routes = ROUTES;
 
   ngOnInit() {
@@ -47,9 +47,9 @@ export class V2RouterComponent implements OnInit {
   }
 
   urlHandler(url: UrlSegment[]) {
-    this.pagePath = '';
+    this.pagePath = null;
     if (url[1]) {
-      this.pagePath = url[1].path;
+      this.pagePath = url[1].path as ROUTES;
     }
   }
 }

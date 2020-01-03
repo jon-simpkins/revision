@@ -14,7 +14,7 @@ export class RoutingService {
 
   constructor(private router: Router, private workspaceService: WorkspaceService) { }
 
-  navigateToUrl(route: string) {
+  navigateToUrl(route: ROUTES) {
     // Why the timeout? To avoid some stupid race condition related to changing the route
     // while still reacting to the old one
     setTimeout(() => {

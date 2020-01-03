@@ -9,9 +9,9 @@
 ></mat-spinner>
 
 <mat-action-list>
-    <ng-container *ngFor="let option of options">
-      <button mat-list-item (click)="openWorkspace(option.id)">
-        {{option.title}} (last opened {{renderDate(option.lastOpened)}})
-      </button>
-    </ng-container>
-  </mat-action-list>
+  <ng-container *ngFor="let option of options">
+    <button mat-list-item (click)="openWorkspace(option.id)">
+      {{option.title}} (last opened {{renderDate(option.lastOpened)}})
+    </button>
+  </ng-container>
+</mat-action-list>

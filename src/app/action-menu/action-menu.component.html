@@ -1,1 +1,10 @@
-<p>action-menu works!</p>
+<h2>Action Menu</h2>
+<p>Which task do you want to work on?</p>
+
+<mat-action-list>
+    <ng-container *ngFor="let option of currentOptions">
+        <button mat-list-item (click)="executeOption(option)">
+            {{option.getLabel()}}
+        </button>
+    </ng-container>
+</mat-action-list>
