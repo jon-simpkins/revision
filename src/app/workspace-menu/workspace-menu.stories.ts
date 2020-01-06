@@ -3,7 +3,6 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 
 import { Component } from '@angular/core';
 
-import { WorkspaceMenuComponent } from './workspace-menu.component';
 import { AppModule } from '../app.module';
 import { WorkspaceService, WorkspaceOption } from '../services/workspace.service';
 

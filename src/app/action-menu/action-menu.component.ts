@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActionOption, ActionService } from '../services/action.service';
-import { RoutingService } from '../services/routing.service';
 
 /**
  * Component for selecting an action within a workspace
@@ -19,7 +18,7 @@ export class ActionMenuComponent implements OnInit {
 
   public currentOptions: ActionOption[];
 
-  constructor(private actionService: ActionService, private routingService: RoutingService) {
+  constructor(private actionService: ActionService) {
     this.currentOptions = this.actionService.getAllActionOptions();
   }
 
@@ -27,7 +26,7 @@ export class ActionMenuComponent implements OnInit {
   }
 
   executeOption(option: ActionOption) {
-    this.routingService.navigateToUrl(option.actionRoute);
+    this.actionService.startAction(option);
   }
 
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import {ROUTES} from '../v2-router/routes'; // todo: make this an enum of routes?
+import { ROUTES } from '../v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
+import { RoutingService } from './routing.service';
 
 export const ACTION_ROUTE_LABEL = new Map<string, string>(); // Map from route -> label for action
 
 export class ActionOption {
-  constructor(public actionRoute: ROUTES) {}
+  constructor(public actionRoute: ROUTES) { }
 
   getLabel(): string {
     if (this.actionRoute === ROUTES.DETAIL_SIMILAR_MOVIES) {
@@ -30,7 +31,10 @@ export class ActionOption {
 })
 export class ActionService {
 
-  constructor(private workspaceService: WorkspaceService) { }
+  public currentOption?: ActionOption = null;
+  public currentEpochStarted?: number;
+
+  constructor(private workspaceService: WorkspaceService, private routingService: RoutingService) { }
 
   getAllActionOptions(): ActionOption[] {
     const options = [ // Initialize to ones that are always options
@@ -39,6 +43,31 @@ export class ActionService {
     ];
 
     return options;
+  }
+
+  startAction(option: ActionOption) {
+    if (!this.currentOption) {
+      this.currentOption = option;
+      this.currentEpochStarted = Date.now();
+    }
+    this.routingService.navigateToUrl(option.actionRoute);
+  }
+
+  completeAction() {
+    console.log('Completing!');
+    this.resetAction();
+  }
+
+  abandonCurrentAction() {
+    console.log('abandoning!');
+    this.resetAction();
+  }
+
+  resetAction() {
+    this.currentEpochStarted = null;
+    this.currentOption = null;
+    this.routingService.navigateToUrl(ROUTES.ACTION_MENU);
+
   }
 
 }

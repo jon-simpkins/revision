@@ -45,6 +45,7 @@ import { V2RouterComponent } from './v2-router/v2-router.component';
 import { ActionMenuComponent } from './action-menu/action-menu.component';
 import { DetailSimilarMoviesComponent } from './detail-similar-movies/detail-similar-movies.component';
 import { CreateNewStoryComponent } from './create-new-story/create-new-story.component';
+import { ActionBarComponent } from './action-bar/action-bar.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -71,7 +72,8 @@ const DECLARATIONS = [
   V2RouterComponent,
   ActionMenuComponent,
   DetailSimilarMoviesComponent,
-  CreateNewStoryComponent
+  CreateNewStoryComponent,
+  ActionBarComponent,
 ];
 
 const IMPORTS = [

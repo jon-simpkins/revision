@@ -1,0 +1,19 @@
+<div *ngIf="!!hasCurrentAction()"
+    style="width: 100%; padding: 0.5em; margin: 0; text-align: center;"
+>
+    <span
+        style="margin-right: 2em;"
+    >{{getTimerText()}}</span
+        >
+    <button mat-icon-button color="primary"
+        (click)="completeAction()"
+    >
+        <mat-icon>check</mat-icon>
+    </button>
+    <button mat-icon-button color="accent"
+        (click)="abandonAction()"
+    >
+        <mat-icon>close</mat-icon>
+    </button>
+    <mat-divider></mat-divider>
+</div>
