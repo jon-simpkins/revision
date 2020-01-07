@@ -61,7 +61,6 @@ describe('Story Structures', () => {
         newHistoryEntry.userEmail = 'jon.simpkins@gmail.com';
         newHistoryEntry.editStartEpochMs = 12345;
         newHistoryEntry.editEndEpochMs = 12346;
-        newHistoryEntry.msSpendAnalyzing = 1000;
 
         workspace.history.push(newHistoryEntry);
 
