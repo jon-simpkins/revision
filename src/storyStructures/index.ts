@@ -4,6 +4,12 @@ import { generateUuid } from './generateUuid';
 export class SimilarMovie {
     title: string;
     runtimeMin: number;
+    id: string;
+    tmbdUrl: string;
+
+    getTitle(): string {
+        return this.title ? this.title : 'New Movie';
+    }
 
     toString(): string {
         return JSON.stringify(this);
@@ -80,6 +86,7 @@ export class Workspace {
     buildNewSimilarMovie(): string {
         const newId: string = generateUuid();
         const newSimilarMovie = new SimilarMovie();
+        newSimilarMovie.id = newId;
         this.similarMovies.set(newId, newSimilarMovie);
 
         return newId;
