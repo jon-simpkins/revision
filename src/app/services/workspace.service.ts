@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
-import { generateV2HeaderCommands } from '../../docsApi/docsContentHelpers';
-import { Workspace } from 'src/storyStructures';
+import { generateV2HeaderCommands, updateContentLine } from '../../docsApi/docsContentHelpers';
+import { Workspace, HistoryEntry } from 'src/storyStructures';
 import {applyDiffs, generateDiffToSave} from 'src/storyStructures/serialization';
 
 /**
@@ -146,6 +146,33 @@ export class WorkspaceService {
     }
 
     return options;
+  }
+
+  saveAdditionalSerialization(historyEntry: HistoryEntry): Promise<boolean> {
+    this.currentWorkspace.history.push(historyEntry);
+    const serializedDiff = WorkspaceService.determineBase64Diffs(
+      this.lastLoadedWorkspace.toString(),
+      this.currentWorkspace.toString()
+    );
+
+    const updateCommand = updateContentLine(
+      null,
+      serializedDiff
+    );
+
+    return updateBatch(
+      this.workspaceId,
+      [
+        updateCommand
+      ]
+    ).then(() => {
+      this.lastLoadedWorkspace = Workspace.parseFromString(this.currentWorkspace.toString());
+      return Promise.resolve(true);
+    });
+  }
+
+  abandonWorkspaceChanges() {
+    this.currentWorkspace = Workspace.parseFromString(this.lastLoadedWorkspace.toString());
   }
 
 }

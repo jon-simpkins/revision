@@ -17,7 +17,7 @@ export class ActionBarComponent implements OnInit {
   }
 
   hasCurrentAction(): boolean {
-    return !!this.actionService.currentOption && (Date.now() - this.actionService.currentEpochStarted) > 1000;
+    return !!this.actionService.currentOption;
   }
 
   getTimerText(): string {

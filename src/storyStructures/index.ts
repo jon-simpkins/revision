@@ -50,9 +50,6 @@ export class HistoryEntry {
     editStartEpochMs: number;
     editEndEpochMs: number;
 
-    msSpentWriting: number;
-    msSpendAnalyzing: number;
-
     toString(): string {
         return JSON.stringify(this);
     }

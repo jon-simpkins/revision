@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { ROUTES } from '../v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
+import { HistoryEntry } from 'src/storyStructures';
+import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 export const ACTION_ROUTE_LABEL = new Map<string, string>(); // Map from route -> label for action
 
@@ -54,12 +56,19 @@ export class ActionService {
   }
 
   completeAction() {
-    console.log('Completing!');
-    this.resetAction();
+    const newHistoryEntry = new HistoryEntry();
+    newHistoryEntry.userEmail = getLoginEmail();
+    newHistoryEntry.editStartEpochMs = this.currentEpochStarted;
+    newHistoryEntry.editEndEpochMs = Date.now();
+
+    this.workspaceService.saveAdditionalSerialization(newHistoryEntry)
+      .then(() => {
+        this.resetAction();
+      });
   }
 
   abandonCurrentAction() {
-    console.log('abandoning!');
+    this.workspaceService.abandonWorkspaceChanges();
     this.resetAction();
   }
 
@@ -67,7 +76,6 @@ export class ActionService {
     this.currentEpochStarted = null;
     this.currentOption = null;
     this.routingService.navigateToUrl(ROUTES.ACTION_MENU);
-
   }
 
 }
