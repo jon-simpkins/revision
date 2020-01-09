@@ -6,17 +6,17 @@ import { AppModule } from '../app.module';
 import { HackUpdateService } from '../services/hack-update.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { Workspace } from '../../storyStructures';
-import { serializedWorkspace001 } from 'src/storyStructures/data';
+import { serializedWorkspace001 } from '../../storyStructures/data';
 
 const TEMPLATE = `
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <detail-similar-movies></detail-similar-movies>
+  <revision-history></revision-history>
 `;
 
 @Component({
     template: TEMPLATE
 })
-class SimilarMoviesBlank {
+class RevisionHistoryBlank {
     constructor(workspaceService: WorkspaceService, hackUpdateService: HackUpdateService) {
         workspaceService.currentWorkspace = new Workspace();
     }
@@ -25,13 +25,13 @@ class SimilarMoviesBlank {
 @Component({
     template: TEMPLATE
 })
-class SimilarMoviesWithContent {
+class RevisionHistoryWithContent {
     constructor(workspaceService: WorkspaceService, hackUpdateService: HackUpdateService) {
         workspaceService.importWorkspaceFromString(serializedWorkspace001);
     }
 }
 
-storiesOf('V2 / Detail Similar Movies', module)
+storiesOf('V2 / Revision History', module)
     .addDecorator(
         moduleMetadata({
             declarations: [],
@@ -40,10 +40,10 @@ storiesOf('V2 / Detail Similar Movies', module)
         }),
     ).add('Renders blank', () => {
         return {
-            component: SimilarMoviesBlank
+            component: RevisionHistoryBlank
         };
     }).add('Renders with prior content', () => {
         return {
-            component: SimilarMoviesWithContent
+            component: RevisionHistoryWithContent
         };
     });

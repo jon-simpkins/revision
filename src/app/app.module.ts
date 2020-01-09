@@ -16,7 +16,7 @@ import {
   MatSliderModule,
   MatDividerModule,
   MatToolbarModule,
-  MatSidenavModule, MatSnackBarModule, MatProgressSpinnerModule
+  MatSidenavModule, MatSnackBarModule, MatProgressSpinnerModule, MatTableModule
 } from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -46,6 +46,7 @@ import { ActionMenuComponent } from './action-menu/action-menu.component';
 import { DetailSimilarMoviesComponent } from './detail-similar-movies/detail-similar-movies.component';
 import { CreateNewStoryComponent } from './create-new-story/create-new-story.component';
 import { ActionBarComponent } from './action-bar/action-bar.component';
+import { RevisionHistoryComponent } from './revision-history/revision-history.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -74,6 +75,7 @@ const DECLARATIONS = [
   DetailSimilarMoviesComponent,
   CreateNewStoryComponent,
   ActionBarComponent,
+  RevisionHistoryComponent,
 ];
 
 const IMPORTS = [
@@ -93,6 +95,7 @@ const IMPORTS = [
   MatSliderModule,
   MatSnackBarModule,
   MatProgressSpinnerModule,
+  MatTableModule,
   BrowserAnimationsModule,
 ];
 

@@ -1,0 +1,47 @@
+<h2>Revision History</h2>
+<p>Here's where you can see the history of changes in this workspace.</p>
+
+<h3>Recent Work Summary</h3>
+<table mat-table [dataSource]="summaryDataSource" style="width: 100%; margin-bottom: 2em;">
+    
+    <!-- Time Window Column -->
+    <ng-container matColumnDef="window">
+        <th mat-header-cell *matHeaderCellDef> Time Window </th>
+        <td mat-cell *matCellDef="let element"> {{element.window}} </td>
+    </ng-container>
+    
+    <!-- Time Spent Column -->
+    <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef> Time Spent Writing </th>
+        <td mat-cell *matCellDef="let element"> {{element.duration}} </td>
+    </ng-container>
+    
+    <tr mat-header-row *matHeaderRowDef="summaryColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: summaryColumns;"></tr>
+</table>
+
+
+<h3>Full History</h3>
+<table mat-table [dataSource]="detailDataSource" style="width: 100%; margin-bottom: 2em;">
+    
+    <!-- Who Column -->
+    <ng-container matColumnDef="user">
+        <th mat-header-cell *matHeaderCellDef> Writer </th>
+        <td mat-cell *matCellDef="let element"> {{element.user}} </td>
+    </ng-container>
+    
+    <!-- Time Spent Column -->
+    <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef> Time Spent Writing </th>
+        <td mat-cell *matCellDef="let element"> {{element.duration}} </td>
+    </ng-container>
+
+    <!-- When Column -->
+    <ng-container matColumnDef="when">
+        <th mat-header-cell *matHeaderCellDef> When </th>
+        <td mat-cell *matCellDef="let element"> {{element.when}} </td>
+    </ng-container>
+    
+    <tr mat-header-row *matHeaderRowDef="detailColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: detailColumns;"></tr>
+</table>

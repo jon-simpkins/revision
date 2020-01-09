@@ -6,8 +6,6 @@ import { RoutingService } from './routing.service';
 import { HistoryEntry } from 'src/storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
-export const ACTION_ROUTE_LABEL = new Map<string, string>(); // Map from route -> label for action
-
 export class ActionOption {
   constructor(public actionRoute: ROUTES) { }
 
@@ -17,6 +15,9 @@ export class ActionOption {
     }
     if (this.actionRoute === ROUTES.CREATE_NEW_STORY) {
       return 'Create New Story';
+    }
+    if (this.actionRoute === ROUTES.REVISION_HISTORY) {
+      return 'Review Revision History';
     }
 
     return '-';
@@ -42,6 +43,7 @@ export class ActionService {
     const options = [ // Initialize to ones that are always options
       new ActionOption(ROUTES.DETAIL_SIMILAR_MOVIES),
       new ActionOption(ROUTES.CREATE_NEW_STORY),
+      new ActionOption(ROUTES.REVISION_HISTORY),
     ];
 
     return options;

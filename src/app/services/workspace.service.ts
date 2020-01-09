@@ -89,11 +89,27 @@ export class WorkspaceService {
 
       this.currentWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
       this.lastLoadedWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
-      console.log('Workspace after importing:');
-      console.log(this.currentWorkspace);
 
       return Promise.resolve(true);
     });
+  }
+
+
+  /**
+   * Just for use in Storybook, to allow importing of stub workspace content
+   * 
+   * @param multiLineString 
+   */
+  importWorkspaceFromString(multiLineString: string) {
+    const lines = multiLineString.split('\n').filter(line => !!line.length);
+    this.workspaceId = 'dummy';
+    let workspaceProxyObject = JSON.parse(new Workspace().toString());
+    lines.forEach(line => {
+      workspaceProxyObject = WorkspaceService.applyDiffs(workspaceProxyObject, line);
+    });
+
+    this.currentWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
+    this.lastLoadedWorkspace = Workspace.parseFromString(JSON.stringify(workspaceProxyObject));
   }
 
   /**
