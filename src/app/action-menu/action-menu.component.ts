@@ -19,7 +19,10 @@ export class ActionMenuComponent implements OnInit {
   public currentOptions: ActionOption[];
 
   constructor(private actionService: ActionService) {
-    this.currentOptions = this.actionService.getAllActionOptions();
+    this.currentOptions = [];
+    this.actionService.getAllActionOptions().then((options) => {
+      this.currentOptions = options;
+    });
   }
 
   ngOnInit() {

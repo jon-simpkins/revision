@@ -33,6 +33,8 @@ export class WorkspaceService {
   private lastLoadedWorkspace: Workspace; // We keep a separate copy, so we know what changes to save
   // TODO: there *has* to be a more efficient way of tracking changes, but this expedites things for dev
 
+  private storyId?: string; // ID for story currently being viewed / edited
+
   constructor() { }
 
   /**
@@ -189,6 +191,19 @@ export class WorkspaceService {
 
   abandonWorkspaceChanges() {
     this.currentWorkspace = Workspace.parseFromString(this.lastLoadedWorkspace.toString());
+  }
+
+  // Set the current storyId and return true / false for if the value changed
+  setCurrentStoryId(storyId?: string): boolean {
+    if (this.storyId !== storyId) {
+      this.storyId = storyId;
+      return true;
+    }
+    return false;
+  }
+
+  getCurrentStoryId(): string {
+    return this.storyId;
   }
 
 }

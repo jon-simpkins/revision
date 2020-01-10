@@ -47,6 +47,7 @@ import { DetailSimilarMoviesComponent } from './detail-similar-movies/detail-sim
 import { CreateNewStoryComponent } from './create-new-story/create-new-story.component';
 import { ActionBarComponent } from './action-bar/action-bar.component';
 import { RevisionHistoryComponent } from './revision-history/revision-history.component';
+import { AssignSimilarMoviesComponent } from './assign-similar-movies/assign-similar-movies.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -76,6 +77,7 @@ const DECLARATIONS = [
   CreateNewStoryComponent,
   ActionBarComponent,
   RevisionHistoryComponent,
+  AssignSimilarMoviesComponent,
 ];
 
 const IMPORTS = [
