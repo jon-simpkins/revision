@@ -55,12 +55,7 @@ export class DetailSimilarMoviesComponent implements OnInit {
   }
 
   getTmbdSearchUrl() {
-    let searchTitle = '';
-    if (this.currentDetailMovie && this.currentDetailMovie.title) {
-      searchTitle = this.currentDetailMovie.title;
-    }
-
-    return `https://www.themoviedb.org/search?query=${encodeURIComponent(searchTitle)}`
+    return this.currentDetailMovie.getTmdbSearchUrl();
   }
 
   tmbdUrlInput(e) {

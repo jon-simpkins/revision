@@ -15,6 +15,14 @@ export class SimilarMovie {
         return this.runtimeMin ? `${this.runtimeMin} min` : '';
     }
 
+    getTmdbSearchUrl(): string {
+        return `https://www.themoviedb.org/search?query=${encodeURIComponent(this.getTitle())}`;
+    }
+
+    getTmdbUrl(): string {
+        return this.tmbdUrl ? this.tmbdUrl : this.getTmdbSearchUrl();
+    }
+
     toString(): string {
         return JSON.stringify(this);
     }

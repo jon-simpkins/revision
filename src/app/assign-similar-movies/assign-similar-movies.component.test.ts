@@ -3,14 +3,15 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { AssignSimilarMoviesComponent } from './assign-similar-movies.component';
 
 import { RouterTestingModule } from '@angular/router/testing';
-import { MatIconModule, MatListModule, MatButtonModule } from '@angular/material';
+import { MatIconModule, MatListModule, MatButtonModule, MatFormFieldModule } from '@angular/material';
 import { WorkspaceService } from '../services/workspace.service';
 import { Workspace } from 'src/storyStructures';
+import { FormsModule } from '@angular/forms';
 
 describe('AssignSimilarMoviesComponent', () => {
   let component: AssignSimilarMoviesComponent;
   let fixture: ComponentFixture<AssignSimilarMoviesComponent>;
-  let workspaceService : WorkspaceService;
+  let workspaceService: WorkspaceService;
 
   beforeEach(async(() => {
     workspaceService = new WorkspaceService();
@@ -20,7 +21,7 @@ describe('AssignSimilarMoviesComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [AssignSimilarMoviesComponent],
-      imports: [RouterTestingModule, MatIconModule, MatListModule, MatButtonModule],
+      imports: [RouterTestingModule, MatIconModule, MatListModule, MatButtonModule, MatFormFieldModule],
       providers: [
         { provide: WorkspaceService, useValue: workspaceService }
       ]

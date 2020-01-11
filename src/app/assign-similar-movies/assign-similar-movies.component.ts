@@ -15,6 +15,7 @@ export class AssignSimilarMoviesComponent implements OnInit {
   public availableSimilarMovies: SimilarMovie[]; // Similar movies which have not already been selected
   public selectedSimilarMovies: SimilarMovie[];
   private currentStory: Story;
+  public currentNewMovieTitle = '';
 
   constructor(private workspaceService: WorkspaceService, private routingService: RoutingService) {
     this.currentStory = this.workspaceService.getCurrentStory();
@@ -69,8 +70,17 @@ export class AssignSimilarMoviesComponent implements OnInit {
     this.select(randomMovieId);
   }
 
-  editSimilarMovies() {
-    this.routingService.navigateToUrl(ROUTES.DETAIL_SIMILAR_MOVIES);
+  titleInput(e) {
+    this.currentNewMovieTitle = e.target.value;
+  }
+
+  addSimilarMovie() {
+    const newSimilarMovieId = this.workspaceService.currentWorkspace.buildNewSimilarMovie();
+    this.workspaceService.currentWorkspace.similarMovies.get(newSimilarMovieId).title = this.currentNewMovieTitle;
+
+    this.currentNewMovieTitle = '';
+    this.currentStory.similarMovieIds.push(newSimilarMovieId);
+    this.buildOptionList();
   }
 
 
