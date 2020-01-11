@@ -1,2 +1,42 @@
-<p>assign-similar-movies works!</p>
+<h2>Similar Movies</h2>
+<p>Let's figure out a few movies which are similar to the one you're writing:</p>
+
 {{getStoryId()}}
+
+<div style="display: flex;">
+    <div style="flex: 1; padding-right: 1em;">
+        <h3>Selected Similar Movies</h3>
+        <mat-list>
+            <ng-container *ngFor="let movie of selectedSimilarMovies">
+                <mat-list-item style="border-right: 1px solid darkgrey; border-bottom: 1px solid darkgrey;">
+                    <h3 matLine style="display: flex;">
+                        <span style="flex: 1">{{movie.getTitle()}}</span>
+                        <button mat-button style="flex:0;" (click)="delete(movie.id)"><mat-icon>delete</mat-icon></button>
+                    </h3>
+                    <div matLine style="display: flex;">
+                        <span style="flex: 1">{{movie.getRuntime()}}</span>
+                        <span style="flex: 1">
+                            <a *ngIf="!!movie.tmbdUrl" [href]="movie.tmbdUrl" target="_blank">Tmbd Link</a>
+                        </span>
+                        
+                    </div>
+                    
+                </mat-list-item>
+            </ng-container>
+        </mat-list>
+    </div>
+    <div style="flex: 1; padding-left: 1em;">
+        <h3>Available Similar Movies</h3>
+        <div>
+            <button mat-button (click)="editSimilarMovies()"><mat-icon>edit</mat-icon></button>
+            <button *ngIf="!!availableSimilarMovies.length" mat-button (click)="selectRandom()"><mat-icon>shuffle</mat-icon></button>
+        </div>
+        <mat-action-list>
+            <ng-container *ngFor="let movie of availableSimilarMovies">
+                <button mat-list-item (click)="select(movie.id)">
+                    {{movie.getTitle()}}
+                </button>
+            </ng-container>
+        </mat-action-list>
+    </div>
+</div>
