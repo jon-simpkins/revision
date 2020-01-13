@@ -11,3 +11,21 @@ export enum ROUTES {
 export const storySpecificRoutes: Set<ROUTES> = new Set([
     ROUTES.ASSIGN_SIMILAR_MOVIES
 ]);
+
+// Each route is either a tool for analysis, or for synthesis
+export enum ROUTE_TYPE {
+    SYNTHESIS = 'Synthesis',
+    ANALYSIS = 'Analysis'
+};
+
+const SYNTHESIS_ROUTES: Set<ROUTES> = new Set([
+    ROUTES.ASSIGN_SIMILAR_MOVIES, ROUTES.CREATE_NEW_STORY
+])
+
+export function getRouteType(route: ROUTES): ROUTE_TYPE {
+    if (SYNTHESIS_ROUTES.has(route)) {
+        return ROUTE_TYPE.SYNTHESIS;
+    }
+
+    return ROUTE_TYPE.ANALYSIS;
+}

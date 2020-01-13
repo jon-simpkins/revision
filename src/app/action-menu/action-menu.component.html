@@ -1,10 +1,43 @@
 <h2>Action Menu</h2>
 <p>Which task do you want to work on?</p>
 
-<mat-action-list>
-    <ng-container *ngFor="let option of currentOptions">
-        <button mat-list-item (click)="executeOption(option)">
-            {{option.getLabel()}}
-        </button>
+<mat-checkbox color="primary" [checked]="showAnalysis" (click)="handleShowAnalysisClick($event)">
+    <mat-icon>menu_book</mat-icon>
+</mat-checkbox>
+<mat-checkbox  color="primary"  [checked]="showSynthesis" (click)="handleShowSynthesisClick($event)">
+    <mat-icon>edit</mat-icon>
+</mat-checkbox>
+
+<table mat-table [dataSource]="actionOptionDataSource" style="width: 100%; margin-bottom: 2em;">
+    
+    <!-- Action Column -->
+    <ng-container matColumnDef="label">
+        <th mat-header-cell *matHeaderCellDef> Action </th>
+        <td mat-cell *matCellDef="let option" style="padding-right: 1em;">
+            <button mat-button (click)="executeOption(option)" style="width:100%; text-align: left;">
+                {{option.getLabel()}}
+            </button>
+        </td>
     </ng-container>
-</mat-action-list>
+    
+    <!-- Story Column -->
+    <ng-container matColumnDef="storyId">
+        <th mat-header-cell *matHeaderCellDef> Story </th>
+        <td mat-cell *matCellDef="let option"> {{option.storyId}} </td>
+    </ng-container>
+
+    <!-- Synthesis / Analysis Column -->
+    <ng-container matColumnDef="synthesisAnalysis">
+        <th mat-header-cell *matHeaderCellDef> Synthesis / Analysis </th>
+        <td mat-cell *matCellDef="let option"> <mat-icon>{{option.getActionTypeIcon()}}</mat-icon> </td>
+    </ng-container>
+
+    <!-- Needs Completion Column -->
+    <ng-container matColumnDef="needsCompletion">
+        <th mat-header-cell *matHeaderCellDef> Completed </th>
+        <td mat-cell *matCellDef="let option"> <mat-icon>{{option.getCompletionIcon()}}</mat-icon> </td>
+    </ng-container>
+    
+    <tr mat-header-row *matHeaderRowDef="actionOptionColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: actionOptionColumns;"></tr>
+</table>

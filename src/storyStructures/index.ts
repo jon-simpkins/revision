@@ -23,6 +23,10 @@ export class SimilarMovie {
         return this.tmbdUrl ? this.tmbdUrl : this.getTmdbSearchUrl();
     }
 
+    getNeedsCompletion(): boolean {
+        return !this.title || !this.runtimeMin || !this.tmbdUrl;
+    }
+
     toString(): string {
         return JSON.stringify(this);
     }

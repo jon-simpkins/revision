@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { ROUTES } from '../v2-router/routes'; // todo: make this an enum of routes?
+import { ROUTES, ROUTE_TYPE, getRouteType } from '../v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
-import { HistoryEntry, Story } from 'src/storyStructures';
+import { HistoryEntry, Story, SimilarMovie } from 'src/storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 export class ActionOption {
-  constructor(public actionRoute: ROUTES, public storyId?: string) { }
+  constructor(public actionRoute: ROUTES, public needsCompletion?: boolean, public storyId?: string) { }
 
   getLabel(): string {
     if (this.actionRoute === ROUTES.DETAIL_SIMILAR_MOVIES) {
@@ -20,10 +20,28 @@ export class ActionOption {
       return 'Review Revision History';
     }
     if (this.actionRoute === ROUTES.ASSIGN_SIMILAR_MOVIES) {
-      return `Assign Similar Movies (${this.storyId})`
+      return `Assign Similar Movies`
     }
 
     return '-';
+  }
+
+  getActionType(): ROUTE_TYPE {
+    return getRouteType(this.actionRoute);
+  }
+
+  getCompletionIcon(): string {
+    if (this.needsCompletion) {
+      return 'highlight_off';
+    }
+    return 'done';
+  }
+
+  getActionTypeIcon(): string {
+    if (this.getActionType() === ROUTE_TYPE.ANALYSIS) {
+      return 'menu_book';
+    }
+    return 'edit';
   }
 }
 
@@ -52,15 +70,22 @@ export class ActionService {
       });
     }
 
+    let similarMoviesHaveAllDetails = true;
+    this.workspaceService.currentWorkspace.similarMovies.forEach((similarMovie: SimilarMovie) => {
+      if (similarMovie.getNeedsCompletion()) {
+        similarMoviesHaveAllDetails = false;
+      }
+    })
+
     const options = [ // Initialize to ones that are always options
-      new ActionOption(ROUTES.DETAIL_SIMILAR_MOVIES),
-      new ActionOption(ROUTES.CREATE_NEW_STORY),
-      new ActionOption(ROUTES.REVISION_HISTORY),
+      new ActionOption(ROUTES.DETAIL_SIMILAR_MOVIES, !similarMoviesHaveAllDetails),
+      new ActionOption(ROUTES.CREATE_NEW_STORY, true),
+      new ActionOption(ROUTES.REVISION_HISTORY, false),
     ];
 
     this.workspaceService.currentWorkspace.stories.forEach((story: Story, storyId: string) => {
       options.push(
-        new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, storyId)
+        new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, !!story.similarMovieIds.length, storyId)
       );
     });
 
