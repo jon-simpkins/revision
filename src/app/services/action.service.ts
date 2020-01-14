@@ -32,7 +32,7 @@ export class ActionOption {
 
   getCompletionIcon(): string {
     if (this.needsCompletion) {
-      return 'highlight_off';
+      return 'priority_high';
     }
     return 'done';
   }
@@ -90,6 +90,22 @@ export class ActionService {
     });
 
     return Promise.resolve(options);
+  }
+
+  getAllStoryOptions() {
+    const allStoryOptions = [{
+      label: 'Any',
+      value: 'any'
+    }];
+
+    this.workspaceService.currentWorkspace.stories.forEach((story: Story, storyId: string) => {
+      allStoryOptions.push({
+        label: storyId,
+        value: storyId
+      });
+    });
+
+    return allStoryOptions;
   }
 
   startAction(option: ActionOption) {

@@ -1,12 +1,43 @@
 <h2>Action Menu</h2>
 <p>Which task do you want to work on?</p>
 
-<mat-checkbox color="primary" [checked]="showAnalysis" (click)="handleShowAnalysisClick($event)">
-    <mat-icon>menu_book</mat-icon>
-</mat-checkbox>
-<mat-checkbox  color="primary"  [checked]="showSynthesis" (click)="handleShowSynthesisClick($event)">
-    <mat-icon>edit</mat-icon>
-</mat-checkbox>
+<div style="display: flex;">
+    <div style="flex: 0;">
+        <span>Synthesis/Analysis:</span>
+        <div>
+            <mat-checkbox color="primary"
+                style="margin-right: 1em;"
+            [checked]="showAnalysis" (click)="handleShowAnalysisClick($event)">
+                <mat-icon>menu_book</mat-icon>
+            </mat-checkbox>
+            <mat-checkbox  color="primary"  [checked]="showSynthesis" (click)="handleShowSynthesisClick($event)">
+                <mat-icon>edit</mat-icon>
+            </mat-checkbox>
+        </div>
+    </div>
+    <mat-slide-toggle color="primary" style="flex: 0; margin: auto 2em;"
+        [checked]="showUnfinishedOnly"
+        (click)="handleShowUnfinishedToggle($event)">
+        Unfinished Only
+    </mat-slide-toggle>
+    <mat-form-field style="flex: 0;">
+        <mat-label>Story Id</mat-label>
+        <mat-select
+            [value]="currentSelectedStoryId"
+            (valueChange)="changeSelectedStory($event)"
+        >
+          <mat-option *ngFor="let story of storyOptions" [value]="story.value">
+            {{story.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button color="primary" style="margin-left: 1em;" [disabled]="!actionOptionDataSource.length"><mat-icon>shuffle</mat-icon></button>
+    <div style="flex: 1;">&nbsp;</div>
+</div>
+
+
+
+
 
 <table mat-table [dataSource]="actionOptionDataSource" style="width: 100%; margin-bottom: 2em;">
     

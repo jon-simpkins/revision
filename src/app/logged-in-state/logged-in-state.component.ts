@@ -34,7 +34,7 @@ export class LoggedInStateComponent implements OnInit {
   }
 
   goToLandingPage() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/v2']);
   }
 
   signOut() {

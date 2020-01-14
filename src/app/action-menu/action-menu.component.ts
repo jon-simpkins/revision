@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActionOption, ActionService } from '../services/action.service';
 import { ROUTE_TYPE } from '../v2-router/routes';
+import { WorkspaceService } from '../services/workspace.service';
 
 /**
  * Component for selecting an action within a workspace
@@ -20,16 +21,22 @@ export class ActionMenuComponent implements OnInit {
   public allOptions: ActionOption[];
   public actionOptionDataSource: ActionOption[];
   public actionOptionColumns = ['label', 'storyId', 'synthesisAnalysis', 'needsCompletion']
+  public storyOptions: any[];
+
 
   public showSynthesis = true;
   public showAnalysis = true;
+  public showUnfinishedOnly = true;
+  public currentSelectedStoryId: string;
 
-  constructor(private actionService: ActionService) {
+  constructor(private actionService: ActionService, private workspaceService: WorkspaceService) {
     this.allOptions = [];
     this.actionService.getAllActionOptions().then((options) => {
       this.allOptions = options;
       this.buildActionOptionDataSource();
+      this.storyOptions = this.actionService.getAllStoryOptions();
     });
+    this.currentSelectedStoryId = workspaceService.getCurrentStoryId() || 'any';
   }
 
   ngOnInit() {
@@ -38,7 +45,13 @@ export class ActionMenuComponent implements OnInit {
   buildActionOptionDataSource() {
     this.actionOptionDataSource = this.allOptions.filter(option => {
       const actionType = option.getActionType();
+      if (!option.needsCompletion && this.showUnfinishedOnly) {
+        return false;
+      }
       if (actionType === ROUTE_TYPE.ANALYSIS && !this.showAnalysis || actionType === ROUTE_TYPE.SYNTHESIS && !this.showSynthesis) {
+        return false;
+      }
+      if (this.currentSelectedStoryId !== 'any' && this.currentSelectedStoryId !== option.storyId) {
         return false;
       }
 
@@ -56,6 +69,22 @@ export class ActionMenuComponent implements OnInit {
     e.preventDefault();
     this.showSynthesis = !this.showSynthesis;
     this.buildActionOptionDataSource();
+  }
+
+  handleShowUnfinishedToggle(e) {
+    e.preventDefault();
+    this.showUnfinishedOnly = !this.showUnfinishedOnly;
+    this.buildActionOptionDataSource();
+  }
+
+  changeSelectedStory(e) {
+    this.currentSelectedStoryId = e;
+    this.buildActionOptionDataSource();
+  }
+
+  selectRandomOption() {
+    const randomIdx = Math.floor(Math.random() * this.actionOptionDataSource.length);
+    this.executeOption(this.actionOptionDataSource[randomIdx]);
   }
 
   executeOption(option: ActionOption) {
