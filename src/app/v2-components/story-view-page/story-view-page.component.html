@@ -1,0 +1,6 @@
+<h2>Story Details: {{getStoryId()}}</h2>
+
+<h3>Similar Movies <smart-link-btn [targetAction]="similarMovieEditAction" icon="edit"></smart-link-btn></h3>
+<similar-movie-list
+    [similarMovieList]="similarMovies"
+></similar-movie-list>

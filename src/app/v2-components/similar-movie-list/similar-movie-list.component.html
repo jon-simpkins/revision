@@ -1,0 +1,20 @@
+<mat-list *ngIf="!!similarMovieList.length">
+    <ng-container *ngFor="let movie of similarMovieList">
+        <mat-list-item style="border-right: 1px solid darkgrey; border-bottom: 1px solid darkgrey;">
+            <h3 matLine style="display: flex;">
+                <span style="flex: 1">{{movie.getTitle()}}</span>
+                <button *ngIf="showDeleteBtn()"
+                        mat-button style="flex:0;" (click)="delete(movie.id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </h3>
+            <div matLine style="display: flex;">
+                <span style="flex: 1">{{movie.getRuntime()}}</span>
+                <span style="flex: 1">
+                    <a [href]="movie.getTmdbUrl()" target="_blank">Tmbd Link</a>
+                </span>
+            </div>
+        </mat-list-item>
+    </ng-container>
+</mat-list>
+<h4 *ngIf="!similarMovieList.length">No Similar Movies Yet</h4>

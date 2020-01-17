@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
 import { generateV2HeaderCommands, updateContentLine } from '../../docsApi/docsContentHelpers';
-import { Workspace, HistoryEntry, Story } from 'src/storyStructures';
-import {applyDiffs, generateDiffToSave} from 'src/storyStructures/serialization';
+import { Workspace, HistoryEntry, Story } from '../../storyStructures';
+import { applyDiffs, generateDiffToSave } from 'src/storyStructures/serialization';
 
 /**
  * Locally-stored information about a workspace
@@ -206,7 +206,7 @@ export class WorkspaceService {
     return this.storyId;
   }
 
-  getCurrentStory(): Story|null {
+  getCurrentStory(): Story | null {
     if (!this.storyId) {
       return null;
     }

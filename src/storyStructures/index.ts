@@ -59,6 +59,20 @@ export class Story {
 
         return story;
     }
+    
+    hasContentToShow(): boolean {
+        if (!!this.logLine) {
+            return true;
+        }
+        if (!!this.similarMovieIds.length) {
+            return true;
+        }
+        if (!!this.runtimeMin) {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 export class HistoryEntry {

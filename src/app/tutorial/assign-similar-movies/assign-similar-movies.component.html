@@ -1,0 +1,42 @@
+<h2>Similar Movies</h2>
+<p>Let's figure out a few movies which are similar to the one you're writing:</p>
+
+<p>
+    <smart-link-btn [targetAction]="storyViewAction" label="View Story Details"></smart-link-btn>
+</p>
+
+<div style="display: flex;">
+    <div style="flex: 1; padding-right: 1em;">
+        <h3>Selected Similar Movies</h3>
+        <div style="display: flex;">
+            <button style="flex: 0;" mat-button (click)="addSimilarMovie()"><mat-icon>add</mat-icon></button>
+            <form style="flex: 1;">
+                <mat-form-field style="width: 100%">
+                    <input matInput
+                        placeholder="Movie Title"
+                        [value]="currentNewMovieTitle"
+                        (input)="titleInput($event)"
+                        >
+                </mat-form-field>
+            </form>
+        </div>
+        <similar-movie-list
+            [similarMovieList]="selectedSimilarMovies"
+            [deleteMovieCallback]="deleteMovieCallback"
+        ></similar-movie-list>
+    </div>
+    <div style="flex: 1; padding-left: 1em;">
+        <h3>Available Similar Movies</h3>
+        <div>
+            <button *ngIf="!!availableSimilarMovies.length" mat-button (click)="selectRandom()"><mat-icon>shuffle</mat-icon></button>
+        </div>
+        <mat-action-list style="max-height: 250px; border-bottom: 1px solid darkgrey; margin-bottom: 1em; overflow-y: scroll;">
+            <ng-container *ngFor="let movie of availableSimilarMovies">
+                <button mat-list-item (click)="select(movie.id)">
+                    {{movie.getTitle()}}
+                </button>
+            </ng-container>
+        </mat-action-list>
+        
+    </div>
+</div>

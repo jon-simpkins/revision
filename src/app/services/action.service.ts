@@ -1,29 +1,29 @@
 import { Injectable } from '@angular/core';
 
-import { ROUTES, ROUTE_TYPE, getRouteType } from '../v2-router/routes'; // todo: make this an enum of routes?
+import { ROUTES, ROUTE_TYPE, getRouteType } from '../v2-components/v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
-import { HistoryEntry, Story, SimilarMovie } from 'src/storyStructures';
+import { HistoryEntry, Story, SimilarMovie } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 export class ActionOption {
   constructor(public actionRoute: ROUTES, public needsCompletion?: boolean, public storyId?: string) { }
 
   getLabel(): string {
-    if (this.actionRoute === ROUTES.DETAIL_SIMILAR_MOVIES) {
-      return 'Edit a List of Reference Movies';
+    switch (this.actionRoute as ROUTES) {
+      case ROUTES.DETAIL_SIMILAR_MOVIES:
+        return 'Edit a List of Reference Movies';
+      case ROUTES.CREATE_NEW_STORY:
+        return 'Create New Story';
+      case ROUTES.REVISION_HISTORY:
+        return 'Review Revision History';
+      case ROUTES.ASSIGN_SIMILAR_MOVIES:
+        return 'Assign Similar Movies';
+      case ROUTES.STORY_VIEW_PAGE:
+        return 'View Story';
+      default:
+        return '-';
     }
-    if (this.actionRoute === ROUTES.CREATE_NEW_STORY) {
-      return 'Create New Story';
-    }
-    if (this.actionRoute === ROUTES.REVISION_HISTORY) {
-      return 'Review Revision History';
-    }
-    if (this.actionRoute === ROUTES.ASSIGN_SIMILAR_MOVIES) {
-      return `Assign Similar Movies`
-    }
-
-    return '-';
   }
 
   getActionType(): ROUTE_TYPE {
@@ -84,6 +84,10 @@ export class ActionService {
     ];
 
     this.workspaceService.currentWorkspace.stories.forEach((story: Story, storyId: string) => {
+      options.push(
+        new ActionOption(ROUTES.STORY_VIEW_PAGE, story.hasContentToShow(), storyId)
+      );
+
       options.push(
         new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, !!story.similarMovieIds.length, storyId)
       );

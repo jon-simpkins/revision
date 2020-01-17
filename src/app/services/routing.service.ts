@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { ROUTES, storySpecificRoutes } from '../v2-router/routes';
+import { ROUTES, storySpecificRoutes } from '../v2-components/v2-router/routes';
 import { WorkspaceService } from './workspace.service';
 
 /**
