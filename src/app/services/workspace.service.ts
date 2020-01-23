@@ -171,7 +171,7 @@ export class WorkspaceService {
     
     if (validationError) {
       alert(`Validation error: ${validationError}`);
-      this.currentWorkspace = Workspace.parseFromString(this.lastLoadedWorkspace.toString());
+      this.abandonWorkspaceChanges();
       return Promise.resolve(true);
     }
     

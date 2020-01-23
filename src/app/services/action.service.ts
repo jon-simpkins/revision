@@ -5,7 +5,6 @@ import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
 import { HistoryEntry, Story, SimilarMovie } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
-import { Action } from 'rxjs/internal/scheduler/Action';
 
 export class ActionOption {
   constructor(public actionRoute: ROUTES, public needsCompletion?: boolean, public storyId?: string) { }
@@ -103,6 +102,9 @@ export class ActionService {
     return Promise.resolve(options);
   }
 
+  /**
+   * Generate the list of story options for the story-selector dropdown
+   */
   getAllStoryOptions() {
     const allStoryOptions = [{
       label: 'Any',
