@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { WorkspaceService } from 'src/app/services/workspace.service';
-import { ActionOption } from 'src/app/services/action.service';
-import { ROUTES } from '../v2-router/routes';
+import { ActionOption } from 'src/actions/action-option';
+import { ANALYSIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'logline-page',
@@ -20,7 +20,7 @@ export class LoglinePageComponent {
       this.workspaceService.getCurrentStory().logLine = newLogline;
     }
 
-    this.storyViewAction = new ActionOption(ROUTES.STORY_VIEW_PAGE);
+    this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
   }
 
   getStoryId(): string {

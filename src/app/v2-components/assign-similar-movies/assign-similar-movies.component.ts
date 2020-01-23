@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SimilarMovie, Story } from 'src/storyStructures';
-import { ROUTES } from '../v2-router/routes';
-import { ActionOption } from '../../services/action.service';
+import { ActionOption } from 'src/actions/action-option';
+import { ANALYSIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'assign-similar-movies',
@@ -26,7 +26,7 @@ export class AssignSimilarMoviesComponent implements OnInit {
   constructor(private workspaceService: WorkspaceService) {
     this.currentStory = this.workspaceService.getCurrentStory();
     this.buildOptionList();
-    this.storyViewAction = new ActionOption(ROUTES.STORY_VIEW_PAGE);
+    this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
   }
 
   ngOnInit() {

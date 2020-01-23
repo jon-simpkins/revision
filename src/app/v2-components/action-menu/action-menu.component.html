@@ -31,7 +31,7 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <button mat-stroked-button color="primary" style="margin-left: 1em;" [disabled]="!actionOptionDataSource.length"><mat-icon>shuffle</mat-icon></button>
+      <button mat-stroked-button color="primary" style="margin-left: 1em;" [disabled]="!actionOptionDataSource.length" (click)="selectRandomOption()"><mat-icon>shuffle</mat-icon></button>
     <div style="flex: 1;">&nbsp;</div>
 </div>
 

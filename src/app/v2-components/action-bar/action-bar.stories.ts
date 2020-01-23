@@ -3,9 +3,11 @@ import { storiesOf, moduleMetadata } from '@storybook/angular';
 import { Component } from '@angular/core';
 
 import { AppModule } from '../../app.module';
-import { ActionService, ActionOption } from '../../services/action.service';
-import { ROUTES } from '../v2-router/routes';
+import { ActionService } from '../../services/action.service';
+
 import { HackUpdateService } from '../../services/hack-update.service';
+import { ActionOption } from '../../../actions/action-option';
+import { ANALYSIS_ACTIONS } from 'src/actions/actions';
 
 const TEMPLATE = `
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -17,7 +19,7 @@ const TEMPLATE = `
 })
 class ActionBarWhenNoAction {
     constructor(actionService: ActionService, hackUpdateService: HackUpdateService) {
-        actionService.currentOption = null;
+        actionService.resetAction();
     }
 }
 
@@ -27,11 +29,10 @@ class ActionBarWhenNoAction {
 class ActionBarWhenSimpleActionInProgress {
     constructor(actionService: ActionService, hackUpdateService: HackUpdateService) {
         const newActionOption = new ActionOption(
-            ROUTES.DETAIL_SIMILAR_MOVIES
+            ANALYSIS_ACTIONS.DETAIL_SIMILAR_MOVIES
         );
 
-        actionService.currentOption = newActionOption;
-        actionService.currentEpochStarted = Date.now() - (1000 * 72);
+        actionService.startAction(newActionOption);
     }
 }
 

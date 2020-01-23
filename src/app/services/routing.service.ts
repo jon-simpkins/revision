@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { ROUTES, storySpecificRoutes } from '../v2-components/v2-router/routes';
+import { ROUTES } from '../v2-components/v2-router/routes';
 import { WorkspaceService } from './workspace.service';
 
 /**
@@ -26,18 +26,5 @@ export class RoutingService {
         } }
       );
     }, 250);
-  }
-
-  gateStorySpecificPages(currentRoute: ROUTES) {
-    if (!storySpecificRoutes.has(currentRoute)) {
-      return;
-    }
-
-    const storyId = this.workspaceService.getCurrentStoryId();
-    if (!storyId || !this.workspaceService.currentWorkspace.stories.has(storyId)) {
-      // No valid story to load!
-      console.log('Gating story-specific page: ' + currentRoute);
-      this.navigateToUrl(ROUTES.ACTION_MENU);
-    }
   }
 }

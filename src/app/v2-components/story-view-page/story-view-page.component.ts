@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SimilarMovie } from 'src/storyStructures';
-import { ActionOption } from '../../services/action.service';
-import { ROUTES } from '../v2-router/routes';
+import { ActionOption } from 'src/actions/action-option';
+import { SYNTHESIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'story-view-page',
@@ -20,9 +20,9 @@ export class StoryViewPageComponent implements OnInit {
     this.similarMovies = this.workspaceService.getCurrentStory().similarMovieIds.map(similarMovieId => {
       return this.workspaceService.currentWorkspace.similarMovies.get(similarMovieId);
     });
-    this.similarMovieEditAction = new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES);
+    this.similarMovieEditAction = new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES);
   
-    this.loglineEditAction = new ActionOption(ROUTES.LOGLINE_EDIT_PAGE);
+    this.loglineEditAction = new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE);
   }
 
   getStoryId(): string {

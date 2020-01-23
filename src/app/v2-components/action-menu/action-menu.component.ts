@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActionOption, ActionService } from '../../services/action.service';
-import { ROUTE_TYPE } from '../v2-router/routes';
+import { ActionService } from '../../services/action.service';
 import { WorkspaceService } from '../../services/workspace.service';
+import { ActionOption } from '../../../actions/action-option';
 
 /**
  * Component for selecting an action within a workspace
@@ -29,7 +29,7 @@ export class ActionMenuComponent implements OnInit {
   public showUnfinishedOnly = true;
   public currentSelectedStoryId: string;
 
-  constructor(private actionService: ActionService, private workspaceService: WorkspaceService) {
+  constructor(private actionService: ActionService, workspaceService: WorkspaceService) {
     this.allOptions = [];
     this.actionService.getAllActionOptions().then((options) => {
       this.allOptions = options;
@@ -44,11 +44,11 @@ export class ActionMenuComponent implements OnInit {
 
   buildActionOptionDataSource() {
     this.actionOptionDataSource = this.allOptions.filter(option => {
-      const actionType = option.getActionType();
+      const actionIsSynthesis = option.getIsSynthesis();
       if (!option.needsCompletion && this.showUnfinishedOnly) {
         return false;
       }
-      if (actionType === ROUTE_TYPE.ANALYSIS && !this.showAnalysis || actionType === ROUTE_TYPE.SYNTHESIS && !this.showSynthesis) {
+      if ((!actionIsSynthesis && !this.showAnalysis) || (actionIsSynthesis && !this.showSynthesis)) {
         return false;
       }
       if (this.currentSelectedStoryId !== 'any' && this.currentSelectedStoryId !== option.storyId) {

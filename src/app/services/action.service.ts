@@ -1,51 +1,14 @@
 import { Injectable } from '@angular/core';
 
-import { ROUTES, ROUTE_TYPE, getRouteType } from '../v2-components/v2-router/routes'; // todo: make this an enum of routes?
+import { ROUTES } from '../v2-components/v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
 import { HistoryEntry, Story, SimilarMovie } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
-export class ActionOption {
-  constructor(public actionRoute: ROUTES, public needsCompletion?: boolean, public storyId?: string) { }
-
-  getLabel(): string {
-    switch (this.actionRoute as ROUTES) {
-      case ROUTES.DETAIL_SIMILAR_MOVIES:
-        return 'Edit a List of Reference Movies';
-      case ROUTES.CREATE_NEW_STORY:
-        return 'Create New Story';
-      case ROUTES.REVISION_HISTORY:
-        return 'Review Revision History';
-      case ROUTES.ASSIGN_SIMILAR_MOVIES:
-        return 'Assign Similar Movies';
-      case ROUTES.STORY_VIEW_PAGE:
-        return 'View Story';
-      case ROUTES.LOGLINE_EDIT_PAGE:
-        return 'Edit Logline';
-      default:
-        return '-';
-    }
-  }
-
-  getActionType(): ROUTE_TYPE {
-    return getRouteType(this.actionRoute);
-  }
-
-  getCompletionIcon(): string {
-    if (this.needsCompletion) {
-      return 'priority_high';
-    }
-    return 'done';
-  }
-
-  getActionTypeIcon(): string {
-    if (this.getActionType() === ROUTE_TYPE.ANALYSIS) {
-      return 'menu_book';
-    }
-    return 'edit';
-  }
-}
+import { ActionOption } from '../../actions/action-option';
+import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from '../../actions/actions';
+import { debug } from 'util';
 
 /**
  * A service to determine the list of actions available,
@@ -57,10 +20,25 @@ export class ActionOption {
 })
 export class ActionService {
 
-  public currentOption?: ActionOption = null;
-  public currentEpochStarted?: number;
+  private currentViewOption?: ActionOption = null;
+  private currentEditOption?: ActionOption = null;
+
+  // The epoch ms when the session started, zero indicates no current session
+  private currentSessionStarted: number = 0;
 
   constructor(private workspaceService: WorkspaceService, private routingService: RoutingService) { }
+
+  getCurrentSessionStarted(): number {
+    return this.currentSessionStarted;
+  }
+
+  getCurrentViewOption(): ActionOption {
+    return this.currentViewOption;
+  }
+
+  getCurrentEditOption(): ActionOption {
+    return this.currentEditOption;
+  }
 
   getAllActionOptions(): Promise<ActionOption[]> {
     if (!this.workspaceService.currentWorkspace) {
@@ -80,22 +58,22 @@ export class ActionService {
     })
 
     const options = [ // Initialize to ones that are always options
-      new ActionOption(ROUTES.DETAIL_SIMILAR_MOVIES, !similarMoviesHaveAllDetails),
-      new ActionOption(ROUTES.CREATE_NEW_STORY, true),
-      new ActionOption(ROUTES.REVISION_HISTORY, false),
+      new ActionOption(ANALYSIS_ACTIONS.DETAIL_SIMILAR_MOVIES, !similarMoviesHaveAllDetails),
+      new ActionOption(SYNTHESIS_ACTIONS.CREATE_NEW_STORY, true),
+      new ActionOption(ANALYSIS_ACTIONS.REVISION_HISTORY, false),
     ];
 
     this.workspaceService.currentWorkspace.stories.forEach((story: Story, storyId: string) => {
       options.push(
-        new ActionOption(ROUTES.STORY_VIEW_PAGE, story.hasContentToShow(), storyId)
+        new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE, !story.hasContentToShow(), storyId)
       );
 
       options.push(
-        new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, !story.similarMovieIds.length, storyId)
+        new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES, !story.similarMovieIds.length, storyId)
       );
 
       options.push(
-        new ActionOption(ROUTES.LOGLINE_EDIT_PAGE, !story.logLine, storyId)
+        new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE, !story.logLine, storyId)
       )
     });
 
@@ -122,18 +100,27 @@ export class ActionService {
   }
 
   startAction(option: ActionOption) {
-    if (!this.currentOption) {
-      this.currentOption = option;
-      this.currentEpochStarted = Date.now();
+    if (!this.currentSessionStarted) {
+      this.currentSessionStarted = Date.now();
     }
 
-    this.routingService.navigateToUrl(option.actionRoute, option.storyId);
+    if (option.storyId) {
+      this.workspaceService.setCurrentStoryId(option.storyId);
+    }
+
+    if (option.getIsSynthesis()) {
+      this.currentEditOption = option;
+    } else {
+      this.currentViewOption = option;
+    }
+
+    this.routingService.navigateToUrl(ROUTES.WRITING, option.storyId);
   }
 
   completeAction() {
     const newHistoryEntry = new HistoryEntry();
     newHistoryEntry.userEmail = getLoginEmail();
-    newHistoryEntry.editStartEpochMs = this.currentEpochStarted;
+    newHistoryEntry.editStartEpochMs = this.currentSessionStarted;
     newHistoryEntry.editEndEpochMs = Date.now();
 
     this.workspaceService.saveAdditionalSerialization(newHistoryEntry)
@@ -148,8 +135,9 @@ export class ActionService {
   }
 
   resetAction() {
-    this.currentEpochStarted = null;
-    this.currentOption = null;
+    this.currentSessionStarted = 0;
+    this.currentViewOption = null;
+    this.currentEditOption = null;
     this.routingService.navigateToUrl(ROUTES.ACTION_MENU);
   }
 

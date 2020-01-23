@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ActionOption, ActionService } from '../../services/action.service';
+import { ActionService } from '../../services/action.service';
+import { ActionOption } from 'src/actions/action-option';
 
 /**
  * This component is to provide a simple button wrapper around "start action X"

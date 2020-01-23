@@ -53,6 +53,7 @@ import { SimilarMovieListComponent } from './v2-components/similar-movie-list/si
 import { SmartLinkBtnComponent } from './v2-components/smart-link-btn/smart-link-btn.component';
 import { LoglinePageComponent } from './v2-components/logline-page/logline-page.component';
 import { QuillEditorComponent } from './v2-components/quill-editor/quill-editor.component';
+import { WritingPageComponent } from './v2-components/writing-page/writing-page.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -88,6 +89,7 @@ const DECLARATIONS = [
   SmartLinkBtnComponent,
   LoglinePageComponent,
   QuillEditorComponent,
+  WritingPageComponent,
 ];
 
 const IMPORTS = [

@@ -46,10 +46,7 @@ export class V2RouterComponent implements OnInit {
     });
 
     const storyId = map.get('storyId');
-    const storyIdChanged = this.workspaceService.setCurrentStoryId(storyId);
-    if (storyIdChanged) {
-      this.routingService.gateStorySpecificPages(this.pagePath);
-    }
+    this.workspaceService.setCurrentStoryId(storyId);
   }
 
   urlHandler(url: UrlSegment[]) {
@@ -57,7 +54,5 @@ export class V2RouterComponent implements OnInit {
     if (url[1]) {
       this.pagePath = url[1].path as ROUTES;
     }
-
-    this.routingService.gateStorySpecificPages(this.pagePath);
   }
 }

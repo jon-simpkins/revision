@@ -1,0 +1,13 @@
+<action-bar></action-bar>
+<div style="display: flex;">
+    <div *ngIf="hasViewAction()" [ngSwitch]="getViewAction()" style="flex:1; padding: 1em;">
+        <detail-similar-movies *ngSwitchCase="analysisActions.DETAIL_SIMILAR_MOVIES"></detail-similar-movies>
+        <revision-history *ngSwitchCase="analysisActions.REVISION_HISTORY"></revision-history>
+        <story-view-page *ngSwitchCase="analysisActions.STORY_VIEW_PAGE"></story-view-page>
+    </div>
+    <div *ngIf="hasEditAction()" [ngSwitch]="getEditAction()" style="flex:1; padding: 1em;">
+        <create-new-story *ngSwitchCase="synthesisActions.CREATE_NEW_STORY" ></create-new-story>
+        <assign-similar-movies *ngSwitchCase="synthesisActions.ASSIGN_SIMILAR_MOVIES" ></assign-similar-movies>
+        <logline-page *ngSwitchCase="synthesisActions.LOGLINE_EDIT_PAGE"></logline-page>
+    </div>
+</div>

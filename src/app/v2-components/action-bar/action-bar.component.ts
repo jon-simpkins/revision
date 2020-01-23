@@ -16,13 +16,13 @@ export class ActionBarComponent implements OnInit {
   ngOnInit() {
   }
 
-  hasCurrentAction(): boolean {
-    return !!this.actionService.currentOption;
+  hasCurrentSession(): boolean {
+    return !!this.actionService.getCurrentSessionStarted();
   }
 
   getTimerText(): string {
     let secElapsed = Math.floor(0.001 * (
-      Date.now() - this.actionService.currentEpochStarted)
+      Date.now() - this.actionService.getCurrentSessionStarted())
     );
 
     const minElapsed = Math.floor(secElapsed / 60);
