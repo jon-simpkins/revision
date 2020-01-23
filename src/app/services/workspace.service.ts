@@ -167,6 +167,14 @@ export class WorkspaceService {
   }
 
   saveAdditionalSerialization(historyEntry: HistoryEntry): Promise<boolean> {
+    const validationError = this.currentWorkspace.validate();
+    
+    if (validationError) {
+      alert(`Validation error: ${validationError}`);
+      this.currentWorkspace = Workspace.parseFromString(this.lastLoadedWorkspace.toString());
+      return Promise.resolve(true);
+    }
+    
     this.currentWorkspace.history.push(historyEntry);
     const serializedDiff = WorkspaceService.determineBase64Diffs(
       this.lastLoadedWorkspace.toString(),

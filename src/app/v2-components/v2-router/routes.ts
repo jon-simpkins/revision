@@ -6,11 +6,12 @@ export enum ROUTES {
     REVISION_HISTORY = 'revision-history', // Page to review history of changes
     ASSIGN_SIMILAR_MOVIES = 'assign-similar-movies', // Page to assign similar movies to a story
     STORY_VIEW_PAGE = 'story-view', // Page to see high-level story details
+    LOGLINE_EDIT_PAGE = 'logline-edit', // Page to modify the logline of a story
 }
 
 // Collection of which routes require a storyId
 export const storySpecificRoutes: Set<ROUTES> = new Set([
-    ROUTES.ASSIGN_SIMILAR_MOVIES, ROUTES.STORY_VIEW_PAGE
+    ROUTES.ASSIGN_SIMILAR_MOVIES, ROUTES.STORY_VIEW_PAGE, ROUTES.LOGLINE_EDIT_PAGE
 ]);
 
 // Each route is either a tool for analysis, or for synthesis
@@ -20,7 +21,7 @@ export enum ROUTE_TYPE {
 };
 
 const SYNTHESIS_ROUTES: Set<ROUTES> = new Set([
-    ROUTES.ASSIGN_SIMILAR_MOVIES, ROUTES.CREATE_NEW_STORY
+    ROUTES.ASSIGN_SIMILAR_MOVIES, ROUTES.CREATE_NEW_STORY,
 ])
 
 export function getRouteType(route: ROUTES): ROUTE_TYPE {

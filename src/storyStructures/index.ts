@@ -119,6 +119,25 @@ export class Workspace {
         return newId;
     }
 
+    /**
+     * Check for the integrity of the workspace
+     */
+    validate(): (string|boolean) {
+        let validationError: (string|boolean) = false;
+        this.stories.forEach((story: Story, storyId: string) => {
+
+            debugger;
+            story.similarMovieIds.forEach((similarMovieId: string) => {
+                // Check to make sure the referenced similarMovieId exists
+                if (!this.similarMovies.has(similarMovieId)) {
+                    validationError = `Story ${storyId} references non-existent similar movie ${similarMovieId}`;
+                }
+            });
+        });
+
+        return validationError;
+    }
+
     toString(): string {
         const thisProxy = JSON.parse(JSON.stringify(this));
         thisProxy.stories = jsonifyMap(this.stories);

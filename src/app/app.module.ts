@@ -47,10 +47,12 @@ import { DetailSimilarMoviesComponent } from './v2-components/detail-similar-mov
 import { CreateNewStoryComponent } from './v2-components/create-new-story/create-new-story.component';
 import { ActionBarComponent } from './v2-components/action-bar/action-bar.component';
 import { RevisionHistoryComponent } from './v2-components/revision-history/revision-history.component';
-import { AssignSimilarMoviesComponent } from './tutorial/assign-similar-movies/assign-similar-movies.component';
+import { AssignSimilarMoviesComponent } from './v2-components/assign-similar-movies/assign-similar-movies.component';
 import { StoryViewPageComponent } from './v2-components/story-view-page/story-view-page.component';
 import { SimilarMovieListComponent } from './v2-components/similar-movie-list/similar-movie-list.component';
 import { SmartLinkBtnComponent } from './v2-components/smart-link-btn/smart-link-btn.component';
+import { LoglinePageComponent } from './v2-components/logline-page/logline-page.component';
+import { QuillEditorComponent } from './v2-components/quill-editor/quill-editor.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -84,6 +86,8 @@ const DECLARATIONS = [
   StoryViewPageComponent,
   SimilarMovieListComponent,
   SmartLinkBtnComponent,
+  LoglinePageComponent,
+  QuillEditorComponent,
 ];
 
 const IMPORTS = [

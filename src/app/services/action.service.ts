@@ -5,6 +5,7 @@ import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
 import { HistoryEntry, Story, SimilarMovie } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 export class ActionOption {
   constructor(public actionRoute: ROUTES, public needsCompletion?: boolean, public storyId?: string) { }
@@ -21,6 +22,8 @@ export class ActionOption {
         return 'Assign Similar Movies';
       case ROUTES.STORY_VIEW_PAGE:
         return 'View Story';
+      case ROUTES.LOGLINE_EDIT_PAGE:
+        return 'Edit Logline';
       default:
         return '-';
     }
@@ -89,8 +92,12 @@ export class ActionService {
       );
 
       options.push(
-        new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, !!story.similarMovieIds.length, storyId)
+        new ActionOption(ROUTES.ASSIGN_SIMILAR_MOVIES, !story.similarMovieIds.length, storyId)
       );
+
+      options.push(
+        new ActionOption(ROUTES.LOGLINE_EDIT_PAGE, !story.logLine, storyId)
+      )
     });
 
     return Promise.resolve(options);

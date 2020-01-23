@@ -1,0 +1,11 @@
+<h2>Logline: {{getStoryId()}}</h2>
+<p>What's the log line for this story?</p>
+
+<p>
+    <smart-link-btn [targetAction]="storyViewAction" label="View Story Details"></smart-link-btn>
+</p>
+
+<quill-editor
+    [initialRawText]="logline"
+    [changeCallback]="loglineEdited"
+></quill-editor>

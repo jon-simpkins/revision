@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SimilarMovie, Story } from 'src/storyStructures';
-import { ROUTES } from '../../v2-components/v2-router/routes';
+import { ROUTES } from '../v2-router/routes';
 import { ActionOption } from '../../services/action.service';
 
 @Component({

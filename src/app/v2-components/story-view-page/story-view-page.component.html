@@ -4,3 +4,9 @@
 <similar-movie-list
     [similarMovieList]="similarMovies"
 ></similar-movie-list>
+
+<h3>Logline <smart-link-btn [targetAction]="loglineEditAction" icon="edit"></smart-link-btn></h3>
+<quill-editor
+    [initialRawText]="getLogline()"
+    [readOnlyMode]="true"
+></quill-editor>
