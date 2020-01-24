@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconModule, MatListModule, MatButtonModule, MatFormFieldModule } from '@angular/material';
 import { WorkspaceService } from '../../services/workspace.service';
 import { Workspace } from 'src/storyStructures';
-import { FormsModule } from '@angular/forms';
 
 describe('AssignSimilarMoviesComponent', () => {
   let component: AssignSimilarMoviesComponent;

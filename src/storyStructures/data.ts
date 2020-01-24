@@ -1,9 +1,9 @@
-export const fullStory001 = '{"similarMovieIds":["def456","ghi789"],"logLine":"A movie! That\'s full of stuff!","runtimeMin":100}';
+export const fullStory001 = '{"similarMovieIds":["def456","ghi789"],"structureElements":{"uuid1":{"subStructureElements":[],"id":"uuid1","oneLiner":"helloworld"}},"logLine":"A movie! That\'s full of stuff!","runtimeMin":100}';
 
 export const diff001 = '[{"kind":"N","path":["logLine"],"rhs":"a movie"}]';
 export const diff002 = '[{"kind":"N","path":["similarMovies","uuid2"],"rhs":{"id":"uuid2"}},{"kind":"A","path":["stories","uuid1","similarMovieIds"],"index":1,"item":{"kind":"N","rhs":"def456"}}]';
 
-export const fullWorkspace001 = '{"similarMovies":{"uuid2":{"id":"uuid2","title":"Tenet","runtimeMin":123}},"stories":{"uuid1":{"similarMovieIds":["uuid2"],"logLine":"My new log line"}},"history":[{"userEmail":"jon.simpkins@gmail.com","editStartEpochMs":12345,"editEndEpochMs":12346}]}';
+export const fullWorkspace001 = '{"similarMovies":{"uuid2":{"id":"uuid2","title":"Tenet","runtimeMin":123}},"structureTemplates":{},"stories":{"uuid1":{"similarMovieIds":["uuid2"],"structureElements":{},"logLine":"My new log line"}},"history":[{"userEmail":"jon.simpkins@gmail.com","editStartEpochMs":12345,"editEndEpochMs":12346}]}';
 
 export const serializedWorkspace001 = `
 W3sia2luZCI6Ik4iLCJwYXRoIjpbInNpbWlsYXJNb3ZpZXMiLCIxOWNhOTdlZWFjZTk0NzIwOTBlNTNlMTM5NWE4MzIyMiJdLCJyaHMiOnsiaWQiOiIxOWNhOTdlZWFjZTk0NzIwOTBlNTNlMTM5NWE4MzIyMiIsInRpdGxlIjoiVGVuZXQiLCJ0bWJkVXJsIjoiaHR0cHM6Ly93d3cudGhlbW92aWVkYi5vcmcvbW92aWUvNTc3OTIyLXRlbmV0IiwicnVudGltZU1pbiI6IjEyNCJ9fSx7ImtpbmQiOiJBIiwicGF0aCI6WyJoaXN0b3J5Il0sImluZGV4IjowLCJpdGVtIjp7ImtpbmQiOiJOIiwicmhzIjp7InVzZXJFbWFpbCI6Impvbi5zaW1wa2luc0BnbWFpbC5jb20iLCJlZGl0U3RhcnRFcG9jaE1zIjoxNTc4MzY5Mjc1MzczLCJlZGl0RW5kRXBvY2hNcyI6MTU3ODM2OTMwMDUzM319fV0=

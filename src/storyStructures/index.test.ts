@@ -2,6 +2,7 @@ import { Story, SimilarMovie, Workspace, HistoryEntry } from ".";
 import { fullStory001, fullWorkspace001 } from "./data";
 
 import { setCurrentlyMocking, resetMockCount, generateUuid } from './generateUuid';
+import { WorkspaceService } from 'src/app/services/workspace.service';
 
 describe('Generate Uuid', () => {
     it('Generates unique values', () => {
@@ -24,7 +25,7 @@ describe('Story Structures', () => {
 
         const serialized = blankStory.toString();
 
-        expect(serialized).toEqual('{"similarMovieIds":[]}');
+        expect(serialized).toEqual('{"similarMovieIds":[],"structureElements":{}}');
     });
 
     it('Serializes a full story correctly', () => {
@@ -33,6 +34,9 @@ describe('Story Structures', () => {
         newStory.runtimeMin = 100;
 
         newStory.similarMovieIds = ['def456', 'ghi789'];
+
+        const newStructureElementId = newStory.buildNewStructureElement();
+        newStory.structureElements.get(newStructureElementId).oneLiner = 'helloworld';
 
         const serialized = newStory.toString();
 
@@ -43,6 +47,7 @@ describe('Story Structures', () => {
         expect(deserialized.runtimeMin).toEqual(100);
 
         expect(deserialized.similarMovieIds[1]).toEqual('ghi789');
+        expect(deserialized.structureElements.get(newStructureElementId).oneLiner).toEqual('helloworld');
     });
 
     it('Serializes a workspace correctly', () => {
@@ -77,5 +82,18 @@ describe('Story Structures', () => {
 
         const serialized2 = deserialized.toString();
         expect(serialized).toEqual(serialized2);
+    });
+
+    it('Serializes a plot structure element correctly', () => {
+        const workspace = new Workspace();
+        const newStructureElementId = workspace.buildNewStructureTemplate();
+        workspace.structureTemplates.get(newStructureElementId).oneLiner = 'This is an example';
+
+        const serialized = workspace.toString();
+        const deserialized = Workspace.parseFromString(serialized);
+
+        const extractedStructureElement = deserialized.structureTemplates.get(newStructureElementId);
+        expect(extractedStructureElement.id).toEqual(newStructureElementId);
+        expect(extractedStructureElement.oneLiner).toEqual('This is an example');
     });
 });
