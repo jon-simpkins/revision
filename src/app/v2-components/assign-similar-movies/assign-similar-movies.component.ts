@@ -18,6 +18,7 @@ export class AssignSimilarMoviesComponent implements OnInit {
   public currentNewMovieTitle = '';
 
   public storyViewAction: ActionOption;
+  public detailSimilarMovieAction: ActionOption;
 
   public deleteMovieCallback = (storyId: string) => {
     this.delete(storyId);
@@ -27,6 +28,7 @@ export class AssignSimilarMoviesComponent implements OnInit {
     this.currentStory = this.workspaceService.getCurrentStory();
     this.buildOptionList();
     this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
+    this.detailSimilarMovieAction = new ActionOption(ANALYSIS_ACTIONS.DETAIL_SIMILAR_MOVIES);
   }
 
   ngOnInit() {

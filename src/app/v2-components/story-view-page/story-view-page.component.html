@@ -1,4 +1,3 @@
-<h2>Story Details</h2>
 
 <h3>Similar Movies <smart-link-btn [targetAction]="similarMovieEditAction" icon="edit"></smart-link-btn></h3>
 <similar-movie-list
@@ -10,3 +9,6 @@
     [initialRawText]="getLogline()"
     [readOnlyMode]="true"
 ></quill-editor>
+
+<h3>Runtime <smart-link-btn [targetAction]="runtimeEditAction" icon="edit"></smart-link-btn></h3>
+<p>{{getRuntimeMin()}} min</p>

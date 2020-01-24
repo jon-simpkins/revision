@@ -11,7 +11,7 @@ export class SimilarMovie {
         return this.title ? this.title : 'New Movie';
     }
 
-    getRuntime(): string {
+    getRuntimeStr(): string {
         return this.runtimeMin ? `${this.runtimeMin} min` : '';
     }
 

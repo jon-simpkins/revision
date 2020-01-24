@@ -1,0 +1,25 @@
+<p>
+    How long is this story going to be? Maybe look at similar movies for guidance.
+</p>
+
+<p>
+    <smart-link-btn [targetAction]="storyViewAction" label="View Story Details"></smart-link-btn>
+</p>
+
+<form style="flex: 1;" (submit)="interceptFormSubmit($event)">
+    <mat-form-field style="width: 100%">
+        <input matInput
+            placeholder="Runtime in Minutes"
+            type="number"
+            min="0"
+            max="240"
+            pattern="[0-9]*"
+            [value]="currentRuntimeMin"
+            (input)="inputHandler($event)"
+            >
+        
+    </mat-form-field>
+    <p *ngIf="!!errorMsg" style="margin: 0; color: red;">
+        {{errorMsg}}
+    </p>
+</form>

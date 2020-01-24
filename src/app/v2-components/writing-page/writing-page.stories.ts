@@ -35,6 +35,16 @@ class WritingLoglineEdit {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingRuntimeEdit {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace001);
+        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE));
+        actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -50,5 +60,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders Logline editing', () => {
         return {
             component: WritingLoglineEdit
+        };
+    }).add('Renders runtime editing', () => {
+        return {
+            component: WritingRuntimeEdit
         };
     });

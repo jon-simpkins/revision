@@ -16,7 +16,7 @@ import {
   MatSliderModule,
   MatDividerModule,
   MatToolbarModule,
-  MatSidenavModule, MatSnackBarModule, MatProgressSpinnerModule, MatTableModule, MatCheckboxModule
+  MatSidenavModule, MatSnackBarModule, MatProgressSpinnerModule, MatTableModule, MatCheckboxModule, MatError
 } from '@angular/material';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -54,6 +54,7 @@ import { SmartLinkBtnComponent } from './v2-components/smart-link-btn/smart-link
 import { LoglinePageComponent } from './v2-components/logline-page/logline-page.component';
 import { QuillEditorComponent } from './v2-components/quill-editor/quill-editor.component';
 import { WritingPageComponent } from './v2-components/writing-page/writing-page.component';
+import { RuntimeEditComponent } from './v2-components/runtime-edit/runtime-edit.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -90,6 +91,7 @@ const DECLARATIONS = [
   LoglinePageComponent,
   QuillEditorComponent,
   WritingPageComponent,
+  RuntimeEditComponent,
 ];
 
 const IMPORTS = [

@@ -1,13 +1,21 @@
 <action-bar></action-bar>
 <div style="display: flex;">
-    <div *ngIf="hasViewAction()" [ngSwitch]="getViewAction()" style="flex:1; padding: 1em;">
-        <detail-similar-movies *ngSwitchCase="analysisActions.DETAIL_SIMILAR_MOVIES"></detail-similar-movies>
-        <revision-history *ngSwitchCase="analysisActions.REVISION_HISTORY"></revision-history>
-        <story-view-page *ngSwitchCase="analysisActions.STORY_VIEW_PAGE"></story-view-page>
+    <div *ngIf="hasViewAction()" style="flex:1;">
+        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Analysis: {{getViewAction()}}</h4>
+        <div [ngSwitch]="getViewAction()" style="padding: 0 1em; overflow: scroll; max-height: 500px;">
+            <detail-similar-movies *ngSwitchCase="analysisActions.DETAIL_SIMILAR_MOVIES"></detail-similar-movies>
+            <revision-history *ngSwitchCase="analysisActions.REVISION_HISTORY"></revision-history>
+            <story-view-page *ngSwitchCase="analysisActions.STORY_VIEW_PAGE"></story-view-page>
+        </div>
     </div>
-    <div *ngIf="hasEditAction()" [ngSwitch]="getEditAction()" style="flex:1; padding: 1em;">
-        <create-new-story *ngSwitchCase="synthesisActions.CREATE_NEW_STORY" ></create-new-story>
-        <assign-similar-movies *ngSwitchCase="synthesisActions.ASSIGN_SIMILAR_MOVIES" ></assign-similar-movies>
-        <logline-page *ngSwitchCase="synthesisActions.LOGLINE_EDIT_PAGE"></logline-page>
+    <div *ngIf="hasViewAction() && hasEditAction()" style="flex: 0; height: 524px; margin: 0; padding: 0; width: 1px; background: darkgrey;">&nbsp;</div>
+    <div *ngIf="hasEditAction()" style="flex:1;">
+        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Synthesis: {{getEditAction()}}</h4>
+        <div [ngSwitch]="getEditAction()" style="padding: 0 1em; overflow: scroll; max-height: 500px;">
+            <create-new-story *ngSwitchCase="synthesisActions.CREATE_NEW_STORY" ></create-new-story>
+            <assign-similar-movies *ngSwitchCase="synthesisActions.ASSIGN_SIMILAR_MOVIES" ></assign-similar-movies>
+            <logline-page *ngSwitchCase="synthesisActions.LOGLINE_EDIT_PAGE"></logline-page>
+            <runtime-edit *ngSwitchCase="synthesisActions.RUNTIME_EDIT"></runtime-edit>
+        </div>
     </div>
 </div>

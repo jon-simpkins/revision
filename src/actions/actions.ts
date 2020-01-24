@@ -1,13 +1,14 @@
 export enum SYNTHESIS_ACTIONS {
-    CREATE_NEW_STORY = 'create-new-story', // Page to create a new story
-    ASSIGN_SIMILAR_MOVIES = 'assign-similar-movies', // Page to assign similar movies to a story
-    LOGLINE_EDIT_PAGE = 'logline-edit', // Page to modify the logline of a story
+    CREATE_NEW_STORY = 'Create New Story', // Page to create a new story
+    ASSIGN_SIMILAR_MOVIES = 'Assign Similar Movies', // Page to assign similar movies to a story
+    LOGLINE_EDIT_PAGE = 'Edit Logline', // Page to modify the logline of a story
+    RUNTIME_EDIT = 'Edit Runtime', // Page to modify the runtime of the story
 }
 
 export enum ANALYSIS_ACTIONS {
-    DETAIL_SIMILAR_MOVIES = 'detail-similar-movies', // Editor for listing details about existing reference movies
-    REVISION_HISTORY = 'revision-history', // Page to review history of changes
-    STORY_VIEW_PAGE = 'story-view', // Page to see high-level story details
+    DETAIL_SIMILAR_MOVIES = 'Detail Similar Movies', // Editor for listing details about existing reference movies
+    REVISION_HISTORY = 'Revision History', // Page to review history of changes
+    STORY_VIEW_PAGE = 'Story Summary', // Page to see high-level story details
 }
 
 const SynthesisActionsSet = new Set<string>(Object.values(SYNTHESIS_ACTIONS));

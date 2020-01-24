@@ -13,11 +13,13 @@ export class StoryViewPageComponent implements OnInit {
 
   public similarMovieEditAction: ActionOption;
   public loglineEditAction: ActionOption;
+  public runtimeEditAction: ActionOption;
 
   constructor(private workspaceService: WorkspaceService) {
     this.similarMovieEditAction = new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES);
 
     this.loglineEditAction = new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE);
+    this.runtimeEditAction = new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT);
   }
 
   getStoryId(): string {
@@ -32,6 +34,10 @@ export class StoryViewPageComponent implements OnInit {
     return this.workspaceService.getCurrentStory().similarMovieIds.map(similarMovieId => {
       return this.workspaceService.currentWorkspace.similarMovies.get(similarMovieId);
     });
+  }
+
+  getRuntimeMin(): number {
+    return this.workspaceService.getCurrentStory().runtimeMin || 0;
   }
 
   ngOnInit() {
