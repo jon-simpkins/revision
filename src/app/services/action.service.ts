@@ -74,7 +74,11 @@ export class ActionService {
 
       options.push(
         new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE, !story.logLine, storyId)
-      )
+      );
+
+      options.push(
+        new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT, !story.runtimeMin, storyId)
+      );
     });
 
     return Promise.resolve(options);
