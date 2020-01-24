@@ -11,17 +11,12 @@ import { SYNTHESIS_ACTIONS } from 'src/actions/actions';
 })
 export class StoryViewPageComponent implements OnInit {
 
-  similarMovies: SimilarMovie[];
-
   public similarMovieEditAction: ActionOption;
   public loglineEditAction: ActionOption;
 
   constructor(private workspaceService: WorkspaceService) {
-    this.similarMovies = this.workspaceService.getCurrentStory().similarMovieIds.map(similarMovieId => {
-      return this.workspaceService.currentWorkspace.similarMovies.get(similarMovieId);
-    });
     this.similarMovieEditAction = new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES);
-  
+
     this.loglineEditAction = new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE);
   }
 
@@ -31,6 +26,12 @@ export class StoryViewPageComponent implements OnInit {
 
   getLogline(): string {
     return this.workspaceService.getCurrentStory().logLine;
+  }
+
+  getSimilarMovies(): SimilarMovie[] {
+    return this.workspaceService.getCurrentStory().similarMovieIds.map(similarMovieId => {
+      return this.workspaceService.currentWorkspace.similarMovies.get(similarMovieId);
+    });
   }
 
   ngOnInit() {

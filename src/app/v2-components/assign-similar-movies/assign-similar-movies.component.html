@@ -10,7 +10,7 @@
         <h3>Selected Similar Movies</h3>
         <div style="display: flex;">
             <button style="flex: 0;" mat-button (click)="addSimilarMovie()"><mat-icon>add</mat-icon></button>
-            <form style="flex: 1;">
+            <form style="flex: 1;" (submit)="addSimilarMovie($event)">
                 <mat-form-field style="width: 100%">
                     <input matInput
                         placeholder="Movie Title"

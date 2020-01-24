@@ -25,6 +25,13 @@ export class QuillEditorComponent implements AfterViewInit {
 
   constructor() { }
 
+  ngOnChanges() {
+    if (this.readOnlyMode) {
+      this.rawText = this.initialRawText;
+      this.updatePageCountAndFormatText();
+    }
+  }
+
   ngAfterViewInit() {
 
     this.rawText = this.initialRawText;
@@ -39,7 +46,6 @@ export class QuillEditorComponent implements AfterViewInit {
     });
 
     this.updatePageCountAndFormatText();
-    this.editor.setContents(this.formattedContent);
     this.editor.focus();
 
     this.editor.on('text-change', (delta: Delta, oldDelta: Delta, source) => {
@@ -61,11 +67,10 @@ export class QuillEditorComponent implements AfterViewInit {
           return lineDelta.insert;
         }).join('');
         this.changeCallback(this.rawText);
-        this.updatePageCountAndFormatText();
 
         // Allow Quill to complete whatever synchronous stuff it's doing
         setTimeout(() => {
-          this.editor.setContents(this.formattedContent);
+          this.updatePageCountAndFormatText();
           this.editor.update('silent');
           this.editor.setSelection(startIndex, 0, 'silent');
         }, 1);
@@ -85,6 +90,7 @@ export class QuillEditorComponent implements AfterViewInit {
       new Map<string, object>()
     );
 
+    this.editor.setContents(this.formattedContent);
   }
 
 }

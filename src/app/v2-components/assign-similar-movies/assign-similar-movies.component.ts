@@ -75,7 +75,11 @@ export class AssignSimilarMoviesComponent implements OnInit {
     this.currentNewMovieTitle = e.target.value;
   }
 
-  addSimilarMovie() {
+  addSimilarMovie(formSubmitEvent?: Event) {
+    if (formSubmitEvent) {
+      formSubmitEvent.preventDefault();
+    }
+
     const newSimilarMovieId = this.workspaceService.currentWorkspace.buildNewSimilarMovie();
     this.workspaceService.currentWorkspace.similarMovies.get(newSimilarMovieId).title = this.currentNewMovieTitle;
 
