@@ -1,4 +1,5 @@
 import { generateUuid } from './generateUuid';
+import { WorkspaceService } from 'src/app/services/workspace.service';
 
 // Base class for an existing movie out in the world
 export class SimilarMovie {
@@ -41,6 +42,123 @@ export class SimilarMovie {
     }
 }
 
+export class PlotTemplateBeat {
+    oneLiner: string; // Slug for beat
+    description: string; // Description for what the beat should entail
+    durationMin: number; // Duration of beat in minutes
+}
+
+export class PlotTemplate {
+    id: string; // uuid of template
+    oneLiner: string; // Slug for template
+    startOffset = 0; // Convenience: allow a template to have an initial offset, so that you could just type in "what time shows on the movie when X happens"
+    beats: PlotTemplateBeat[] = [];
+
+    getOneLiner(): string {
+        return this.oneLiner || 'New Template';
+    }
+
+    getBeatOneLiner(idx: number) {
+        if (idx >= this.beats.length) {
+            throw new Error('Beat index out of bounds!');
+        }
+
+        return this.beats[idx].oneLiner || '';
+    }
+
+    setBeatOneLiner(idx: number, newValue: string) {
+        if (idx >= this.beats.length) {
+            throw new Error('Beat index out of bounds!');
+        }
+
+        this.beats[idx].oneLiner = newValue;
+    }
+
+    getBeatDurationMin(idx: number) {
+        if (idx >= this.beats.length) {
+            throw new Error('Beat index out of bounds!');
+        }
+
+        return this.beats[idx].durationMin;
+    }
+
+    setBeatDurationMin(idx: number, newDurationMin: number) {
+        if (idx >= this.beats.length) {
+            throw new Error('Beat index out of bounds!');
+        }
+
+        this.beats[idx].durationMin = newDurationMin;
+    }
+
+    getBeatStartMin(idx: number): number {
+        let sum = this.startOffset;
+        for (let i = 0; i < idx; i++) {
+            sum += this.beats[i].durationMin;
+        }
+
+        return sum;
+    }
+
+    setBeatStartMin(idx: number, newStartMin: number) {
+        const oldBeatStartMin = this.getBeatStartMin(idx);
+
+        const necessaryStartOffset = newStartMin - oldBeatStartMin;
+        this.startOffset += necessaryStartOffset;
+    }
+
+    getBeatEndMin(idx: number): number {
+        let sum = this.startOffset;
+        for (let i = 0; i <= idx; i++) {
+            sum += this.beats[i].durationMin;
+        }
+
+        return sum;
+    }
+
+    setBeatEndMin(idx: number, newEndMin: number) {
+        const oldBeatEndMin = this.getBeatEndMin(idx);
+
+        const necessaryOffset = newEndMin - oldBeatEndMin;
+
+        const newDuration = this.getBeatDurationMin(idx) + necessaryOffset;
+        if (newDuration > 0) {
+            this.setBeatDurationMin(idx, newDuration);
+        } else {
+            const newStartMin = this.getBeatStartMin(idx) + necessaryOffset;
+            this.setBeatStartMin(idx, newStartMin);
+        }
+    }
+
+    deleteBeat(idx: number) {
+        if (idx >= this.beats.length) {
+            throw new Error('Beat index out of bounds!');
+        }
+
+        this.beats.splice(idx, 1);
+    }
+
+    toString(): string {
+        return JSON.stringify(this);
+    }
+
+    static parseFromString(serialized: string): PlotTemplate {
+        const proxyObj = JSON.parse(serialized);
+        const template: PlotTemplate = Object.assign(
+            new PlotTemplate(),
+            proxyObj
+        );
+
+        template.beats = proxyObj.beats.map(beatJson => {
+            return Object.assign(
+                new PlotTemplateBeat(),
+                beatJson
+            );
+        });
+
+        return template;
+    }
+}
+
 /**
  * Base class for a plot structure element
  * 
@@ -53,6 +171,10 @@ export class PlotStructureElement {
     durationMin: number; // Duration of element in minutes
     scriptRawText: string; // Optional, script content of element
     subStructureElements: string[] = []; // Optional, ordered array of ids of child structure elements
+
+    getOneLiner(): string {
+        return this.oneLiner || 'New Structure Element';
+    }
 
     getDurationMin(): number {
         return this.durationMin;
@@ -68,14 +190,14 @@ export class PlotStructureElement {
         if (!this.subStructureElements.length) {
             return;
         }
-        
+
         let initialSum = 0;
         this.subStructureElements.forEach(elementId => {
             initialSum += elementMap.get(elementId).getDurationMin();
         });
         this.subStructureElements.forEach(elementId => {
             const thisElement = elementMap.get(elementId);
-            thisElement.rescaleToDurationMin( thisElement.getDurationMin() * (newDuration / initialSum) , elementMap);
+            thisElement.rescaleToDurationMin(thisElement.getDurationMin() * (newDuration / initialSum), elementMap);
         });
     }
 
@@ -116,14 +238,7 @@ export class Story {
         );
 
         story.structureElements = new Map<string, PlotStructureElement>();
-        Object.keys(proxyObj.structureElements).forEach(key => {
-            story.structureElements.set(
-                key,
-                PlotStructureElement.parseFromString(
-                    JSON.stringify(proxyObj.structureElements[key])
-                )
-            );
-        });
+        parseMap(proxyObj, story, PlotStructureElement.parseFromString, 'structureElements');
 
         return story;
     }
@@ -136,7 +251,7 @@ export class Story {
 
         return newId;
     }
-    
+
     hasContentToShow(): boolean {
         if (!!this.logLine) {
             return true;
@@ -175,7 +290,7 @@ export class HistoryEntry {
 export class Workspace {
 
     similarMovies: Map<string, SimilarMovie> = new Map<string, SimilarMovie>();
-    structureTemplates: Map<string, PlotStructureElement> = new Map<string, PlotStructureElement>();
+    structureTemplates: Map<string, PlotTemplate> = new Map<string, PlotTemplate>();
     stories: Map<string, Story> = new Map<string, Story>();
     history: HistoryEntry[] = [];
 
@@ -190,7 +305,7 @@ export class Workspace {
 
     buildNewStructureTemplate(): string {
         const newId: string = generateUuid();
-        const newStructure = new PlotStructureElement();
+        const newStructure = new PlotTemplate();
         newStructure.id = newId;
         this.structureTemplates.set(newId, newStructure);
 
@@ -209,8 +324,8 @@ export class Workspace {
     /**
      * Check for the integrity of the workspace
      */
-    validate(): (string|boolean) {
-        let validationError: (string|boolean) = false;
+    validate(): (string | boolean) {
+        let validationError: (string | boolean) = false;
         this.stories.forEach((story: Story, storyId: string) => {
             story.similarMovieIds.forEach((similarMovieId: string) => {
                 // Check to make sure the referenced similarMovieId exists
@@ -241,34 +356,13 @@ export class Workspace {
         );
 
         workspace.similarMovies = new Map<string, SimilarMovie>();
-        Object.keys(proxyObj.similarMovies).forEach(key => {
-            workspace.similarMovies.set(
-                key,
-                SimilarMovie.parseFromString(
-                    JSON.stringify(proxyObj.similarMovies[key])
-                )
-            );
-        });
+        parseMap(proxyObj, workspace, SimilarMovie.parseFromString, 'similarMovies');
 
-        workspace.structureTemplates = new Map<string, PlotStructureElement>();
-        Object.keys(proxyObj.structureTemplates).forEach(key => {
-            workspace.structureTemplates.set(
-                key,
-                PlotStructureElement.parseFromString(
-                    JSON.stringify(proxyObj.structureTemplates[key])
-                )
-            );
-        });
+        workspace.structureTemplates = new Map<string, PlotTemplate>();
+        parseMap(proxyObj, workspace, PlotTemplate.parseFromString, 'structureTemplates');
 
         workspace.stories = new Map<string, Story>();
-        Object.keys(proxyObj.stories).forEach(key => {
-            workspace.stories.set(
-                key,
-                Story.parseFromString(
-                    JSON.stringify(proxyObj.stories[key])
-                )
-            );
-        });
+        parseMap(proxyObj, workspace, Story.parseFromString, 'stories');
 
         workspace.history = proxyObj.history.map(entry => HistoryEntry.parseFromString(JSON.stringify(entry)));
 
@@ -285,4 +379,19 @@ function jsonifyMap(map: Map<string, any>): Object {
     });
 
     return proxyObj;
+}
+
+function parseMap(proxyObj: Object, target: any, parseFunction: (str: string) => any, key: string) {
+    if (!proxyObj[key]) {
+        return;
+    }
+
+    Object.keys(proxyObj[key]).forEach(subKey => {
+        target[key].set(
+            subKey,
+            parseFunction(
+                JSON.stringify(proxyObj[key][subKey])
+            )
+        );
+    })
 }

@@ -8,7 +8,6 @@ import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 import { ActionOption } from '../../actions/action-option';
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from '../../actions/actions';
-import { debug } from 'util';
 
 /**
  * A service to determine the list of actions available,
@@ -61,6 +60,7 @@ export class ActionService {
       new ActionOption(ANALYSIS_ACTIONS.DETAIL_SIMILAR_MOVIES, !similarMoviesHaveAllDetails),
       new ActionOption(SYNTHESIS_ACTIONS.CREATE_NEW_STORY, true),
       new ActionOption(ANALYSIS_ACTIONS.REVISION_HISTORY, false),
+      new ActionOption(ANALYSIS_ACTIONS.STRUCTURE_ANALYSIS, true),
     ];
 
     this.workspaceService.currentWorkspace.stories.forEach((story: Story, storyId: string) => {

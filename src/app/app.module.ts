@@ -55,6 +55,8 @@ import { LoglinePageComponent } from './v2-components/logline-page/logline-page.
 import { QuillEditorComponent } from './v2-components/quill-editor/quill-editor.component';
 import { WritingPageComponent } from './v2-components/writing-page/writing-page.component';
 import { RuntimeEditComponent } from './v2-components/runtime-edit/runtime-edit.component';
+import { StructureTemplateToolComponent } from './v2-components/structure-template-tool/structure-template-tool.component';
+import { StructureTemplateBeatComponent } from './v2-components/structure-template-beat/structure-template-beat.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -92,6 +94,8 @@ const DECLARATIONS = [
   QuillEditorComponent,
   WritingPageComponent,
   RuntimeEditComponent,
+  StructureTemplateToolComponent,
+  StructureTemplateBeatComponent,
 ];
 
 const IMPORTS = [

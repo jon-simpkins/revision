@@ -9,6 +9,7 @@ export enum ANALYSIS_ACTIONS {
     DETAIL_SIMILAR_MOVIES = 'Detail Similar Movies', // Editor for listing details about existing reference movies
     REVISION_HISTORY = 'Revision History', // Page to review history of changes
     STORY_VIEW_PAGE = 'Story Summary', // Page to see high-level story details
+    STRUCTURE_ANALYSIS = 'Analyze Exisiting Plot Structure', // Page to add analysis of existing plots and sequences
 }
 
 const SynthesisActionsSet = new Set<string>(Object.values(SYNTHESIS_ACTIONS));

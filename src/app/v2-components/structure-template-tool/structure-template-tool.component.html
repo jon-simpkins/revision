@@ -1,0 +1,34 @@
+<p>Here's where you can build templates out of the analysis of existing plot structures.</p>
+<p>Feel free to break down your favorite films into major plot beats, or your favorite sequences. Or songs. Or import the "8 major beats" from your favorite screenwriting book.</p>
+<p>Whatever you think will help you find the right way to break down big story chunk into smaller, well-organized bits to tackle.</p>
+
+<button mat-raised-button color="primary" (click)="addNew()">Add New</button>
+
+
+<div style="display: flex;">
+    <mat-action-list style="flex: 1; max-width: 50%;">
+        <ng-container *ngFor="let structure of getStructureTemplates()">
+            <button mat-list-item (click)="seeDetails(structure.id)" [class.selected-row]="structure.id === currentDetailId">
+                {{structure.getOneLiner()}}
+            </button>
+        </ng-container>
+    </mat-action-list>
+    <div *ngIf="currentDetailStructure" style="flex:1; padding: 1em;">
+        <div style="display:flex;">
+            <mat-form-field style="flex: 1;">
+                <input matInput
+                    placeholder="One-Liner"
+                    [value]="currentDetailStructure.oneLiner || ''"
+                    (input)="oneLinerInput($event)">
+            </mat-form-field>
+            <button mat-button style="flex:0;" (click)="deleteCurrentDetailStructure()">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+        <structure-template-beat *ngFor="let beat of currentDetailStructure.beats; index as i;"
+            [beatIndex]="i" [template]="currentDetailStructure"></structure-template-beat>
+        
+        <button mat-stroked-button color="primary" (click)="addBeat()">Add Beat</button>
+    </div>
+    
+</div>

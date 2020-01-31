@@ -45,6 +45,14 @@ class WritingRuntimeEdit {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingStructureAnalysis {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace001);
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.STRUCTURE_ANALYSIS));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -64,5 +72,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders runtime editing', () => {
         return {
             component: WritingRuntimeEdit
+        };
+    }).add('Renders structure analysis', () => {
+        return {
+            component: WritingStructureAnalysis
         };
     });
