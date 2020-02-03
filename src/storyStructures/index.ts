@@ -1,5 +1,4 @@
 import { generateUuid } from './generateUuid';
-import { WorkspaceService } from 'src/app/services/workspace.service';
 
 // Base class for an existing movie out in the world
 export class SimilarMovie {
@@ -166,6 +165,7 @@ export class PlotTemplate {
  */
 export class PlotStructureElement {
     id: string; // uuid of element
+    parentId: string|null; // uuid of parent structure element (if present)
     oneLiner: string; // Single-line slug for element
     summaryRawText: string; // Plaintext summary of element
     durationMin: number; // Duration of element in minutes

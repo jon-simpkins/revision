@@ -53,6 +53,15 @@ class WritingStructureAnalysis {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingAddSequence {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace001);
+        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -76,5 +85,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders structure analysis', () => {
         return {
             component: WritingStructureAnalysis
+        };
+    }).add('Renders adding new sequence', () => {
+        return {
+            component: WritingAddSequence
         };
     });

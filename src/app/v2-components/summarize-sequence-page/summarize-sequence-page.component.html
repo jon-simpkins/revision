@@ -1,0 +1,14 @@
+<p>What's the summary of this sequence? What major beats do you want to hit?</p>
+<p>Feel free to use this as a space to brainstorm</p>
+
+<p>
+    <smart-link-btn [targetAction]="storyViewAction" label="View Story Details"></smart-link-btn>
+</p>
+<p>
+    <smart-link-btn [targetAction]="viewSequenceAction" label="View Sequence Details"></smart-link-btn>
+</p>
+
+<quill-editor
+    [initialRawText]="summary"
+    [changeCallback]="summaryEdited"
+></quill-editor>

@@ -3,11 +3,12 @@ import { Injectable } from '@angular/core';
 import { ROUTES } from '../v2-components/v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
-import { HistoryEntry, Story, SimilarMovie } from '../../storyStructures';
+import { HistoryEntry, Story, SimilarMovie, PlotStructureElement } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 import { ActionOption } from '../../actions/action-option';
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from '../../actions/actions';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 /**
  * A service to determine the list of actions available,
@@ -79,6 +80,22 @@ export class ActionService {
       options.push(
         new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT, !story.runtimeMin, storyId)
       );
+
+      if (!story.plotElementId) {
+        // Need to add a main plot sequence if there isn't one
+        options.push(
+          new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE, true, storyId)
+        )
+      }
+
+      // Yikes, embedded for loops, but: iterate over all sequences in this
+      story.structureElements.forEach((plotElement: PlotStructureElement) => {
+        options.push(
+          new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, !plotElement.summaryRawText, storyId, null, plotElement.id)
+        );
+
+      });
+
     });
 
     return Promise.resolve(options);
@@ -118,7 +135,7 @@ export class ActionService {
       this.currentViewOption = option;
     }
 
-    this.routingService.navigateToUrl(ROUTES.WRITING, option.storyId);
+    this.routingService.navigateToUrl(ROUTES.WRITING, option.storyId, option.viewSequenceId, option.editSequenceId);
   }
 
   completeAction() {

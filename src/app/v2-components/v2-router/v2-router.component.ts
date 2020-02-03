@@ -28,25 +28,8 @@ export class V2RouterComponent implements OnInit {
   routes = ROUTES;
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(map => this.paramMapHandler(map));
+    this.route.queryParamMap.subscribe(map => this.routingService.paramMapHandler(map));
     this.route.url.subscribe(url => this.urlHandler(url));
-  }
-
-  paramMapHandler(map: ParamMap) {
-    const workspaceId = map.get('workspace');
-
-    this.workspaceService.openWorkspace(workspaceId).then(wasChanged => {
-      if (wasChanged) {
-        if (!!workspaceId) {
-          this.routingService.navigateToUrl(this.routes.ACTION_MENU);
-        } else {
-          this.routingService.navigateToUrl(this.routes.WORKSPACE_MENU);
-        }
-      }
-    });
-
-    const storyId = map.get('storyId');
-    this.workspaceService.setCurrentStoryId(storyId);
   }
 
   urlHandler(url: UrlSegment[]) {

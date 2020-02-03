@@ -1,7 +1,13 @@
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS, isSynthesisRoute } from './actions';
 
 export class ActionOption {
-  constructor(public action: SYNTHESIS_ACTIONS | ANALYSIS_ACTIONS, public needsCompletion?: boolean, public storyId?: string) { }
+  constructor(
+    public action: SYNTHESIS_ACTIONS | ANALYSIS_ACTIONS,
+    public needsCompletion?: boolean,
+    public storyId?: string,
+    public viewSequenceId?: string,
+    public editSequenceId?: string
+    ) { }
 
   getLabel(): string {
     return this.action;

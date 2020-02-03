@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SimilarMovie } from 'src/storyStructures';
 import { ActionOption } from 'src/actions/action-option';
-import { SYNTHESIS_ACTIONS } from 'src/actions/actions';
+import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'story-view-page',
@@ -38,6 +38,22 @@ export class StoryViewPageComponent implements OnInit {
 
   getRuntimeMin(): number {
     return this.workspaceService.getCurrentStory().runtimeMin || 0;
+  }
+
+  getPlotSequenceViewEditIcon() {
+    if (!!this.workspaceService.getCurrentStory().plotElementId) {
+      return 'details';
+    }
+
+    return 'edit';
+  }
+
+  getPlotSequenceViewEditAction() {
+    if (!!this.workspaceService.getCurrentStory().plotElementId) {
+      return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceService.getCurrentStory().plotElementId);
+    }
+
+    return new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE);
   }
 
   ngOnInit() {

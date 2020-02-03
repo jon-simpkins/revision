@@ -27,14 +27,14 @@ export class QuillEditorComponent implements AfterViewInit {
 
   ngOnChanges() {
     if (this.readOnlyMode) {
-      this.rawText = this.initialRawText;
+      this.rawText = this.initialRawText || '';
       this.updatePageCountAndFormatText();
     }
   }
 
   ngAfterViewInit() {
 
-    this.rawText = this.initialRawText;
+    this.rawText = this.initialRawText || '';
 
     this.editor = new Quill(`#${this.editorId}`, {
       theme: 'snow',

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { createDoc, fetchDoc, updateBatch } from '../../docsApi/docsApiHelpers';
 import { generateV2HeaderCommands, updateContentLine } from '../../docsApi/docsContentHelpers';
-import { Workspace, HistoryEntry, Story } from '../../storyStructures';
+import { Workspace, HistoryEntry, Story, PlotStructureElement } from '../../storyStructures';
 import { applyDiffs, generateDiffToSave } from 'src/storyStructures/serialization';
 
 /**
@@ -34,6 +34,8 @@ export class WorkspaceService {
   // TODO: there *has* to be a more efficient way of tracking changes, but this expedites things for dev
 
   private storyId?: string; // ID for story currently being viewed / edited
+  private editSequenceId?: string; // ID for sequence currently being edited
+  private viewSequenceId?: string; // ID for sequence currently being viewed
 
   constructor() { }
 
@@ -220,6 +222,30 @@ export class WorkspaceService {
     }
 
     return this.currentWorkspace.stories.get(this.storyId);
+  }
+
+  setCurrentViewSequenceId(sequenceId?: string) {
+    this.viewSequenceId = sequenceId;
+  }
+
+  getCurrentViewSequenceId(): string {
+    return this.viewSequenceId;
+  }
+
+  getCurrentViewSequence(): PlotStructureElement {
+    return this.getCurrentStory().structureElements.get(this.viewSequenceId);
+  }
+
+  setCurrentEditSequenceId(sequenceId?: string) {
+    this.editSequenceId = sequenceId;
+  }
+
+  getCurrentEditSequenceId(): string {
+    return this.editSequenceId;
+  }
+
+  getCurrentEditSequence(): PlotStructureElement {
+    return this.getCurrentStory().structureElements.get(this.editSequenceId);
   }
 
 }

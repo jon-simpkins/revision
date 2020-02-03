@@ -57,6 +57,9 @@ import { WritingPageComponent } from './v2-components/writing-page/writing-page.
 import { RuntimeEditComponent } from './v2-components/runtime-edit/runtime-edit.component';
 import { StructureTemplateToolComponent } from './v2-components/structure-template-tool/structure-template-tool.component';
 import { StructureTemplateBeatComponent } from './v2-components/structure-template-beat/structure-template-beat.component';
+import { AddSequencePageComponent } from './v2-components/add-sequence-page/add-sequence-page.component';
+import { SummarizeSequencePageComponent } from './v2-components/summarize-sequence-page/summarize-sequence-page.component';
+import { ViewSequencePageComponent } from './v2-components/view-sequence-page/view-sequence-page.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -96,6 +99,9 @@ const DECLARATIONS = [
   RuntimeEditComponent,
   StructureTemplateToolComponent,
   StructureTemplateBeatComponent,
+  AddSequencePageComponent,
+  SummarizeSequencePageComponent,
+  ViewSequencePageComponent
 ];
 
 const IMPORTS = [
