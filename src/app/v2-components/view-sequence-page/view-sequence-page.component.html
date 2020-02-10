@@ -1,5 +1,24 @@
-<h3>Summary <smart-link-btn [targetAction]="summaryEditAction" icon="edit"></smart-link-btn></h3>
+<h3>Summary <smart-link-btn [getTargetAction]="getSummaryEditAction" icon="edit"></smart-link-btn></h3>
 <quill-editor
     [initialRawText]="getSummary()"
     [readOnlyMode]="true"
 ></quill-editor>
+
+<h3>Runtime: {{getRuntime()}}</h3>
+
+<h3>Beats <smart-link-btn [getTargetAction]="getBeatEditAction" icon="edit"></smart-link-btn></h3>
+<div *ngFor="let beatId of getBeatIds(); let i = index;">
+    <div style="display: flex; border-bottom: 1px solid darkgrey; margin-bottom: 0.5em;">
+        <p style="flex: 0; padding-right: 0.5em; text-align: center;">
+            ({{getBeatDurationString(i)}})
+        </p>
+        <div style="flex: 1;">
+            <p *ngFor="let line of getBeatOnelinerLines(beatId)">
+                {{line}}
+            </p>
+        </div>
+        <button *ngIf="!!beatId" mat-button style="flex: 0;" (click)="navigateToSequence(beatId)">
+            <mat-icon>details</mat-icon>
+        </button>
+    </div>
+</div>

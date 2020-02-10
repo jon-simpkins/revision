@@ -20,7 +20,7 @@ const TEMPLATE = `
 class WritingCreateStoryPage {
     constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
         workspaceService.importWorkspaceFromString(serializedWorkspace001);
-        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
         actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.CREATE_NEW_STORY));
     }
 }
@@ -29,7 +29,7 @@ class WritingCreateStoryPage {
 class WritingLoglineEdit {
     constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
         workspaceService.importWorkspaceFromString(serializedWorkspace001);
-        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
         actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE));
         actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE));
     }
@@ -39,7 +39,7 @@ class WritingLoglineEdit {
 class WritingRuntimeEdit {
     constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
         workspaceService.importWorkspaceFromString(serializedWorkspace001);
-        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
         actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE));
         actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT));
     }
@@ -57,8 +57,20 @@ class WritingStructureAnalysis {
 class WritingAddSequence {
     constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
         workspaceService.importWorkspaceFromString(serializedWorkspace001);
-        workspaceService.setCurrentStoryId('68e63ce4ea5644edb5257e5bf23615fc');
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
         actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE));
+    }
+}
+
+@Component({ template: TEMPLATE })
+class WritingBeatSequence {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace001);
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
+        workspaceService.setCurrentEditSequenceId('2f8d738ad7c2471aa297d73a89304536');
+        workspaceService.setCurrentViewSequenceId('2f8d738ad7c2471aa297d73a89304536');
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE));
+        actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE));
     }
 }
 
@@ -89,5 +101,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders adding new sequence', () => {
         return {
             component: WritingAddSequence
+        };
+    }).add('Renders breaking sequence into beats', () => {
+        return {
+            component: WritingBeatSequence
         };
     });

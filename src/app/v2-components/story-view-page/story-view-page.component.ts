@@ -11,15 +11,24 @@ import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from 'src/actions/actions';
 })
 export class StoryViewPageComponent implements OnInit {
 
-  public similarMovieEditAction: ActionOption;
-  public loglineEditAction: ActionOption;
-  public runtimeEditAction: ActionOption;
+  public getSimilarMovieEditAction: () => ActionOption;
+  public getLoglineEditAction: () => ActionOption;
+  public getRuntimeEditAction: () => ActionOption;
+  public getPlotSequenceViewEditAction: () => ActionOption;
 
   constructor(private workspaceService: WorkspaceService) {
-    this.similarMovieEditAction = new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES);
+    this.getSimilarMovieEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.ASSIGN_SIMILAR_MOVIES);
 
-    this.loglineEditAction = new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE);
-    this.runtimeEditAction = new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT);
+    this.getLoglineEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.LOGLINE_EDIT_PAGE);
+    this.getRuntimeEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.RUNTIME_EDIT);
+
+    this.getPlotSequenceViewEditAction = () => {
+      if (!!this.workspaceService.getCurrentStory().plotElementId) {
+        return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceService.getCurrentStory().plotElementId);
+      }
+
+      return new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE);
+    }
   }
 
   getStoryId(): string {
@@ -46,14 +55,6 @@ export class StoryViewPageComponent implements OnInit {
     }
 
     return 'edit';
-  }
-
-  getPlotSequenceViewEditAction() {
-    if (!!this.workspaceService.getCurrentStory().plotElementId) {
-      return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceService.getCurrentStory().plotElementId);
-    }
-
-    return new ActionOption(SYNTHESIS_ACTIONS.ADD_SEQUENCE);
   }
 
   ngOnInit() {

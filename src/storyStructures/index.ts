@@ -16,7 +16,7 @@ export class SimilarMovie {
     }
 
     getTmdbSearchUrl(): string {
-        return `https://www.themoviedb.org/search?query=${encodeURIComponent(this.getTitle())}`;
+        return `https://www.themoviedb.org/search/movie?query=${encodeURIComponent(this.getTitle())}`;
     }
 
     getTmdbUrl(): string {
@@ -136,6 +136,14 @@ export class PlotTemplate {
         this.beats.splice(idx, 1);
     }
 
+    getTotalDurationMin(): number {
+        let duration = 0;
+        this.beats.forEach(beat => {
+            duration += beat.durationMin;
+        });
+        return duration;
+    }
+
     toString(): string {
         return JSON.stringify(this);
     }
@@ -165,7 +173,8 @@ export class PlotTemplate {
  */
 export class PlotStructureElement {
     id: string; // uuid of element
-    parentId: string|null; // uuid of parent structure element (if present)
+    parentId: string | null; // uuid of parent structure element (if present)
+    templateId: string; // uuid of template on which this element is based
     oneLiner: string; // Single-line slug for element
     summaryRawText: string; // Plaintext summary of element
     durationMin: number; // Duration of element in minutes
@@ -199,6 +208,18 @@ export class PlotStructureElement {
             const thisElement = elementMap.get(elementId);
             thisElement.rescaleToDurationMin(thisElement.getDurationMin() * (newDuration / initialSum), elementMap);
         });
+    }
+
+    anyUnassignedBeats(): boolean {
+        let anyUnassignedBeats = this.subStructureElements.length === 0;
+
+        this.subStructureElements.forEach(beatId => {
+            if (!beatId) {
+                anyUnassignedBeats = true;
+            }
+        });
+
+        return anyUnassignedBeats;
     }
 
     toString(): string {
@@ -250,6 +271,26 @@ export class Story {
         this.structureElements.set(newId, newStructure);
 
         return newId;
+    }
+
+    setNewRuntimeMin(newRuntimeMin: number): void {
+        this.runtimeMin = newRuntimeMin;
+        if (!!this.plotElementId) {
+            this.rescalePlotElement(this.plotElementId, newRuntimeMin);
+        }
+    }
+
+    rescalePlotElement(plotElementId: string, newRuntimeMin: number): void {
+        const oldRuntimeMin = this.structureElements.get(plotElementId).durationMin;
+        const scaleFactor = newRuntimeMin / oldRuntimeMin;
+
+        this.structureElements.get(plotElementId).durationMin = newRuntimeMin;
+
+        this.structureElements.get(plotElementId).subStructureElements.forEach((beatId) => {
+            if (!!beatId) {
+                this.rescalePlotElement(beatId, scaleFactor * this.structureElements.get(beatId).durationMin);
+            }
+        });
     }
 
     hasContentToShow(): boolean {

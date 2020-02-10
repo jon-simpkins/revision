@@ -30,9 +30,18 @@ export class RoutingService {
     setTimeout(() => {
       this.router.navigate(
         [`/v2/${route}`],
-        { queryParams: queryParamMap }
+        { queryParams: this.convertMapToObj(queryParamMap) }
       );
     }, 250);
+  }
+
+  convertMapToObj(map: Map<string, string>): Object {
+    const obj = {};
+    map.forEach((value: string, key: string) => {
+      obj[key] = value;
+    });
+
+    return obj;
   }
 
   paramMapHandler(map: Map<string,string> | ParamMap) {

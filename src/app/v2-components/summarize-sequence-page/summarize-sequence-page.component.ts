@@ -19,18 +19,18 @@ export class SummarizeSequencePageComponent implements OnInit {
     }
   }
 
-  storyViewAction: ActionOption;
-  viewSequenceAction: ActionOption;
+  getStoryViewAction: () => ActionOption;
+  getViewSequenceAction: () => ActionOption;
 
   ngOnInit() {
     this.summary = this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).summaryRawText;
 
-    this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
-    this.viewSequenceAction = new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE,
+    this.getStoryViewAction = () => new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
+    this.getViewSequenceAction = () => new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE,
       null,
       null,
       this.getSequenceId()
-    ); // todo: add more content
+    );
   }
 
   getSequenceId(): string {

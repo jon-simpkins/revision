@@ -8,7 +8,6 @@ import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 import { ActionOption } from '../../actions/action-option';
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from '../../actions/actions';
-import { Action } from 'rxjs/internal/scheduler/Action';
 
 /**
  * A service to determine the list of actions available,
@@ -94,6 +93,9 @@ export class ActionService {
           new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, !plotElement.summaryRawText, storyId, null, plotElement.id)
         );
 
+        options.push(
+          new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, plotElement.anyUnassignedBeats(), storyId, null, plotElement.id)
+        );
       });
 
     });

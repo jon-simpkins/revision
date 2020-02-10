@@ -60,6 +60,8 @@ import { StructureTemplateBeatComponent } from './v2-components/structure-templa
 import { AddSequencePageComponent } from './v2-components/add-sequence-page/add-sequence-page.component';
 import { SummarizeSequencePageComponent } from './v2-components/summarize-sequence-page/summarize-sequence-page.component';
 import { ViewSequencePageComponent } from './v2-components/view-sequence-page/view-sequence-page.component';
+import { SpecSubstructurePageComponent } from './v2-components/spec-substructure-page/spec-substructure-page.component';
+import { SequenceBeatCardComponent } from './v2-components/sequence-beat-card/sequence-beat-card.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -101,7 +103,9 @@ const DECLARATIONS = [
   StructureTemplateBeatComponent,
   AddSequencePageComponent,
   SummarizeSequencePageComponent,
-  ViewSequencePageComponent
+  ViewSequencePageComponent,
+  SpecSubstructurePageComponent,
+  SequenceBeatCardComponent,
 ];
 
 const IMPORTS = [

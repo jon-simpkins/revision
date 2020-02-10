@@ -10,12 +10,12 @@ import { ANALYSIS_ACTIONS } from 'src/actions/actions';
   styleUrls: ['./runtime-edit.component.scss']
 })
 export class RuntimeEditComponent implements OnInit {
-  public storyViewAction: ActionOption;
+  public getStoryViewAction: () => ActionOption;
   public currentRuntimeMin: number;
   public errorMsg: string = '';
 
   constructor(private workspaceService: WorkspaceService) {
-    this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
+    this.getStoryViewAction = () => new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
     this.updateRuntimeValue(this.workspaceService.getCurrentStory().runtimeMin);
   }
 
@@ -36,7 +36,7 @@ export class RuntimeEditComponent implements OnInit {
           this.errorMsg = `Fair warning: this is more than the largest runtime (${maxSimilarRuntime}) of the movies similar to this one.`
         }
       }
-      this.workspaceService.getCurrentStory().runtimeMin = newValue;
+      this.workspaceService.getCurrentStory().setNewRuntimeMin(newValue);
     } else {
       this.errorMsg = 'Please enter a valid integer greater than zero';
     }

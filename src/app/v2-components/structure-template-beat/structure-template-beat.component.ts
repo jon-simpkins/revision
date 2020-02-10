@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PlotTemplate } from 'src/storyStructures';
+import { formatMinutesString } from 'src/storyStructures/utils';
 
 @Component({
   selector: 'structure-template-beat',
@@ -30,38 +31,19 @@ export class StructureTemplateBeatComponent implements OnInit {
   }
 
   getBeatStart(): string {
-    return this.formatMinutesString(
+    return formatMinutesString(
       this.template.getBeatStartMin(this.beatIndex)
     );
   }
 
   getBeatEnd(): string {
-    return this.formatMinutesString(
+    return formatMinutesString(
       this.template.getBeatEndMin(this.beatIndex)
     );
   }
 
   getDuration(): number {
     return this.template.getBeatDurationMin(this.beatIndex);
-  }
-
-  formatMinutesString(minTime: number): string {
-    let strRepresentation = '';
-
-
-    const minutes = Math.floor(minTime);
-    if (minutes < 10) {
-      strRepresentation += '0';
-    }
-    strRepresentation += `${minutes}:`;
-
-    const seconds = Math.round(60 * (minTime - minutes));
-    if (seconds < 10) {
-      strRepresentation += '0';
-    }
-    strRepresentation += `${seconds}`;
-
-    return strRepresentation;
   }
 
   parseTimestampString(timestampString: string): { value?: number; err?: string; } {

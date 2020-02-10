@@ -12,7 +12,7 @@ export class LoglinePageComponent {
 
   logline: string;
   loglineEdited: (newLogline: string) => void;
-  storyViewAction: ActionOption;
+  getStoryViewAction: () => ActionOption;
 
   constructor(private workspaceService: WorkspaceService) {
     this.logline = this.workspaceService.getCurrentStory().logLine || '';
@@ -20,7 +20,7 @@ export class LoglinePageComponent {
       this.workspaceService.getCurrentStory().logLine = newLogline;
     }
 
-    this.storyViewAction = new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
+    this.getStoryViewAction = () => new ActionOption(ANALYSIS_ACTIONS.STORY_VIEW_PAGE);
   }
 
   getStoryId(): string {

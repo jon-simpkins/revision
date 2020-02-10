@@ -12,7 +12,7 @@ import { ActionOption } from 'src/actions/action-option';
 })
 export class SmartLinkBtnComponent implements OnInit {
 
-  @Input() targetAction: ActionOption;
+  @Input() getTargetAction: () => ActionOption;
   @Input() label: string;
   @Input() icon: string;
 
@@ -34,7 +34,7 @@ export class SmartLinkBtnComponent implements OnInit {
   }
 
   navigate() {
-    this.actionService.startAction(this.targetAction);
+    this.actionService.startAction(this.getTargetAction());
   }
 
 }
