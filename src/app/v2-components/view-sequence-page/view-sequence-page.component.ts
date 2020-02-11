@@ -15,12 +15,16 @@ export class ViewSequencePageComponent implements OnInit {
 
   getSummaryEditAction: () => ActionOption;
   getBeatEditAction: () => ActionOption;
+  getParentSequenceAction: () => ActionOption;
 
   constructor(private workspaceSerivce: WorkspaceService, private actionService: ActionService) { }
 
   ngOnInit() {
     this.getSummaryEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, null, null, null, this.getSequenceId());
     this.getBeatEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, null, null, null, this.getSequenceId());
+    this.getParentSequenceAction = () => {
+      return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId)
+    }
   }
 
   getSummary(): string {
@@ -34,7 +38,7 @@ export class ViewSequencePageComponent implements OnInit {
   getRuntime(): string {
     let runtimeMin = this.workspaceSerivce.getCurrentViewSequence().durationMin;
 
-    return `${runtimeMin} min`;
+    return formatMinutesString(runtimeMin);
   }
 
   getBeatIds(): string[] {
@@ -64,4 +68,15 @@ export class ViewSequencePageComponent implements OnInit {
     );
   }
 
+  hasParent(): boolean {
+    return !!this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId;
+  }
+
+  isMasterSequence(): boolean {
+    return this.workspaceSerivce.getCurrentStory().plotElementId === this.getSequenceId();
+  }
+
+  getOneLinerLines(): string[] {
+    return (this.workspaceSerivce.getCurrentViewSequence().oneLiner || '').split('\n');
+  }
 }

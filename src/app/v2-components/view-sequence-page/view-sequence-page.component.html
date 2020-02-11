@@ -1,3 +1,15 @@
+<h3 *ngIf="hasParent()">
+    Parent Sequence <smart-link-btn [getTargetAction]="getParentSequenceAction" icon="details"></smart-link-btn>
+</h3>
+
+<div *ngIf="!isMasterSequence()">
+    <h3>One-Liner</h3>
+    <p *ngFor="let line of getOneLinerLines()">
+        {{line}}
+    </p>
+</div>
+<h3 *ngIf="isMasterSequence()">Top-Level Plot Sequence</h3>
+
 <h3>Summary <smart-link-btn [getTargetAction]="getSummaryEditAction" icon="edit"></smart-link-btn></h3>
 <quill-editor
     [initialRawText]="getSummary()"
