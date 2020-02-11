@@ -113,6 +113,8 @@ export class SpecSubstructurePageComponent implements OnInit {
     return this.getSequence().subStructureElements[idx];
   }
 
-
+  hasAnyTemplates(): boolean {
+    return !!this.workspaceService.currentWorkspace.structureTemplates.size;
+  }
 
 }

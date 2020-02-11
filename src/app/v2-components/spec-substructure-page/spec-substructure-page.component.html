@@ -11,7 +11,8 @@
 </p>
 
 <h3>Current Sequence Template: {{getCurrentTemplateStr()}}</h3>
-<mat-form-field>
+<div *ngIf="hasAnyTemplates()">
+  <mat-form-field>
     <mat-label>Structure Template</mat-label>
     <mat-select
         [value]="currentSelectedTemplateId"
@@ -24,6 +25,10 @@
     
   </mat-form-field>
   <button [disabled]="!currentSelectedTemplateId" mat-button (click)="applyTemplate()">Apply Template</button>
+</div>
+<div *ngIf="!hasAnyTemplates()">
+  Whoops! Looks like we need to add some sequence templates first: <smart-link-btn [getTargetAction]="getUpdateTemplateAction" icon="create"></smart-link-btn>
+</div>
 
 
 <div>
