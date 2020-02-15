@@ -16,6 +16,7 @@ export class ViewSequencePageComponent implements OnInit {
   getSummaryEditAction: () => ActionOption;
   getBeatEditAction: () => ActionOption;
   getParentSequenceAction: () => ActionOption;
+  getTimelineAction: () => ActionOption;
 
   constructor(private workspaceSerivce: WorkspaceService, private actionService: ActionService) { }
 
@@ -25,6 +26,7 @@ export class ViewSequencePageComponent implements OnInit {
     this.getParentSequenceAction = () => {
       return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId)
     }
+    this.getTimelineAction = () => new ActionOption(ANALYSIS_ACTIONS.VIEW_FULL_TIMELINE);
   }
 
   getSummary(): string {

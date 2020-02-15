@@ -6,7 +6,7 @@ import { AppModule } from '../../app.module';
 import { HackUpdateService } from '../../services/hack-update.service';
 import { WorkspaceService } from '../../services/workspace.service';
 
-import { serializedWorkspace001 } from 'src/storyStructures/data';
+import { serializedWorkspace001, serializedWorkspace002 } from 'src/storyStructures/data';
 import { ActionService } from 'src/app/services/action.service';
 import { ActionOption } from 'src/actions/action-option';
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from 'src/actions/actions';
@@ -74,6 +74,25 @@ class WritingBeatSequence {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingTimelineNoTimeline {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace002);
+        workspaceService.setCurrentStoryId('6af39c3036e4490aac4e3d1542bb8a36');
+        workspaceService.getCurrentStory().plotElementId = null;
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.VIEW_FULL_TIMELINE));
+    }
+}
+
+@Component({ template: TEMPLATE })
+class WritingTimeline {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace002);
+        workspaceService.setCurrentStoryId('6af39c3036e4490aac4e3d1542bb8a36');
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.VIEW_FULL_TIMELINE));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -105,5 +124,13 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders breaking sequence into beats', () => {
         return {
             component: WritingBeatSequence
+        };
+    }).add('Renders timeline page, when no timeline can be rendered', () => {
+        return {
+            component: WritingTimelineNoTimeline
+        };
+    }).add('Renders timeline', () => {
+        return {
+            component: WritingTimeline
         };
     });

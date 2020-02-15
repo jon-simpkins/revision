@@ -1,0 +1,10 @@
+
+<div *ngIf="hasTimeline">
+    <timeline-chart
+        [blocks]="timelineBlocks"
+    ></timeline-chart>
+</div>
+<div *ngIf="!hasTimeline">
+    whoops, no timeline
+</div>
+

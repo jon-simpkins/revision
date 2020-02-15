@@ -8,6 +8,7 @@
             <story-view-page *ngSwitchCase="analysisActions.STORY_VIEW_PAGE"></story-view-page>
             <structure-template-tool *ngSwitchCase="analysisActions.STRUCTURE_ANALYSIS"></structure-template-tool>
             <view-sequence-page *ngSwitchCase="analysisActions.VIEW_SEQUENCE_PAGE"></view-sequence-page>
+            <timeline-page *ngSwitchCase="analysisActions.VIEW_FULL_TIMELINE"></timeline-page>
         </div>
     </div>
     <div *ngIf="hasViewAction() && hasEditAction()" style="flex: 0; height: 524px; margin: 0; padding: 0; width: 1px; background: darkgrey;">&nbsp;</div>

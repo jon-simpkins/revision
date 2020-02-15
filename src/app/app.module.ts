@@ -62,6 +62,7 @@ import { SummarizeSequencePageComponent } from './v2-components/summarize-sequen
 import { ViewSequencePageComponent } from './v2-components/view-sequence-page/view-sequence-page.component';
 import { SpecSubstructurePageComponent } from './v2-components/spec-substructure-page/spec-substructure-page.component';
 import { SequenceBeatCardComponent } from './v2-components/sequence-beat-card/sequence-beat-card.component';
+import { TimelinePageComponent } from './v2-components/timeline-page/timeline-page.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -106,6 +107,7 @@ const DECLARATIONS = [
   ViewSequencePageComponent,
   SpecSubstructurePageComponent,
   SequenceBeatCardComponent,
+  TimelinePageComponent,
 ];
 
 const IMPORTS = [

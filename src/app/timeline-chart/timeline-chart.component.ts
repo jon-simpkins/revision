@@ -3,6 +3,7 @@ import {AfterViewInit, Component, Input} from '@angular/core';
 import * as uuid from 'uuid/v4';
 import TimelineBlock from '../../types/TimelineBlock';
 import {StoryService} from '../services/story.service';
+import { ActionService } from '../services/action.service';
 
 @Component({
   selector: 'timeline-chart',
@@ -22,7 +23,7 @@ export class TimelineChartComponent implements AfterViewInit {
 
   @Input() blocks: TimelineBlock[];
 
-  constructor(private storyService: StoryService) {
+  constructor(private storyService: StoryService, private actionService: ActionService) {
     this.currentWidth = this.minWidth;
   }
 
@@ -92,6 +93,10 @@ export class TimelineChartComponent implements AfterViewInit {
         this.storyService.setViewContent(
           this.blocks[selectedRow].viewOption
         );
+        return;
+      }
+      if (selectedRow > -1 && !!this.blocks[selectedRow].actionOption) {
+        this.actionService.startAction(this.blocks[selectedRow].actionOption);
         return;
       }
     });

@@ -1,5 +1,9 @@
-<button (click)="zoomOut()" [disabled]="minWidth === currentWidth">Zoom Out</button>
-<button (click)="zoomIn()">Zoom In</button>
+<button mat-button (click)="zoomOut()" [disabled]="minWidth === currentWidth">
+  <mat-icon>zoom_out</mat-icon>
+</button>
+<button mat-button (click)="zoomIn()">
+  <mat-icon>zoom_in</mat-icon>
+</button>
 <div style="overflow: scroll; border: 1px solid grey;"
   [style.width.px]="minWidth"
 >
