@@ -96,6 +96,10 @@ export class ActionService {
         options.push(
           new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, plotElement.anyUnassignedBeats(), storyId, null, plotElement.id)
         );
+
+        options.push(
+          new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, !plotElement.characterAppearances.length, storyId, null, plotElement.id)
+        );
       });
 
     });

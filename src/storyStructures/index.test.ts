@@ -1,8 +1,7 @@
-import { Story, SimilarMovie, Workspace, HistoryEntry } from ".";
+import { Story, Workspace, HistoryEntry } from ".";
 import { fullStory001, fullWorkspace001 } from "./data";
 
 import { setCurrentlyMocking, resetMockCount, generateUuid } from './generateUuid';
-import { WorkspaceService } from 'src/app/services/workspace.service';
 
 describe('Generate Uuid', () => {
     it('Generates unique values', () => {
@@ -25,7 +24,7 @@ describe('Story Structures', () => {
 
         const serialized = blankStory.toString();
 
-        expect(serialized).toEqual('{"similarMovieIds":[],"structureElements":{}}');
+        expect(serialized).toEqual('{"similarMovieIds":[],"structureElements":{},"characters":{}}');
     });
 
     it('Serializes a full story correctly', () => {

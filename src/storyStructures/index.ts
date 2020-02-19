@@ -181,6 +181,8 @@ export class PlotStructureElement {
     scriptRawText: string; // Optional, script content of element
     subStructureElements: string[] = []; // Optional, ordered array of ids of child structure elements
 
+    characterAppearances: string[] = []; // Optional, ordered array of ids for characters that appear in this sequence
+
     getOneLiner(): string {
         return this.oneLiner || 'New Structure Element';
     }
@@ -236,6 +238,26 @@ export class PlotStructureElement {
     }
 }
 
+export class Character {
+    id: string;
+    name: string;
+
+    getName(): string {
+        return this.name || '';
+    }
+
+    toString(): string {
+        return JSON.stringify(this);
+    }
+
+    static parseFromString(serialized: string): Character {
+        return Object.assign(
+            new Character(),
+            JSON.parse(serialized)
+        );
+    }
+}
+
 // Base class for a particular story
 export class Story {
     logLine: string;
@@ -244,6 +266,7 @@ export class Story {
 
     structureElements: Map<string, PlotStructureElement> = new Map<string, PlotStructureElement>();
     plotElementId: string; // Structure element id used to represent everything "in" the plot
+    characters: Map<string, Character> = new Map<string, Character>();
 
     toString(): string {
         const thisProxy = JSON.parse(JSON.stringify(this));
@@ -261,6 +284,9 @@ export class Story {
         story.structureElements = new Map<string, PlotStructureElement>();
         parseMap(proxyObj, story, PlotStructureElement.parseFromString, 'structureElements');
 
+        story.characters = new Map<string, Character>();
+        parseMap(proxyObj, story, Character.parseFromString, 'characters');
+
         return story;
     }
 
@@ -269,6 +295,15 @@ export class Story {
         const newStructure = new PlotStructureElement();
         newStructure.id = newId;
         this.structureElements.set(newId, newStructure);
+
+        return newId;
+    }
+
+    buildNewCharacter(): string {
+        const newId: string = generateUuid();
+        const newCharacter = new Character();
+        newCharacter.id = newId;
+        this.characters.set(newId, newCharacter);
 
         return newId;
     }

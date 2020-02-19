@@ -17,6 +17,7 @@ export class ViewSequencePageComponent implements OnInit {
   getBeatEditAction: () => ActionOption;
   getParentSequenceAction: () => ActionOption;
   getTimelineAction: () => ActionOption;
+  getCharacterAction: () => ActionOption;
 
   constructor(private workspaceSerivce: WorkspaceService, private actionService: ActionService) { }
 
@@ -27,6 +28,7 @@ export class ViewSequencePageComponent implements OnInit {
       return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId)
     }
     this.getTimelineAction = () => new ActionOption(ANALYSIS_ACTIONS.VIEW_FULL_TIMELINE);
+    this.getCharacterAction = () => new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, null, null, null, this.getSequenceId());
   }
 
   getSummary(): string {
@@ -80,5 +82,13 @@ export class ViewSequencePageComponent implements OnInit {
 
   getOneLinerLines(): string[] {
     return (this.workspaceSerivce.getCurrentViewSequence().oneLiner || '').split('\n');
+  }
+
+  getCharacterIds(): string[] {
+    return this.workspaceSerivce.getCurrentViewSequence().characterAppearances || [];
+  }
+
+  getCharacterName(characterId: string): string {
+    return this.workspaceSerivce.getCurrentStory().characters.get(characterId).getName();
   }
 }

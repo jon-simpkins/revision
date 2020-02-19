@@ -20,11 +20,6 @@
 ></quill-editor>
 
 
-
-<h3>
-    
-</h3>
-
 <h3>Beats <smart-link-btn [getTargetAction]="getBeatEditAction" icon="edit"></smart-link-btn></h3>
 <div *ngFor="let beatId of getBeatIds(); let i = index;">
     <div style="display: flex; border-bottom: 1px solid darkgrey; margin-bottom: 0.5em;">
@@ -40,4 +35,9 @@
             <mat-icon>details</mat-icon>
         </button>
     </div>
+</div>
+
+<h3>Characters <smart-link-btn [getTargetAction]="getCharacterAction" icon="edit"></smart-link-btn></h3>
+<div *ngFor="let characterId of getCharacterIds()">
+    {{getCharacterName(characterId)}}
 </div>
