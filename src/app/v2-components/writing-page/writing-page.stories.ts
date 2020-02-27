@@ -105,6 +105,19 @@ class WritingIdentifyCharacters {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingListAllCharacters {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace001);
+        workspaceService.setCurrentStoryId('ba9e97b7337e4f7480742837eba8a20e');
+
+        workspaceService.setCurrentEditSequenceId('2f8d738ad7c2471aa297d73a89304536');
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.VIEW_CHARACTER_LIST));
+
+        actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -148,5 +161,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders identifying characters', () => {
         return {
             component: WritingIdentifyCharacters
+        };
+    }).add('Renders listing all characters', () => {
+        return {
+            component: WritingListAllCharacters
         };
     });

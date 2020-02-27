@@ -12,6 +12,7 @@ export class CharacterSequenceAssignmentPageComponent implements OnInit {
 
   getStoryViewAction: () => ActionOption;
   getViewSequenceAction: () => ActionOption;
+  getListCharacterAction: () => ActionOption;
   currentNewCharacterName = '';
   availableCharacterIds: string[] = [];
 
@@ -22,6 +23,7 @@ export class CharacterSequenceAssignmentPageComponent implements OnInit {
       null,
       this.getSequenceId()
     );
+    this.getListCharacterAction = () => new ActionOption(ANALYSIS_ACTIONS.VIEW_CHARACTER_LIST);
   }
 
   ngOnInit() { }

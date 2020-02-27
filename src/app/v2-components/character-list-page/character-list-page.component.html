@@ -1,0 +1,13 @@
+<h3>All Characters</h3>
+
+<table mat-table [dataSource]="getCharacterListDataSource()" style="width: 100%; margin-bottom: 2em;">
+   
+    <!-- Name Column -->
+    <ng-container matColumnDef="characterName">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let option"> {{option.getName()}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="characterListColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: characterListColumns;"></tr>
+</table>
