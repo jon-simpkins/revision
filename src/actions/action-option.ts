@@ -5,8 +5,7 @@ export class ActionOption {
     public action: SYNTHESIS_ACTIONS | ANALYSIS_ACTIONS,
     public needsCompletion?: boolean,
     public storyId?: string,
-    public viewSequenceId?: string,
-    public editSequenceId?: string
+    public entityId?: string,
     ) { }
 
   getLabel(): string {

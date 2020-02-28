@@ -29,7 +29,7 @@ export class CharacterSequenceAssignmentPageComponent implements OnInit {
   ngOnInit() { }
 
   getSequenceId(): string {
-    return this.workspaceSerivce.getCurrentEditSequenceId();
+    return this.workspaceSerivce.getCurrentEditEntityId();
   }
 
   getSelectedCharacterIds(): string[] {

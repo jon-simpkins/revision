@@ -34,8 +34,8 @@ export class WorkspaceService {
   // TODO: there *has* to be a more efficient way of tracking changes, but this expedites things for dev
 
   private storyId?: string; // ID for story currently being viewed / edited
-  private editSequenceId?: string; // ID for sequence currently being edited
-  private viewSequenceId?: string; // ID for sequence currently being viewed
+  private editEntityId?: string; // ID for entity (sequence / character) currently being edited
+  private viewEntityId?: string; // ID for entity (sequence / character) currently being viewed
 
   constructor() { }
 
@@ -224,28 +224,28 @@ export class WorkspaceService {
     return this.currentWorkspace.stories.get(this.storyId);
   }
 
-  setCurrentViewSequenceId(sequenceId?: string) {
-    this.viewSequenceId = sequenceId;
+  setCurrentViewEntityId(entityId?: string) {
+    this.viewEntityId = entityId;
   }
 
-  getCurrentViewSequenceId(): string {
-    return this.viewSequenceId;
+  getCurrentViewEntityId(): string {
+    return this.viewEntityId;
   }
 
   getCurrentViewSequence(): PlotStructureElement {
-    return this.getCurrentStory().structureElements.get(this.viewSequenceId);
+    return this.getCurrentStory().structureElements.get(this.viewEntityId);
   }
 
-  setCurrentEditSequenceId(sequenceId?: string) {
-    this.editSequenceId = sequenceId;
+  setCurrentEditEntityId(entityId?: string) {
+    this.editEntityId = entityId;
   }
 
-  getCurrentEditSequenceId(): string {
-    return this.editSequenceId;
+  getCurrentEditEntityId(): string {
+    return this.editEntityId;
   }
 
   getCurrentEditSequence(): PlotStructureElement {
-    return this.getCurrentStory().structureElements.get(this.editSequenceId);
+    return this.getCurrentStory().structureElements.get(this.editEntityId);
   }
 
 }

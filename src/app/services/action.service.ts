@@ -90,15 +90,15 @@ export class ActionService {
       // Yikes, embedded for loops, but: iterate over all sequences in this
       story.structureElements.forEach((plotElement: PlotStructureElement) => {
         options.push(
-          new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, !plotElement.summaryRawText, storyId, null, plotElement.id)
+          new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, !plotElement.summaryRawText, storyId, plotElement.id)
         );
 
         options.push(
-          new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, plotElement.anyUnassignedBeats(), storyId, null, plotElement.id)
+          new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, plotElement.anyUnassignedBeats(), storyId, plotElement.id)
         );
 
         options.push(
-          new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, !plotElement.characterAppearances.length, storyId, null, plotElement.id)
+          new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, !plotElement.characterAppearances.length, storyId, plotElement.id)
         );
       });
 
@@ -135,13 +135,18 @@ export class ActionService {
       this.workspaceService.setCurrentStoryId(option.storyId);
     }
 
+    let viewEntityId: string = null;
+    let editEntityId: string = null;
+
     if (option.getIsSynthesis()) {
       this.currentEditOption = option;
+      editEntityId = option.entityId;
     } else {
       this.currentViewOption = option;
+      viewEntityId = option.entityId;
     }
 
-    this.routingService.navigateToUrl(ROUTES.WRITING, option.storyId, option.viewSequenceId, option.editSequenceId);
+    this.routingService.navigateToUrl(ROUTES.WRITING, option.storyId, viewEntityId, editEntityId);
   }
 
   completeAction() {

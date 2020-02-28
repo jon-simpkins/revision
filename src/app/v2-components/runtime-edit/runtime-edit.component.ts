@@ -61,9 +61,12 @@ export class RuntimeEditComponent implements OnInit {
     this.workspaceService.getCurrentStory().similarMovieIds.forEach((similarMovieId: string) => {
       let similarRuntime = this.workspaceService.currentWorkspace.similarMovies.get(similarMovieId).runtimeMin;
       if (similarRuntime && (!maxSimilarRuntime || similarRuntime > maxSimilarRuntime)) {
+        debugger;
         maxSimilarRuntime = similarRuntime;
       }
     });
+
+    debugger;
 
     return maxSimilarRuntime;
   }

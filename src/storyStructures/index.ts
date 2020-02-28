@@ -37,6 +37,8 @@ export class SimilarMovie {
             JSON.parse(serialized)
         );
 
+        story.runtimeMin = Number(story.runtimeMin);
+
         return story;
     }
 }

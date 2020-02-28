@@ -20,7 +20,7 @@ export class AddSequencePageComponent implements OnInit {
         // There's no top-level structure element, so create one
         const newStructureId = workspaceService.getCurrentStory().buildNewStructureElement();
         workspaceService.getCurrentStory().plotElementId = newStructureId;
-        
+
         // Update the sequence runtime to match the script runtime
         workspaceService.getCurrentStory().structureElements.get(newStructureId).durationMin = workspaceService.getCurrentStory().runtimeMin;
 
@@ -31,7 +31,6 @@ export class AddSequencePageComponent implements OnInit {
         SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE,
         null,
         workspaceService.getCurrentStoryId(),
-        null,
         structureIdToRedirectTo
       ));
     }, 1500);

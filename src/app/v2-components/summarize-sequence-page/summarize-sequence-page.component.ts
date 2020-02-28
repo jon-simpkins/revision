@@ -34,7 +34,7 @@ export class SummarizeSequencePageComponent implements OnInit {
   }
 
   getSequenceId(): string {
-    return this.workspaceSerivce.getCurrentEditSequenceId();
+    return this.workspaceSerivce.getCurrentEditEntityId();
   }
 
 }

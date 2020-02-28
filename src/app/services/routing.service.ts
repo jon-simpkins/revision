@@ -3,7 +3,6 @@ import { Router, ParamMap } from '@angular/router';
 
 import { ROUTES } from '../v2-components/v2-router/routes';
 import { WorkspaceService } from './workspace.service';
-import { query } from '@angular/animations';
 
 /**
  * Convenience wrapper around the Angular router, to deal with things specific to our routes (like adding implicit query params explicitly)
@@ -15,15 +14,15 @@ export class RoutingService {
 
   constructor(private router: Router, private workspaceService: WorkspaceService) { }
 
-  navigateToUrl(route: ROUTES, storyId?: string, viewSequenceId?: string, editSequenceId?: string) {
+  navigateToUrl(route: ROUTES, storyId?: string, viewEntityId?: string, editEntityId?: string) {
     // Why the timeout? To avoid some stupid race condition related to changing the route
     // while still reacting to the old one
     
     const queryParamMap = new Map<string,string>()
     queryParamMap.set('workspace', this.workspaceService.getCurrentWorkspaceId());
     queryParamMap.set('storyId', storyId || this.workspaceService.getCurrentStoryId());
-    queryParamMap.set('viewSequenceId', viewSequenceId || this.workspaceService.getCurrentViewSequenceId());
-    queryParamMap.set('editSequenceId', editSequenceId || this.workspaceService.getCurrentEditSequenceId());
+    queryParamMap.set('viewEntityId', viewEntityId || this.workspaceService.getCurrentViewEntityId());
+    queryParamMap.set('editEntityId', editEntityId || this.workspaceService.getCurrentEditEntityId());
 
     this.paramMapHandler(queryParamMap);
 
@@ -58,8 +57,8 @@ export class RoutingService {
     });
 
     this.workspaceService.setCurrentStoryId(map.get('storyId'));
-    this.workspaceService.setCurrentViewSequenceId(map.get('viewSequenceId'));
-    this.workspaceService.setCurrentEditSequenceId(map.get('editSequenceId'));
+    this.workspaceService.setCurrentViewEntityId(map.get('viewEntityId'));
+    this.workspaceService.setCurrentEditEntityId(map.get('editEntityId'));
 
   }
 }

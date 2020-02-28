@@ -22,13 +22,13 @@ export class ViewSequencePageComponent implements OnInit {
   constructor(private workspaceSerivce: WorkspaceService, private actionService: ActionService) { }
 
   ngOnInit() {
-    this.getSummaryEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, null, null, null, this.getSequenceId());
-    this.getBeatEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, null, null, null, this.getSequenceId());
+    this.getSummaryEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SUMMARIZE_SEQUENCE, null, null, this.getSequenceId());
+    this.getBeatEditAction = () => new ActionOption(SYNTHESIS_ACTIONS.SPEC_SUBSTRUCTURE, null, null, this.getSequenceId());
     this.getParentSequenceAction = () => {
-      return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, null, this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId)
+      return new ActionOption(ANALYSIS_ACTIONS.VIEW_SEQUENCE_PAGE, null, this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId)
     }
     this.getTimelineAction = () => new ActionOption(ANALYSIS_ACTIONS.VIEW_FULL_TIMELINE);
-    this.getCharacterAction = () => new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, null, null, null, this.getSequenceId());
+    this.getCharacterAction = () => new ActionOption(SYNTHESIS_ACTIONS.IDENTIFY_CHARACTERS_IN_SEQUENCE, null, null, this.getSequenceId());
   }
 
   getSummary(): string {
@@ -36,7 +36,7 @@ export class ViewSequencePageComponent implements OnInit {
   }
 
   getSequenceId(): string {
-    return this.workspaceSerivce.getCurrentViewSequenceId();
+    return this.workspaceSerivce.getCurrentViewEntityId();
   }
 
   getRuntime(): string {
@@ -73,7 +73,7 @@ export class ViewSequencePageComponent implements OnInit {
   }
 
   hasParent(): boolean {
-    return !!this.workspaceSerivce.getCurrentStory().structureElements.get(this.getSequenceId()).parentId;
+    return !!this.workspaceSerivce.getCurrentViewSequence().parentId;
   }
 
   isMasterSequence(): boolean {

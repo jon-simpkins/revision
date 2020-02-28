@@ -31,7 +31,7 @@ export class SpecSubstructurePageComponent implements OnInit {
   }
 
   getSequenceId(): string {
-    return this.workspaceService.getCurrentEditSequenceId();
+    return this.workspaceService.getCurrentEditEntityId();
   }
 
   getSequence(): PlotStructureElement {
