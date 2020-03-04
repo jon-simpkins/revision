@@ -17,6 +17,7 @@ export enum ANALYSIS_ACTIONS {
     VIEW_SEQUENCE_PAGE = 'View Sequence', // Page to see details about a sequence
     VIEW_FULL_TIMELINE = 'View Full Timeline', // Page to see the timeline of the film
     VIEW_CHARACTER_LIST = 'View All Characters', // Page to see all characters
+    VIEW_CHARACTER_DETAILS = 'View Character Details', // Page to inspect a single character
 }
 
 const SynthesisActionsSet = new Set<string>(Object.values(SYNTHESIS_ACTIONS));

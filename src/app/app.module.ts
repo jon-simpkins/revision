@@ -65,6 +65,7 @@ import { SequenceBeatCardComponent } from './v2-components/sequence-beat-card/se
 import { TimelinePageComponent } from './v2-components/timeline-page/timeline-page.component';
 import { CharacterSequenceAssignmentPageComponent } from './v2-components/character-sequence-assignment-page/character-sequence-assignment-page.component';
 import { CharacterListPageComponent } from './v2-components/character-list-page/character-list-page.component';
+import { CharacterDetailsPageComponent } from './v2-components/character-details-page/character-details-page.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -112,6 +113,7 @@ const DECLARATIONS = [
   TimelinePageComponent,
   CharacterSequenceAssignmentPageComponent,
   CharacterListPageComponent,
+  CharacterDetailsPageComponent,
 ];
 
 const IMPORTS = [

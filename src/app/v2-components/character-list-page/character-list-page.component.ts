@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Character } from 'src/storyStructures';
 import { ActionService } from 'src/app/services/action.service';
 import { WorkspaceService } from 'src/app/services/workspace.service';
+import { ActionOption } from 'src/actions/action-option';
+import { ANALYSIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'character-list-page',
@@ -27,9 +29,13 @@ export class CharacterListPageComponent implements OnInit {
         this.characterListDataSource.push(character);
       });
     }
-
-    
     return this.characterListDataSource;
+  }
+
+  showCharacterDetails(character: Character) {
+    const detailAction = new ActionOption(ANALYSIS_ACTIONS.VIEW_CHARACTER_DETAILS, null, null, character.id);
+
+    this.actionService.startAction(detailAction);
   }
 
 }
