@@ -7,6 +7,7 @@ export enum SYNTHESIS_ACTIONS {
     SUMMARIZE_SEQUENCE = 'Summarize Sequence', // Page to edit a particular sequence
     SPEC_SUBSTRUCTURE = 'Break Sequence into Beats', // Page to break a big story into smaller chunks
     IDENTIFY_CHARACTERS_IN_SEQUENCE = 'Identify Characters in a Sequence', // Page to identify which characters are in a sequence
+    CHARACTER_CHARACTERISTICS = 'Edit Character Details', // Page for editing top-level character details like name
 }
 
 export enum ANALYSIS_ACTIONS {

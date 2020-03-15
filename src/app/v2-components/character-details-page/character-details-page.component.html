@@ -2,4 +2,9 @@
     <smart-link-btn [getTargetAction]="getViewAllCharactersAction" label="View All Characters"></smart-link-btn>
 </p>
 
-<h3>Character: {{getCharacterName()}}</h3>
+<p>
+    <smart-link-btn [getTargetAction]="getEditSpecificCharacterAction" label="Edit This Character"></smart-link-btn>
+</p>
+
+<p><b>Name:</b> {{getCharacterName()}}</p>
+<p><b>Type:</b> {{getCharacterType()}}</p>

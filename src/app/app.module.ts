@@ -66,6 +66,7 @@ import { TimelinePageComponent } from './v2-components/timeline-page/timeline-pa
 import { CharacterSequenceAssignmentPageComponent } from './v2-components/character-sequence-assignment-page/character-sequence-assignment-page.component';
 import { CharacterListPageComponent } from './v2-components/character-list-page/character-list-page.component';
 import { CharacterDetailsPageComponent } from './v2-components/character-details-page/character-details-page.component';
+import { EditCharacterCharacteristicsPageComponent } from './v2-components/edit-character-characteristics-page/edit-character-characteristics-page.component';
 
 const DECLARATIONS = [
   AppComponent,
@@ -114,6 +115,7 @@ const DECLARATIONS = [
   CharacterSequenceAssignmentPageComponent,
   CharacterListPageComponent,
   CharacterDetailsPageComponent,
+  EditCharacterCharacteristicsPageComponent,
 ];
 
 const IMPORTS = [

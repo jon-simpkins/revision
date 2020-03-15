@@ -240,9 +240,17 @@ export class PlotStructureElement {
     }
 }
 
+export enum CHARACTER_TYPE {
+    PRIMARY = 'Primary',
+    SECONDARY = 'Secondary',
+    TERTIARY = 'Tertiary',
+}
+
+// See characterDetails.md
 export class Character {
     id: string;
     name: string;
+    type: CHARACTER_TYPE;
 
     getName(): string {
         return this.name || '';
@@ -273,6 +281,7 @@ export class Story {
     toString(): string {
         const thisProxy = JSON.parse(JSON.stringify(this));
         thisProxy.structureElements = jsonifyMap(this.structureElements);
+        thisProxy.characters = jsonifyMap(this.characters);
         return JSON.stringify(thisProxy);
     }
 

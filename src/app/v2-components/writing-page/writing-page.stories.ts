@@ -6,7 +6,7 @@ import { AppModule } from '../../app.module';
 import { HackUpdateService } from '../../services/hack-update.service';
 import { WorkspaceService } from '../../services/workspace.service';
 
-import { serializedWorkspace001, serializedWorkspace002 } from 'src/storyStructures/data';
+import { serializedWorkspace001, serializedWorkspace002, serializedWorkspace003 } from 'src/storyStructures/data';
 import { ActionService } from 'src/app/services/action.service';
 import { ActionOption } from 'src/actions/action-option';
 import { SYNTHESIS_ACTIONS, ANALYSIS_ACTIONS } from 'src/actions/actions';
@@ -118,6 +118,20 @@ class WritingListAllCharacters {
     }
 }
 
+@Component({ template: TEMPLATE })
+class WritingEditExampleCharacter {
+    constructor(workspaceService: WorkspaceService, actionService: ActionService, hackUpdateService: HackUpdateService) {
+        workspaceService.importWorkspaceFromString(serializedWorkspace003);
+        workspaceService.setCurrentStoryId('5bab0255b89b46009453578aeaa29d4d');
+
+        workspaceService.setCurrentViewEntityId('83b7cc05c3b34ec39c26e7ca9196b0f4');
+        workspaceService.setCurrentEditEntityId('83b7cc05c3b34ec39c26e7ca9196b0f4');
+        actionService.startAction(new ActionOption(ANALYSIS_ACTIONS.VIEW_CHARACTER_DETAILS));
+
+        actionService.startAction(new ActionOption(SYNTHESIS_ACTIONS.CHARACTER_CHARACTERISTICS));
+    }
+}
+
 
 storiesOf('V2 / Writing Page', module)
     .addDecorator(
@@ -165,5 +179,9 @@ storiesOf('V2 / Writing Page', module)
     }).add('Renders listing all characters', () => {
         return {
             component: WritingListAllCharacters
+        };
+    }).add('Renders editing a single character', () => {
+        return {
+            component: WritingEditExampleCharacter
         };
     });

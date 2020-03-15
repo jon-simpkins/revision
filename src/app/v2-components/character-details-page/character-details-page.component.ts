@@ -3,7 +3,7 @@ import { WorkspaceService } from 'src/app/services/workspace.service';
 import { ActionService } from 'src/app/services/action.service';
 import { Character } from 'src/storyStructures';
 import { ActionOption } from 'src/actions/action-option';
-import { ANALYSIS_ACTIONS } from 'src/actions/actions';
+import { ANALYSIS_ACTIONS, SYNTHESIS_ACTIONS } from 'src/actions/actions';
 
 @Component({
   selector: 'character-details-page',
@@ -13,10 +13,19 @@ import { ANALYSIS_ACTIONS } from 'src/actions/actions';
 export class CharacterDetailsPageComponent implements OnInit {
 
   getViewAllCharactersAction: () => ActionOption;
+  getEditSpecificCharacterAction: () => ActionOption;
 
   constructor(private workspaceService: WorkspaceService, private actionService: ActionService) {
     this.getViewAllCharactersAction = () => {
       return new ActionOption(ANALYSIS_ACTIONS.VIEW_CHARACTER_LIST);
+    }
+    this.getEditSpecificCharacterAction = () => {
+      return new ActionOption(
+        SYNTHESIS_ACTIONS.CHARACTER_CHARACTERISTICS,
+        null,
+        this.workspaceService.getCurrentStoryId(),
+        this.workspaceService.getCurrentViewEntityId()
+      );
     }
   }
 
@@ -31,6 +40,14 @@ export class CharacterDetailsPageComponent implements OnInit {
 
   getCharacterName(): string {
     return this.getCurrentCharacter().getName();
+  }
+
+  getCharacterType(): string {
+    if (this.getCurrentCharacter().type) {
+      return this.getCurrentCharacter().type;
+    }
+
+    return 'None Specified';
   }
 
 }
