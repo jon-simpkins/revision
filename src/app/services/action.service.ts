@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ROUTES } from '../v2-components/v2-router/routes'; // todo: make this an enum of routes?
 import { WorkspaceService } from './workspace.service';
 import { RoutingService } from './routing.service';
-import { HistoryEntry, Story, SimilarMovie, PlotStructureElement, Character } from '../../storyStructures';
+import { HistoryEntry, Story, SimilarMovie, PlotStructureElement, Character, CHARACTER_TYPE } from '../../storyStructures';
 import { getLoginEmail } from 'src/docsApi/docsApiHelpers';
 
 import { ActionOption } from '../../actions/action-option';
@@ -106,6 +106,12 @@ export class ActionService {
         options.push(
           new ActionOption(SYNTHESIS_ACTIONS.CHARACTER_CHARACTERISTICS, !character.type || !character.name, storyId, character.id)
         );
+
+        if (character.type === CHARACTER_TYPE.PRIMARY || character.type === CHARACTER_TYPE.SECONDARY) {
+          options.push(
+            new ActionOption(SYNTHESIS_ACTIONS.CHARACTER_SUMMARY, !character.summary, storyId, character.id)
+          );
+        }
       });
 
     });

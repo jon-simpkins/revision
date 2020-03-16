@@ -14,6 +14,7 @@ export class CharacterDetailsPageComponent implements OnInit {
 
   getViewAllCharactersAction: () => ActionOption;
   getEditSpecificCharacterAction: () => ActionOption;
+  getEditCharacterSummaryAction: () => ActionOption;
 
   constructor(private workspaceService: WorkspaceService, private actionService: ActionService) {
     this.getViewAllCharactersAction = () => {
@@ -22,6 +23,14 @@ export class CharacterDetailsPageComponent implements OnInit {
     this.getEditSpecificCharacterAction = () => {
       return new ActionOption(
         SYNTHESIS_ACTIONS.CHARACTER_CHARACTERISTICS,
+        null,
+        this.workspaceService.getCurrentStoryId(),
+        this.workspaceService.getCurrentViewEntityId()
+      );
+    }
+    this.getEditCharacterSummaryAction = () => {
+      return new ActionOption(
+        SYNTHESIS_ACTIONS.CHARACTER_SUMMARY,
         null,
         this.workspaceService.getCurrentStoryId(),
         this.workspaceService.getCurrentViewEntityId()
@@ -48,6 +57,10 @@ export class CharacterDetailsPageComponent implements OnInit {
     }
 
     return 'None Specified';
+  }
+
+  getSummary(): string {
+    return this.getCurrentCharacter().summary || '';
   }
 
 }

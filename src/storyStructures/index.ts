@@ -251,6 +251,7 @@ export class Character {
     id: string;
     name: string;
     type: CHARACTER_TYPE;
+    summary: string;
 
     getName(): string {
         return this.name || '';

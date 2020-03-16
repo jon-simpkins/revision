@@ -6,5 +6,15 @@
     <smart-link-btn [getTargetAction]="getEditSpecificCharacterAction" label="Edit This Character"></smart-link-btn>
 </p>
 
+<p>
+    <smart-link-btn [getTargetAction]="getEditCharacterSummaryAction" label="Edit This Character's Summary"></smart-link-btn>
+</p>
+
 <p><b>Name:</b> {{getCharacterName()}}</p>
 <p><b>Type:</b> {{getCharacterType()}}</p>
+
+<h3>Summary:</h3>
+<quill-editor
+    [initialRawText]="getSummary()"
+    [readOnlyMode]="true"
+></quill-editor>

@@ -8,6 +8,7 @@ export enum SYNTHESIS_ACTIONS {
     SPEC_SUBSTRUCTURE = 'Break Sequence into Beats', // Page to break a big story into smaller chunks
     IDENTIFY_CHARACTERS_IN_SEQUENCE = 'Identify Characters in a Sequence', // Page to identify which characters are in a sequence
     CHARACTER_CHARACTERISTICS = 'Edit Character Details', // Page for editing top-level character details like name
+    CHARACTER_SUMMARY = 'Edit Charater Summary', // Quick summary of who a character is
 }
 
 export enum ANALYSIS_ACTIONS {

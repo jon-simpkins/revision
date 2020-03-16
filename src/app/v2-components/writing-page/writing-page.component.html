@@ -1,7 +1,8 @@
 <action-bar></action-bar>
 <div style="display: flex;">
     <div *ngIf="hasViewAction()" style="flex:1;">
-        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Analysis: {{getViewAction()}}</h4>
+        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Analysis: {{getViewAction()}}
+        </h4>
         <div [ngSwitch]="getViewAction()" style="padding: 0 1em; overflow: scroll; max-height: 500px;">
             <detail-similar-movies *ngSwitchCase="analysisActions.DETAIL_SIMILAR_MOVIES"></detail-similar-movies>
             <revision-history *ngSwitchCase="analysisActions.REVISION_HISTORY"></revision-history>
@@ -13,19 +14,25 @@
             <character-details-page *ngSwitchCase="analysisActions.VIEW_CHARACTER_DETAILS"></character-details-page>
         </div>
     </div>
-    <div *ngIf="hasViewAction() && hasEditAction()" style="flex: 0; height: 524px; margin: 0; padding: 0; width: 1px; background: darkgrey;">&nbsp;</div>
+    <div *ngIf="hasViewAction() && hasEditAction()"
+        style="flex: 0; height: 524px; margin: 0; padding: 0; width: 1px; background: darkgrey;">&nbsp;</div>
     <div *ngIf="hasEditAction()" style="flex:1;">
-        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Synthesis: {{getEditAction()}}</h4>
+        <h4 style="height: 20px; text-align: center; margin: 0; background: lightgrey;">Synthesis: {{getEditAction()}}
+        </h4>
         <div [ngSwitch]="getEditAction()" style="padding: 0 1em; overflow: scroll; max-height: 500px;">
-            <create-new-story *ngSwitchCase="synthesisActions.CREATE_NEW_STORY" ></create-new-story>
-            <assign-similar-movies *ngSwitchCase="synthesisActions.ASSIGN_SIMILAR_MOVIES" ></assign-similar-movies>
+            <create-new-story *ngSwitchCase="synthesisActions.CREATE_NEW_STORY"></create-new-story>
+            <assign-similar-movies *ngSwitchCase="synthesisActions.ASSIGN_SIMILAR_MOVIES"></assign-similar-movies>
             <logline-page *ngSwitchCase="synthesisActions.LOGLINE_EDIT_PAGE"></logline-page>
             <runtime-edit *ngSwitchCase="synthesisActions.RUNTIME_EDIT"></runtime-edit>
             <add-sequence-page *ngSwitchCase="synthesisActions.ADD_SEQUENCE"></add-sequence-page>
             <summarize-sequence-page *ngSwitchCase="synthesisActions.SUMMARIZE_SEQUENCE"></summarize-sequence-page>
             <spec-substructure-page *ngSwitchCase="synthesisActions.SPEC_SUBSTRUCTURE"></spec-substructure-page>
-            <character-sequence-assignment-page *ngSwitchCase="synthesisActions.IDENTIFY_CHARACTERS_IN_SEQUENCE"></character-sequence-assignment-page>
-            <edit-character-characteristics-page *ngSwitchCase="synthesisActions.CHARACTER_CHARACTERISTICS"></edit-character-characteristics-page>
+            <character-sequence-assignment-page *ngSwitchCase="synthesisActions.IDENTIFY_CHARACTERS_IN_SEQUENCE">
+            </character-sequence-assignment-page>
+            <edit-character-characteristics-page *ngSwitchCase="synthesisActions.CHARACTER_CHARACTERISTICS">
+            </edit-character-characteristics-page>
+            <edit-character-summary-page *ngSwitchCase="synthesisActions.CHARACTER_SUMMARY">
+            </edit-character-summary-page>
         </div>
     </div>
 </div>
