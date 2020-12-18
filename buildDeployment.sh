@@ -12,7 +12,7 @@ mkdir docs
 
 ng build --prod
 
-mv dist/* docs
+mv dist/revision/* docs
 
 RELEASE_MSG=`date "+%Y-%m-%d (%s)"`
 
