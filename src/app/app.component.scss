@@ -1,0 +1,22 @@
+
+.header {
+  border-bottom: 1px solid black;
+  display: flex;
+  padding: 0 8px;
+  vertical-align: middle;
+
+  h1 {
+    flex: 1;
+    margin: 8px 0;
+  }
+
+  a {
+    border-left: 1px solid black;
+    margin: auto;
+    padding: 0 8px;
+  }
+}
+
+.body {
+  margin: 8px 32px;
+}

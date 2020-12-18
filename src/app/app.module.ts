@@ -7,11 +7,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { ImportExportPageComponent } from './import-export-page/import-export-page.component';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ImportExportPageComponent
+    ImportExportPageComponent,
+    LandingPageComponent
   ],
   imports: [
     BrowserModule,
