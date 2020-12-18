@@ -17,6 +17,6 @@ mv dist/* docs
 RELEASE_MSG=`date "+%Y-%m-%d (%s)"`
 
 git add .
-git commit -am "release: $RELEASE_MSG"
+git commit -am ":rocket: $RELEASE_MSG"
 
 echo "Deployment built and committed to local branch, push to remote to deploy to GitHub pages!"
