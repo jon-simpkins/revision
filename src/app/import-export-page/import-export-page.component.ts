@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
 
 // Page component for the "Import/Export" page
@@ -6,17 +6,30 @@ import {MonolithicDataService} from '../monolithic-data.service';
   selector: 'app-import-export-page',
   templateUrl: './import-export-page.component.html',
   styleUrls: ['./import-export-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportExportPageComponent implements OnInit {
+  fetchedValue = 'Not yet fetched';
 
-  private monolithicDataService: MonolithicDataService;
-
-  constructor(monolithicDataService: MonolithicDataService) {
-    this.monolithicDataService = monolithicDataService;
-  }
+  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.monolithicDataService.exampleMethod();
   }
 
+  onSetValueClick(): void {
+    this.monolithicDataService.setExampleValue(
+      Date.now().toString(),
+      () => {});
+  }
+
+  onClearClick(): void {
+    this.monolithicDataService.clear(() => {});
+  }
+
+  onCheckClick(): void {
+    this.monolithicDataService.getExampleValue((value) => {
+      this.fetchedValue = value;
+      this.ref.markForCheck();
+    });
+  }
 }

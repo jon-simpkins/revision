@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Story, Meta } from '@storybook/angular/types-6-0';
 
 import {ImportExportPageComponent} from './import-export-page.component';
+import {MatButtonModule} from '@angular/material/button';
+import {MonolithicDataService} from '../monolithic-data.service';
 
 export default {
   title: 'Import + Export Page',
@@ -11,7 +13,8 @@ export default {
   decorators: [
     moduleMetadata({
       declarations: [],
-      imports: [CommonModule],
+      providers: [MonolithicDataService],
+      imports: [CommonModule, MatButtonModule],
     }),
   ],
 } as Meta;

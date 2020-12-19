@@ -11,7 +11,8 @@
     "e2e": "node_modules/.bin/ng e2e",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
     "storybook": "npm run docs:json && start-storybook -p 6006",
-    "build-storybook": "npm run docs:json && build-storybook"
+    "build-storybook": "npm run docs:json && build-storybook",
+    "postinstall": "ngcc"
   },
   "private": true,
   "dependencies": {

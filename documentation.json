@@ -4,26 +4,125 @@
     "injectables": [
         {
             "name": "MonolithicDataService",
-            "id": "injectable-MonolithicDataService-0ddb0d487024db4b0d83c325caeb49b7",
+            "id": "injectable-MonolithicDataService-f7852c971eebab88d3ae534057951e7b",
             "file": "src/app/monolithic-data.service.ts",
             "properties": [],
             "methods": [
                 {
-                    "name": "exampleMethod",
-                    "args": [],
+                    "name": "clear",
+                    "args": [
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": []
+                        }
+                    ],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 13
+                    "line": 22,
+                    "jsdoctags": [
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getExampleValue",
+                    "args": [
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "any"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 14,
+                    "jsdoctags": [
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "any"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setExampleValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "string"
+                        },
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 18,
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "next",
+                            "type": "function",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor() { }\n\n  exampleMethod(): void {\n    console.log('it worked!');\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { StorageMap } from '@ngx-pwa/local-storage';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storage: StorageMap) { }\n\n  getExampleValue(next: (value: any) => void): void {\n    this.storage.get('example-key').subscribe(next);\n  }\n\n  setExampleValue(value: string, next: () => void): void {\n    this.storage.set('example-key', value).subscribe(next);\n  }\n\n  clear(next: () => void): void {\n    this.storage.clear().subscribe(next);\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 9
+                "args": [
+                    {
+                        "name": "storage",
+                        "type": "StorageMap"
+                    }
+                ],
+                "line": 10,
+                "jsdoctags": [
+                    {
+                        "name": "storage",
+                        "type": "StorageMap",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "type": "injectable"
         }
@@ -261,8 +360,9 @@
         },
         {
             "name": "ImportExportPageComponent",
-            "id": "component-ImportExportPageComponent-c8c2e7ca3e6e5fd51d6dc72034de579e",
+            "id": "component-ImportExportPageComponent-152fd5710c72e21783bf6281ff65fe4a",
             "file": "src/app/import-export-page/import-export-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -281,14 +381,12 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
-                    "name": "monolithicDataService",
-                    "type": "MonolithicDataService",
+                    "name": "fetchedValue",
+                    "defaultValue": "'Not yet fetched'",
+                    "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12,
-                    "modifierKind": [
-                        112
-                    ]
+                    "line": 12
                 }
             ],
             "methodsClass": [
@@ -298,7 +396,31 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 18
+                    "line": 16
+                },
+                {
+                    "name": "onCheckClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 31
+                },
+                {
+                    "name": "onClearClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                },
+                {
+                    "name": "onSetValueClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 19
                 }
             ],
             "hostBindings": [],
@@ -306,11 +428,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n})\nexport class ImportExportPageComponent implements OnInit {\n\n  private monolithicDataService: MonolithicDataService;\n\n  constructor(monolithicDataService: MonolithicDataService) {\n    this.monolithicDataService = monolithicDataService;\n  }\n\n  ngOnInit(): void {\n    this.monolithicDataService.exampleMethod();\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  onSetValueClick(): void {\n    this.monolithicDataService.setExampleValue(Date.now().toString(), () => {\n      console.log('done!');\n    });\n  }\n\n  onClearClick(): void {\n    this.monolithicDataService.clear(() => {\n      console.log('cleared!');\n    });\n  }\n\n  onCheckClick(): void {\n    this.monolithicDataService.getExampleValue((value) => {\n      this.fetchedValue = value;\n      this.ref.markForCheck();\n    });\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": "button {\n  margin-right: 8px;\n}\n",
                     "styleUrl": "./import-export-page.component.scss"
                 }
             ],
@@ -322,6 +444,10 @@
                     {
                         "name": "monolithicDataService",
                         "type": "MonolithicDataService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
                     }
                 ],
                 "line": 12,
@@ -332,13 +458,20 @@
                         "tagName": {
                             "text": "param"
                         }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
                     }
                 ]
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n"
+            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<button mat-raised-button color=\"primary\" (click)=\"onSetValueClick()\">Set storage value</button>\n<button mat-raised-button color=\"accent\" (click)=\"onClearClick()\">Clear all storage values</button>\n<button mat-button (click)=\"onCheckClick()\">Check most recent value</button>\n\n\n<p>Last fetched value: {{fetchedValue}}</p>\n"
         },
         {
             "name": "LandingPageComponent",
@@ -551,7 +684,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -559,7 +692,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -678,17 +811,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
-                "type": "Story<ImportExportPageComponent>",
-                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
+                "file": "src/app/landing-page/landing-page.stories.ts",
+                "type": "Story<LandingPageComponent>",
+                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
-                "type": "Story<LandingPageComponent>",
-                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "type": "Story<ImportExportPageComponent>",
+                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
             }
         ],
         "functions": [],
@@ -712,24 +845,6 @@
                     "type": "literal type"
                 }
             ],
-            "src/app/import-export-page/import-export-page.stories.ts": [
-                {
-                    "name": "DefaultExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "Story<ImportExportPageComponent>",
-                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/landing-page/landing-page.stories.ts": [
                 {
                     "name": "DefaultExample",
@@ -746,6 +861,24 @@
                     "file": "src/app/landing-page/landing-page.stories.ts",
                     "type": "Story<LandingPageComponent>",
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/import-export-page/import-export-page.stories.ts": [
+                {
+                    "name": "DefaultExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
+                    "type": "Story<ImportExportPageComponent>",
+                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -918,7 +1051,7 @@
                 "linktype": "component",
                 "name": "ImportExportPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -976,7 +1109,7 @@
                 "linktype": "injectable",
                 "name": "MonolithicDataService",
                 "coveragePercent": 0,
-                "coverageCount": "0/3",
+                "coverageCount": "0/5",
                 "status": "low"
             },
             {

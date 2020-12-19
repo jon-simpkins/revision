@@ -3,3 +3,10 @@
 <p>
   The goal of this page is to support importing / exporting story data.
 </p>
+
+<button mat-raised-button color="primary" (click)="onSetValueClick()">Set storage value</button>
+<button mat-raised-button color="accent" (click)="onClearClick()">Clear all storage values</button>
+<button mat-button (click)="onCheckClick()">Check most recent value</button>
+
+
+<p>Last fetched value: {{fetchedValue}}</p>
