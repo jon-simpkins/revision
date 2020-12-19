@@ -19,12 +19,6 @@ export class ImportExportPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  async onUpdateNameClick(): Promise<void> {
-    await this.monolithicDataService.setWorkspaceName(
-      'workspace ' + Date.now().toString()
-    );
-  }
-
   async onDownloadClick(): Promise<void> {
     const workspace = await this.monolithicDataService.saveWorkspace();
     const filename = workspace.name + '.write';

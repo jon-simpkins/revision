@@ -4,22 +4,19 @@
   The goal of this page is to support importing / exporting story data.
 </p>
 
-<button mat-raised-button color="primary" (click)="onUpdateNameClick()">Update workspace name</button>
-
-<p>Last fetched value: {{fetchedValue}}</p>
-
-<div>
-  <button mat-stroked-button (click)="onDownloadClick()">
+<div class="upload-download">
+  <button mat-button (click)="onDownloadClick()">
     Download
   </button>
+  <button mat-button (click)="uploadFile.click()">
+    Upload
+  </button>
+  <input
+    hidden
+    type="file"
+    #uploadFile
+    accept=".write"
+    (change)="onUpload($event)">
 </div>
 
-<div>
-  <label for="upload-file">Upload</label>
-  <input type="file"
-         id="upload-file"
-         accept=".write"
-         (change)="onUpload($event)">
-</div>
 
-Uploaded text data: {{uploadedTextData}}
