@@ -1,11 +1,38 @@
 syntax = "proto3";
 
-message WritingWorkspace {
-  string name = 1;
-
-  WritingWorkspaceMetadata metadata = 2;
+// Poor substitute for https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/timestamp.proto
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
 }
 
+// Poor substitute for https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/duration.proto
+message Duration {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// Stats about a single writing session.
+message WritingSession {
+  Timestamp start = 1;
+  Duration duration = 2;
+}
+
+// The metadata about the workspace
+// (i.e. things which are not actually involved in the writing content).
 message WritingWorkspaceMetadata {
-  uint32 number_of_sessions = 1;
+  reserved 1;
+
+  repeated WritingSession session_history = 2;
+}
+
+// The entire workspace for writing,
+// this is the thing serialized to a single *.write file.
+message WritingWorkspace {
+  // Human-readable name of the workspace,
+  // this is used in the filename when downloading (e.g. "spy-movie.write").
+  string name = 1;
+
+  // Metadata.
+  WritingWorkspaceMetadata metadata = 2;
 }

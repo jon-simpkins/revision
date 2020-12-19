@@ -40,7 +40,6 @@ export class ImportExportPageComponent implements OnInit {
     const workspace = WritingWorkspace.create();
     workspace.name = 'my workspace name';
     workspace.metadata = WritingWorkspaceMetadata.create();
-    workspace.metadata.numberOfSessions = 137;
 
     fileDownload(
       WritingWorkspace.encode(workspace).finish(),
