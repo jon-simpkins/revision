@@ -1,5 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# Ignore compiled proto files
+src/protos.js
+src/protos.d.ts
+
 # Ignore local credentials file for dev
 src/credentials.js
 src/github-credentials.js
