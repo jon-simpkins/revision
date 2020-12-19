@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
 import fileDownload from 'js-file-download';
-import {WritingWorkspace, WritingWorkspaceMetadata} from '../../protos';
+import {WritingWorkspace} from '../../protos';
 
 // Page component for the "Import/Export" page
 @Component({
@@ -19,39 +19,34 @@ export class ImportExportPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onClearClick(): void {
-    this.monolithicDataService.clear(() => {});
+  async onUpdateNameClick(): Promise<void> {
+    await this.monolithicDataService.setWorkspaceName(
+      'workspace ' + Date.now().toString()
+    );
   }
 
-  onUpdateNameClick(): void {
-    this.monolithicDataService.setWorkspaceName('workspace ' + Date.now().toString()).then(() => {
-      // nothing
-    });
+  async onDownloadClick(): Promise<void> {
+    const workspace = await this.monolithicDataService.saveWorkspace();
+    const filename = workspace.name + '.write';
+
+    fileDownload(
+      WritingWorkspace.encode(workspace).finish(),
+      filename
+    );
   }
 
-  onDownloadClick(): void {
-    this.monolithicDataService.saveWorkspace((workspace: WritingWorkspace) => {
-      const filename = workspace.name + '.write';
-
-      fileDownload(
-        WritingWorkspace.encode(workspace).finish(),
-        filename
-      );
-    });
-  }
-
-  onUpload(event: any): void {
+  async onUpload(event: any): Promise<void> {
     const file: File = event.target.files[0];
 
-    file.text().then((data) => {
-      const uint8Array = new TextEncoder().encode(data);
-      const workspace = WritingWorkspace.decode(uint8Array);
+    const fileData = await file.text();
 
-      this.uploadedTextData = workspace.name;
+    const uint8Array = new TextEncoder().encode(fileData);
+    const workspace = WritingWorkspace.decode(uint8Array);
 
-      this.monolithicDataService.loadWorkspace(workspace, () => {
-        this.ref.markForCheck();
-      });
-    });
+    this.uploadedTextData = workspace.name;
+
+    await this.monolithicDataService.loadWorkspace(workspace);
+
+    this.ref.markForCheck();
   }
 }

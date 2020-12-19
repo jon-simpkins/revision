@@ -14,32 +14,31 @@ export class MonolithicDataService {
 
   constructor(private storage: StorageMap) { }
 
-  // Function to load workspace
-  loadWorkspace(workspace: WritingWorkspace, next: () => void): void {
-    this.setWorkspaceName(workspace.name).then(() => {
-      next();
-    });
+  // Function to load workspace into local memory.
+  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {
+    await this.clear();
+    await this.setWorkspaceName(workspace.name);
   }
 
-  saveWorkspace(next: (workspace: WritingWorkspace) => void): void {
+  // Function to pull workspace from local memory.
+  async saveWorkspace(): Promise<WritingWorkspace> {
     const workspace = WritingWorkspace.create();
-    this.getWorkspaceName().then((name: string) => {
-      workspace.name = name;
-    }).then(() => {
-      next(workspace);
-    });
+
+    workspace.name = await this.getWorkspaceName();
+
+    return Promise.resolve(workspace);
   }
 
-  setWorkspaceName(name: string): Promise<any> {
-    return this.storage.set(WORKSPACE_NAME_KEY, name).toPromise();
+  async setWorkspaceName(name: string): Promise<void> {
+    await this.storage.set(WORKSPACE_NAME_KEY, name).toPromise();
   }
 
-  getWorkspaceName(): Promise<any> {
-    return this.storage.get(WORKSPACE_NAME_KEY).toPromise();
+  async getWorkspaceName(): Promise<string> {
+    return (await this.storage.get(WORKSPACE_NAME_KEY, { type: 'string'}).toPromise())
+      || '';
   }
 
-
-  clear(next: () => void): void {
-    this.storage.clear().subscribe(next);
+  async clear(): Promise<void> {
+    await this.storage.clear().toPromise();
   }
 }
