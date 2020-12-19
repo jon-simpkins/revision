@@ -19,32 +19,25 @@ export class ImportExportPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onSetValueClick(): void {
-    this.monolithicDataService.setExampleValue(
-      Date.now().toString(),
-      () => {});
-  }
-
   onClearClick(): void {
     this.monolithicDataService.clear(() => {});
   }
 
-  onCheckClick(): void {
-    this.monolithicDataService.getExampleValue((value) => {
-      this.fetchedValue = value;
-      this.ref.markForCheck();
+  onUpdateNameClick(): void {
+    this.monolithicDataService.setWorkspaceName('workspace ' + Date.now().toString()).then(() => {
+      // nothing
     });
   }
 
   onDownloadClick(): void {
-    const workspace = WritingWorkspace.create();
-    workspace.name = 'my workspace name';
-    workspace.metadata = WritingWorkspaceMetadata.create();
+    this.monolithicDataService.saveWorkspace((workspace: WritingWorkspace) => {
+      const filename = workspace.name + '.write';
 
-    fileDownload(
-      WritingWorkspace.encode(workspace).finish(),
-      'example.write'
-    );
+      fileDownload(
+        WritingWorkspace.encode(workspace).finish(),
+        filename
+      );
+    });
   }
 
   onUpload(event: any): void {
@@ -56,7 +49,9 @@ export class ImportExportPageComponent implements OnInit {
 
       this.uploadedTextData = workspace.name;
 
-      this.ref.markForCheck();
+      this.monolithicDataService.loadWorkspace(workspace, () => {
+        this.ref.markForCheck();
+      });
     });
   }
 }
