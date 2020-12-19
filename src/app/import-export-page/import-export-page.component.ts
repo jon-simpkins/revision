@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
 import fileDownload from 'js-file-download';
+import {WritingWorkspace, WritingWorkspaceMetadata} from '../../protos';
 
 // Page component for the "Import/Export" page
 @Component({
@@ -36,16 +37,26 @@ export class ImportExportPageComponent implements OnInit {
   }
 
   onDownloadClick(): void {
-    const myData = 'This is my data: ' + Date.now();
+    const workspace = WritingWorkspace.create();
+    workspace.name = 'my workspace name';
+    workspace.metadata = WritingWorkspaceMetadata.create();
+    workspace.metadata.numberOfSessions = 137;
 
-    fileDownload(myData, 'example.csv');
+    fileDownload(
+      WritingWorkspace.encode(workspace).finish(),
+      'example.write'
+    );
   }
 
   onUpload(event: any): void {
     const file: File = event.target.files[0];
 
     file.text().then((data) => {
-      this.uploadedTextData = data;
+      const uint8Array = new TextEncoder().encode(data);
+      const workspace = WritingWorkspace.decode(uint8Array);
+
+      this.uploadedTextData = workspace.name;
+
       this.ref.markForCheck();
     });
   }

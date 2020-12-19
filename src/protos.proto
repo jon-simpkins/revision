@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message WritingWorkspace {
+  string name = 1;
+
+  WritingWorkspaceMetadata metadata = 2;
+}
+
+message WritingWorkspaceMetadata {
+  uint32 number_of_sessions = 1;
+}
