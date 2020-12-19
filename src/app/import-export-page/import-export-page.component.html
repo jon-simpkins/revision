@@ -16,3 +16,13 @@
     Download
   </button>
 </div>
+
+<div>
+  <label for="upload-file">Upload</label>
+  <input type="file"
+         id="upload-file"
+         accept=".csv"
+         (change)="onUpload($event)">
+</div>
+
+Uploaded text data: {{uploadedTextData}}

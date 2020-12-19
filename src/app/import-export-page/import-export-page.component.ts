@@ -11,6 +11,7 @@ import fileDownload from 'js-file-download';
 })
 export class ImportExportPageComponent implements OnInit {
   fetchedValue = 'Not yet fetched';
+  uploadedTextData = 'Not uploaded yet';
 
   constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}
 
@@ -38,5 +39,14 @@ export class ImportExportPageComponent implements OnInit {
     const myData = 'This is my data: ' + Date.now();
 
     fileDownload(myData, 'example.csv');
+  }
+
+  onUpload(event: any): void {
+    const file: File = event.target.files[0];
+
+    file.text().then((data) => {
+      this.uploadedTextData = data;
+      this.ref.markForCheck();
+    });
   }
 }
