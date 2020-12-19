@@ -1,16 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {MonolithicDataService} from '../monolithic-data.service';
 
 // Static landing page component.
 @Component({
   selector: 'app-landing-page',
   templateUrl: './landing-page.component.html',
-  styleUrls: ['./landing-page.component.scss']
+  styleUrls: ['./landing-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingPageComponent implements OnInit {
+  public workspaceName = '';
 
-  constructor() { }
+  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.workspaceName = await this.monolithicDataService.getWorkspaceName();
+    this.ref.markForCheck();
   }
 
 }

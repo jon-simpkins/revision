@@ -1,1 +1,9 @@
-<p>Oh hi there. This is very much under construction.</p>
+<h3 *ngIf="workspaceName.length > 0">
+  Workspace: {{workspaceName}}
+</h3>
+
+<ng-container *ngIf="workspaceName.length == 0">
+  <h3>No current workspace!</h3>
+
+  <p>Go to the <a routerLink="data">data page</a> to load from file.</p>
+</ng-container>
