@@ -14,6 +14,11 @@ export class MonolithicDataService {
 
   constructor(private storage: StorageMap) { }
 
+  async newWorkspace(name: string): Promise<void> {
+    await this.clear();
+    await this.setWorkspaceName(name);
+  }
+
   // Function to load workspace into local memory.
   async loadWorkspace(workspace: WritingWorkspace): Promise<void> {
     await this.clear();

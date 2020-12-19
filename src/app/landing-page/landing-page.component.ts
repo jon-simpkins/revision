@@ -9,13 +9,27 @@ import {MonolithicDataService} from '../monolithic-data.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingPageComponent implements OnInit {
-  public workspaceName = '';
+  workspaceName = '';
 
   constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) { }
 
   async ngOnInit(): Promise<void> {
+    await this.updateWorkspaceName();
+  }
+
+  async updateWorkspaceName(): Promise<void> {
     this.workspaceName = await this.monolithicDataService.getWorkspaceName();
     this.ref.markForCheck();
   }
 
+  async newWorkspace(): Promise<void> {
+    const newWorkspaceName = prompt('What\'s the new workspace name?');
+
+    if (!newWorkspaceName) {
+      return;
+    }
+
+    await this.monolithicDataService.newWorkspace(newWorkspaceName);
+    await this.updateWorkspaceName();
+  }
 }
