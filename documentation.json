@@ -360,7 +360,7 @@
         },
         {
             "name": "ImportExportPageComponent",
-            "id": "component-ImportExportPageComponent-152fd5710c72e21783bf6281ff65fe4a",
+            "id": "component-ImportExportPageComponent-767aa83dcd3e0510e535b2fe76805b35",
             "file": "src/app/import-export-page/import-export-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -386,7 +386,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 13
                 }
             ],
             "methodsClass": [
@@ -396,7 +396,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 16
+                    "line": 17
                 },
                 {
                     "name": "onCheckClick",
@@ -404,7 +404,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 31
+                    "line": 30
                 },
                 {
                     "name": "onClearClick",
@@ -412,7 +412,15 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 25
+                    "line": 26
+                },
+                {
+                    "name": "onDownloadClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 37
                 },
                 {
                     "name": "onSetValueClick",
@@ -420,7 +428,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 19
+                    "line": 20
                 }
             ],
             "hostBindings": [],
@@ -428,7 +436,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  onSetValueClick(): void {\n    this.monolithicDataService.setExampleValue(Date.now().toString(), () => {\n      console.log('done!');\n    });\n  }\n\n  onClearClick(): void {\n    this.monolithicDataService.clear(() => {\n      console.log('cleared!');\n    });\n  }\n\n  onCheckClick(): void {\n    this.monolithicDataService.getExampleValue((value) => {\n      this.fetchedValue = value;\n      this.ref.markForCheck();\n    });\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport fileDownload from 'js-file-download';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  onSetValueClick(): void {\n    this.monolithicDataService.setExampleValue(\n      Date.now().toString(),\n      () => {});\n  }\n\n  onClearClick(): void {\n    this.monolithicDataService.clear(() => {});\n  }\n\n  onCheckClick(): void {\n    this.monolithicDataService.getExampleValue((value) => {\n      this.fetchedValue = value;\n      this.ref.markForCheck();\n    });\n  }\n\n  onDownloadClick(): void {\n    const myData = 'This is my data: ' + Date.now();\n\n    fileDownload(myData, 'example.csv');\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -450,7 +458,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 12,
+                "line": 13,
                 "jsdoctags": [
                     {
                         "name": "monolithicDataService",
@@ -471,7 +479,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<button mat-raised-button color=\"primary\" (click)=\"onSetValueClick()\">Set storage value</button>\n<button mat-raised-button color=\"accent\" (click)=\"onClearClick()\">Clear all storage values</button>\n<button mat-button (click)=\"onCheckClick()\">Check most recent value</button>\n\n\n<p>Last fetched value: {{fetchedValue}}</p>\n"
+            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<button mat-raised-button color=\"primary\" (click)=\"onSetValueClick()\">Set storage value</button>\n<button mat-raised-button color=\"accent\" (click)=\"onClearClick()\">Clear all storage values</button>\n<button mat-button (click)=\"onCheckClick()\">Check most recent value</button>\n\n\n<p>Last fetched value: {{fetchedValue}}</p>\n\n<div>\n  <button mat-stroked-button (click)=\"onDownloadClick()\">\n    Download\n  </button>\n</div>\n"
         },
         {
             "name": "LandingPageComponent",
@@ -684,7 +692,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -692,7 +700,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -811,17 +819,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
-                "type": "Story<LandingPageComponent>",
-                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "type": "Story<ImportExportPageComponent>",
+                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
-                "type": "Story<ImportExportPageComponent>",
-                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
+                "file": "src/app/landing-page/landing-page.stories.ts",
+                "type": "Story<LandingPageComponent>",
+                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
             }
         ],
         "functions": [],
@@ -845,24 +853,6 @@
                     "type": "literal type"
                 }
             ],
-            "src/app/landing-page/landing-page.stories.ts": [
-                {
-                    "name": "DefaultExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/landing-page/landing-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/landing-page/landing-page.stories.ts",
-                    "type": "Story<LandingPageComponent>",
-                    "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/import-export-page/import-export-page.stories.ts": [
                 {
                     "name": "DefaultExample",
@@ -879,6 +869,24 @@
                     "file": "src/app/import-export-page/import-export-page.stories.ts",
                     "type": "Story<ImportExportPageComponent>",
                     "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/landing-page/landing-page.stories.ts": [
+                {
+                    "name": "DefaultExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/landing-page/landing-page.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/landing-page/landing-page.stories.ts",
+                    "type": "Story<LandingPageComponent>",
+                    "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -1051,7 +1059,7 @@
                 "linktype": "component",
                 "name": "ImportExportPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {

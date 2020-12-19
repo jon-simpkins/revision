@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
+import fileDownload from 'js-file-download';
 
 // Page component for the "Import/Export" page
 @Component({
@@ -31,5 +32,11 @@ export class ImportExportPageComponent implements OnInit {
       this.fetchedValue = value;
       this.ref.markForCheck();
     });
+  }
+
+  onDownloadClick(): void {
+    const myData = 'This is my data: ' + Date.now();
+
+    fileDownload(myData, 'example.csv');
   }
 }
