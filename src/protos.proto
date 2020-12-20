@@ -14,8 +14,18 @@ message Duration {
 
 // Stats about a single writing session.
 message WritingSession {
+
+  // When did the session start?
   Timestamp start = 1;
+
+  // How long did the whole session last?
   Duration duration = 2;
+
+  // How long was the writer active during the session?
+  // Here, we mean "how long was the Revision tool the visible tab?"
+  // as a way of accounting for when someone alt-tabs over and browses Wikipedia
+  // for 30 minutes as a way of procrastinating. Not that writers do that.
+  Duration active_duration = 3;
 }
 
 // The metadata about the workspace

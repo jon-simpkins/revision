@@ -23,6 +23,9 @@ export class HeaderTimerComponent implements OnInit {
     const currentSession = await this.workspaceMetadataService.updateSessionHeartbeat();
 
     let sessionSecs = currentSession.duration?.seconds as number;
+    const activeSecs = currentSession.activeDuration?.seconds as number;
+
+    const activePercent = Math.round(activeSecs / sessionSecs * 100);
 
     const sessionHrs = Math.floor(sessionSecs / 3600);
     sessionSecs -= (3600 * sessionHrs);
@@ -36,6 +39,10 @@ export class HeaderTimerComponent implements OnInit {
     }
 
     stringValue += this.getNumberStr(sessionMins) + ':' + this.getNumberStr(sessionSecs);
+
+    if (activeSecs > 0) {
+      stringValue += ' (' + activePercent + '% active)';
+    }
 
     this.sessionTimeStr = stringValue;
 
