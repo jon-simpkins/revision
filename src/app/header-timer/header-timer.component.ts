@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {MonolithicDataService} from '../monolithic-data.service';
+import {WorkspaceMetadataService} from '../workspace-metadata.service';
 
 @Component({
   selector: 'app-header-timer',
@@ -11,16 +11,16 @@ export class HeaderTimerComponent implements OnInit {
 
   sessionTimeStr = '00:00';
 
-  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) { }
+  constructor(private workspaceMetadataService: WorkspaceMetadataService, private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     setInterval(async () => {
       await this.updateHeartbeat();
-    }, 1000);
+    }, 500);
   }
 
   async updateHeartbeat(): Promise<void> {
-    const currentSession = await this.monolithicDataService.updateSessionHeartbeat();
+    const currentSession = await this.workspaceMetadataService.updateSessionHeartbeat();
 
     let sessionSecs = currentSession.duration?.seconds as number;
 
