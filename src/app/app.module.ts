@@ -10,12 +10,14 @@ import { environment } from '../environments/environment';
 import { ImportExportPageComponent } from './import-export-page/import-export-page.component';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import {MatButtonModule} from '@angular/material/button';
+import { HeaderTimerComponent } from './header-timer/header-timer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ImportExportPageComponent,
-    LandingPageComponent
+    LandingPageComponent,
+    HeaderTimerComponent
   ],
   imports: [
     BrowserModule,
