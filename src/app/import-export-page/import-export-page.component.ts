@@ -24,7 +24,7 @@ export class ImportExportPageComponent implements OnInit {
     const filename = workspace.name + '.write';
 
     fileDownload(
-      WritingWorkspace.encode(workspace).finish(),
+      new Blob([WritingWorkspace.encode(workspace).finish()]),
       filename
     );
   }
@@ -32,10 +32,8 @@ export class ImportExportPageComponent implements OnInit {
   async onUpload(event: any): Promise<void> {
     const file: File = event.target.files[0];
 
-    const fileData = await file.text();
-
-    const uint8Array = new TextEncoder().encode(fileData);
-    const workspace = WritingWorkspace.decode(uint8Array);
+    const fileData = await file.arrayBuffer();
+    const workspace = WritingWorkspace.decode(new Uint8Array(fileData));
 
     this.uploadedTextData = workspace.name;
 

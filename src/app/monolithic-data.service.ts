@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageMap } from '@ngx-pwa/local-storage';
 import {WritingWorkspace} from '../protos';
+import {WorkspaceMetadataService} from './workspace-metadata.service';
 
 const WORKSPACE_NAME_KEY = 'workspaceName';
 
@@ -12,7 +13,7 @@ const WORKSPACE_NAME_KEY = 'workspaceName';
 })
 export class MonolithicDataService {
 
-  constructor(private storage: StorageMap) { }
+  constructor(private storage: StorageMap, private workspaceMetadataService: WorkspaceMetadataService) { }
 
   async newWorkspace(name: string): Promise<void> {
     await this.clear();
@@ -23,6 +24,7 @@ export class MonolithicDataService {
   async loadWorkspace(workspace: WritingWorkspace): Promise<void> {
     await this.clear();
     await this.setWorkspaceName(workspace.name);
+    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);
   }
 
   // Function to pull workspace from local memory.
@@ -30,6 +32,7 @@ export class MonolithicDataService {
     const workspace = WritingWorkspace.create();
 
     workspace.name = await this.getWorkspaceName();
+    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);
 
     return Promise.resolve(workspace);
   }

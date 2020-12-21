@@ -1,5 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
+import {WorkspaceMetadataService} from '../workspace-metadata.service';
+import {WritingWorkspaceMetadata} from '../../protos';
 
 // Static landing page component.
 @Component({
@@ -10,11 +12,16 @@ import {MonolithicDataService} from '../monolithic-data.service';
 })
 export class LandingPageComponent implements OnInit {
   workspaceName = '';
+  workspaceMetadata: WritingWorkspaceMetadata = WritingWorkspaceMetadata.create();
 
-  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) { }
+  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef, private workspaceMetadataService: WorkspaceMetadataService) { }
 
   async ngOnInit(): Promise<void> {
     await this.updateWorkspaceName();
+
+    this.workspaceMetadata = await this.workspaceMetadataService.getWorkspaceMetadata(false);
+    this.ref.markForCheck();
+    console.log(this.workspaceMetadata);
   }
 
   async updateWorkspaceName(): Promise<void> {

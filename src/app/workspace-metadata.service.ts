@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {StorageMap} from '@ngx-pwa/local-storage';
-import {Duration, IDuration, ITimestamp, Timestamp, WritingSession} from '../protos';
+import {Duration, IDuration, ITimestamp, IWritingSession, IWritingWorkspaceMetadata, Timestamp, WritingSession, WritingWorkspaceMetadata} from '../protos';
 
 const CURRENT_SESSION_KEY = 'currentSession';
 const LAST_HEARTBEAT_KEY = 'lastHeartbeat';
 const LAST_ACTIVE_HEARTBEAT_KEY = 'lastActiveHeartbeat';
+const WRITING_WORKSPACE_METADATA_KEY = 'workspaceMetadata';
 
-const SESSION_TIMEOUT_MS = 1000 * 60; // Allow 1 minute of the browser being closed before you mark session as inactive
+const SESSION_TIMEOUT_MS = 1000 *  60; // Allow 1 minute of the browser being closed before you mark session as inactive
 const SESSION_ACTIVE_TIMEOUT_MS = 5000; // Allow 5 seconds of the tool being not-visible before we mark as inactive
 
 @Injectable({
@@ -16,9 +17,36 @@ export class WorkspaceMetadataService {
 
   constructor(private storage: StorageMap) { }
 
-  async saveSessionToHistory(session: WritingSession): Promise<void> {
-    console.log(session);
-    console.log('^^ need to save that to history');
+  async getWorkspaceMetadata(appendCurrentSession: boolean): Promise<WritingWorkspaceMetadata> {
+    const fetchedData = (await this.storage.get(WRITING_WORKSPACE_METADATA_KEY).toPromise()) as Uint8Array;
+    let workspaceMetadata;
+    if (fetchedData) {
+      workspaceMetadata = WritingWorkspaceMetadata.decode(fetchedData);
+    } else {
+      workspaceMetadata = WritingWorkspaceMetadata.create();
+    }
+
+    if (appendCurrentSession) {
+      const currentSession = await this.getCurrentSession() as IWritingSession;
+
+      workspaceMetadata.sessionHistory = [currentSession].concat(workspaceMetadata.sessionHistory);
+    }
+
+    return workspaceMetadata;
+  }
+
+  async setWorkspaceMetadata(workspaceMetadata: IWritingWorkspaceMetadata|null): Promise<void> {
+    if (!workspaceMetadata) {
+      return;
+    }
+
+    await this.storage.set(WRITING_WORKSPACE_METADATA_KEY, WritingWorkspaceMetadata.encode(workspaceMetadata).finish()).toPromise();
+  }
+
+  async saveCurrentSessionToHistory(): Promise<void> {
+    await this.setWorkspaceMetadata(
+      await this.getWorkspaceMetadata(true)
+    );
   }
 
   // Let the app know the current writing session is still active.
@@ -30,11 +58,10 @@ export class WorkspaceMetadataService {
     const lastActiveHeartbeat = await this.storage.get(LAST_ACTIVE_HEARTBEAT_KEY).toPromise() as number;
 
     if (!currentSession) {
-      console.log('no current session!');
       currentSession = this.createNewWritingSession();
     } else if (Date.now() - lastHeartbeat > SESSION_TIMEOUT_MS) {
       // Last session is stale, add it to history and initialize a new one
-      await this.saveSessionToHistory(currentSession);
+      await this.saveCurrentSessionToHistory();
 
       currentSession = this.createNewWritingSession();
     }
