@@ -12,6 +12,7 @@ import { LandingPageComponent } from './landing-page/landing-page.component';
 import {MatButtonModule} from '@angular/material/button';
 import { HeaderTimerComponent } from './header-timer/header-timer.component';
 import { ShowSessionHistoryComponent } from './show-session-history/show-session-history.component';
+import { StructureTemplatePageComponent } from './structure-template-page/structure-template-page.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { ShowSessionHistoryComponent } from './show-session-history/show-session
     ImportExportPageComponent,
     LandingPageComponent,
     HeaderTimerComponent,
-    ShowSessionHistoryComponent
+    ShowSessionHistoryComponent,
+    StructureTemplatePageComponent
   ],
   imports: [
     BrowserModule,
