@@ -1,6 +1,14 @@
-<h3 *ngIf="workspaceName.length > 0">
-  Workspace: {{workspaceName}}
-</h3>
+<div>
+  <a href="https://github.com/jon-simpkins/revision" target="_blank">
+    Source Code
+  </a>
+</div>
+
+<div *ngIf="workspaceName.length > 0">
+  <h3>Workspace: {{workspaceName}}</h3>
+
+  <app-show-session-history></app-show-session-history>
+</div>
 
 <ng-container *ngIf="workspaceName.length == 0">
   <h3>No current workspace!</h3>
@@ -10,4 +18,4 @@
 
 <button mat-button (click)="newWorkspace()">New Workspace</button>
 
-<app-show-session-history></app-show-session-history>
+
