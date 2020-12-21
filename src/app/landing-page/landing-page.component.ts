@@ -14,14 +14,13 @@ export class LandingPageComponent implements OnInit {
   workspaceName = '';
   workspaceMetadata: WritingWorkspaceMetadata = WritingWorkspaceMetadata.create();
 
-  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef, private workspaceMetadataService: WorkspaceMetadataService) { }
+  constructor(
+    private monolithicDataService: MonolithicDataService,
+    private ref: ChangeDetectorRef
+  ) { }
 
   async ngOnInit(): Promise<void> {
     await this.updateWorkspaceName();
-
-    this.workspaceMetadata = await this.workspaceMetadataService.getWorkspaceMetadata(false);
-    this.ref.markForCheck();
-    console.log(this.workspaceMetadata);
   }
 
   async updateWorkspaceName(): Promise<void> {

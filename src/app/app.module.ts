@@ -11,13 +11,15 @@ import { ImportExportPageComponent } from './import-export-page/import-export-pa
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import {MatButtonModule} from '@angular/material/button';
 import { HeaderTimerComponent } from './header-timer/header-timer.component';
+import { ShowSessionHistoryComponent } from './show-session-history/show-session-history.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ImportExportPageComponent,
     LandingPageComponent,
-    HeaderTimerComponent
+    HeaderTimerComponent,
+    ShowSessionHistoryComponent
   ],
   imports: [
     BrowserModule,

@@ -10,7 +10,4 @@
 
 <button mat-button (click)="newWorkspace()">New Workspace</button>
 
-<h4>Writing history ({{workspaceMetadata.sessionHistory.length}})</h4>
-<div *ngFor="let session of workspaceMetadata.sessionHistory">
-  {{session.duration?.seconds}} seconds
-</div>
+<app-show-session-history></app-show-session-history>
