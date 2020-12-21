@@ -29,11 +29,13 @@
     "@angular/service-worker": "~11.0.4",
     "@ngx-pwa/local-storage": "^11.0.1",
     "@types/long": "^4.0.1",
+    "@types/uuid": "^8.3.0",
     "js-file-download": "^0.4.12",
     "long": "^4.0.0",
     "protobufjs": "^6.10.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
+    "uuid": "^8.3.2",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
