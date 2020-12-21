@@ -45,4 +45,28 @@ message WritingWorkspace {
 
   // Metadata.
   WritingWorkspaceMetadata metadata = 2;
+
+  // All structure templates
+  repeated StructureTemplate structure_templates = 3;
+}
+
+// Template for breaking a beat up into smaller structures
+message StructureTemplate {
+  // unique identifier
+  string id = 4;
+
+  // Human-readable name
+  string name = 1;
+
+  // Elaboration of human-readable name
+  string description = 2;
+
+  message StructureTemplateBeat {
+    string description = 1;
+
+    // Intended duration of the Beat (in milliseconds)
+    uint32 intended_duration_ms = 2;
+  }
+
+  repeated StructureTemplateBeat beats = 3;
 }
