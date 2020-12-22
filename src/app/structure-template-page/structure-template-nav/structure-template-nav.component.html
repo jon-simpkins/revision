@@ -1,0 +1,12 @@
+<div class="left-rail">
+  <button mat-stroked-button (click)="createNewTemplate()">New template</button>
+
+  <mat-action-list dense>
+    <button
+      *ngFor="let structureTemplate of structureTemplateListView"
+      mat-list-item
+      (click)="selectTemplate.emit(structureTemplate.id)">
+      {{structureTemplate.id}}
+    </button>
+  </mat-action-list>
+</div>

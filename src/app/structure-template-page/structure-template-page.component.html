@@ -1,17 +1,9 @@
-
 <div class="page">
-  <div class="left-rail">
-    <button mat-stroked-button (click)="newTemplate()">New template</button>
-
-    <mat-action-list dense>
-      <button
-        *ngFor="let structureTemplate of structureTemplateListView"
-        mat-list-item
-        (click)="selectTemplate(structureTemplate.id)">
-        {{structureTemplate.id}}
-      </button>
-    </mat-action-list>
-  </div>
+  <app-structure-template-nav
+    [structureTemplateListView]="structureTemplateListView"
+    (newTemplate)="newTemplate()"
+    (selectTemplate)="selectTemplate($event)">
+  </app-structure-template-nav>
   <div class="details">
     detail section for {{selectedTemplateUuid}}
   </div>

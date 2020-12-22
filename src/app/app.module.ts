@@ -14,6 +14,12 @@ import { HeaderTimerComponent } from './header-timer/header-timer.component';
 import { ShowSessionHistoryComponent } from './show-session-history/show-session-history.component';
 import { StructureTemplatePageComponent } from './structure-template-page/structure-template-page.component';
 import {MatListModule} from '@angular/material/list';
+import {StructureTemplateNavComponent} from './structure-template-page/structure-template-nav/structure-template-nav.component';
+
+export const MaterialModules = [
+  MatButtonModule,
+  MatListModule,
+];
 
 @NgModule({
   declarations: [
@@ -22,15 +28,15 @@ import {MatListModule} from '@angular/material/list';
     LandingPageComponent,
     HeaderTimerComponent,
     ShowSessionHistoryComponent,
-    StructureTemplatePageComponent
+    StructureTemplatePageComponent,
+    StructureTemplateNavComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatButtonModule,
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
-    MatListModule
+    ...MaterialModules,
   ],
   providers: [],
   bootstrap: [AppComponent]

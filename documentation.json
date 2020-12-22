@@ -1,31 +1,96 @@
 {
     "pipes": [],
-    "interfaces": [],
+    "interfaces": [
+        {
+            "name": "StorageSubscription",
+            "id": "interface-StorageSubscription-f460e95b1b69c993304f392c27b455bf",
+            "file": "src/app/storage.service.ts",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "callback",
+                    "type": "function",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
+                },
+                {
+                    "name": "lastHashValue",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                },
+                {
+                    "name": "storageKey",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "subscriptionKey",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "StructureTemplateListView",
+            "id": "interface-StructureTemplateListView-b2f292f4cd298858ace2dd918be54a50",
+            "file": "src/app/structure-template.service.ts",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates = [];\n    for (const entry of allEntries) {\n      allTemplates.push(\n        await this.getStructureTemplate(entry.id)\n      );\n    }\n\n    return allTemplates;\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscriptionToTemplateListView(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      throw Error('Could not find structure template: ' + uuid);\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      console.log('TODO: update list view');\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        }
+    ],
     "injectables": [
         {
             "name": "MonolithicDataService",
-            "id": "injectable-MonolithicDataService-f7852c971eebab88d3ae534057951e7b",
+            "id": "injectable-MonolithicDataService-1a03ab28361de0d49f24c76c87cfdca0",
             "file": "src/app/monolithic-data.service.ts",
             "properties": [],
             "methods": [
                 {
-                    "name": "clear",
+                    "name": "cancelSubscriptionToWorkspaceName",
                     "args": [
                         {
-                            "name": "next",
-                            "type": "function",
-                            "function": []
+                            "name": "subscriptionId",
+                            "type": "string"
                         }
                     ],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 22,
+                    "line": 62,
                     "jsdoctags": [
                         {
-                            "name": "next",
-                            "type": "function",
-                            "function": [],
+                            "name": "subscriptionId",
+                            "type": "string",
                             "tagName": {
                                 "text": "param"
                             }
@@ -33,30 +98,306 @@
                     ]
                 },
                 {
-                    "name": "getExampleValue",
+                    "name": "clear",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 66,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getWorkspaceName",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<string>",
+                    "typeParameters": [],
+                    "line": 51,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "loadWorkspace",
                     "args": [
                         {
-                            "name": "next",
+                            "name": "workspace",
+                            "type": "WritingWorkspace"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 29,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "workspace",
+                            "type": "WritingWorkspace",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "newWorkspace",
+                    "args": [
+                        {
+                            "name": "name",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 21,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "saveWorkspace",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<WritingWorkspace>",
+                    "typeParameters": [],
+                    "line": 37,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "setWorkspaceName",
+                    "args": [
+                        {
+                            "name": "name",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 47,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToWorkspaceName",
+                    "args": [
+                        {
+                            "name": "handler",
                             "type": "function",
                             "function": [
                                 {
-                                    "name": "value",
+                                    "name": "workspaceName",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 56,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "workspaceName",
+                                    "type": "string"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    },
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService"
+                    },
+                    {
+                        "name": "structureTemplateService",
+                        "type": "StructureTemplateService"
+                    }
+                ],
+                "line": 15,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "structureTemplateService",
+                        "type": "StructureTemplateService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
+            "name": "StorageService",
+            "id": "injectable-StorageService-f460e95b1b69c993304f392c27b455bf",
+            "file": "src/app/storage.service.ts",
+            "properties": [
+                {
+                    "name": "subscriptions",
+                    "defaultValue": "new Map()",
+                    "type": "Map<string | StorageSubscription>",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "modifierKind": [
+                        112
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "cancelSubscription",
+                    "args": [
+                        {
+                            "name": "subscriptionKey",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 62,
+                    "jsdoctags": [
+                        {
+                            "name": "subscriptionKey",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "checkSubscription",
+                    "args": [
+                        {
+                            "name": "subscription",
+                            "type": "StorageSubscription"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 66,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "subscription",
+                            "type": "StorageSubscription",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "clearAll",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 92,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "generateSubscription",
+                    "args": [
+                        {
+                            "name": "storageKey",
+                            "type": "string"
+                        },
+                        {
+                            "name": "callback",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "updatedValue",
                                     "type": "any"
                                 }
                             ]
                         }
                     ],
                     "optional": false,
-                    "returnType": "void",
+                    "returnType": "string",
                     "typeParameters": [],
-                    "line": 14,
+                    "line": 47,
                     "jsdoctags": [
                         {
-                            "name": "next",
+                            "name": "storageKey",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "callback",
                             "type": "function",
                             "function": [
                                 {
-                                    "name": "value",
+                                    "name": "updatedValue",
                                     "type": "any"
                                 }
                             ],
@@ -67,34 +408,95 @@
                     ]
                 },
                 {
-                    "name": "setExampleValue",
+                    "name": "get",
                     "args": [
                         {
-                            "name": "value",
+                            "name": "key",
                             "type": "string"
-                        },
-                        {
-                            "name": "next",
-                            "type": "function",
-                            "function": []
                         }
                     ],
                     "optional": false,
-                    "returnType": "void",
+                    "returnType": "Promise<any>",
                     "typeParameters": [],
-                    "line": 18,
+                    "line": 31,
+                    "modifierKind": [
+                        120
+                    ],
                     "jsdoctags": [
                         {
+                            "name": "key",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getHashKey",
+                    "args": [
+                        {
+                            "name": "key",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 88,
+                    "jsdoctags": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "set",
+                    "args": [
+                        {
+                            "name": "key",
+                            "type": "string"
+                        },
+                        {
                             "name": "value",
+                            "type": "any"
+                        },
+                        {
+                            "name": "isSubscribable",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 35,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "key",
                             "type": "string",
                             "tagName": {
                                 "text": "param"
                             }
                         },
                         {
-                            "name": "next",
-                            "type": "function",
-                            "function": [],
+                            "name": "value",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "isSubscribable",
+                            "type": "boolean",
+                            "defaultValue": "false",
                             "tagName": {
                                 "text": "param"
                             }
@@ -103,7 +505,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { StorageMap } from '@ngx-pwa/local-storage';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storage: StorageMap) { }\n\n  getExampleValue(next: (value: any) => void): void {\n    this.storage.get('example-key').subscribe(next);\n  }\n\n  setExampleValue(value: string, next: () => void): void {\n    this.storage.set('example-key', value).subscribe(next);\n  }\n\n  clear(next: () => void): void {\n    this.storage.clear().subscribe(next);\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -113,11 +515,444 @@
                         "type": "StorageMap"
                     }
                 ],
-                "line": 10,
+                "line": 21,
                 "jsdoctags": [
                     {
                         "name": "storage",
                         "type": "StorageMap",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
+            "name": "StructureTemplateService",
+            "id": "injectable-StructureTemplateService-b2f292f4cd298858ace2dd918be54a50",
+            "file": "src/app/structure-template.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "cancelSubscriptionToTemplateListView",
+                    "args": [
+                        {
+                            "name": "subscription",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 56,
+                    "jsdoctags": [
+                        {
+                            "name": "subscription",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "createNewStructureTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<string>",
+                    "typeParameters": [],
+                    "line": 97,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getAllStructureTemplates",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<StructureTemplate[]>",
+                    "typeParameters": [],
+                    "line": 22,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getAllTemplatesListView",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<StructureTemplateListView[]>",
+                    "typeParameters": [],
+                    "line": 35,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getStructureTemplate",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<StructureTemplate>",
+                    "typeParameters": [],
+                    "line": 64,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getTemplateKey",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 60,
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setAllStructureTemplates",
+                    "args": [
+                        {
+                            "name": "structureTemplates",
+                            "type": "IStructureTemplate[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 76,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "structureTemplates",
+                            "type": "IStructureTemplate[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setAllTemplatesListView",
+                    "args": [
+                        {
+                            "name": "structureTemplates",
+                            "type": "IStructureTemplate[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 39,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "structureTemplates",
+                            "type": "IStructureTemplate[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setStructureTemplate",
+                    "args": [
+                        {
+                            "name": "structureTemplate",
+                            "type": "StructureTemplate"
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 84,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "structureTemplate",
+                            "type": "StructureTemplate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToTemplateListView",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplateListView",
+                                    "type": "StructureTemplateListView[]"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 50,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplateListView",
+                                    "type": "StructureTemplateListView[]"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates = [];\n    for (const entry of allEntries) {\n      allTemplates.push(\n        await this.getStructureTemplate(entry.id)\n      );\n    }\n\n    return allTemplates;\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscriptionToTemplateListView(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      throw Error('Could not find structure template: ' + uuid);\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      console.log('TODO: update list view');\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    }
+                ],
+                "line": 18,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
+            "name": "WorkspaceMetadataService",
+            "id": "injectable-WorkspaceMetadataService-324fd6ec4750eba9fceb92b389ef8dac",
+            "file": "src/app/workspace-metadata.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "cancelSubscriptionToWorkspaceMetadata",
+                    "args": [
+                        {
+                            "name": "subscriptionKey",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 39,
+                    "jsdoctags": [
+                        {
+                            "name": "subscriptionKey",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "createNewWritingSession",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "WritingSession",
+                    "typeParameters": [],
+                    "line": 119
+                },
+                {
+                    "name": "getCurrentSession",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<WritingSession | null>",
+                    "typeParameters": [],
+                    "line": 125,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getWorkspaceMetadata",
+                    "args": [
+                        {
+                            "name": "appendCurrentSession",
+                            "type": "boolean"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<WritingWorkspaceMetadata>",
+                    "typeParameters": [],
+                    "line": 43,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "appendCurrentSession",
+                            "type": "boolean",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "saveCurrentSessionToHistory",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 73,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "setWorkspaceMetadata",
+                    "args": [
+                        {
+                            "name": "workspaceMetadata",
+                            "type": "IWritingWorkspaceMetadata | null"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 61,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "workspaceMetadata",
+                            "type": "IWritingWorkspaceMetadata | null",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToWorkspaceMetadata",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "workspaceMetadata",
+                                    "type": "WritingWorkspaceMetadata"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 28,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "workspaceMetadata",
+                                    "type": "WritingWorkspaceMetadata"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "updateSessionHeartbeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<WritingSession>",
+                    "typeParameters": [],
+                    "line": 80,
+                    "modifierKind": [
+                        120
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {\n  Duration,\n  IDuration,\n  ITimestamp,\n  IWritingSession,\n  IWritingWorkspaceMetadata,\n  Timestamp,\n  WritingSession,\n  WritingWorkspaceMetadata} from '../protos';\nimport {StorageService} from './storage.service';\n\nconst CURRENT_SESSION_KEY = 'currentSession';\nconst LAST_HEARTBEAT_KEY = 'lastHeartbeat';\nconst LAST_ACTIVE_HEARTBEAT_KEY = 'lastActiveHeartbeat';\nconst WRITING_WORKSPACE_METADATA_KEY = 'workspaceMetadata';\n\nconst SESSION_TIMEOUT_MS = 1000 *  60; // Allow 1 minute of the browser being closed before you mark session as inactive\nconst SESSION_ACTIVE_TIMEOUT_MS = 5000; // Allow 5 seconds of the tool being not-visible before we mark as inactive\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class WorkspaceMetadataService {\n\n  constructor(private storageService: StorageService) { }\n\n  subscribeToWorkspaceMetadata(handler: (workspaceMetadata: WritingWorkspaceMetadata) => void): string {\n    return this.storageService.generateSubscription(WRITING_WORKSPACE_METADATA_KEY, (result) => {\n      console.log('GOT SUBSCRIBE RESULT');\n      if (result) {\n        handler(WritingWorkspaceMetadata.decode(result as Uint8Array));\n      } else {\n        handler(WritingWorkspaceMetadata.create());\n      }\n    });\n  }\n\n  cancelSubscriptionToWorkspaceMetadata(subscriptionKey: string): void {\n    this.storageService.cancelSubscription(subscriptionKey);\n  }\n\n  async getWorkspaceMetadata(appendCurrentSession: boolean): Promise<WritingWorkspaceMetadata> {\n    const fetchedData = (await this.storageService.get(WRITING_WORKSPACE_METADATA_KEY)) as Uint8Array;\n    let workspaceMetadata;\n    if (fetchedData) {\n      workspaceMetadata = WritingWorkspaceMetadata.decode(fetchedData);\n    } else {\n      workspaceMetadata = WritingWorkspaceMetadata.create();\n    }\n\n    if (appendCurrentSession) {\n      const currentSession = await this.getCurrentSession() as IWritingSession;\n\n      workspaceMetadata.sessionHistory = [currentSession].concat(workspaceMetadata.sessionHistory);\n    }\n\n    return workspaceMetadata;\n  }\n\n  async setWorkspaceMetadata(workspaceMetadata: IWritingWorkspaceMetadata|null): Promise<void> {\n    if (!workspaceMetadata) {\n      workspaceMetadata = WritingWorkspaceMetadata.create();\n    }\n\n    await this.storageService.set(\n      WRITING_WORKSPACE_METADATA_KEY,\n      WritingWorkspaceMetadata.encode(workspaceMetadata).finish(),\n      true\n    );\n  }\n\n  async saveCurrentSessionToHistory(): Promise<void> {\n    await this.setWorkspaceMetadata(\n      await this.getWorkspaceMetadata(true)\n    );\n  }\n\n  // Let the app know the current writing session is still active.\n  async updateSessionHeartbeat(): Promise<WritingSession> {\n    const isActive = document.visibilityState === 'visible';\n\n    let currentSession = await this.getCurrentSession();\n    const lastHeartbeat = await this.storageService.get(LAST_HEARTBEAT_KEY) as number;\n    const lastActiveHeartbeat = await this.storageService.get(LAST_ACTIVE_HEARTBEAT_KEY) as number;\n\n    if (!currentSession) {\n      currentSession = this.createNewWritingSession();\n    } else if (Date.now() - lastHeartbeat > SESSION_TIMEOUT_MS) {\n      // Last session is stale, add it to history and initialize a new one\n      await this.saveCurrentSessionToHistory();\n\n      currentSession = this.createNewWritingSession();\n    }\n\n    currentSession.duration = getDurationBetweenTimestamps(\n      currentSession.start as ITimestamp,\n      getTimestampFromEpochMS(Date.now())\n    );\n\n    if (isActive) {\n      const activeDelta = Date.now() - lastActiveHeartbeat;\n      if (activeDelta < SESSION_ACTIVE_TIMEOUT_MS) {\n        const activeDuration = currentSession.activeDuration || Duration.create({seconds: 0, nanos: 0});\n\n        currentSession.activeDuration = incrementDuration(activeDuration, activeDelta);\n      }\n\n      await this.storageService.set(LAST_ACTIVE_HEARTBEAT_KEY, Date.now());\n    }\n\n    const encoded = WritingSession.encode(currentSession).finish();\n    await this.storageService.set(CURRENT_SESSION_KEY, encoded);\n    await this.storageService.set(LAST_HEARTBEAT_KEY, Date.now());\n\n    return currentSession;\n  }\n\n  createNewWritingSession(): WritingSession {\n    const session = WritingSession.create();\n    session.start = getTimestampFromEpochMS(Date.now());\n    return session;\n  }\n\n  async getCurrentSession(): Promise<WritingSession|null> {\n    const current = await this.storageService.get(CURRENT_SESSION_KEY);\n    if (!current) {\n      return null;\n    }\n\n    return WritingSession.decode(current as Uint8Array);\n  }\n}\n\n\nfunction getTimestampFromEpochMS(epochMS: number): Timestamp {\n  return Timestamp.create({\n    seconds: Math.floor(epochMS / 1000),\n    nanos: (epochMS % 1000) * 1e6\n  });\n}\n\nfunction getDurationBetweenTimestamps(start: ITimestamp, end: ITimestamp): Duration {\n  let nanosDiff = (end.nanos as number) - (start.nanos as number);\n  let secondsDiff = (end.seconds as number) - (start.seconds as number);\n\n  while (nanosDiff < 0) {\n    secondsDiff -= 1;\n    nanosDiff += 1e9;\n  }\n  while (nanosDiff > 1e9) {\n    nanosDiff -= 1e9;\n    secondsDiff += 1;\n  }\n  return Duration.create({\n    seconds: secondsDiff,\n    nanos: nanosDiff\n  });\n}\n\nfunction incrementDuration(duration: IDuration, deltaMs: number): IDuration {\n  let nanos = (duration.nanos || 0) + (deltaMs * 1e6);\n  let seconds = (duration.seconds || 0);\n\n  while (nanos > 1e9) {\n    nanos -= 1e9;\n    seconds = (seconds as number) + 1;\n  }\n  return Duration.create({\n    seconds,\n    nanos\n  });\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    }
+                ],
+                "line": 24,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
                         "tagName": {
                             "text": "param"
                         }
@@ -208,12 +1043,12 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "\n.header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  a {\n    border-left: 1px solid black;\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n}\n",
+                    "data": "\n.header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  .timer {\n    flex: 1;\n    margin: auto;\n  }\n\n  a {\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n}\n",
                     "styleUrl": "./app.component.scss"
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"header\">\n  <h1>Revision</h1>\n\n  <a routerLink=\"/\" routerLinkActive=\"active\">\n    Home\n  </a>\n  <a routerLink=\"/data\" routerLinkActive=\"active\">\n    Data\n  </a>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div class=\"body\">\n  <router-outlet></router-outlet>\n</div>\n"
+            "templateData": "<div class=\"header\">\n  <h1>\n    <a routerLink=\"/\" routerLinkActive=\"active\">\n      Revision\n    </a>\n  </h1>\n\n  <app-header-timer class=\"timer\"></app-header-timer>\n\n  <a routerLink=\"/data\" routerLinkActive=\"active\">\n    Data\n  </a>\n</div>\n\n<div class=\"body\">\n  <router-outlet></router-outlet>\n</div>\n"
         },
         {
             "name": "ButtonComponent",
@@ -359,8 +1194,132 @@
             "stylesData": ""
         },
         {
+            "name": "HeaderTimerComponent",
+            "id": "component-HeaderTimerComponent-2d9b65fb60cd8135042228092b977ee5",
+            "file": "src/app/header-timer/header-timer.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-header-timer",
+            "styleUrls": [
+                "./header-timer.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./header-timer.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "sessionTimeStr",
+                    "defaultValue": "'00:00'",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "getNumberStr",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "number"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 52,
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 16
+                },
+                {
+                    "name": "updateHeartbeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 22,
+                    "modifierKind": [
+                        120
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {WorkspaceMetadataService} from '../workspace-metadata.service';\n\n@Component({\n  selector: 'app-header-timer',\n  templateUrl: './header-timer.component.html',\n  styleUrls: ['./header-timer.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class HeaderTimerComponent implements OnInit {\n\n  sessionTimeStr = '00:00';\n\n  constructor(private workspaceMetadataService: WorkspaceMetadataService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    setInterval(async () => {\n      await this.updateHeartbeat();\n    }, 500);\n  }\n\n  async updateHeartbeat(): Promise<void> {\n    const currentSession = await this.workspaceMetadataService.updateSessionHeartbeat();\n\n    let sessionSecs = currentSession.duration?.seconds as number;\n    const activeSecs = currentSession.activeDuration?.seconds as number;\n\n    const activePercent = Math.round(activeSecs / sessionSecs * 100);\n\n    const sessionHrs = Math.floor(sessionSecs / 3600);\n    sessionSecs -= (3600 * sessionHrs);\n\n    const sessionMins = Math.floor(sessionSecs / 60);\n    sessionSecs -= (60 * sessionMins);\n\n    let stringValue = '';\n    if (sessionHrs) {\n      stringValue = sessionHrs.toString() + ':';\n    }\n\n    stringValue += this.getNumberStr(sessionMins) + ':' + this.getNumberStr(sessionSecs);\n\n    if (activeSecs > 0) {\n      stringValue += ' (' + activePercent + '% active)';\n    }\n\n    this.sessionTimeStr = stringValue;\n\n    this.ref.markForCheck();\n  }\n\n  getNumberStr(value: number): string {\n    let output = '';\n    if (value < 10) {\n      output = '0';\n    }\n    return output + value.toString();\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "p {\n  margin: 0;\n}\n",
+                    "styleUrl": "./header-timer.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 12,
+                "jsdoctags": [
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<p>\n  {{sessionTimeStr}}\n</p>\n"
+        },
+        {
             "name": "ImportExportPageComponent",
-            "id": "component-ImportExportPageComponent-767aa83dcd3e0510e535b2fe76805b35",
+            "id": "component-ImportExportPageComponent-ae1cc46ad19a7437f943d9260bfe4c0c",
             "file": "src/app/import-export-page/import-export-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -386,7 +1345,15 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 14
+                },
+                {
+                    "name": "uploadedTextData",
+                    "defaultValue": "'Not uploaded yet'",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
                 }
             ],
             "methodsClass": [
@@ -396,39 +1363,43 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 17
-                },
-                {
-                    "name": "onCheckClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 30
-                },
-                {
-                    "name": "onClearClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 26
+                    "line": 19
                 },
                 {
                     "name": "onDownloadClick",
                     "args": [],
                     "optional": false,
-                    "returnType": "void",
+                    "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 37
+                    "line": 22,
+                    "modifierKind": [
+                        120
+                    ]
                 },
                 {
-                    "name": "onSetValueClick",
-                    "args": [],
+                    "name": "onUpload",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
                     "optional": false,
-                    "returnType": "void",
+                    "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 20
+                    "line": 32,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -436,11 +1407,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport fileDownload from 'js-file-download';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  onSetValueClick(): void {\n    this.monolithicDataService.setExampleValue(\n      Date.now().toString(),\n      () => {});\n  }\n\n  onClearClick(): void {\n    this.monolithicDataService.clear(() => {});\n  }\n\n  onCheckClick(): void {\n    this.monolithicDataService.getExampleValue((value) => {\n      this.fetchedValue = value;\n      this.ref.markForCheck();\n    });\n  }\n\n  onDownloadClick(): void {\n    const myData = 'This is my data: ' + Date.now();\n\n    fileDownload(myData, 'example.csv');\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport fileDownload from 'js-file-download';\nimport {WritingWorkspace} from '../../protos';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n  uploadedTextData = 'Not uploaded yet';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  async onDownloadClick(): Promise<void> {\n    const workspace = await this.monolithicDataService.saveWorkspace();\n    const filename = workspace.name + '.write';\n\n    fileDownload(\n      new Blob([WritingWorkspace.encode(workspace).finish()]),\n      filename\n    );\n  }\n\n  async onUpload(event: any): Promise<void> {\n    const file: File = event.target.files[0];\n\n    const fileData = await file.arrayBuffer();\n    const workspace = WritingWorkspace.decode(new Uint8Array(fileData));\n\n    this.uploadedTextData = workspace.name;\n\n    await this.monolithicDataService.loadWorkspace(workspace);\n\n    this.ref.markForCheck();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "button {\n  margin-right: 8px;\n}\n",
+                    "data": "button {\n  margin-right: 8px;\n}\n\n.upload-download {\n  display: flex;\n}\n",
                     "styleUrl": "./import-export-page.component.scss"
                 }
             ],
@@ -458,7 +1429,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 13,
+                "line": 15,
                 "jsdoctags": [
                     {
                         "name": "monolithicDataService",
@@ -479,12 +1450,13 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<button mat-raised-button color=\"primary\" (click)=\"onSetValueClick()\">Set storage value</button>\n<button mat-raised-button color=\"accent\" (click)=\"onClearClick()\">Clear all storage values</button>\n<button mat-button (click)=\"onCheckClick()\">Check most recent value</button>\n\n\n<p>Last fetched value: {{fetchedValue}}</p>\n\n<div>\n  <button mat-stroked-button (click)=\"onDownloadClick()\">\n    Download\n  </button>\n</div>\n"
+            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<div class=\"upload-download\">\n  <button mat-button (click)=\"onDownloadClick()\">\n    Download\n  </button>\n  <button mat-button (click)=\"uploadFile.click()\">\n    Upload\n  </button>\n  <input\n    hidden\n    type=\"file\"\n    #uploadFile\n    accept=\".write\"\n    (change)=\"onUpload($event)\">\n</div>\n\n\n"
         },
         {
             "name": "LandingPageComponent",
-            "id": "component-LandingPageComponent-02e1b4ea430b5bb7666625f10b7fa31f",
+            "id": "component-LandingPageComponent-7898825f4763e88069b22fa8756024c0",
             "file": "src/app/landing-page/landing-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -501,15 +1473,54 @@
             "viewProviders": [],
             "inputsClass": [],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "workspaceName",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "workspaceNameSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
+                }
+            ],
             "methodsClass": [
                 {
-                    "name": "ngOnInit",
+                    "name": "newWorkspace",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 32,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "ngOnDestroy",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 13
+                    "line": 28
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 21,
+                    "modifierKind": [
+                        120
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -517,7 +1528,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss']\n})\nexport class LandingPageComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport {WritingWorkspaceMetadata} from '../../protos';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n\n  async newWorkspace(): Promise<void> {\n    const newWorkspaceName = prompt('What\\'s the new workspace name?');\n\n    if (!newWorkspaceName) {\n      return;\n    }\n\n    await this.monolithicDataService.newWorkspace(newWorkspaceName);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -529,13 +1540,39 @@
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 9
+                "args": [
+                    {
+                        "name": "monolithicDataService",
+                        "type": "MonolithicDataService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 14,
+                "jsdoctags": [
+                    {
+                        "name": "monolithicDataService",
+                        "type": "MonolithicDataService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "implements": [
-                "OnInit"
+                "OnInit",
+                "OnDestroy"
             ],
-            "templateData": "<p>Oh hi there. This is very much under construction.</p>\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <a routerLink=\"structure-templates\">Structure Templates</a>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n<button mat-button (click)=\"newWorkspace()\">New Workspace</button>\n\n\n"
         },
         {
             "name": "PageComponent",
@@ -598,6 +1635,347 @@
                 }
             ],
             "stylesData": ""
+        },
+        {
+            "name": "ShowSessionHistoryComponent",
+            "id": "component-ShowSessionHistoryComponent-3d79738596baec28b1888b3b5170d170",
+            "file": "src/app/show-session-history/show-session-history.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-show-session-history",
+            "styleUrls": [
+                "./show-session-history.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./show-session-history.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "metadataSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "workspaceMetadata",
+                    "defaultValue": "WritingWorkspaceMetadata.create()",
+                    "type": "WritingWorkspaceMetadata",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "fetchHistoryLength",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 33
+                },
+                {
+                    "name": "fetchRecentHistory",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "IWritingSession[]",
+                    "typeParameters": [],
+                    "line": 29
+                },
+                {
+                    "name": "ngOnDestroy",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 17
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {WorkspaceMetadataService} from '../workspace-metadata.service';\nimport {IWritingSession, WritingWorkspaceMetadata} from '../../protos';\n\n@Component({\n  selector: 'app-show-session-history',\n  templateUrl: './show-session-history.component.html',\n  styleUrls: ['./show-session-history.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ShowSessionHistoryComponent implements OnInit, OnDestroy {\n  workspaceMetadata: WritingWorkspaceMetadata = WritingWorkspaceMetadata.create();\n  metadataSubscription = '';\n\n  constructor(private ref: ChangeDetectorRef, private workspaceMetadataService: WorkspaceMetadataService) { }\n\n  ngOnInit(): void  {\n    this.metadataSubscription = this.workspaceMetadataService.subscribeToWorkspaceMetadata(\n      (workspaceMetadata: WritingWorkspaceMetadata) => {\n      this.workspaceMetadata = workspaceMetadata;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void  {\n    this.workspaceMetadataService.cancelSubscriptionToWorkspaceMetadata(this.metadataSubscription);\n  }\n\n  fetchRecentHistory(): IWritingSession[] {\n    return this.workspaceMetadata.sessionHistory;\n  }\n\n  fetchHistoryLength(): number {\n    return this.workspaceMetadata.sessionHistory.length;\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./show-session-history.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    },
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService"
+                    }
+                ],
+                "line": 13,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "workspaceMetadataService",
+                        "type": "WorkspaceMetadataService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit",
+                "OnDestroy"
+            ],
+            "templateData": "<h4>Writing History ({{fetchHistoryLength()}} sessions)</h4>\n\n<ng-container *ngFor=\"let entry of fetchRecentHistory()\">\n  <div>\n    {{entry.duration?.seconds}} seconds ({{entry.activeDuration?.seconds}} active seconds)\n  </div>\n</ng-container>\n"
+        },
+        {
+            "name": "StructureTemplateNavComponent",
+            "id": "component-StructureTemplateNavComponent-c1c14451c58081c8c297e5b9d80bff92",
+            "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-structure-template-nav",
+            "styleUrls": [
+                "./structure-template-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./structure-template-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "structureTemplateListView",
+                    "defaultValue": "[]",
+                    "line": 12,
+                    "type": "StructureTemplateListView[]"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "newTemplate",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 14,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "selectTemplate",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 16,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "createNewTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 18
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".left-rail {\n  width: 200px;\n}\n",
+                    "styleUrl": "./structure-template-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "templateData": "<div class=\"left-rail\">\n  <button mat-stroked-button (click)=\"createNewTemplate()\">New template</button>\n\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.id}}\n    </button>\n  </mat-action-list>\n</div>\n"
+        },
+        {
+            "name": "StructureTemplatePageComponent",
+            "id": "component-StructureTemplatePageComponent-649387b6d04c260692bd1a51560661f6",
+            "file": "src/app/structure-template-page/structure-template-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-structure-template-page",
+            "styleUrls": [
+                "./structure-template-page.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./structure-template-page.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "selectedTemplateUuid",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                },
+                {
+                    "name": "structureTemplateListView",
+                    "defaultValue": "[]",
+                    "type": "StructureTemplateListView[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "structureTemplateListViewSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "newTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 29,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "ngOnDestroy",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 18
+                },
+                {
+                    "name": "selectTemplate",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 34,
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-page',\n  templateUrl: './structure-template-page.component.html',\n  styleUrls: ['./structure-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.structureTemplateService.cancelSubscriptionToTemplateListView(this.structureTemplateListViewSubscription);\n  }\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();\n    this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  selectTemplate(newId: string): void {\n    this.selectedTemplateUuid = newId;\n    this.ref.markForCheck();\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "\n.page {\n  display: flex;\n}\n\n.details {\n  flex: 1;\n}\n",
+                    "styleUrl": "./structure-template-page.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "structureTemplateService",
+                        "type": "StructureTemplateService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 14,
+                "jsdoctags": [
+                    {
+                        "name": "structureTemplateService",
+                        "type": "StructureTemplateService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit",
+                "OnDestroy"
+            ],
+            "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\">\n  </app-structure-template-nav>\n  <div class=\"details\">\n    detail section for {{selectedTemplateUuid}}\n  </div>\n</div>\n"
         }
     ],
     "modules": [
@@ -615,10 +1993,22 @@
                             "name": "AppComponent"
                         },
                         {
+                            "name": "HeaderTimerComponent"
+                        },
+                        {
                             "name": "ImportExportPageComponent"
                         },
                         {
                             "name": "LandingPageComponent"
+                        },
+                        {
+                            "name": "ShowSessionHistoryComponent"
+                        },
+                        {
+                            "name": "StructureTemplateNavComponent"
+                        },
+                        {
+                            "name": "StructureTemplatePageComponent"
                         }
                     ]
                 },
@@ -681,12 +2071,28 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template.service.ts",
+                "type": "string",
+                "defaultValue": "'allStructureTemplatesListView'"
+            },
+            {
                 "name": "context",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/test.ts",
                 "type": "",
                 "defaultValue": "require.context('./', true, /\\.spec\\.ts$/)"
+            },
+            {
+                "name": "CURRENT_SESSION_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "string",
+                "defaultValue": "'currentSession'"
             },
             {
                 "name": "DefaultExample",
@@ -701,6 +2107,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/landing-page/landing-page.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -721,6 +2135,14 @@
                 "defaultValue": "{\n  production: false\n}"
             },
             {
+                "name": "FullExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "Large",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -729,6 +2151,22 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "LAST_ACTIVE_HEARTBEAT_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "string",
+                "defaultValue": "'lastActiveHeartbeat'"
+            },
+            {
+                "name": "LAST_HEARTBEAT_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "string",
+                "defaultValue": "'lastHeartbeat'"
+            },
+            {
                 "name": "LoggedIn",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -759,6 +2197,14 @@
                 "file": "src/stories/Page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "POLL_FREQUENCY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/storage.service.ts",
+                "type": "number",
+                "defaultValue": "250"
             },
             {
                 "name": "Primary",
@@ -784,12 +2230,36 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "SESSION_ACTIVE_TIMEOUT_MS",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "number",
+                "defaultValue": "5000"
+            },
+            {
+                "name": "SESSION_TIMEOUT_MS",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "",
+                "defaultValue": "1000 *  60"
+            },
+            {
                 "name": "Small",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/stories/Button.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "STRUCTURE_TEMPLATE_KEY_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template.service.ts",
+                "type": "string",
+                "defaultValue": "'structureTemplate-'"
             },
             {
                 "name": "Template",
@@ -830,12 +2300,136 @@
                 "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "Story<LandingPageComponent>",
                 "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "WORKSPACE_NAME_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/monolithic-data.service.ts",
+                "type": "string",
+                "defaultValue": "'workspaceName'"
+            },
+            {
+                "name": "WRITING_WORKSPACE_METADATA_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/workspace-metadata.service.ts",
+                "type": "string",
+                "defaultValue": "'workspaceMetadata'"
             }
         ],
-        "functions": [],
+        "functions": [
+            {
+                "name": "getDurationBetweenTimestamps",
+                "file": "src/app/workspace-metadata.service.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "start"
+                    },
+                    {
+                        "name": "end"
+                    }
+                ],
+                "returnType": "Duration",
+                "jsdoctags": [
+                    {
+                        "name": "start",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "end",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "getTimestampFromEpochMS",
+                "file": "src/app/workspace-metadata.service.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "epochMS"
+                    }
+                ],
+                "returnType": "Timestamp",
+                "jsdoctags": [
+                    {
+                        "name": "epochMS",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "incrementDuration",
+                "file": "src/app/workspace-metadata.service.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "duration"
+                    },
+                    {
+                        "name": "deltaMs"
+                    }
+                ],
+                "returnType": "IDuration",
+                "jsdoctags": [
+                    {
+                        "name": "duration",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "deltaMs",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            }
+        ],
         "typealiases": [],
         "enumerations": [],
         "groupedVariables": {
+            "src/app/structure-template.service.ts": [
+                {
+                    "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template.service.ts",
+                    "type": "string",
+                    "defaultValue": "'allStructureTemplatesListView'"
+                },
+                {
+                    "name": "STRUCTURE_TEMPLATE_KEY_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template.service.ts",
+                    "type": "string",
+                    "defaultValue": "'structureTemplate-'"
+                }
+            ],
             "src/test.ts": [
                 {
                     "name": "context",
@@ -851,6 +2445,56 @@
                     "subtype": "variable",
                     "file": "src/test.ts",
                     "type": "literal type"
+                }
+            ],
+            "src/app/workspace-metadata.service.ts": [
+                {
+                    "name": "CURRENT_SESSION_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "string",
+                    "defaultValue": "'currentSession'"
+                },
+                {
+                    "name": "LAST_ACTIVE_HEARTBEAT_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "string",
+                    "defaultValue": "'lastActiveHeartbeat'"
+                },
+                {
+                    "name": "LAST_HEARTBEAT_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "string",
+                    "defaultValue": "'lastHeartbeat'"
+                },
+                {
+                    "name": "SESSION_ACTIVE_TIMEOUT_MS",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "number",
+                    "defaultValue": "5000"
+                },
+                {
+                    "name": "SESSION_TIMEOUT_MS",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "",
+                    "defaultValue": "1000 *  60"
+                },
+                {
+                    "name": "WRITING_WORKSPACE_METADATA_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "type": "string",
+                    "defaultValue": "'workspaceMetadata'"
                 }
             ],
             "src/app/import-export-page/import-export-page.stories.ts": [
@@ -887,6 +2531,32 @@
                     "file": "src/app/landing-page/landing-page.stories.ts",
                     "type": "Story<LandingPageComponent>",
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "Story<StructureTemplateNavComponent>",
+                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -1002,9 +2672,113 @@
                     "type": "Story<Page>",
                     "defaultValue": "(args: Page) => ({\n  component: Page,\n  props: args,\n})"
                 }
+            ],
+            "src/app/storage.service.ts": [
+                {
+                    "name": "POLL_FREQUENCY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/storage.service.ts",
+                    "type": "number",
+                    "defaultValue": "250"
+                }
+            ],
+            "src/app/monolithic-data.service.ts": [
+                {
+                    "name": "WORKSPACE_NAME_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/monolithic-data.service.ts",
+                    "type": "string",
+                    "defaultValue": "'workspaceName'"
+                }
             ]
         },
-        "groupedFunctions": {},
+        "groupedFunctions": {
+            "src/app/workspace-metadata.service.ts": [
+                {
+                    "name": "getDurationBetweenTimestamps",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "start"
+                        },
+                        {
+                            "name": "end"
+                        }
+                    ],
+                    "returnType": "Duration",
+                    "jsdoctags": [
+                        {
+                            "name": "start",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "end",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getTimestampFromEpochMS",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "epochMS"
+                        }
+                    ],
+                    "returnType": "Timestamp",
+                    "jsdoctags": [
+                        {
+                            "name": "epochMS",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "incrementDuration",
+                    "file": "src/app/workspace-metadata.service.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "duration"
+                        },
+                        {
+                            "name": "deltaMs"
+                        }
+                    ],
+                    "returnType": "IDuration",
+                    "jsdoctags": [
+                        {
+                            "name": "duration",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "deltaMs",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         "groupedEnumerations": {},
         "groupedTypeAliases": {}
     },
@@ -1025,6 +2799,10 @@
                     {
                         "path": "data",
                         "component": "ImportExportPageComponent"
+                    },
+                    {
+                        "path": "structure-templates",
+                        "component": "StructureTemplatePageComponent"
                     }
                 ],
                 "kind": "module"
@@ -1032,7 +2810,7 @@
         ]
     },
     "coverage": {
-        "count": 3,
+        "count": 1,
         "status": "low",
         "files": [
             {
@@ -1054,12 +2832,21 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/header-timer/header-timer.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "HeaderTimerComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/import-export-page/import-export-page.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "ImportExportPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -1088,7 +2875,7 @@
                 "linktype": "component",
                 "name": "LandingPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/3",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -1117,7 +2904,236 @@
                 "linktype": "injectable",
                 "name": "MonolithicDataService",
                 "coveragePercent": 0,
+                "coverageCount": "0/10",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/monolithic-data.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WORKSPACE_NAME_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/show-session-history/show-session-history.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ShowSessionHistoryComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/8",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/storage.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "StorageService",
+                "coveragePercent": 0,
+                "coverageCount": "0/10",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/storage.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "StorageSubscription",
+                "coveragePercent": 0,
                 "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/storage.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "POLL_FREQUENCY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "StructureTemplateNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "StructureTemplatePageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "StructureTemplateService",
+                "coveragePercent": 0,
+                "coverageCount": "0/12",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "StructureTemplateListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "STRUCTURE_TEMPLATE_KEY_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "WorkspaceMetadataService",
+                "coveragePercent": 0,
+                "coverageCount": "0/10",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "getDurationBetweenTimestamps",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "getTimestampFromEpochMS",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "incrementDuration",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "CURRENT_SESSION_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LAST_ACTIVE_HEARTBEAT_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LAST_HEARTBEAT_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "SESSION_ACTIVE_TIMEOUT_MS",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "SESSION_TIMEOUT_MS",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/workspace-metadata.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WRITING_WORKSPACE_METADATA_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

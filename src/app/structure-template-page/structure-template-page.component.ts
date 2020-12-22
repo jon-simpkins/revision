@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
-import {StructureTemplate} from '../../protos';
 
 @Component({
   selector: 'app-structure-template-page',
