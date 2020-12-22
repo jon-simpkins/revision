@@ -6,10 +6,13 @@ import { Story, Meta } from '@storybook/angular/types-6-0';
 import {StructureTemplateNavComponent} from './structure-template-nav.component';
 import {StructureTemplateListView} from '../../structure-template.service';
 import {MaterialModules} from '../../app.module';
-import {action} from '@storybook/addon-actions';
 
 export default {
   title: 'Structure Template Page / Nav',
+  argTypes: {
+    newTemplate: { action: 'newTemplate' },
+    selectTemplate: { action: 'selectTemplate' }
+  },
   component: StructureTemplateNavComponent,
   decorators: [
     moduleMetadata({
@@ -39,6 +42,4 @@ FullExample.args = {
       name: 'My second template'
     } as StructureTemplateListView
   ],
-  newTemplate: action('newTemplate'),
-  selectTemplate: action('selectTemplate'),
 };
