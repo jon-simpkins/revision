@@ -1,7 +1,5 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {StructureTemplate} from '../../../protos';
-import {fromEvent} from 'rxjs';
-import {debounceTime, distinctUntilChanged, filter, tap} from 'rxjs/operators';
 
 export interface StructureTemplateUpdate {
   structureTemplate: StructureTemplate;
@@ -16,24 +14,36 @@ export interface StructureTemplateUpdate {
 })
 export class StructureTemplateDetailsComponent {
   @Input()
-  structureTemplate: StructureTemplate = StructureTemplate.create();
+  structureTemplate: StructureTemplate|null = null;
 
   @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();
 
+  isEmpty(): boolean {
+    return this.structureTemplate == null;
+  }
+
   onNameChange(value: string): void {
-    this.structureTemplate.name = value;
+    if (this.isEmpty()) {
+      return;
+    }
+    const structureTemplate = this.structureTemplate as StructureTemplate;
+    structureTemplate.name = value;
 
     this.templateUpdated.emit({
-      structureTemplate: this.structureTemplate,
+      structureTemplate,
       modifiesListView: true
     } as StructureTemplateUpdate);
   }
 
   onDescChange(value: string): void {
-    this.structureTemplate.description = value;
+    if (this.structureTemplate == null) {
+      return;
+    }
+    const structureTemplate = this.structureTemplate as StructureTemplate;
+    structureTemplate.description = value;
 
     this.templateUpdated.emit({
-      structureTemplate: this.structureTemplate,
+      structureTemplate,
       modifiesListView: false
     } as StructureTemplateUpdate);
   }

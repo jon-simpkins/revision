@@ -5,9 +5,8 @@
     (selectTemplate)="selectTemplate($event)">
   </app-structure-template-nav>
   <app-structure-template-details
-    *ngIf="selectedTemplate"
     class="details"
     [structureTemplate]="selectedTemplate"
-    (templateUpdated)="onTemplateChanges($event)"
-  ></app-structure-template-details>
+    (templateUpdated)="onTemplateChanges($event)">
+  </app-structure-template-details>
 </div>

@@ -1,12 +1,13 @@
-<form autocomplete="off">
+<h3 *ngIf="isEmpty()">no structure template selected</h3>
+
+<form *ngIf="!isEmpty()" autocomplete="off">
   <mat-form-field class="full-width">
     <mat-label>Name</mat-label>
     <input
       matInput
       placeholder="Ex. Three Act Structure"
-      [ngModel]="structureTemplate.name"
+      [ngModel]="structureTemplate?.name"
       (ngModelChange)="onNameChange($event)"
-      [value]="structureTemplate.name"
       [ngModelOptions]="{standalone: true}"/>
   </mat-form-field>
 
@@ -14,7 +15,7 @@
     <mat-label>Description</mat-label>
     <textarea
       matInput
-      [ngModel]="structureTemplate.description"
+      [ngModel]="structureTemplate?.description"
       (ngModelChange)="onDescChange($event)"
       [ngModelOptions]="{standalone: true}">
     </textarea>
