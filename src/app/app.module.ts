@@ -13,6 +13,7 @@ import {MatButtonModule} from '@angular/material/button';
 import { HeaderTimerComponent } from './header-timer/header-timer.component';
 import { ShowSessionHistoryComponent } from './show-session-history/show-session-history.component';
 import { StructureTemplatePageComponent } from './structure-template-page/structure-template-page.component';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { StructureTemplatePageComponent } from './structure-template-page/struct
     AppRoutingModule,
     BrowserAnimationsModule,
     MatButtonModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
+    MatListModule
   ],
   providers: [],
   bootstrap: [AppComponent]

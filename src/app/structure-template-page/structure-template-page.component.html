@@ -1,4 +1,18 @@
-<p>structure-template-page works!</p>
 
-<button mat-button (click)="newTemplate()">New template</button>
-{{uuid}}
+<div class="page">
+  <div class="left-rail">
+    <button mat-stroked-button (click)="newTemplate()">New template</button>
+
+    <mat-action-list dense>
+      <button
+        *ngFor="let structureTemplate of structureTemplateListView"
+        mat-list-item
+        (click)="selectTemplate(structureTemplate.id)">
+        {{structureTemplate.id}}
+      </button>
+    </mat-action-list>
+  </div>
+  <div class="details">
+    detail section for {{selectedTemplateUuid}}
+  </div>
+</div>

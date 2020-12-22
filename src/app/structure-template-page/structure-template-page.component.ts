@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {StructureTemplateService} from '../structure-template.service';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
+import {StructureTemplate} from '../../protos';
 
 @Component({
   selector: 'app-structure-template-page',
@@ -7,17 +8,32 @@ import {StructureTemplateService} from '../structure-template.service';
   styleUrls: ['./structure-template-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StructureTemplatePageComponent implements OnInit {
+export class StructureTemplatePageComponent implements OnInit, OnDestroy {
 
-  uuid = '';
+  selectedTemplateUuid = '';
+  structureTemplateListView: StructureTemplateListView[] = [];
+  structureTemplateListViewSubscription = '';
 
   constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
+    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {
+      this.structureTemplateListView = newValue;
+      this.ref.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.structureTemplateService.cancelSubscriptionToTemplateListView(this.structureTemplateListViewSubscription);
   }
 
   async newTemplate(): Promise<void> {
-    this.uuid = await this.structureTemplateService.createNewStructureTemplate();
+    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();
+    this.selectTemplate(this.selectedTemplateUuid);
+  }
+
+  selectTemplate(newId: string): void {
+    this.selectedTemplateUuid = newId;
     this.ref.markForCheck();
   }
 }
