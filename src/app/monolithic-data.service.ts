@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { StorageMap } from '@ngx-pwa/local-storage';
 import {WritingWorkspace} from '../protos';
 import {WorkspaceMetadataService} from './workspace-metadata.service';
 import {StructureTemplateService} from './structure-template.service';
+import {StorageService} from './storage.service';
 
 const WORKSPACE_NAME_KEY = 'workspaceName';
 
@@ -14,13 +14,15 @@ const WORKSPACE_NAME_KEY = 'workspaceName';
 })
 export class MonolithicDataService {
 
-  constructor(private storage: StorageMap,
+  constructor(private storageService: StorageService,
               private workspaceMetadataService: WorkspaceMetadataService,
               private structureTemplateService: StructureTemplateService) { }
 
   async newWorkspace(name: string): Promise<void> {
     await this.clear();
-    await this.setWorkspaceName(name);
+    await this.loadWorkspace(WritingWorkspace.create({
+      name,
+    }));
   }
 
   // Function to load workspace into local memory.
@@ -43,15 +45,25 @@ export class MonolithicDataService {
   }
 
   async setWorkspaceName(name: string): Promise<void> {
-    await this.storage.set(WORKSPACE_NAME_KEY, name).toPromise();
+    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);
   }
 
   async getWorkspaceName(): Promise<string> {
-    return (await this.storage.get(WORKSPACE_NAME_KEY, { type: 'string'}).toPromise())
+    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)
       || '';
   }
 
+  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {
+    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {
+      handler(result as string);
+    });
+  }
+
+  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {
+    this.storageService.cancelSubscription(subscriptionId);
+  }
+
   async clear(): Promise<void> {
-    await this.storage.clear().toPromise();
+    await this.storageService.clearAll();
   }
 }

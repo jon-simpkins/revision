@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {WorkspaceMetadataService} from '../workspace-metadata.service';
 import {IWritingSession, WritingWorkspaceMetadata} from '../../protos';
 
@@ -8,15 +8,22 @@ import {IWritingSession, WritingWorkspaceMetadata} from '../../protos';
   styleUrls: ['./show-session-history.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShowSessionHistoryComponent implements OnInit {
-
+export class ShowSessionHistoryComponent implements OnInit, OnDestroy {
   workspaceMetadata: WritingWorkspaceMetadata = WritingWorkspaceMetadata.create();
+  metadataSubscription = '';
 
   constructor(private ref: ChangeDetectorRef, private workspaceMetadataService: WorkspaceMetadataService) { }
 
-  async ngOnInit(): Promise<void> {
-    this.workspaceMetadata = await this.workspaceMetadataService.getWorkspaceMetadata(false);
-    this.ref.markForCheck();
+  ngOnInit(): void  {
+    this.metadataSubscription = this.workspaceMetadataService.subscribeToWorkspaceMetadata(
+      (workspaceMetadata: WritingWorkspaceMetadata) => {
+      this.workspaceMetadata = workspaceMetadata;
+      this.ref.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void  {
+    this.workspaceMetadataService.cancelSubscriptionToWorkspaceMetadata(this.metadataSubscription);
   }
 
   fetchRecentHistory(): IWritingSession[] {

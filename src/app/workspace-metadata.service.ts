@@ -1,6 +1,14 @@
 import { Injectable } from '@angular/core';
-import {StorageMap} from '@ngx-pwa/local-storage';
-import {Duration, IDuration, ITimestamp, IWritingSession, IWritingWorkspaceMetadata, Timestamp, WritingSession, WritingWorkspaceMetadata} from '../protos';
+import {
+  Duration,
+  IDuration,
+  ITimestamp,
+  IWritingSession,
+  IWritingWorkspaceMetadata,
+  Timestamp,
+  WritingSession,
+  WritingWorkspaceMetadata} from '../protos';
+import {StorageService} from './storage.service';
 
 const CURRENT_SESSION_KEY = 'currentSession';
 const LAST_HEARTBEAT_KEY = 'lastHeartbeat';
@@ -15,10 +23,25 @@ const SESSION_ACTIVE_TIMEOUT_MS = 5000; // Allow 5 seconds of the tool being not
 })
 export class WorkspaceMetadataService {
 
-  constructor(private storage: StorageMap) { }
+  constructor(private storageService: StorageService) { }
+
+  subscribeToWorkspaceMetadata(handler: (workspaceMetadata: WritingWorkspaceMetadata) => void): string {
+    return this.storageService.generateSubscription(WRITING_WORKSPACE_METADATA_KEY, (result) => {
+      console.log('GOT SUBSCRIBE RESULT');
+      if (result) {
+        handler(WritingWorkspaceMetadata.decode(result as Uint8Array));
+      } else {
+        handler(WritingWorkspaceMetadata.create());
+      }
+    });
+  }
+
+  cancelSubscriptionToWorkspaceMetadata(subscriptionKey: string): void {
+    this.storageService.cancelSubscription(subscriptionKey);
+  }
 
   async getWorkspaceMetadata(appendCurrentSession: boolean): Promise<WritingWorkspaceMetadata> {
-    const fetchedData = (await this.storage.get(WRITING_WORKSPACE_METADATA_KEY).toPromise()) as Uint8Array;
+    const fetchedData = (await this.storageService.get(WRITING_WORKSPACE_METADATA_KEY)) as Uint8Array;
     let workspaceMetadata;
     if (fetchedData) {
       workspaceMetadata = WritingWorkspaceMetadata.decode(fetchedData);
@@ -37,10 +60,14 @@ export class WorkspaceMetadataService {
 
   async setWorkspaceMetadata(workspaceMetadata: IWritingWorkspaceMetadata|null): Promise<void> {
     if (!workspaceMetadata) {
-      return;
+      workspaceMetadata = WritingWorkspaceMetadata.create();
     }
 
-    await this.storage.set(WRITING_WORKSPACE_METADATA_KEY, WritingWorkspaceMetadata.encode(workspaceMetadata).finish()).toPromise();
+    await this.storageService.set(
+      WRITING_WORKSPACE_METADATA_KEY,
+      WritingWorkspaceMetadata.encode(workspaceMetadata).finish(),
+      true
+    );
   }
 
   async saveCurrentSessionToHistory(): Promise<void> {
@@ -54,8 +81,8 @@ export class WorkspaceMetadataService {
     const isActive = document.visibilityState === 'visible';
 
     let currentSession = await this.getCurrentSession();
-    const lastHeartbeat = await this.storage.get(LAST_HEARTBEAT_KEY).toPromise() as number;
-    const lastActiveHeartbeat = await this.storage.get(LAST_ACTIVE_HEARTBEAT_KEY).toPromise() as number;
+    const lastHeartbeat = await this.storageService.get(LAST_HEARTBEAT_KEY) as number;
+    const lastActiveHeartbeat = await this.storageService.get(LAST_ACTIVE_HEARTBEAT_KEY) as number;
 
     if (!currentSession) {
       currentSession = this.createNewWritingSession();
@@ -79,12 +106,12 @@ export class WorkspaceMetadataService {
         currentSession.activeDuration = incrementDuration(activeDuration, activeDelta);
       }
 
-      await this.storage.set(LAST_ACTIVE_HEARTBEAT_KEY, Date.now()).toPromise();
+      await this.storageService.set(LAST_ACTIVE_HEARTBEAT_KEY, Date.now());
     }
 
     const encoded = WritingSession.encode(currentSession).finish();
-    await this.storage.set(CURRENT_SESSION_KEY, encoded).toPromise();
-    await this.storage.set(LAST_HEARTBEAT_KEY, Date.now()).toPromise();
+    await this.storageService.set(CURRENT_SESSION_KEY, encoded);
+    await this.storageService.set(LAST_HEARTBEAT_KEY, Date.now());
 
     return currentSession;
   }
@@ -96,17 +123,12 @@ export class WorkspaceMetadataService {
   }
 
   async getCurrentSession(): Promise<WritingSession|null> {
-    const current = await this.storage.get(CURRENT_SESSION_KEY).toPromise();
+    const current = await this.storageService.get(CURRENT_SESSION_KEY);
     if (!current) {
       return null;
     }
 
-    try {
-      return WritingSession.decode(current as Uint8Array);
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
+    return WritingSession.decode(current as Uint8Array);
   }
 }
 

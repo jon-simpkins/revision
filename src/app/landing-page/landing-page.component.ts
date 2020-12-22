@@ -1,6 +1,5 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
-import {WorkspaceMetadataService} from '../workspace-metadata.service';
 import {WritingWorkspaceMetadata} from '../../protos';
 
 // Static landing page component.
@@ -10,9 +9,9 @@ import {WritingWorkspaceMetadata} from '../../protos';
   styleUrls: ['./landing-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingPageComponent implements OnInit {
+export class LandingPageComponent implements OnInit, OnDestroy {
   workspaceName = '';
-  workspaceMetadata: WritingWorkspaceMetadata = WritingWorkspaceMetadata.create();
+  workspaceNameSubscription = '';
 
   constructor(
     private monolithicDataService: MonolithicDataService,
@@ -20,12 +19,14 @@ export class LandingPageComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    await this.updateWorkspaceName();
+    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {
+      this.workspaceName = workspaceName;
+      this.ref.markForCheck();
+    });
   }
 
-  async updateWorkspaceName(): Promise<void> {
-    this.workspaceName = await this.monolithicDataService.getWorkspaceName();
-    this.ref.markForCheck();
+  ngOnDestroy(): void {
+    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);
   }
 
   async newWorkspace(): Promise<void> {
@@ -36,6 +37,5 @@ export class LandingPageComponent implements OnInit {
     }
 
     await this.monolithicDataService.newWorkspace(newWorkspaceName);
-    await this.updateWorkspaceName();
   }
 }
