@@ -6,7 +6,8 @@
       placeholder="Ex. Three Act Structure"
       [ngModel]="structureTemplate.name"
       (ngModelChange)="onNameChange($event)"
-      [value]="structureTemplate.name"/>
+      [value]="structureTemplate.name"
+      [ngModelOptions]="{standalone: true}"/>
   </mat-form-field>
 
   <mat-form-field class="full-width">
