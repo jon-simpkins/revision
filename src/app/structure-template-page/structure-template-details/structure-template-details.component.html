@@ -1,0 +1,21 @@
+<form autocomplete="off">
+  <mat-form-field class="full-width">
+    <mat-label>Name</mat-label>
+    <input
+      matInput
+      placeholder="Ex. Three Act Structure"
+      [ngModel]="structureTemplate.name"
+      (ngModelChange)="onNameChange($event)"
+      [value]="structureTemplate.name"/>
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Description</mat-label>
+    <textarea
+      matInput
+      [ngModel]="structureTemplate.description"
+      (ngModelChange)="onDescChange($event)"
+      [ngModelOptions]="{standalone: true}">
+    </textarea>
+  </mat-form-field>
+</form>

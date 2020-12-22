@@ -6,7 +6,7 @@
       *ngFor="let structureTemplate of structureTemplateListView"
       mat-list-item
       (click)="selectTemplate.emit(structureTemplate.id)">
-      {{structureTemplate.id}}
+      {{structureTemplate.name}}
     </button>
   </mat-action-list>
 </div>

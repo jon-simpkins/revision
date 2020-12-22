@@ -15,10 +15,17 @@ import { ShowSessionHistoryComponent } from './show-session-history/show-session
 import { StructureTemplatePageComponent } from './structure-template-page/structure-template-page.component';
 import {MatListModule} from '@angular/material/list';
 import {StructureTemplateNavComponent} from './structure-template-page/structure-template-nav/structure-template-nav.component';
+import {StructureTemplateDetailsComponent} from './structure-template-page/structure-template-details/structure-template-details.component';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {FormsModule} from '@angular/forms';
 
 export const MaterialModules = [
   MatButtonModule,
   MatListModule,
+  MatFormFieldModule,
+  MatInputModule,
+  BrowserAnimationsModule,
 ];
 
 @NgModule({
@@ -30,13 +37,14 @@ export const MaterialModules = [
     ShowSessionHistoryComponent,
     StructureTemplatePageComponent,
     StructureTemplateNavComponent,
+    StructureTemplateDetailsComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
     ...MaterialModules,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

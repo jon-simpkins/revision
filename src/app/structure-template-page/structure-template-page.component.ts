@@ -1,5 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
+import {StructureTemplate} from '../../protos';
+import {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';
 
 @Component({
   selector: 'app-structure-template-page',
@@ -10,6 +12,9 @@ import {StructureTemplateListView, StructureTemplateService} from '../structure-
 export class StructureTemplatePageComponent implements OnInit, OnDestroy {
 
   selectedTemplateUuid = '';
+
+  selectedTemplate: StructureTemplate|null = null;
+
   structureTemplateListView: StructureTemplateListView[] = [];
   structureTemplateListViewSubscription = '';
 
@@ -28,11 +33,18 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
 
   async newTemplate(): Promise<void> {
     this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();
-    this.selectTemplate(this.selectedTemplateUuid);
+    await this.selectTemplate(this.selectedTemplateUuid);
   }
 
-  selectTemplate(newId: string): void {
+  async selectTemplate(newId: string): Promise<void> {
     this.selectedTemplateUuid = newId;
+
+    this.selectedTemplate = await this.structureTemplateService.getStructureTemplate(newId);
+
     this.ref.markForCheck();
+  }
+
+  async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {
+    await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);
   }
 }

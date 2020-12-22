@@ -4,7 +4,10 @@
     (newTemplate)="newTemplate()"
     (selectTemplate)="selectTemplate($event)">
   </app-structure-template-nav>
-  <div class="details">
-    detail section for {{selectedTemplateUuid}}
-  </div>
+  <app-structure-template-details
+    *ngIf="selectedTemplate"
+    class="details"
+    [structureTemplate]="selectedTemplate"
+    (templateUpdated)="onTemplateChanges($event)"
+  ></app-structure-template-details>
 </div>

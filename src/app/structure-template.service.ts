@@ -89,7 +89,9 @@ export class StructureTemplateService {
     );
 
     if (affectsListView) {
-      console.log('TODO: update list view');
+      await this.setAllTemplatesListView(
+        await this.getAllStructureTemplates()
+      );
     }
   }
 
