@@ -9,6 +9,9 @@ import {StructureTemplateListView} from '../../structure-template.service';
 })
 export class StructureTemplateNavComponent {
   @Input()
+  canDelete: boolean = false;
+
+  @Input()
   structureTemplateListView: StructureTemplateListView[] = [];
 
   @Output() newTemplate = new EventEmitter<void>();

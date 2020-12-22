@@ -19,12 +19,14 @@ import {StructureTemplateDetailsComponent} from './structure-template-page/struc
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
+import {MatIconModule} from '@angular/material/icon';
 
 export const MaterialModules = [
   MatButtonModule,
   MatListModule,
   MatFormFieldModule,
   MatInputModule,
+  MatIconModule,
   BrowserAnimationsModule,
 ];
 
