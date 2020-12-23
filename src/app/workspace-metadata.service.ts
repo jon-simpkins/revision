@@ -27,7 +27,6 @@ export class WorkspaceMetadataService {
 
   subscribeToWorkspaceMetadata(handler: (workspaceMetadata: WritingWorkspaceMetadata) => void): string {
     return this.storageService.generateSubscription(WRITING_WORKSPACE_METADATA_KEY, (result) => {
-      console.log('GOT SUBSCRIBE RESULT');
       if (result) {
         handler(WritingWorkspaceMetadata.decode(result as Uint8Array));
       } else {
