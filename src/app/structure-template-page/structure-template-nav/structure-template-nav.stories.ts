@@ -11,7 +11,8 @@ export default {
   title: 'Structure Template Page / Nav',
   argTypes: {
     newTemplate: { action: 'newTemplate' },
-    selectTemplate: { action: 'selectTemplate' }
+    selectTemplate: { action: 'selectTemplate' },
+    deleteTemplate: { action: 'deleteTemplate' }
   },
   component: StructureTemplateNavComponent,
   decorators: [
@@ -27,12 +28,7 @@ const Template: Story<StructureTemplateNavComponent> = (args: StructureTemplateN
   props: args,
 });
 
-export const EmptyExample = Template.bind({});
-EmptyExample.args = {};
-
-export const FullExample = Template.bind({});
-FullExample.args = {
-  structureTemplateListView: [
+const exampleStructureTemplateListView = [
     {
       id: 'abc-123',
       name: 'My first template'
@@ -41,5 +37,18 @@ FullExample.args = {
       id: 'def-456',
       name: 'My second template'
     } as StructureTemplateListView
-  ],
+  ];
+
+export const EmptyExample = Template.bind({});
+EmptyExample.args = {};
+
+export const FullExample = Template.bind({});
+FullExample.args = {
+  structureTemplateListView: exampleStructureTemplateListView
+};
+
+export const FullExampleCanDelete = Template.bind({});
+FullExampleCanDelete.args = {
+  canDelete: true,
+  structureTemplateListView: exampleStructureTemplateListView
 };

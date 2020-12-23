@@ -1689,7 +1689,7 @@
         },
         {
             "name": "StructureTemplateNavComponent",
-            "id": "component-StructureTemplateNavComponent-ce9dc91600ed0e5dd3489a78ccc9d935",
+            "id": "component-StructureTemplateNavComponent-a86b0b5f35ea98736e0899b3475d949d",
             "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1722,6 +1722,12 @@
             ],
             "outputsClass": [
                 {
+                    "name": "deleteTemplate",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                },
+                {
                     "name": "newTemplate",
                     "defaultValue": "new EventEmitter<void>()",
                     "line": 17,
@@ -1742,7 +1748,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 21
+                    "line": 23
                 }
             ],
             "hostBindings": [],
@@ -1750,7 +1756,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  canDelete: boolean = false;\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  canDelete: boolean = false;\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -1759,7 +1765,7 @@
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"left-rail\">\n  <button mat-stroked-button (click)=\"createNewTemplate()\">New template</button>\n  <button mat-icon-button color=\"warn\">\n    <mat-icon>delete</mat-icon>\n  </button>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
         },
         {
             "name": "StructureTemplatePageComponent",
@@ -2070,7 +2076,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2078,15 +2084,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2095,6 +2093,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2115,6 +2121,22 @@
                 "defaultValue": "{\n  production: false\n}"
             },
             {
+                "name": "exampleStructureTemplateListView",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
+            },
+            {
+                "name": "FullExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "FullExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2123,10 +2145,10 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "FullExample",
+                "name": "FullExampleCanDelete",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2205,14 +2227,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
-                "type": "Story<ImportExportPageComponent>",
-                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "Story<LandingPageComponent>",
                 "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
@@ -2221,9 +2235,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "type": "Story<ImportExportPageComponent>",
+                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -2232,6 +2246,14 @@
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "Story<StructureTemplateDetailsComponent>",
                 "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -2421,24 +2443,6 @@
                     "defaultValue": "'workspaceMetadata'"
                 }
             ],
-            "src/app/import-export-page/import-export-page.stories.ts": [
-                {
-                    "name": "DefaultExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "Story<ImportExportPageComponent>",
-                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/landing-page/landing-page.stories.ts": [
                 {
                     "name": "DefaultExample",
@@ -2457,20 +2461,12 @@
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
+            "src/app/import-export-page/import-export-page.stories.ts": [
                 {
-                    "name": "EmptyExample",
+                    "name": "DefaultExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
@@ -2478,9 +2474,9 @@
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "Story<StructureTemplateNavComponent>",
-                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
+                    "type": "Story<ImportExportPageComponent>",
+                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -2515,6 +2511,48 @@
                     "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                     "type": "Story<StructureTemplateDetailsComponent>",
                     "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleStructureTemplateListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleCanDelete",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "Story<StructureTemplateNavComponent>",
+                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -2902,7 +2940,7 @@
                 "linktype": "component",
                 "name": "StructureTemplateNavComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/6",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -2920,7 +2958,27 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
+                "name": "exampleStructureTemplateListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
                 "name": "FullExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleCanDelete",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
