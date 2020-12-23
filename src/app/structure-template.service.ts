@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import {IStructureTemplate, StructureTemplate} from '../protos';
 import {StorageService} from './storage.service';
+import {zip} from 'rxjs';
 
 // Minimal details about a template to show in list view
 export interface StructureTemplateListView {
@@ -22,14 +23,17 @@ export class StructureTemplateService {
   async getAllStructureTemplates(): Promise<StructureTemplate[]> {
     const allEntries = await this.getAllTemplatesListView();
 
-    const allTemplates = [];
+    const allTemplates: StructureTemplate[] = [];
     for (const entry of allEntries) {
-      allTemplates.push(
-        await this.getStructureTemplate(entry.id)
-      );
+      const fetchedTemplate = await this.getStructureTemplate(entry.id);
+      if (fetchedTemplate != null) {
+        allTemplates.push(
+          fetchedTemplate
+        );
+      }
     }
 
-    return allTemplates;
+    return allTemplates.filter((value) => !!value);
   }
 
   async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {
@@ -61,11 +65,12 @@ export class StructureTemplateService {
     return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;
   }
 
-  async getStructureTemplate(uuid: string): Promise<StructureTemplate> {
+  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {
     const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;
 
     if (!fetchedData) {
-      throw Error('Could not find structure template: ' + uuid);
+      console.error('Could not find structure template: ' + uuid);
+      return null;
     }
 
     return StructureTemplate.decode(
@@ -89,10 +94,29 @@ export class StructureTemplateService {
     );
 
     if (affectsListView) {
-      await this.setAllTemplatesListView(
-        await this.getAllStructureTemplates()
-      );
+      await this.refreshAllTemplatesListView();
     }
+  }
+
+  async refreshAllTemplatesListView(): Promise<void> {
+    const allTemplates = await this.getAllStructureTemplates();
+
+    await this.setAllTemplatesListView(
+      allTemplates.filter((template) => !!template)
+    );
+  }
+
+  async deleteTemplate(templateId: string): Promise<void> {
+    await this.storageService.delete(
+      this.getTemplateKey(templateId)
+    );
+
+    const listViewEligible = (await this.getAllTemplatesListView())
+      .filter((structureTemplate) => {
+        return structureTemplate.id !== templateId;
+    });
+
+    await this.setAllTemplatesListView(listViewEligible);
   }
 
   // Creates a new structure template, and returns the uuid of the new entry

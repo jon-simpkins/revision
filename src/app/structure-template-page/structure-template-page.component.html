@@ -1,9 +1,10 @@
 <div class="page">
   <app-structure-template-nav
-    [canDelete]="false"
+    [canDelete]="selectedTemplateUuid != ''"
     [structureTemplateListView]="structureTemplateListView"
     (newTemplate)="newTemplate()"
-    (selectTemplate)="selectTemplate($event)">
+    (selectTemplate)="selectTemplate($event)"
+    (deleteTemplate)="deleteTemplate()">
   </app-structure-template-nav>
   <app-structure-template-details
     class="details"

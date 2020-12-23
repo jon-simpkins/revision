@@ -36,6 +36,13 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
     await this.selectTemplate(this.selectedTemplateUuid);
   }
 
+  async deleteTemplate(): Promise<void> {
+    await this.structureTemplateService.deleteTemplate(this.selectedTemplateUuid);
+    this.selectedTemplateUuid = '';
+    this.selectedTemplate = null;
+    this.ref.markForCheck();
+  }
+
   async selectTemplate(newId: string): Promise<void> {
     this.selectedTemplateUuid = newId;
 
