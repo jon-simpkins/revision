@@ -20,6 +20,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
+import {QuillModule} from 'ngx-quill';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -28,6 +29,7 @@ export const MaterialModules = [
   MatInputModule,
   MatIconModule,
   BrowserAnimationsModule,
+  QuillModule.forRoot(),
 ];
 
 @NgModule({
