@@ -92,14 +92,8 @@ export class StructureTemplateDetailsComponent implements OnChanges {
       fieldMap.set(key, value);
     }
 
-    if (!fieldMap.has('Name')) {
-      this.errorMessage = 'Missing "Name" field';
-      this.ref.markForCheck();
-      return;
-    }
-
-    if (!fieldMap.has('Description')) {
-      this.errorMessage = 'Missing "Description" field';
+    this.errorMessage = this.getErrorMessage(fieldMap);
+    if (this.errorMessage !== '') {
       this.ref.markForCheck();
       return;
     }
@@ -122,8 +116,19 @@ export class StructureTemplateDetailsComponent implements OnChanges {
       modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name
     } as StructureTemplateUpdate);
 
-    this.errorMessage = '';
     this.ref.markForCheck();
+  }
+
+  getErrorMessage(fieldMap: Map<string, string>): string {
+    if (!fieldMap.has('Name')) {
+      return 'Missing "Name" field';
+    }
+
+    if (!fieldMap.has('Description')) {
+      return 'Missing "Description" field';
+    }
+
+    return '';
   }
 
   areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {
