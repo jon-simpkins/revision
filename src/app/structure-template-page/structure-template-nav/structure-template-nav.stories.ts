@@ -42,13 +42,13 @@ const exampleStructureTemplateListView = [
 export const EmptyExample = Template.bind({});
 EmptyExample.args = {};
 
-export const FullExample = Template.bind({});
-FullExample.args = {
+export const FullExampleNothingSelected = Template.bind({});
+FullExampleNothingSelected.args = {
   structureTemplateListView: exampleStructureTemplateListView
 };
 
-export const FullExampleCanDelete = Template.bind({});
-FullExampleCanDelete.args = {
-  canDelete: true,
+export const FullExampleSecondSelected = Template.bind({});
+FullExampleSecondSelected.args = {
+  selectedTemplateId: 'def-456',
   structureTemplateListView: exampleStructureTemplateListView
 };

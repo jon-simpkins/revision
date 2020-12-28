@@ -43,10 +43,10 @@
         },
         {
             "name": "StructureTemplateListView",
-            "id": "interface-StructureTemplateListView-1ede068d45d2ff182107e053c3cd3cff",
+            "id": "interface-StructureTemplateListView-ceffbf772baafe07a19d6b67e166f18f",
             "file": "src/app/structure-template.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscriptionToTemplateListView(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here'\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
             "properties": [
                 {
                     "name": "id",
@@ -69,24 +69,24 @@
         },
         {
             "name": "StructureTemplateUpdate",
-            "id": "interface-StructureTemplateUpdate-2f2908f7e7ec395410094e386145d550",
+            "id": "interface-StructureTemplateUpdate-32c74996a38c03447e142968054f4ba2",
             "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
             "type": "interface",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onNameChange(value: string): void {\n    if (this.isEmpty()) {\n      return;\n    }\n    const structureTemplate = this.structureTemplate as StructureTemplate;\n    structureTemplate.name = value;\n\n    this.templateUpdated.emit({\n      structureTemplate,\n      modifiesListView: true\n    } as StructureTemplateUpdate);\n  }\n\n  onDescChange(value: string): void {\n    if (this.structureTemplate == null) {\n      return;\n    }\n    const structureTemplate = this.structureTemplate as StructureTemplate;\n    structureTemplate.description = value;\n\n    this.templateUpdated.emit({\n      structureTemplate,\n      modifiesListView: false\n    } as StructureTemplateUpdate);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\nconst NAME_FIELD_PREFIX = '== Name ==';\nconst DESC_FIELD_PREFIX = '== Description ==';\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      {\n        insert: NAME_FIELD_PREFIX + '\\n',\n        attributes: {\n          bold: true\n        },\n      }\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push({\n      insert: '\\n' + DESC_FIELD_PREFIX + '\\n',\n      attributes: {\n        bold: true\n      },\n    });\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    // split up based on field names\n    const rx = RegExp('==([^=]+)==\\n([^=]+)\\n', 'gm');\n\n    const fieldMap: Map<string, string> = new Map();\n\n    let match;\n    // tslint:disable-next-line:no-conditional-assignment\n    while ((match = rx.exec(newContent)) !== null) {\n      const key = match[1].trim();\n      const value = match[2];\n      fieldMap.set(key, value);\n    }\n\n    if (!fieldMap.has('Name')) {\n      this.errorMessage = 'Missing \"Name\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    if (!fieldMap.has('Description')) {\n      this.errorMessage = 'Missing \"Description\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name')?.trim(),\n      description: fieldMap.get('Description')?.trim()\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.errorMessage = '';\n    this.ref.markForCheck();\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one?.name !== two?.name) {\n      return false;\n    }\n\n    if (one?.id !== two?.id) {\n      return false;\n    }\n\n    if (one?.description !== two?.description) {\n      return false;\n    }\n\n    return true;\n  }\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 6
+                    "line": 8
                 },
                 {
                     "name": "structureTemplate",
                     "type": "StructureTemplate",
                     "optional": false,
                     "description": "",
-                    "line": 5
+                    "line": 7
                 }
             ],
             "indexSignatures": [],
@@ -581,12 +581,12 @@
         },
         {
             "name": "StructureTemplateService",
-            "id": "injectable-StructureTemplateService-1ede068d45d2ff182107e053c3cd3cff",
+            "id": "injectable-StructureTemplateService-ceffbf772baafe07a19d6b67e166f18f",
             "file": "src/app/structure-template.service.ts",
             "properties": [],
             "methods": [
                 {
-                    "name": "cancelSubscriptionToTemplateListView",
+                    "name": "cancelSubscription",
                     "args": [
                         {
                             "name": "subscription",
@@ -613,7 +613,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 123,
+                    "line": 133,
                     "modifierKind": [
                         120
                     ]
@@ -629,7 +629,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 119,
                     "modifierKind": [
                         120
                     ],
@@ -718,7 +718,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 101,
+                    "line": 111,
                     "modifierKind": [
                         120
                     ]
@@ -812,6 +812,51 @@
                     ]
                 },
                 {
+                    "name": "subscribeToTemplate",
+                    "args": [
+                        {
+                            "name": "templateId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "StructureTemplate"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 101,
+                    "jsdoctags": [
+                        {
+                            "name": "templateId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "StructureTemplate"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "subscribeToTemplateListView",
                     "args": [
                         {
@@ -847,7 +892,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscriptionToTemplateListView(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here'\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1644,7 +1689,7 @@
         },
         {
             "name": "StructureTemplateDetailsComponent",
-            "id": "component-StructureTemplateDetailsComponent-2f2908f7e7ec395410094e386145d550",
+            "id": "component-StructureTemplateDetailsComponent-32c74996a38c03447e142968054f4ba2",
             "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1665,7 +1710,7 @@
                 {
                     "name": "structureTemplate",
                     "defaultValue": "null",
-                    "line": 17,
+                    "line": 22,
                     "type": "StructureTemplate | null"
                 }
             ],
@@ -1673,35 +1718,123 @@
                 {
                     "name": "templateUpdated",
                     "defaultValue": "new EventEmitter<StructureTemplateUpdate>()",
-                    "line": 19,
+                    "line": 24,
                     "type": "EventEmitter"
                 }
             ],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "errorMessage",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 27
+                },
+                {
+                    "name": "lastStructureTemplateInput",
+                    "defaultValue": "null",
+                    "type": "StructureTemplate | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 28
+                },
+                {
+                    "name": "quillContent",
+                    "defaultValue": "[]",
+                    "type": "DeltaOperation[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 26
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "areStructureTemplatesEqual",
+                    "args": [
+                        {
+                            "name": "one",
+                            "type": "StructureTemplate | null"
+                        },
+                        {
+                            "name": "two",
+                            "type": "StructureTemplate | null"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 129,
+                    "jsdoctags": [
+                        {
+                            "name": "one",
+                            "type": "StructureTemplate | null",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "two",
+                            "type": "StructureTemplate | null",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
                 {
                     "name": "isEmpty",
                     "args": [],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 21
+                    "line": 72
                 },
                 {
-                    "name": "onDescChange",
+                    "name": "ngOnChanges",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 32
+                },
+                {
+                    "name": "onContentChanged",
                     "args": [
                         {
-                            "name": "value",
+                            "name": "contentChangeEvent",
+                            "type": "ContentChange"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 76,
+                    "jsdoctags": [
+                        {
+                            "name": "contentChangeEvent",
+                            "type": "ContentChange",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "parseContent",
+                    "args": [
+                        {
+                            "name": "newContent",
                             "type": "string"
                         }
                     ],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 38,
+                    "line": 80,
                     "jsdoctags": [
                         {
-                            "name": "value",
+                            "name": "newContent",
                             "type": "string",
                             "tagName": {
                                 "text": "param"
@@ -1710,26 +1843,12 @@
                     ]
                 },
                 {
-                    "name": "onNameChange",
-                    "args": [
-                        {
-                            "name": "value",
-                            "type": "string"
-                        }
-                    ],
+                    "name": "refreshQuillContent",
+                    "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 25,
-                    "jsdoctags": [
-                        {
-                            "name": "value",
-                            "type": "string",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
+                    "line": 42
                 }
             ],
             "hostBindings": [],
@@ -1737,7 +1856,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onNameChange(value: string): void {\n    if (this.isEmpty()) {\n      return;\n    }\n    const structureTemplate = this.structureTemplate as StructureTemplate;\n    structureTemplate.name = value;\n\n    this.templateUpdated.emit({\n      structureTemplate,\n      modifiesListView: true\n    } as StructureTemplateUpdate);\n  }\n\n  onDescChange(value: string): void {\n    if (this.structureTemplate == null) {\n      return;\n    }\n    const structureTemplate = this.structureTemplate as StructureTemplate;\n    structureTemplate.description = value;\n\n    this.templateUpdated.emit({\n      structureTemplate,\n      modifiesListView: false\n    } as StructureTemplateUpdate);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\nconst NAME_FIELD_PREFIX = '== Name ==';\nconst DESC_FIELD_PREFIX = '== Description ==';\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      {\n        insert: NAME_FIELD_PREFIX + '\\n',\n        attributes: {\n          bold: true\n        },\n      }\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push({\n      insert: '\\n' + DESC_FIELD_PREFIX + '\\n',\n      attributes: {\n        bold: true\n      },\n    });\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    // split up based on field names\n    const rx = RegExp('==([^=]+)==\\n([^=]+)\\n', 'gm');\n\n    const fieldMap: Map<string, string> = new Map();\n\n    let match;\n    // tslint:disable-next-line:no-conditional-assignment\n    while ((match = rx.exec(newContent)) !== null) {\n      const key = match[1].trim();\n      const value = match[2];\n      fieldMap.set(key, value);\n    }\n\n    if (!fieldMap.has('Name')) {\n      this.errorMessage = 'Missing \"Name\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    if (!fieldMap.has('Description')) {\n      this.errorMessage = 'Missing \"Description\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name')?.trim(),\n      description: fieldMap.get('Description')?.trim()\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.errorMessage = '';\n    this.ref.markForCheck();\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one?.name !== two?.name) {\n      return false;\n    }\n\n    if (one?.id !== two?.id) {\n      return false;\n    }\n\n    if (one?.description !== two?.description) {\n      return false;\n    }\n\n    return true;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -1746,11 +1865,34 @@
                 }
             ],
             "stylesData": "",
-            "templateData": "<h3 *ngIf=\"isEmpty()\">no structure template selected</h3>\n\n<form *ngIf=\"!isEmpty()\" autocomplete=\"off\">\n  <mat-form-field class=\"full-width\">\n    <mat-label>Name</mat-label>\n    <input\n      matInput\n      placeholder=\"Ex. Three Act Structure\"\n      [ngModel]=\"structureTemplate?.name\"\n      (ngModelChange)=\"onNameChange($event)\"\n      [ngModelOptions]=\"{standalone: true}\"/>\n  </mat-form-field>\n\n  <mat-form-field class=\"full-width\">\n    <mat-label>Description</mat-label>\n    <textarea\n      matInput\n      [ngModel]=\"structureTemplate?.description\"\n      (ngModelChange)=\"onDescChange($event)\"\n      [ngModelOptions]=\"{standalone: true}\">\n    </textarea>\n  </mat-form-field>\n</form>\n\n\n<quill-editor></quill-editor>\n"
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 28,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnChanges"
+            ],
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no structure template selected</h3>\n\n<quill-editor\n  *ngIf=\"!isEmpty()\"\n  [ngModel]=\"quillContent\"\n  format=\"object\"\n  (onContentChanged)=\"onContentChanged($event)\"\n>\n  <div quill-editor-toolbar>\n    <span>\n      {{errorMessage}}\n      &nbsp;\n    </span>\n  </div>\n</quill-editor>\n"
         },
         {
             "name": "StructureTemplateNavComponent",
-            "id": "component-StructureTemplateNavComponent-a86b0b5f35ea98736e0899b3475d949d",
+            "id": "component-StructureTemplateNavComponent-3ab4de36688fb2c35f951f6f362dc3d4",
             "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1769,10 +1911,9 @@
             "viewProviders": [],
             "inputsClass": [
                 {
-                    "name": "canDelete",
-                    "defaultValue": "false",
-                    "line": 12,
-                    "type": "boolean"
+                    "name": "selectedTemplateId",
+                    "defaultValue": "''",
+                    "line": 12
                 },
                 {
                     "name": "structureTemplateListView",
@@ -1804,6 +1945,14 @@
             "propertiesClass": [],
             "methodsClass": [
                 {
+                    "name": "canDelete",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 27
+                },
+                {
                     "name": "createNewTemplate",
                     "args": [],
                     "optional": false,
@@ -1817,7 +1966,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  canDelete: boolean = false;\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  selectedTemplateId = '';\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n\n  canDelete(): boolean {\n    return this.selectedTemplateId.length > 0;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -1826,11 +1975,11 @@
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
         },
         {
             "name": "StructureTemplatePageComponent",
-            "id": "component-StructureTemplatePageComponent-2fb33d5d9d1eaf7324549db46e7a9b7e",
+            "id": "component-StructureTemplatePageComponent-cc0c77c3c9f3f59041a8983d3085404e",
             "file": "src/app/structure-template-page/structure-template-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1859,6 +2008,14 @@
                     "line": 16
                 },
                 {
+                    "name": "selectedTemplateSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                },
+                {
                     "name": "selectedTemplateUuid",
                     "defaultValue": "''",
                     "type": "string",
@@ -1872,7 +2029,7 @@
                     "type": "StructureTemplateListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 19
                 },
                 {
                     "name": "structureTemplateListViewSubscription",
@@ -1880,7 +2037,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 20
                 }
             ],
             "methodsClass": [
@@ -1890,7 +2047,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 39,
+                    "line": 41,
                     "modifierKind": [
                         120
                     ]
@@ -1901,7 +2058,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 36,
                     "modifierKind": [
                         120
                     ]
@@ -1912,7 +2069,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 30
+                    "line": 31
                 },
                 {
                     "name": "ngOnInit",
@@ -1920,7 +2077,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 23
+                    "line": 24
                 },
                 {
                     "name": "onTemplateChanges",
@@ -1933,7 +2090,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 54,
+                    "line": 61,
                     "modifierKind": [
                         120
                     ],
@@ -1958,7 +2115,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 46,
+                    "line": 48,
                     "modifierKind": [
                         120
                     ],
@@ -1978,7 +2135,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport {StructureTemplate} from '../../protos';\nimport {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';\n\n@Component({\n  selector: 'app-structure-template-page',\n  templateUrl: './structure-template-page.component.html',\n  styleUrls: ['./structure-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.structureTemplateService.cancelSubscriptionToTemplateListView(this.structureTemplateListViewSubscription);\n  }\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();\n    await this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  async deleteTemplate(): Promise<void> {\n    await this.structureTemplateService.deleteTemplate(this.selectedTemplateUuid);\n    this.selectedTemplateUuid = '';\n    this.selectedTemplate = null;\n    this.ref.markForCheck();\n  }\n\n  async selectTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    this.selectedTemplate = await this.structureTemplateService.getStructureTemplate(newId);\n\n    this.ref.markForCheck();\n  }\n\n  async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {\n    await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport {StructureTemplate} from '../../protos';\nimport {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';\n\n@Component({\n  selector: 'app-structure-template-page',\n  templateUrl: './structure-template-page.component.html',\n  styleUrls: ['./structure-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n  }\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();\n    await this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  async deleteTemplate(): Promise<void> {\n    await this.structureTemplateService.deleteTemplate(this.selectedTemplateUuid);\n    this.selectedTemplateUuid = '';\n    this.selectedTemplate = null;\n    this.ref.markForCheck();\n  }\n\n  async selectTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    // Clear old subscription, setup new one\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {\n    await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2000,7 +2157,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 19,
+                "line": 20,
                 "jsdoctags": [
                     {
                         "name": "structureTemplateService",
@@ -2161,6 +2318,14 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "DESC_FIELD_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "string",
+                "defaultValue": "'== Description =='"
+            },
+            {
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2209,7 +2374,7 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "FullExample",
+                "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
@@ -2217,7 +2382,7 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "FullExampleCanDelete",
+                "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
@@ -2255,6 +2420,14 @@
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
+            },
+            {
+                "name": "NAME_FIELD_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "string",
+                "defaultValue": "'== Name =='"
             },
             {
                 "name": "POLL_FREQUENCY",
@@ -2551,6 +2724,24 @@
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts": [
+                {
+                    "name": "DESC_FIELD_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "type": "string",
+                    "defaultValue": "'== Description =='"
+                },
+                {
+                    "name": "NAME_FIELD_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "type": "string",
+                    "defaultValue": "'== Name =='"
+                }
+            ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -2603,7 +2794,7 @@
                     "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
                 },
                 {
-                    "name": "FullExample",
+                    "name": "FullExampleNothingSelected",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
@@ -2611,7 +2802,7 @@
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "FullExampleCanDelete",
+                    "name": "FullExampleSecondSelected",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
@@ -2954,7 +3145,7 @@
                 "linktype": "component",
                 "name": "StructureTemplateDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/6",
+                "coverageCount": "0/13",
                 "status": "low"
             },
             {
@@ -2964,6 +3155,26 @@
                 "name": "StructureTemplateUpdate",
                 "coveragePercent": 0,
                 "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "DESC_FIELD_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "NAME_FIELD_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
@@ -3012,7 +3223,7 @@
                 "linktype": "component",
                 "name": "StructureTemplateNavComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
@@ -3040,7 +3251,7 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "FullExample",
+                "name": "FullExampleNothingSelected",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -3050,7 +3261,7 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "FullExampleCanDelete",
+                "name": "FullExampleSecondSelected",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -3071,7 +3282,7 @@
                 "linktype": "component",
                 "name": "StructureTemplatePageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/12",
+                "coverageCount": "0/13",
                 "status": "low"
             },
             {
@@ -3080,7 +3291,7 @@
                 "linktype": "injectable",
                 "name": "StructureTemplateService",
                 "coveragePercent": 0,
-                "coverageCount": "0/14",
+                "coverageCount": "0/15",
                 "status": "low"
             },
             {

@@ -1,6 +1,6 @@
 <div class="page">
   <app-structure-template-nav
-    [canDelete]="selectedTemplateUuid != ''"
+    [selectedTemplateId]="selectedTemplateUuid"
     [structureTemplateListView]="structureTemplateListView"
     (newTemplate)="newTemplate()"
     (selectTemplate)="selectTemplate($event)"

@@ -9,7 +9,7 @@ import {StructureTemplateListView} from '../../structure-template.service';
 })
 export class StructureTemplateNavComponent {
   @Input()
-  canDelete: boolean = false;
+  selectedTemplateId = '';
 
   @Input()
   structureTemplateListView: StructureTemplateListView[] = [];
@@ -22,5 +22,9 @@ export class StructureTemplateNavComponent {
 
   createNewTemplate(): void {
     this.newTemplate.emit();
+  }
+
+  canDelete(): boolean {
+    return this.selectedTemplateId.length > 0;
   }
 }
