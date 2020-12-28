@@ -1,4 +1,10 @@
 
+:host {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
 .header {
   border-bottom: 1px solid black;
   display: flex;
@@ -23,4 +29,5 @@
 
 .body {
   margin: 8px 32px;
+  flex: 1;
 }
