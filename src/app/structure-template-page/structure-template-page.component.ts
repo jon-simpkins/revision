@@ -14,6 +14,7 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
   selectedTemplateUuid = '';
 
   selectedTemplate: StructureTemplate|null = null;
+  selectedTemplateSubscription = '';
 
   structureTemplateListView: StructureTemplateListView[] = [];
   structureTemplateListViewSubscription = '';
@@ -28,7 +29,8 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.structureTemplateService.cancelSubscriptionToTemplateListView(this.structureTemplateListViewSubscription);
+    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
+    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);
   }
 
   async newTemplate(): Promise<void> {
@@ -46,7 +48,12 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
   async selectTemplate(newId: string): Promise<void> {
     this.selectedTemplateUuid = newId;
 
-    this.selectedTemplate = await this.structureTemplateService.getStructureTemplate(newId);
+    // Clear old subscription, setup new one
+    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
+    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {
+      this.selectedTemplate = newValue;
+      this.ref.markForCheck();
+    });
 
     this.ref.markForCheck();
   }

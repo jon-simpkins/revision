@@ -1,26 +1,15 @@
 <h3 *ngIf="isEmpty()">no structure template selected</h3>
 
-<form *ngIf="!isEmpty()" autocomplete="off">
-  <mat-form-field class="full-width">
-    <mat-label>Name</mat-label>
-    <input
-      matInput
-      placeholder="Ex. Three Act Structure"
-      [ngModel]="structureTemplate?.name"
-      (ngModelChange)="onNameChange($event)"
-      [ngModelOptions]="{standalone: true}"/>
-  </mat-form-field>
-
-  <mat-form-field class="full-width">
-    <mat-label>Description</mat-label>
-    <textarea
-      matInput
-      [ngModel]="structureTemplate?.description"
-      (ngModelChange)="onDescChange($event)"
-      [ngModelOptions]="{standalone: true}">
-    </textarea>
-  </mat-form-field>
-</form>
-
-
-<quill-editor></quill-editor>
+<quill-editor
+  *ngIf="!isEmpty()"
+  [ngModel]="quillContent"
+  format="object"
+  (onContentChanged)="onContentChanged($event)"
+>
+  <div quill-editor-toolbar>
+    <span>
+      {{errorMessage}}
+      &nbsp;
+    </span>
+  </div>
+</quill-editor>

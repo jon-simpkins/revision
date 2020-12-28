@@ -1,10 +1,15 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {StructureTemplate} from '../../../protos';
+import {ContentChange} from 'ngx-quill/lib/quill-editor.component';
+import {DeltaOperation} from 'quill';
 
 export interface StructureTemplateUpdate {
   structureTemplate: StructureTemplate;
   modifiesListView: boolean;
 }
+
+const NAME_FIELD_PREFIX = '== Name ==';
+const DESC_FIELD_PREFIX = '== Description ==';
 
 @Component({
   selector: 'app-structure-template-details',
@@ -12,39 +17,128 @@ export interface StructureTemplateUpdate {
   styleUrls: ['./structure-template-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StructureTemplateDetailsComponent {
+export class StructureTemplateDetailsComponent implements OnChanges {
   @Input()
   structureTemplate: StructureTemplate|null = null;
 
   @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();
 
+  quillContent: DeltaOperation[] = [];
+  errorMessage = '';
+  lastStructureTemplateInput: StructureTemplate|null = null;
+
+  constructor(private ref: ChangeDetectorRef) {}
+
+  ngOnChanges(): void {
+    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {
+      // No reason to update
+      return;
+    }
+
+    this.lastStructureTemplateInput = this.structureTemplate;
+    this.refreshQuillContent();
+  }
+
+  refreshQuillContent(): void {
+    this.quillContent = [];
+
+    this.quillContent.push(
+      {
+        insert: NAME_FIELD_PREFIX + '\n',
+        attributes: {
+          bold: true
+        },
+      }
+    );
+
+    this.quillContent.push({
+      insert: this.structureTemplate?.name + '\n',
+      attributes: {},
+    });
+
+    this.quillContent.push({
+      insert: '\n' + DESC_FIELD_PREFIX + '\n',
+      attributes: {
+        bold: true
+      },
+    });
+
+    this.quillContent.push({
+      insert: this.structureTemplate?.description + '\n',
+      attributes: {},
+    });
+  }
+
   isEmpty(): boolean {
     return this.structureTemplate == null;
   }
 
-  onNameChange(value: string): void {
-    if (this.isEmpty()) {
-      return;
-    }
-    const structureTemplate = this.structureTemplate as StructureTemplate;
-    structureTemplate.name = value;
-
-    this.templateUpdated.emit({
-      structureTemplate,
-      modifiesListView: true
-    } as StructureTemplateUpdate);
+  onContentChanged(contentChangeEvent: ContentChange): void {
+    this.parseContent(contentChangeEvent.text + '\n');
   }
 
-  onDescChange(value: string): void {
-    if (this.structureTemplate == null) {
+  parseContent(newContent: string): void {
+
+    // split up based on field names
+    const rx = RegExp('==([^=]+)==\n([^=]+)\n', 'gm');
+
+    const fieldMap: Map<string, string> = new Map();
+
+    let match;
+    // tslint:disable-next-line:no-conditional-assignment
+    while ((match = rx.exec(newContent)) !== null) {
+      const key = match[1].trim();
+      const value = match[2];
+      fieldMap.set(key, value);
+    }
+
+    if (!fieldMap.has('Name')) {
+      this.errorMessage = 'Missing "Name" field';
+      this.ref.markForCheck();
       return;
     }
-    const structureTemplate = this.structureTemplate as StructureTemplate;
-    structureTemplate.description = value;
+
+    if (!fieldMap.has('Description')) {
+      this.errorMessage = 'Missing "Description" field';
+      this.ref.markForCheck();
+      return;
+    }
+
+    const newStructureTemplate = StructureTemplate.create({
+      id: this.structureTemplate?.id,
+      name: fieldMap.get('Name')?.trim(),
+      description: fieldMap.get('Description')?.trim()
+    });
+
+    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {
+      // No meaningful difference
+      return;
+    }
+
+    this.lastStructureTemplateInput = newStructureTemplate;
 
     this.templateUpdated.emit({
-      structureTemplate,
-      modifiesListView: false
+      structureTemplate: newStructureTemplate,
+      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name
     } as StructureTemplateUpdate);
+
+    this.errorMessage = '';
+    this.ref.markForCheck();
+  }
+
+  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {
+    if (one?.name !== two?.name) {
+      return false;
+    }
+
+    if (one?.id !== two?.id) {
+      return false;
+    }
+
+    if (one?.description !== two?.description) {
+      return false;
+    }
+
+    return true;
   }
 }

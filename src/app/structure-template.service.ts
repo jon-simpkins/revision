@@ -57,7 +57,7 @@ export class StructureTemplateService {
     });
   }
 
-  cancelSubscriptionToTemplateListView(subscription: string): void {
+  cancelSubscription(subscription: string): void {
     this.storageService.cancelSubscription(subscription);
   }
 
@@ -98,6 +98,16 @@ export class StructureTemplateService {
     }
   }
 
+  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {
+    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {
+      handler(
+        StructureTemplate.decode(
+          fetchedValue as Uint8Array
+        )
+      );
+    });
+  }
+
   async refreshAllTemplatesListView(): Promise<void> {
     const allTemplates = await this.getAllStructureTemplates();
 
@@ -124,7 +134,9 @@ export class StructureTemplateService {
     const uuid = uuidv4();
 
     const newStructureTemplate = StructureTemplate.create({
-      id: uuid
+      id: uuid,
+      name: 'My new template',
+      description: 'Description goes here'
     });
 
     await this.setStructureTemplate(newStructureTemplate);
