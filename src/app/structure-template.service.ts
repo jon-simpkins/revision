@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {IStructureTemplate, StructureTemplate} from '../protos';
 import {StorageService} from './storage.service';
 import {zip} from 'rxjs';
+import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
 // Minimal details about a template to show in list view
 export interface StructureTemplateListView {
@@ -136,7 +137,13 @@ export class StructureTemplateService {
     const newStructureTemplate = StructureTemplate.create({
       id: uuid,
       name: 'My new template',
-      description: 'Description goes here'
+      description: 'Description goes here',
+      beats: [
+        StructureTemplateBeat.create({
+          description: 'This is the first beat',
+          intendedDurationMs: 5
+        })
+      ]
     });
 
     await this.setStructureTemplate(newStructureTemplate);
