@@ -7,7 +7,12 @@
   (onContentChanged)="onContentChanged($event)"
 >
   <div quill-editor-toolbar>
-    <span>
+    <button *ngIf="errorMessage != ''"
+      class="toolbar-button"
+      (click)="repair()">
+      <mat-icon>restore</mat-icon>
+    </button>
+    <span class="toolbar-msg">
       {{errorMessage}}
       &nbsp;
     </span>

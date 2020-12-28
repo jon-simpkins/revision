@@ -124,6 +124,10 @@ export class StructureTemplateDetailsComponent implements OnChanges {
       return 'Missing "Name" field';
     }
 
+    if (fieldMap.get('Name')?.trim().length === 0) {
+      return '"Name" cannot be empty';
+    }
+
     if (!fieldMap.has('Description')) {
       return 'Missing "Description" field';
     }
@@ -145,5 +149,9 @@ export class StructureTemplateDetailsComponent implements OnChanges {
     }
 
     return true;
+  }
+
+  repair(): void {
+    this.refreshQuillContent();
   }
 }
