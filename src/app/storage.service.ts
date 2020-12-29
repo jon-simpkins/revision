@@ -56,6 +56,11 @@ export class StorageService {
 
     this.subscriptions.set(subscriptionUuid, newSubscription);
 
+    // Kick off subscription so there's not a weird POLL_FREQUENCY delay
+    setTimeout(async () => {
+      await this.checkSubscription(newSubscription);
+    }, 1);
+
     return subscriptionUuid;
   }
 

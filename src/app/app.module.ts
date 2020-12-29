@@ -22,6 +22,7 @@ import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
 import {QuillModule} from 'ngx-quill';
 import { TagPageComponent } from './tag-page/tag-page.component';
+import { TagNavComponent } from './tag-page/tag-nav/tag-nav.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -44,6 +45,7 @@ export const MaterialModules = [
     StructureTemplateNavComponent,
     StructureTemplateDetailsComponent,
     TagPageComponent,
+    TagNavComponent,
   ],
   imports: [
     BrowserModule,

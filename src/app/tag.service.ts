@@ -63,7 +63,7 @@ export class TagService {
     });
   }
 
-  subscribeToTag(tagId: string, handler: (newTemplate: Tag) => void): string {
+  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {
     return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {
       handler(
         Tag.decode(
@@ -73,7 +73,7 @@ export class TagService {
     });
   }
 
-  async deleteTemplate(tagId: string): Promise<void> {
+  async deleteTag(tagId: string): Promise<void> {
     await this.storageService.delete(
       this.getTagKey(tagId)
     );

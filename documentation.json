@@ -43,10 +43,10 @@
         },
         {
             "name": "StructureTemplateListView",
-            "id": "interface-StructureTemplateListView-ceffbf772baafe07a19d6b67e166f18f",
+            "id": "interface-StructureTemplateListView-009d42ca66eabd0bb314d7efa3c5cca0",
             "file": "src/app/structure-template.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here'\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here',\n      beats: [\n        StructureTemplateBeat.create({\n          description: 'This is the first beat',\n          intendedDurationMs: 5\n        })\n      ]\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
             "properties": [
                 {
                     "name": "id",
@@ -69,24 +69,50 @@
         },
         {
             "name": "StructureTemplateUpdate",
-            "id": "interface-StructureTemplateUpdate-32c74996a38c03447e142968054f4ba2",
+            "id": "interface-StructureTemplateUpdate-e4468775d5907217b944e128e8d7b11b",
             "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
             "type": "interface",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\nconst NAME_FIELD_PREFIX = '== Name ==';\nconst DESC_FIELD_PREFIX = '== Description ==';\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      {\n        insert: NAME_FIELD_PREFIX + '\\n',\n        attributes: {\n          bold: true\n        },\n      }\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push({\n      insert: '\\n' + DESC_FIELD_PREFIX + '\\n',\n      attributes: {\n        bold: true\n      },\n    });\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    // split up based on field names\n    const rx = RegExp('==([^=]+)==\\n([^=]+)\\n', 'gm');\n\n    const fieldMap: Map<string, string> = new Map();\n\n    let match;\n    // tslint:disable-next-line:no-conditional-assignment\n    while ((match = rx.exec(newContent)) !== null) {\n      const key = match[1].trim();\n      const value = match[2];\n      fieldMap.set(key, value);\n    }\n\n    if (!fieldMap.has('Name')) {\n      this.errorMessage = 'Missing \"Name\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    if (!fieldMap.has('Description')) {\n      this.errorMessage = 'Missing \"Description\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name')?.trim(),\n      description: fieldMap.get('Description')?.trim()\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.errorMessage = '';\n    this.ref.markForCheck();\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one?.name !== two?.name) {\n      return false;\n    }\n\n    if (one?.id !== two?.id) {\n      return false;\n    }\n\n    if (one?.description !== two?.description) {\n      return false;\n    }\n\n    return true;\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      getQuillHeader('Name')\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push(\n      getQuillHeader('Description')\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push(\n      getQuillHeader('Beats')\n    );\n\n    if (!!this.structureTemplate?.beats) {\n      const beats = this.structureTemplate.beats;\n      for (let i = 0; i < beats.length; i++) {\n\n        this.quillContent.push(\n          getQuillSubHeader('Description')\n        );\n\n        this.quillContent.push({\n          insert: beats[i].description + '\\n',\n          attributes: {},\n        });\n\n        this.quillContent.push(\n          getQuillSubHeader('Duration')\n        );\n\n        this.quillContent.push({\n          insert: beats[i].intendedDurationMs + '\\n',\n          attributes: {},\n        });\n\n        if (i + 1 < beats.length) {\n          this.quillContent.push(\n            getQuillSeparator()\n          );\n        }\n      }\n    }\n    this.ref.markForCheck();\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    const fieldMap = parseFields(newContent, false);\n\n    let parsedBeats: Map<string, string>[] = [];\n    if (fieldMap.has('Beats')) {\n      parsedBeats = splitRepeatedFields(fieldMap.get('Beats') || '')\n        .map((beatText) => {\n        return parseFields(beatText, true);\n      }).filter(Boolean);\n    }\n\n    this.errorMessage = this.getErrorMessage(fieldMap, parsedBeats);\n    if (this.errorMessage !== '') {\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name'),\n      description: fieldMap.get('Description'),\n      beats: parsedBeats.map((beatMap) => {\n        return StructureTemplateBeat.create({\n          description: beatMap.get('Description'),\n          intendedDurationMs: parseInt(beatMap.get('Duration') || '', 10)\n        });\n      })\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.ref.markForCheck();\n  }\n\n  getErrorMessage(fieldMap: Map<string, string>, parsedBeats: Map<string, string>[]): string {\n    if (!fieldMap.has('Name')) {\n      return 'Missing \"Name\" field';\n    }\n\n    if (fieldMap.get('Name')?.trim().length === 0) {\n      return '\"Name\" cannot be empty';\n    }\n\n    if (!fieldMap.has('Description')) {\n      return 'Missing \"Description\" field';\n    }\n\n    for (const beat of parsedBeats) {\n      if (!beat.has('Description')) {\n        return 'Beat missing \"Description\" field';\n      }\n\n      if (!beat.has('Duration')) {\n        return 'Beat missing \"Duration\" field';\n      }\n\n      if (! parseInt(beat.get('Duration')?.trim() || '', 10)) {\n        return 'Cannot parse \"Duration\" value to integer';\n      }\n    }\n\n    return '';\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one == null && two == null) {\n      return true;\n    }\n\n    if (one == null || two == null) {\n      return false;\n    }\n\n    if (one.name !== two.name) {\n      return false;\n    }\n\n    if (one.id !== two.id) {\n      return false;\n    }\n\n    if (one.description !== two.description) {\n      return false;\n    }\n\n    if (one.beats.length !== two.beats.length) {\n      return false;\n    }\n\n    const beatsLength = one.beats.length;\n    for (let i = 0; i < beatsLength; i++) {\n      if (one.beats[i].description !== two.beats[i].description) {\n        return false;\n      }\n      if (one.beats[i].intendedDurationMs !== two.beats[i].intendedDurationMs) {\n        return false;\n      }\n    }\n\n    return true;\n  }\n\n  repair(): void {\n    this.refreshQuillContent();\n  }\n\n  addBeat(): void {\n    this.structureTemplate?.beats.push(\n      StructureTemplateBeat.create({\n        description: 'My new beat',\n        intendedDurationMs: 12\n      })\n    );\n\n    this.templateUpdated.emit({\n      structureTemplate: this.structureTemplate,\n      modifiesListView: false\n    } as StructureTemplateUpdate);\n    this.refreshQuillContent();\n  }\n}\n\nfunction parseFields(raw: string, isSubfields: boolean): Map<string, string> {\n  const regexStr = isSubfields\n    ? '--([^-]+)--\\n([^-]+)'\n    : '==([^=]+)==\\n([^=]+)';\n\n  const rx = RegExp(regexStr, 'gm');\n\n  const fieldMap: Map<string, string> = new Map();\n\n  let match;\n  // tslint:disable-next-line:no-conditional-assignment\n  while ((match = rx.exec(raw)) !== null) {\n    const key = match[1].trim();\n    const value = match[2].trim();\n    fieldMap.set(key, value);\n  }\n\n  return fieldMap;\n}\n\nfunction splitRepeatedFields(raw: string): string[] {\n  return raw.split(/\\n[-]+--\\n/);\n}\n\nfunction getQuillHeader(headerName: string): DeltaOperation {\n  return {\n    insert: '\\n== ' + headerName + ' ==\\n',\n    attributes: {\n      bold: true\n    }\n  };\n}\n\nfunction getQuillSubHeader(headerName: string): DeltaOperation {\n  return {\n    insert: '\\n-- ' + headerName + ' --\\n',\n    attributes: {\n      italic: true\n    }\n  };\n}\n\nfunction getQuillSeparator(): DeltaOperation {\n  return {\n    insert: '\\n' + '-'.repeat(20) + '\\n',\n    attributes: {\n      italic: true\n    }\n  };\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 8
+                    "line": 9
                 },
                 {
                     "name": "structureTemplate",
                     "type": "StructureTemplate",
                     "optional": false,
                     "description": "",
-                    "line": 7
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "TagListView",
+            "id": "interface-TagListView-59a5d2a99c6a823b2a3c0382890df6ac",
+            "file": "src/app/tag.service.ts",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTemplate: Tag) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTemplate(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
                 }
             ],
             "indexSignatures": [],
@@ -97,7 +123,7 @@
     "injectables": [
         {
             "name": "MonolithicDataService",
-            "id": "injectable-MonolithicDataService-1a03ab28361de0d49f24c76c87cfdca0",
+            "id": "injectable-MonolithicDataService-d2ba9c346b6af05f71604c031df5b5c2",
             "file": "src/app/monolithic-data.service.ts",
             "properties": [],
             "methods": [
@@ -112,7 +138,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 66,
                     "jsdoctags": [
                         {
                             "name": "subscriptionId",
@@ -129,7 +155,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 66,
+                    "line": 70,
                     "modifierKind": [
                         120
                     ]
@@ -140,7 +166,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 51,
+                    "line": 55,
                     "modifierKind": [
                         120
                     ]
@@ -156,7 +182,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 29,
+                    "line": 31,
                     "modifierKind": [
                         120
                     ],
@@ -181,7 +207,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 21,
+                    "line": 23,
                     "modifierKind": [
                         120
                     ],
@@ -201,7 +227,7 @@
                     "optional": false,
                     "returnType": "Promise<WritingWorkspace>",
                     "typeParameters": [],
-                    "line": 37,
+                    "line": 40,
                     "modifierKind": [
                         120
                     ]
@@ -217,7 +243,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 47,
+                    "line": 51,
                     "modifierKind": [
                         120
                     ],
@@ -248,7 +274,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 56,
+                    "line": 60,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -267,7 +293,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\nimport {TagService} from './tag.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService,\n              private tagService: TagService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n    await this.tagService.setAllTags(workspace.tags || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n    workspace.tags = await this.tagService.getAllTags();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -283,9 +309,13 @@
                     {
                         "name": "structureTemplateService",
                         "type": "StructureTemplateService"
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService"
                     }
                 ],
-                "line": 15,
+                "line": 16,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -304,6 +334,13 @@
                     {
                         "name": "structureTemplateService",
                         "type": "StructureTemplateService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService",
                         "tagName": {
                             "text": "param"
                         }
@@ -581,7 +618,7 @@
         },
         {
             "name": "StructureTemplateService",
-            "id": "injectable-StructureTemplateService-ceffbf772baafe07a19d6b67e166f18f",
+            "id": "injectable-StructureTemplateService-009d42ca66eabd0bb314d7efa3c5cca0",
             "file": "src/app/structure-template.service.ts",
             "properties": [],
             "methods": [
@@ -892,7 +929,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport {zip} from 'rxjs';\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here'\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {IStructureTemplate, StructureTemplate} from '../protos';\nimport {StorageService} from './storage.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\n\n// Minimal details about a template to show in list view\nexport interface StructureTemplateListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY = 'allStructureTemplatesListView';\nconst STRUCTURE_TEMPLATE_KEY_PREFIX = 'structureTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StructureTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllStructureTemplates(): Promise<StructureTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: StructureTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getStructureTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<StructureTemplateListView[]> {\n    return (await this.storageService.get(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY) || []) as StructureTemplateListView[];\n  }\n\n  async setAllTemplatesListView(structureTemplates: IStructureTemplate[]): Promise<void> {\n    const listView = structureTemplates.map((structureTemplate: IStructureTemplate) => {\n      return {\n        id: structureTemplate.id,\n        name: structureTemplate.name,\n      } as StructureTemplateListView;\n    });\n\n    await this.storageService.set(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: StructureTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as StructureTemplateListView[]);\n    });\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return StructureTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllStructureTemplates(structureTemplates: IStructureTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(structureTemplates);\n\n    for (const structureTemplate of structureTemplates) {\n      await this.setStructureTemplate(structureTemplate as StructureTemplate);\n    }\n  }\n\n  async setStructureTemplate(structureTemplate: StructureTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(structureTemplate.id),\n      StructureTemplate.encode(structureTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: StructureTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        StructureTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllStructureTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId)\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((structureTemplate) => {\n        return structureTemplate.id !== templateId;\n    });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewStructureTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: uuid,\n      name: 'My new template',\n      description: 'Description goes here',\n      beats: [\n        StructureTemplateBeat.create({\n          description: 'This is the first beat',\n          intendedDurationMs: 5\n        })\n      ]\n    });\n\n    await this.setStructureTemplate(newStructureTemplate);\n\n    const allStructureTemplates = await this.getAllStructureTemplates();\n    allStructureTemplates.push(newStructureTemplate);\n\n    await this.setAllTemplatesListView(allStructureTemplates);\n\n    return uuid;\n  }\n\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -903,6 +940,342 @@
                     }
                 ],
                 "line": 19,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
+            "name": "TagService",
+            "id": "injectable-TagService-59a5d2a99c6a823b2a3c0382890df6ac",
+            "file": "src/app/tag.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "cancelSubscription",
+                    "args": [
+                        {
+                            "name": "subscription",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 89,
+                    "jsdoctags": [
+                        {
+                            "name": "subscription",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "createNewTag",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<string>",
+                    "typeParameters": [],
+                    "line": 133,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "deleteTemplate",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 76,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getAllTags",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<Tag[]>",
+                    "typeParameters": [],
+                    "line": 22,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getAllTagsListView",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<TagListView[]>",
+                    "typeParameters": [],
+                    "line": 39,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getTag",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<Tag | null>",
+                    "typeParameters": [],
+                    "line": 47,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getTagKey",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 43,
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "refreshAllTagsListView",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 104,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "setAllTags",
+                    "args": [
+                        {
+                            "name": "tags",
+                            "type": "ITag[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 112,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tags",
+                            "type": "ITag[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setAllTagsListView",
+                    "args": [
+                        {
+                            "name": "tags",
+                            "type": "ITag[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 93,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tags",
+                            "type": "ITag[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setTag",
+                    "args": [
+                        {
+                            "name": "tag",
+                            "type": "Tag"
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 120,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tag",
+                            "type": "Tag",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToTag",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "Tag"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 66,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "Tag"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToTagListView",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTagListView",
+                                    "type": "TagListView[]"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 60,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTagListView",
+                                    "type": "TagListView[]"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTemplate: Tag) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTemplate(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    }
+                ],
+                "line": 18,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -1175,7 +1548,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "\n.header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  .timer {\n    flex: 1;\n    margin: auto;\n  }\n\n  a {\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n}\n",
+                    "data": "\n:host {\n  display: flex;\n  flex-flow: column;\n  height: 100%;\n}\n\n.header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  .timer {\n    flex: 1;\n    margin: auto;\n  }\n\n  a {\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n  flex: 1;\n}\n",
                     "styleUrl": "./app.component.scss"
                 }
             ],
@@ -1308,7 +1681,7 @@
         },
         {
             "name": "ImportExportPageComponent",
-            "id": "component-ImportExportPageComponent-ae1cc46ad19a7437f943d9260bfe4c0c",
+            "id": "component-ImportExportPageComponent-a934dae70057f75d3f026bdf250852ec",
             "file": "src/app/import-export-page/import-export-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1346,6 +1719,17 @@
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "newWorkspace",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 45,
+                    "modifierKind": [
+                        120
+                    ]
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
@@ -1396,7 +1780,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport fileDownload from 'js-file-download';\nimport {WritingWorkspace} from '../../protos';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n  uploadedTextData = 'Not uploaded yet';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  async onDownloadClick(): Promise<void> {\n    const workspace = await this.monolithicDataService.saveWorkspace();\n    const filename = workspace.name + '.write';\n\n    fileDownload(\n      new Blob([WritingWorkspace.encode(workspace).finish()]),\n      filename\n    );\n  }\n\n  async onUpload(event: any): Promise<void> {\n    const file: File = event.target.files[0];\n\n    const fileData = await file.arrayBuffer();\n    const workspace = WritingWorkspace.decode(new Uint8Array(fileData));\n\n    this.uploadedTextData = workspace.name;\n\n    await this.monolithicDataService.loadWorkspace(workspace);\n\n    this.ref.markForCheck();\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport fileDownload from 'js-file-download';\nimport {WritingWorkspace} from '../../protos';\n\n// Page component for the \"Import/Export\" page\n@Component({\n  selector: 'app-import-export-page',\n  templateUrl: './import-export-page.component.html',\n  styleUrls: ['./import-export-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ImportExportPageComponent implements OnInit {\n  fetchedValue = 'Not yet fetched';\n  uploadedTextData = 'Not uploaded yet';\n\n  constructor(private monolithicDataService: MonolithicDataService, private ref: ChangeDetectorRef) {}\n\n  ngOnInit(): void {\n  }\n\n  async onDownloadClick(): Promise<void> {\n    const workspace = await this.monolithicDataService.saveWorkspace();\n    const filename = workspace.name + '.write';\n\n    fileDownload(\n      new Blob([WritingWorkspace.encode(workspace).finish()]),\n      filename\n    );\n  }\n\n  async onUpload(event: any): Promise<void> {\n    const file: File = event.target.files[0];\n\n    const fileData = await file.arrayBuffer();\n    const workspace = WritingWorkspace.decode(new Uint8Array(fileData));\n\n    this.uploadedTextData = workspace.name;\n\n    await this.monolithicDataService.loadWorkspace(workspace);\n\n    this.ref.markForCheck();\n  }\n\n  async newWorkspace(): Promise<void> {\n    const newWorkspaceName = prompt('What\\'s the new workspace name?');\n\n    if (!newWorkspaceName) {\n      return;\n    }\n\n    await this.monolithicDataService.newWorkspace(newWorkspaceName);\n\n    this.ref.markForCheck();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -1439,11 +1823,11 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<div class=\"upload-download\">\n  <button mat-button (click)=\"onDownloadClick()\">\n    Download\n  </button>\n  <button mat-button (click)=\"uploadFile.click()\">\n    Upload\n  </button>\n  <input\n    hidden\n    type=\"file\"\n    #uploadFile\n    accept=\".write\"\n    (change)=\"onUpload($event)\">\n</div>\n\n\n"
+            "templateData": "<h1>Import / Export</h1>\n\n<p>\n  The goal of this page is to support importing / exporting story data.\n</p>\n\n<div class=\"upload-download\">\n  <button mat-button (click)=\"onDownloadClick()\">\n    Download\n  </button>\n  <button mat-button (click)=\"uploadFile.click()\">\n    Upload\n  </button>\n  <input\n    hidden\n    type=\"file\"\n    #uploadFile\n    accept=\".write\"\n    (change)=\"onUpload($event)\">\n  <button mat-button (click)=\"newWorkspace()\">New Workspace</button>\n</div>\n\n\n"
         },
         {
             "name": "LandingPageComponent",
-            "id": "component-LandingPageComponent-7898825f4763e88069b22fa8756024c0",
+            "id": "component-LandingPageComponent-c3d4ca7ff99a29cc8c2950a2fa1b32cc",
             "file": "src/app/landing-page/landing-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1469,7 +1853,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 12
                 },
                 {
                     "name": "workspaceNameSubscription",
@@ -1477,28 +1861,17 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 14
+                    "line": 13
                 }
             ],
             "methodsClass": [
-                {
-                    "name": "newWorkspace",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "Promise<void>",
-                    "typeParameters": [],
-                    "line": 32,
-                    "modifierKind": [
-                        120
-                    ]
-                },
                 {
                     "name": "ngOnDestroy",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 28
+                    "line": 27
                 },
                 {
                     "name": "ngOnInit",
@@ -1506,7 +1879,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 21,
+                    "line": 20,
                     "modifierKind": [
                         120
                     ]
@@ -1517,11 +1890,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport {WritingWorkspaceMetadata} from '../../protos';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n\n  async newWorkspace(): Promise<void> {\n    const newWorkspaceName = prompt('What\\'s the new workspace name?');\n\n    if (!newWorkspaceName) {\n      return;\n    }\n\n    await this.monolithicDataService.newWorkspace(newWorkspaceName);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".link-list a {\n  display: block;\n}\n",
                     "styleUrl": "./landing-page.component.scss"
                 }
             ],
@@ -1539,7 +1912,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 14,
+                "line": 13,
                 "jsdoctags": [
                     {
                         "name": "monolithicDataService",
@@ -1561,7 +1934,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <a routerLink=\"structure-templates\">Structure Templates</a>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n<button mat-button (click)=\"newWorkspace()\">New Workspace</button>\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ShowSessionHistoryComponent",
@@ -1689,7 +2062,7 @@
         },
         {
             "name": "StructureTemplateDetailsComponent",
-            "id": "component-StructureTemplateDetailsComponent-32c74996a38c03447e142968054f4ba2",
+            "id": "component-StructureTemplateDetailsComponent-e4468775d5907217b944e128e8d7b11b",
             "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1710,7 +2083,7 @@
                 {
                     "name": "structureTemplate",
                     "defaultValue": "null",
-                    "line": 22,
+                    "line": 20,
                     "type": "StructureTemplate | null"
                 }
             ],
@@ -1718,7 +2091,7 @@
                 {
                     "name": "templateUpdated",
                     "defaultValue": "new EventEmitter<StructureTemplateUpdate>()",
-                    "line": 24,
+                    "line": 22,
                     "type": "EventEmitter"
                 }
             ],
@@ -1729,7 +2102,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 27
+                    "line": 25
                 },
                 {
                     "name": "lastStructureTemplateInput",
@@ -1737,7 +2110,7 @@
                     "type": "StructureTemplate | null",
                     "optional": false,
                     "description": "",
-                    "line": 28
+                    "line": 26
                 },
                 {
                     "name": "quillContent",
@@ -1745,10 +2118,18 @@
                     "type": "DeltaOperation[]",
                     "optional": false,
                     "description": "",
-                    "line": 26
+                    "line": 24
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "addBeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 222
+                },
                 {
                     "name": "areStructureTemplatesEqual",
                     "args": [
@@ -1764,7 +2145,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 129,
+                    "line": 180,
                     "jsdoctags": [
                         {
                             "name": "one",
@@ -1783,12 +2164,45 @@
                     ]
                 },
                 {
+                    "name": "getErrorMessage",
+                    "args": [
+                        {
+                            "name": "fieldMap",
+                            "type": "Map<string | string>"
+                        },
+                        {
+                            "name": "parsedBeats",
+                            "type": "Map<string, string>[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 150,
+                    "jsdoctags": [
+                        {
+                            "name": "fieldMap",
+                            "type": "Map<string | string>",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "parsedBeats",
+                            "type": "Map<string, string>[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "isEmpty",
                     "args": [],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 72
+                    "line": 97
                 },
                 {
                     "name": "ngOnChanges",
@@ -1796,7 +2210,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 32
+                    "line": 30
                 },
                 {
                     "name": "onContentChanged",
@@ -1809,7 +2223,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 76,
+                    "line": 101,
                     "jsdoctags": [
                         {
                             "name": "contentChangeEvent",
@@ -1831,7 +2245,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 80,
+                    "line": 105,
                     "jsdoctags": [
                         {
                             "name": "newContent",
@@ -1848,7 +2262,15 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 42
+                    "line": 40
+                },
+                {
+                    "name": "repair",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 218
                 }
             ],
             "hostBindings": [],
@@ -1856,11 +2278,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\nconst NAME_FIELD_PREFIX = '== Name ==';\nconst DESC_FIELD_PREFIX = '== Description ==';\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      {\n        insert: NAME_FIELD_PREFIX + '\\n',\n        attributes: {\n          bold: true\n        },\n      }\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push({\n      insert: '\\n' + DESC_FIELD_PREFIX + '\\n',\n      attributes: {\n        bold: true\n      },\n    });\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    // split up based on field names\n    const rx = RegExp('==([^=]+)==\\n([^=]+)\\n', 'gm');\n\n    const fieldMap: Map<string, string> = new Map();\n\n    let match;\n    // tslint:disable-next-line:no-conditional-assignment\n    while ((match = rx.exec(newContent)) !== null) {\n      const key = match[1].trim();\n      const value = match[2];\n      fieldMap.set(key, value);\n    }\n\n    if (!fieldMap.has('Name')) {\n      this.errorMessage = 'Missing \"Name\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    if (!fieldMap.has('Description')) {\n      this.errorMessage = 'Missing \"Description\" field';\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name')?.trim(),\n      description: fieldMap.get('Description')?.trim()\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.errorMessage = '';\n    this.ref.markForCheck();\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one?.name !== two?.name) {\n      return false;\n    }\n\n    if (one?.id !== two?.id) {\n      return false;\n    }\n\n    if (one?.description !== two?.description) {\n      return false;\n    }\n\n    return true;\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';\nimport {StructureTemplate} from '../../../protos';\nimport {ContentChange} from 'ngx-quill/lib/quill-editor.component';\nimport {DeltaOperation} from 'quill';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\n\nexport interface StructureTemplateUpdate {\n  structureTemplate: StructureTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-structure-template-details',\n  templateUrl: './structure-template-details.component.html',\n  styleUrls: ['./structure-template-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateDetailsComponent implements OnChanges {\n  @Input()\n  structureTemplate: StructureTemplate|null = null;\n\n  @Output() templateUpdated = new EventEmitter<StructureTemplateUpdate>();\n\n  quillContent: DeltaOperation[] = [];\n  errorMessage = '';\n  lastStructureTemplateInput: StructureTemplate|null = null;\n\n  constructor(private ref: ChangeDetectorRef) {}\n\n  ngOnChanges(): void {\n    if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {\n      // No reason to update\n      return;\n    }\n\n    this.lastStructureTemplateInput = this.structureTemplate;\n    this.refreshQuillContent();\n  }\n\n  refreshQuillContent(): void {\n    this.quillContent = [];\n\n    this.quillContent.push(\n      getQuillHeader('Name')\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.name + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push(\n      getQuillHeader('Description')\n    );\n\n    this.quillContent.push({\n      insert: this.structureTemplate?.description + '\\n',\n      attributes: {},\n    });\n\n    this.quillContent.push(\n      getQuillHeader('Beats')\n    );\n\n    if (!!this.structureTemplate?.beats) {\n      const beats = this.structureTemplate.beats;\n      for (let i = 0; i < beats.length; i++) {\n\n        this.quillContent.push(\n          getQuillSubHeader('Description')\n        );\n\n        this.quillContent.push({\n          insert: beats[i].description + '\\n',\n          attributes: {},\n        });\n\n        this.quillContent.push(\n          getQuillSubHeader('Duration')\n        );\n\n        this.quillContent.push({\n          insert: beats[i].intendedDurationMs + '\\n',\n          attributes: {},\n        });\n\n        if (i + 1 < beats.length) {\n          this.quillContent.push(\n            getQuillSeparator()\n          );\n        }\n      }\n    }\n    this.ref.markForCheck();\n  }\n\n  isEmpty(): boolean {\n    return this.structureTemplate == null;\n  }\n\n  onContentChanged(contentChangeEvent: ContentChange): void {\n    this.parseContent(contentChangeEvent.text + '\\n');\n  }\n\n  parseContent(newContent: string): void {\n\n    const fieldMap = parseFields(newContent, false);\n\n    let parsedBeats: Map<string, string>[] = [];\n    if (fieldMap.has('Beats')) {\n      parsedBeats = splitRepeatedFields(fieldMap.get('Beats') || '')\n        .map((beatText) => {\n        return parseFields(beatText, true);\n      }).filter(Boolean);\n    }\n\n    this.errorMessage = this.getErrorMessage(fieldMap, parsedBeats);\n    if (this.errorMessage !== '') {\n      this.ref.markForCheck();\n      return;\n    }\n\n    const newStructureTemplate = StructureTemplate.create({\n      id: this.structureTemplate?.id,\n      name: fieldMap.get('Name'),\n      description: fieldMap.get('Description'),\n      beats: parsedBeats.map((beatMap) => {\n        return StructureTemplateBeat.create({\n          description: beatMap.get('Description'),\n          intendedDurationMs: parseInt(beatMap.get('Duration') || '', 10)\n        });\n      })\n    });\n\n    if (this.areStructureTemplatesEqual(newStructureTemplate, this.structureTemplate)) {\n      // No meaningful difference\n      return;\n    }\n\n    this.lastStructureTemplateInput = newStructureTemplate;\n\n    this.templateUpdated.emit({\n      structureTemplate: newStructureTemplate,\n      modifiesListView: newStructureTemplate.name !== this.structureTemplate?.name\n    } as StructureTemplateUpdate);\n\n    this.ref.markForCheck();\n  }\n\n  getErrorMessage(fieldMap: Map<string, string>, parsedBeats: Map<string, string>[]): string {\n    if (!fieldMap.has('Name')) {\n      return 'Missing \"Name\" field';\n    }\n\n    if (fieldMap.get('Name')?.trim().length === 0) {\n      return '\"Name\" cannot be empty';\n    }\n\n    if (!fieldMap.has('Description')) {\n      return 'Missing \"Description\" field';\n    }\n\n    for (const beat of parsedBeats) {\n      if (!beat.has('Description')) {\n        return 'Beat missing \"Description\" field';\n      }\n\n      if (!beat.has('Duration')) {\n        return 'Beat missing \"Duration\" field';\n      }\n\n      if (! parseInt(beat.get('Duration')?.trim() || '', 10)) {\n        return 'Cannot parse \"Duration\" value to integer';\n      }\n    }\n\n    return '';\n  }\n\n  areStructureTemplatesEqual(one: StructureTemplate|null, two: StructureTemplate|null): boolean {\n    if (one == null && two == null) {\n      return true;\n    }\n\n    if (one == null || two == null) {\n      return false;\n    }\n\n    if (one.name !== two.name) {\n      return false;\n    }\n\n    if (one.id !== two.id) {\n      return false;\n    }\n\n    if (one.description !== two.description) {\n      return false;\n    }\n\n    if (one.beats.length !== two.beats.length) {\n      return false;\n    }\n\n    const beatsLength = one.beats.length;\n    for (let i = 0; i < beatsLength; i++) {\n      if (one.beats[i].description !== two.beats[i].description) {\n        return false;\n      }\n      if (one.beats[i].intendedDurationMs !== two.beats[i].intendedDurationMs) {\n        return false;\n      }\n    }\n\n    return true;\n  }\n\n  repair(): void {\n    this.refreshQuillContent();\n  }\n\n  addBeat(): void {\n    this.structureTemplate?.beats.push(\n      StructureTemplateBeat.create({\n        description: 'My new beat',\n        intendedDurationMs: 12\n      })\n    );\n\n    this.templateUpdated.emit({\n      structureTemplate: this.structureTemplate,\n      modifiesListView: false\n    } as StructureTemplateUpdate);\n    this.refreshQuillContent();\n  }\n}\n\nfunction parseFields(raw: string, isSubfields: boolean): Map<string, string> {\n  const regexStr = isSubfields\n    ? '--([^-]+)--\\n([^-]+)'\n    : '==([^=]+)==\\n([^=]+)';\n\n  const rx = RegExp(regexStr, 'gm');\n\n  const fieldMap: Map<string, string> = new Map();\n\n  let match;\n  // tslint:disable-next-line:no-conditional-assignment\n  while ((match = rx.exec(raw)) !== null) {\n    const key = match[1].trim();\n    const value = match[2].trim();\n    fieldMap.set(key, value);\n  }\n\n  return fieldMap;\n}\n\nfunction splitRepeatedFields(raw: string): string[] {\n  return raw.split(/\\n[-]+--\\n/);\n}\n\nfunction getQuillHeader(headerName: string): DeltaOperation {\n  return {\n    insert: '\\n== ' + headerName + ' ==\\n',\n    attributes: {\n      bold: true\n    }\n  };\n}\n\nfunction getQuillSubHeader(headerName: string): DeltaOperation {\n  return {\n    insert: '\\n-- ' + headerName + ' --\\n',\n    attributes: {\n      italic: true\n    }\n  };\n}\n\nfunction getQuillSeparator(): DeltaOperation {\n  return {\n    insert: '\\n' + '-'.repeat(20) + '\\n',\n    attributes: {\n      italic: true\n    }\n  };\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "form {\n  width: 300px;\n}\n\n.full-width {\n  width: 100%;\n}\n",
+                    "data": "\n.ql-toolbar {\n  .toolbar-button {\n    padding: 0;\n  }\n\n  .toolbar-msg {\n    line-height: 24px;\n    margin-left: 24px;\n  }\n}\n",
                     "styleUrl": "./structure-template-details.component.scss"
                 }
             ],
@@ -1874,7 +2296,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 28,
+                "line": 26,
                 "jsdoctags": [
                     {
                         "name": "ref",
@@ -1888,7 +2310,7 @@
             "implements": [
                 "OnChanges"
             ],
-            "templateData": "<h3 *ngIf=\"isEmpty()\">no structure template selected</h3>\n\n<quill-editor\n  *ngIf=\"!isEmpty()\"\n  [ngModel]=\"quillContent\"\n  format=\"object\"\n  (onContentChanged)=\"onContentChanged($event)\"\n>\n  <div quill-editor-toolbar>\n    <span>\n      {{errorMessage}}\n      &nbsp;\n    </span>\n  </div>\n</quill-editor>\n"
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no structure template selected</h3>\n\n<quill-editor\n  *ngIf=\"!isEmpty()\"\n  [ngModel]=\"quillContent\"\n  format=\"object\"\n  (onContentChanged)=\"onContentChanged($event)\"\n>\n  <div quill-editor-toolbar>\n    <button\n            class=\"toolbar-button\"\n            (click)=\"addBeat()\">\n      <mat-icon>note_add</mat-icon>\n    </button>\n    <button\n      class=\"toolbar-button\"\n      (click)=\"repair()\">\n      <mat-icon>restore</mat-icon>\n    </button>\n    <span class=\"toolbar-msg\">\n      {{errorMessage}}\n      &nbsp;\n    </span>\n  </div>\n</quill-editor>\n"
         },
         {
             "name": "StructureTemplateNavComponent",
@@ -1975,7 +2397,7 @@
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      <mat-icon\n        *ngIf=\"structureTemplate.id === selectedTemplateId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
         },
         {
             "name": "StructureTemplatePageComponent",
@@ -2139,7 +2561,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "\n.page {\n  display: flex;\n}\n\n.details {\n  flex: 1;\n}\n",
+                    "data": "\n.page {\n  height: 100%;\n  display: flex;\n}\n\n.details {\n  flex: 1;\n  padding-bottom: 48px;\n}\n",
                     "styleUrl": "./structure-template-page.component.scss"
                 }
             ],
@@ -2179,7 +2601,229 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [canDelete]=\"selectedTemplateUuid != ''\"\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\">\n  </app-structure-template-nav>\n  <app-structure-template-details\n    class=\"details\"\n    [structureTemplate]=\"selectedTemplate\"\n    (templateUpdated)=\"onTemplateChanges($event)\">\n  </app-structure-template-details>\n</div>\n"
+            "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [selectedTemplateId]=\"selectedTemplateUuid\"\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\">\n  </app-structure-template-nav>\n  <app-structure-template-details\n    class=\"details\"\n    [structureTemplate]=\"selectedTemplate\"\n    (templateUpdated)=\"onTemplateChanges($event)\">\n  </app-structure-template-details>\n</div>\n"
+        },
+        {
+            "name": "TagNavComponent",
+            "id": "component-TagNavComponent-5e7756043bf3af7e1cae3105ac124ebe",
+            "file": "src/app/tag-page/tag-nav/tag-nav.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-tag-nav",
+            "styleUrls": [
+                "./tag-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./tag-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "selectedTagId",
+                    "defaultValue": "''",
+                    "line": 12
+                },
+                {
+                    "name": "tagListView",
+                    "defaultValue": "[]",
+                    "line": 15,
+                    "type": "TagListView[]"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "deleteTag",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "newTag",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 17,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "selectTag",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 19,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "canDelete",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 32
+                },
+                {
+                    "name": "createNewTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 28
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {TagListView} from '../../tag.service';\n\n@Component({\n  selector: 'app-tag-nav',\n  templateUrl: './tag-nav.component.html',\n  styleUrls: ['./tag-nav.component.scss']\n})\nexport class TagNavComponent implements OnInit {\n\n  @Input()\n  selectedTagId = '';\n\n  @Input()\n  tagListView: TagListView[] = [];\n\n  @Output() newTag = new EventEmitter<void>();\n\n  @Output() selectTag = new EventEmitter<string>();\n\n  @Output() deleteTag = new EventEmitter<void>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  createNewTemplate(): void {\n    this.newTag.emit();\n  }\n\n  canDelete(): boolean {\n    return this.selectedTagId.length > 0;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".left-rail {\n  width: 200px;\n}\n",
+                    "styleUrl": "./tag-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 21
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTag.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let tag of tagListView\"\n      mat-list-item\n      (click)=\"selectTag.emit(tag.id)\">\n      <mat-icon\n        *ngIf=\"tag.id === selectedTagId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      {{tag.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
+        },
+        {
+            "name": "TagPageComponent",
+            "id": "component-TagPageComponent-e5ceae0deab486f11b6953333dd513e7",
+            "file": "src/app/tag-page/tag-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-tag-page",
+            "styleUrls": [
+                "./tag-page.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./tag-page.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "tagListView",
+                    "defaultValue": "[]",
+                    "type": "TagListView[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                },
+                {
+                    "name": "tagListViewSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "newTag",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 28,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "ngOnDestroy",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 24
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 17
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {TagListView, TagService} from '../tag.service';\n\n@Component({\n  selector: 'app-tag-page',\n  templateUrl: './tag-page.component.html',\n  styleUrls: ['./tag-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagPageComponent implements OnInit, OnDestroy {\n\n  tagListView: TagListView[] = [];\n  tagListViewSubscription = '';\n\n  constructor(private tagService: TagService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.tagListViewSubscription = this.tagService.subscribeToTagListView((newValue) => {\n      this.tagListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.tagService.cancelSubscription(this.tagListViewSubscription);\n  }\n\n  async newTag(): Promise<void> {\n    const newUuid = await this.tagService.createNewTag();\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./tag-page.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "tagService",
+                        "type": "TagService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 13,
+                "jsdoctags": [
+                    {
+                        "name": "tagService",
+                        "type": "TagService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit",
+                "OnDestroy"
+            ],
+            "templateData": "\n<button (click)=\"newTag()\">Add tag</button>\n\n<p>{{tagListView.length}} tags:</p>\n<div *ngFor=\"let tag of tagListView\">\n  {{tag.id}}\n</div>\n"
         }
     ],
     "modules": [
@@ -2216,6 +2860,12 @@
                         },
                         {
                             "name": "StructureTemplatePageComponent"
+                        },
+                        {
+                            "name": "TagNavComponent"
+                        },
+                        {
+                            "name": "TagPageComponent"
                         }
                     ]
                 },
@@ -2286,6 +2936,14 @@
                 "defaultValue": "'allStructureTemplatesListView'"
             },
             {
+                "name": "ALL_TAG_LIST_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag.service.ts",
+                "type": "string",
+                "defaultValue": "'allTagList'"
+            },
+            {
                 "name": "context",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2318,14 +2976,6 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "DESC_FIELD_PREFIX",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                "type": "string",
-                "defaultValue": "'== Description =='"
-            },
-            {
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2338,6 +2988,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2366,6 +3024,14 @@
                 "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
             },
             {
+                "name": "exampleTagListView",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first tag'\n  } as TagListView,\n  {\n    id: 'def-456',\n    name: 'My second tag'\n  } as TagListView\n]"
+            },
+            {
                 "name": "FullExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2382,10 +3048,26 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "FullExampleNothingSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2420,14 +3102,6 @@
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
-            },
-            {
-                "name": "NAME_FIELD_PREFIX",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                "type": "string",
-                "defaultValue": "'== Name =='"
             },
             {
                 "name": "POLL_FREQUENCY",
@@ -2469,6 +3143,14 @@
                 "defaultValue": "'structureTemplate-'"
             },
             {
+                "name": "TAG_KEY_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag.service.ts",
+                "type": "string",
+                "defaultValue": "'tag-'"
+            },
+            {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2499,6 +3181,14 @@
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "Story<StructureTemplateNavComponent>",
                 "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "Story<TagNavComponent>",
+                "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -2542,6 +3232,57 @@
                     },
                     {
                         "name": "end",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "getQuillHeader",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "headerName"
+                    }
+                ],
+                "returnType": "DeltaOperation",
+                "jsdoctags": [
+                    {
+                        "name": "headerName",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "getQuillSeparator",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [],
+                "returnType": "DeltaOperation"
+            },
+            {
+                "name": "getQuillSubHeader",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "headerName"
+                    }
+                ],
+                "returnType": "DeltaOperation",
+                "jsdoctags": [
+                    {
+                        "name": "headerName",
                         "tagName": {
                             "text": "param"
                         }
@@ -2598,6 +3339,59 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "parseFields",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "raw"
+                    },
+                    {
+                        "name": "isSubfields",
+                        "type": "boolean"
+                    }
+                ],
+                "returnType": "Map<string, string>",
+                "jsdoctags": [
+                    {
+                        "name": "raw",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "isSubfields",
+                        "type": "boolean",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "splitRepeatedFields",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "raw"
+                    }
+                ],
+                "returnType": "string[]",
+                "jsdoctags": [
+                    {
+                        "name": "raw",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             }
         ],
         "typealiases": [],
@@ -2619,6 +3413,24 @@
                     "file": "src/app/structure-template.service.ts",
                     "type": "string",
                     "defaultValue": "'structureTemplate-'"
+                }
+            ],
+            "src/app/tag.service.ts": [
+                {
+                    "name": "ALL_TAG_LIST_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag.service.ts",
+                    "type": "string",
+                    "defaultValue": "'allTagList'"
+                },
+                {
+                    "name": "TAG_KEY_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag.service.ts",
+                    "type": "string",
+                    "defaultValue": "'tag-'"
                 }
             ],
             "src/test.ts": [
@@ -2724,24 +3536,6 @@
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts": [
-                {
-                    "name": "DESC_FIELD_PREFIX",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                    "type": "string",
-                    "defaultValue": "'== Description =='"
-                },
-                {
-                    "name": "NAME_FIELD_PREFIX",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                    "type": "string",
-                    "defaultValue": "'== Name =='"
-                }
-            ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -2816,6 +3610,48 @@
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "Story<StructureTemplateNavComponent>",
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/tag-page/tag-nav/tag-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleTagListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first tag'\n  } as TagListView,\n  {\n    id: 'def-456',\n    name: 'My second tag'\n  } as TagListView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                    "type": "Story<TagNavComponent>",
+                    "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -2952,6 +3788,112 @@
                         }
                     ]
                 }
+            ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts": [
+                {
+                    "name": "getQuillHeader",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "headerName"
+                        }
+                    ],
+                    "returnType": "DeltaOperation",
+                    "jsdoctags": [
+                        {
+                            "name": "headerName",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getQuillSeparator",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [],
+                    "returnType": "DeltaOperation"
+                },
+                {
+                    "name": "getQuillSubHeader",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "headerName"
+                        }
+                    ],
+                    "returnType": "DeltaOperation",
+                    "jsdoctags": [
+                        {
+                            "name": "headerName",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "parseFields",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "raw"
+                        },
+                        {
+                            "name": "isSubfields",
+                            "type": "boolean"
+                        }
+                    ],
+                    "returnType": "Map<string, string>",
+                    "jsdoctags": [
+                        {
+                            "name": "raw",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "isSubfields",
+                            "type": "boolean",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "splitRepeatedFields",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "raw"
+                        }
+                    ],
+                    "returnType": "string[]",
+                    "jsdoctags": [
+                        {
+                            "name": "raw",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
             ]
         },
         "groupedEnumerations": {},
@@ -2978,6 +3920,10 @@
                     {
                         "path": "structure-templates",
                         "component": "StructureTemplatePageComponent"
+                    },
+                    {
+                        "path": "tags",
+                        "component": "TagPageComponent"
                     }
                 ],
                 "kind": "module"
@@ -3031,7 +3977,7 @@
                 "linktype": "component",
                 "name": "ImportExportPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
@@ -3060,7 +4006,7 @@
                 "linktype": "component",
                 "name": "LandingPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/6",
                 "status": "low"
             },
             {
@@ -3145,7 +4091,7 @@
                 "linktype": "component",
                 "name": "StructureTemplateDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/13",
+                "coverageCount": "0/16",
                 "status": "low"
             },
             {
@@ -3159,20 +4105,45 @@
             },
             {
                 "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "DESC_FIELD_PREFIX",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "getQuillHeader",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
             },
             {
                 "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "NAME_FIELD_PREFIX",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "getQuillSeparator",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "getQuillSubHeader",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "parseFields",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/structure-template-page/structure-template-details/structure-template-details.component.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "splitRepeatedFields",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -3319,6 +4290,112 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "STRUCTURE_TEMPLATE_KEY_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TagNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/10",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTagListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleNothingSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleSecondSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TagPageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "TagService",
+                "coveragePercent": 0,
+                "coverageCount": "0/15",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "TagListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ALL_TAG_LIST_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "TAG_KEY_PREFIX",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

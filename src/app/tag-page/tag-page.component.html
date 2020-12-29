@@ -1,7 +1,15 @@
-
-<button (click)="newTag()">Add tag</button>
-
-<p>{{tagListView.length}} tags:</p>
-<div *ngFor="let tag of tagListView">
-  {{tag.id}}
+<div class="page">
+  <app-tag-nav
+    [selectedTagId]="selectedTagId"
+    [tagListView]="tagListView"
+    (newTag)="newTag()"
+    (selectTag)="selectTag($event)"
+    (deleteTag)="deleteTag()"
+  ></app-tag-nav>
+  <div class="details">
+    <p>Selected: {{selectedTagId}}</p>
+    <div *ngIf="!!selectedTag">
+      {{selectedTag.description}}
+    </div>
+  </div>
 </div>

@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {TagListView, TagService} from '../tag.service';
+import {Tag} from '../../protos';
 
 @Component({
   selector: 'app-tag-page',
@@ -8,6 +9,11 @@ import {TagListView, TagService} from '../tag.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagPageComponent implements OnInit, OnDestroy {
+
+  selectedTagId = '';
+
+  selectedTag: Tag|null = null;
+  selectedTagSubscription = '';
 
   tagListView: TagListView[] = [];
   tagListViewSubscription = '';
@@ -23,10 +29,35 @@ export class TagPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.tagService.cancelSubscription(this.tagListViewSubscription);
+    this.tagService.cancelSubscription(this.selectedTagSubscription);
   }
 
   async newTag(): Promise<void> {
-    const newUuid = await this.tagService.createNewTag();
+    await this.selectTag(
+      await this.tagService.createNewTag()
+    );
+  }
+
+  async selectTag(tagId: string): Promise<void> {
+    this.selectedTagId = tagId;
+
+    // Clear old subscription setup new one
+    this.tagService.cancelSubscription(this.selectedTagSubscription);
+    if (!!tagId.length) {
+      this.selectedTagSubscription = this.tagService.subscribeToTag(tagId, (newValue) => {
+        this.selectedTag = newValue;
+        this.ref.markForCheck();
+      });
+    }
+
+    this.ref.markForCheck();
+  }
+
+  async deleteTag(): Promise<void> {
+    const tagToDelete = this.selectedTagId;
+    this.selectedTag = null;
+    await this.selectTag('');
+    await this.tagService.deleteTag(tagToDelete);
   }
 
 }
