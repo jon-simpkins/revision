@@ -7,7 +7,10 @@
 <div *ngIf="workspaceName.length > 0">
   <h3>Workspace: {{workspaceName}}</h3>
 
-  <a routerLink="structure-templates">Structure Templates</a>
+  <div class="link-list">
+    <a routerLink="structure-templates">Structure Templates</a>
+    <a routerLink="tags">Tags</a>
+  </div>
 
   <app-show-session-history></app-show-session-history>
 </div>
