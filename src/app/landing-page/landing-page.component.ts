@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
-import {WritingWorkspaceMetadata} from '../../protos';
 
 // Static landing page component.
 @Component({
@@ -27,15 +26,5 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);
-  }
-
-  async newWorkspace(): Promise<void> {
-    const newWorkspaceName = prompt('What\'s the new workspace name?');
-
-    if (!newWorkspaceName) {
-      return;
-    }
-
-    await this.monolithicDataService.newWorkspace(newWorkspaceName);
   }
 }

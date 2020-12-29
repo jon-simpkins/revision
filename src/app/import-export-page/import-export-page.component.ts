@@ -41,4 +41,16 @@ export class ImportExportPageComponent implements OnInit {
 
     this.ref.markForCheck();
   }
+
+  async newWorkspace(): Promise<void> {
+    const newWorkspaceName = prompt('What\'s the new workspace name?');
+
+    if (!newWorkspaceName) {
+      return;
+    }
+
+    await this.monolithicDataService.newWorkspace(newWorkspaceName);
+
+    this.ref.markForCheck();
+  }
 }
