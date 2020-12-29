@@ -1,1 +1,7 @@
-<p>tag-page works!</p>
+
+<button (click)="newTag()">Add tag</button>
+
+<p>{{tagListView.length}} tags:</p>
+<div *ngFor="let tag of tagListView">
+  {{tag.id}}
+</div>

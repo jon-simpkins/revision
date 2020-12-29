@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import {IStructureTemplate, StructureTemplate} from '../protos';
 import {StorageService} from './storage.service';
-import {zip} from 'rxjs';
 import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
 // Minimal details about a template to show in list view
