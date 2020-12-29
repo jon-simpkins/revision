@@ -48,6 +48,12 @@ message WritingWorkspace {
 
   // All structure templates
   repeated StructureTemplate structure_templates = 3;
+
+  // All tags
+  repeated Tag tags = 4;
+
+  // All beats
+  repeated Beat beats = 5;
 }
 
 // Template for breaking a beat up into smaller structures
@@ -69,4 +75,62 @@ message StructureTemplate {
   }
 
   repeated StructureTemplateBeat beats = 3;
+}
+
+message Tag {
+  // Unique identifier
+  string id = 1;
+
+  // Human-readable name for this tag
+  string name = 2;
+
+  // Description of the tag, to elaborate on the name
+  string description = 3;
+
+  // If true, then references to this tag can have numeric values that can be
+  // graphed
+  bool has_numeric_value = 4;
+}
+
+message Beat {
+  // Unique identifier for this beat
+  string id = 1;
+
+  // Intended duration of the Beat
+  uint32 intended_duration_ms = 2;
+
+  // Short string summarizing "what is this beat?"
+  string synopsis = 3;
+
+  // The actual writing content of the beat.
+  string prose = 4;
+
+  // The sub-structure of this beat, consisting of an ordered list of beat ids
+  repeated string structure = 5;
+
+  message TagReference {
+    // ID of the Tag that this references
+    string tag_id = 1;
+
+    // Optional numeric value
+    float numeric_value = 2;
+  }
+
+  // All tag references
+  repeated TagReference tag_references = 6;
+
+  message BrainstormEntry {
+    // ID of the beat that this brainstorm entry references
+    string beat_id = 1;
+
+    // Should this brainstorm entry be visible by default?
+    bool show = 2;
+
+    // TODO: some measure of voting / score for how good the idea is
+  }
+
+  // Loose collection of brainstorm entries
+  repeated BrainstormEntry brainstorm = 7;
+
+  // TODO: measure of completeness here, maybe couple with feedback solicitation
 }
