@@ -3,10 +3,10 @@
     "interfaces": [
         {
             "name": "StorageSubscription",
-            "id": "interface-StorageSubscription-a4358def2c8c8680d1561c5a5228e5e2",
+            "id": "interface-StorageSubscription-6de4006da1f890b4961a2860c62904b4",
             "file": "src/app/storage.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n\n  async delete(key: string): Promise<void> {\n    await this.storage.delete(key).toPromise();\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    // Kick off subscription so there's not a weird POLL_FREQUENCY delay\n    setTimeout(async () => {\n      await this.checkSubscription(newSubscription);\n    }, 1);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n\n  async delete(key: string): Promise<void> {\n    await this.storage.delete(key).toPromise();\n  }\n}\n",
             "properties": [
                 {
                     "name": "callback",
@@ -95,10 +95,10 @@
         },
         {
             "name": "TagListView",
-            "id": "interface-TagListView-59a5d2a99c6a823b2a3c0382890df6ac",
+            "id": "interface-TagListView-78325846a6252e549ca38070a44d05d4",
             "file": "src/app/tag.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTemplate: Tag) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTemplate(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "properties": [
                 {
                     "name": "id",
@@ -113,6 +113,32 @@
                     "optional": false,
                     "description": "",
                     "line": 9
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "TagUpdate",
+            "id": "interface-TagUpdate-f9339a429b6538212564b3b1fed92833",
+            "file": "src/app/tag-page/tag-details/tag-details.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(newValue: string): void {\n    const tag = this.tag as Tag;\n\n    tag.name = newValue;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "modifiesListView",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "tag",
+                    "type": "Tag",
+                    "optional": false,
+                    "description": "",
+                    "line": 6
                 }
             ],
             "indexSignatures": [],
@@ -351,7 +377,7 @@
         },
         {
             "name": "StorageService",
-            "id": "injectable-StorageService-a4358def2c8c8680d1561c5a5228e5e2",
+            "id": "injectable-StorageService-6de4006da1f890b4961a2860c62904b4",
             "file": "src/app/storage.service.ts",
             "properties": [
                 {
@@ -378,7 +404,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 67,
                     "jsdoctags": [
                         {
                             "name": "subscriptionKey",
@@ -400,7 +426,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 66,
+                    "line": 71,
                     "modifierKind": [
                         120
                     ],
@@ -420,7 +446,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 92,
+                    "line": 97,
                     "modifierKind": [
                         120
                     ]
@@ -436,7 +462,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 96,
+                    "line": 101,
                     "modifierKind": [
                         120
                     ],
@@ -531,7 +557,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 88,
+                    "line": 93,
                     "jsdoctags": [
                         {
                             "name": "key",
@@ -593,7 +619,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n\n  async delete(key: string): Promise<void> {\n    await this.storage.delete(key).toPromise();\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageMap} from '@ngx-pwa/local-storage';\nimport * as hash from 'object-hash';\nimport { v4 as uuidv4 } from 'uuid';\n\ninterface StorageSubscription {\n  subscriptionKey: string;\n  storageKey: string;\n  lastHashValue: string;\n  callback: (updatedValue: any) => void;\n}\n\nconst POLL_FREQUENCY = 250;\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class StorageService {\n\n  // subscriptions\n  private subscriptions: Map<string, StorageSubscription> = new Map();\n\n  constructor(private storage: StorageMap) {\n    setInterval(async () => {\n      for (const subscription of this.subscriptions.values()) {\n        await this.checkSubscription(subscription);\n      }\n    }, POLL_FREQUENCY);\n  }\n\n  async get(key: string): Promise<any> {\n    return await this.storage.get(key).toPromise();\n  }\n\n  async set(key: string, value: any, isSubscribable: boolean = false): Promise<void> {\n\n    await this.storage.set(key, value).toPromise();\n\n    if (isSubscribable) {\n      // Store the hash value, so that other tabs can poll for the value and detect changes\n      // that they didn't necessarily make\n      const hashValue = hash(value, {algorithm: 'sha1'});\n      await this.storage.set(this.getHashKey(key), hashValue).toPromise();\n    }\n  }\n\n  generateSubscription(storageKey: string, callback: (updatedValue: any) => void): string {\n    const subscriptionUuid = uuidv4();\n\n    const newSubscription = {\n      storageKey,\n      callback,\n      subscriptionKey: subscriptionUuid,\n      lastHashValue: ''\n    } as StorageSubscription;\n\n    this.subscriptions.set(subscriptionUuid, newSubscription);\n\n    // Kick off subscription so there's not a weird POLL_FREQUENCY delay\n    setTimeout(async () => {\n      await this.checkSubscription(newSubscription);\n    }, 1);\n\n    return subscriptionUuid;\n  }\n\n  cancelSubscription(subscriptionKey: string): void {\n    this.subscriptions.delete(subscriptionKey);\n  }\n\n  async checkSubscription(subscription: StorageSubscription): Promise<void> {\n    const fetchedHashValue = await this.storage.get(this.getHashKey(subscription.storageKey)).toPromise();\n    if (!fetchedHashValue) {\n      console.error('Subscription checked on storage key ' + subscription.storageKey\n        + ', please make sure it is being set with isSubscribable=true');\n      return;\n    }\n\n    const newHashValue = fetchedHashValue as string;\n    if (newHashValue === subscription.lastHashValue) {\n      return;\n    }\n\n    subscription.callback(\n      await this.get(subscription.storageKey)\n    );\n\n    subscription.lastHashValue = newHashValue;\n\n    this.subscriptions.set(subscription.subscriptionKey, subscription);\n  }\n\n  getHashKey(key: string): string {\n    return key + '-sha1';\n  }\n\n  async clearAll(): Promise<void> {\n    await this.storage.clear().toPromise();\n  }\n\n  async delete(key: string): Promise<void> {\n    await this.storage.delete(key).toPromise();\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -954,7 +980,7 @@
         },
         {
             "name": "TagService",
-            "id": "injectable-TagService-59a5d2a99c6a823b2a3c0382890df6ac",
+            "id": "injectable-TagService-78325846a6252e549ca38070a44d05d4",
             "file": "src/app/tag.service.ts",
             "properties": [],
             "methods": [
@@ -992,7 +1018,7 @@
                     ]
                 },
                 {
-                    "name": "deleteTemplate",
+                    "name": "deleteTag",
                     "args": [
                         {
                             "name": "tagId",
@@ -1196,8 +1222,8 @@
                             "type": "function",
                             "function": [
                                 {
-                                    "name": "newTemplate",
-                                    "type": "Tag"
+                                    "name": "newTag",
+                                    "type": "Tag | null"
                                 }
                             ]
                         }
@@ -1219,8 +1245,8 @@
                             "type": "function",
                             "function": [
                                 {
-                                    "name": "newTemplate",
-                                    "type": "Tag"
+                                    "name": "newTag",
+                                    "type": "Tag | null"
                                 }
                             ],
                             "tagName": {
@@ -1265,7 +1291,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTemplate: Tag) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTemplate(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId)\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -2604,6 +2630,128 @@
             "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [selectedTemplateId]=\"selectedTemplateUuid\"\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\">\n  </app-structure-template-nav>\n  <app-structure-template-details\n    class=\"details\"\n    [structureTemplate]=\"selectedTemplate\"\n    (templateUpdated)=\"onTemplateChanges($event)\">\n  </app-structure-template-details>\n</div>\n"
         },
         {
+            "name": "TagDetailsComponent",
+            "id": "component-TagDetailsComponent-f9339a429b6538212564b3b1fed92833",
+            "file": "src/app/tag-page/tag-details/tag-details.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-tag-details",
+            "styleUrls": [
+                "./tag-details.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./tag-details.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "tag",
+                    "defaultValue": "null",
+                    "line": 18,
+                    "type": "Tag | null"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "tagUpdated",
+                    "defaultValue": "new EventEmitter<TagUpdate>()",
+                    "line": 20,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "isEmpty",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 49
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 24
+                },
+                {
+                    "name": "onHasNumericValueCheckbox",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MatCheckboxChange"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 38,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MatCheckboxChange",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "onNameInput",
+                    "args": [
+                        {
+                            "name": "newValue",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27,
+                    "jsdoctags": [
+                        {
+                            "name": "newValue",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(newValue: string): void {\n    const tag = this.tag as Tag;\n\n    tag.name = newValue;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".full-width {\n  width: 100%;\n}\n",
+                    "styleUrl": "./tag-details.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 20
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no tag selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n\n  <mat-form-field class=\"full-width\">\n    <mat-label>Name</mat-label>\n    <input\n      matInput\n      placeholder=\"Tag name\"\n      [value]=\"tag.name\"\n      (input)=\"onNameInput($event.target.value)\"/>\n  </mat-form-field>\n\n  <mat-checkbox\n    [checked]=\"tag.hasNumericValue\"\n    (change)=\"onHasNumericValueCheckbox($event)\"\n  >Has numeric value</mat-checkbox>\n\n</ng-container>\n"
+        },
+        {
             "name": "TagNavComponent",
             "id": "component-TagNavComponent-5e7756043bf3af7e1cae3105ac124ebe",
             "file": "src/app/tag-page/tag-nav/tag-nav.component.ts",
@@ -2708,7 +2856,7 @@
         },
         {
             "name": "TagPageComponent",
-            "id": "component-TagPageComponent-e5ceae0deab486f11b6953333dd513e7",
+            "id": "component-TagPageComponent-f022918d02743507b83c085d467fa354",
             "file": "src/app/tag-page/tag-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -2729,12 +2877,36 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
+                    "name": "selectedTag",
+                    "defaultValue": "null",
+                    "type": "Tag | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
+                },
+                {
+                    "name": "selectedTagId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "selectedTagSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 16
+                },
+                {
                     "name": "tagListView",
                     "defaultValue": "[]",
                     "type": "TagListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 18
                 },
                 {
                     "name": "tagListViewSubscription",
@@ -2742,17 +2914,28 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 19
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "deleteTag",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 56,
+                    "modifierKind": [
+                        120
+                    ]
+                },
                 {
                     "name": "newTag",
                     "args": [],
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 28,
+                    "line": 35,
                     "modifierKind": [
                         120
                     ]
@@ -2763,7 +2946,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 24
+                    "line": 30
                 },
                 {
                     "name": "ngOnInit",
@@ -2771,7 +2954,32 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 17
+                    "line": 23
+                },
+                {
+                    "name": "selectTag",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 41,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -2779,11 +2987,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {TagListView, TagService} from '../tag.service';\n\n@Component({\n  selector: 'app-tag-page',\n  templateUrl: './tag-page.component.html',\n  styleUrls: ['./tag-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagPageComponent implements OnInit, OnDestroy {\n\n  tagListView: TagListView[] = [];\n  tagListViewSubscription = '';\n\n  constructor(private tagService: TagService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.tagListViewSubscription = this.tagService.subscribeToTagListView((newValue) => {\n      this.tagListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.tagService.cancelSubscription(this.tagListViewSubscription);\n  }\n\n  async newTag(): Promise<void> {\n    const newUuid = await this.tagService.createNewTag();\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {TagListView, TagService} from '../tag.service';\nimport {Tag} from '../../protos';\n\n@Component({\n  selector: 'app-tag-page',\n  templateUrl: './tag-page.component.html',\n  styleUrls: ['./tag-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagPageComponent implements OnInit, OnDestroy {\n\n  selectedTagId = '';\n\n  selectedTag: Tag|null = null;\n  selectedTagSubscription = '';\n\n  tagListView: TagListView[] = [];\n  tagListViewSubscription = '';\n\n  constructor(private tagService: TagService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.tagListViewSubscription = this.tagService.subscribeToTagListView((newValue) => {\n      this.tagListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.tagService.cancelSubscription(this.tagListViewSubscription);\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n  }\n\n  async newTag(): Promise<void> {\n    await this.selectTag(\n      await this.tagService.createNewTag()\n    );\n  }\n\n  async selectTag(tagId: string): Promise<void> {\n    this.selectedTagId = tagId;\n\n    // Clear old subscription setup new one\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n    if (!!tagId.length) {\n      this.selectedTagSubscription = this.tagService.subscribeToTag(tagId, (newValue) => {\n        this.selectedTag = newValue;\n        this.ref.markForCheck();\n      });\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async deleteTag(): Promise<void> {\n    const tagToDelete = this.selectedTagId;\n    this.selectedTag = null;\n    await this.selectTag('');\n    await this.tagService.deleteTag(tagToDelete);\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".page {\n  height: 100%;\n  display: flex;\n}\n\n.details {\n  flex: 1;\n  padding-bottom: 48px;\n}\n",
                     "styleUrl": "./tag-page.component.scss"
                 }
             ],
@@ -2801,7 +3009,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 13,
+                "line": 19,
                 "jsdoctags": [
                     {
                         "name": "tagService",
@@ -2823,7 +3031,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "\n<button (click)=\"newTag()\">Add tag</button>\n\n<p>{{tagListView.length}} tags:</p>\n<div *ngFor=\"let tag of tagListView\">\n  {{tag.id}}\n</div>\n"
+            "templateData": "<div class=\"page\">\n  <app-tag-nav\n    [selectedTagId]=\"selectedTagId\"\n    [tagListView]=\"tagListView\"\n    (newTag)=\"newTag()\"\n    (selectTag)=\"selectTag($event)\"\n    (deleteTag)=\"deleteTag()\"\n  ></app-tag-nav>\n  <div class=\"details\">\n    <p>Selected: {{selectedTagId}}</p>\n    <div *ngIf=\"!!selectedTag\">\n      {{selectedTag.description}}\n    </div>\n  </div>\n</div>\n"
         }
     ],
     "modules": [
@@ -2860,6 +3068,9 @@
                         },
                         {
                             "name": "StructureTemplatePageComponent"
+                        },
+                        {
+                            "name": "TagDetailsComponent"
                         },
                         {
                             "name": "TagNavComponent"
@@ -2963,7 +3174,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2971,7 +3182,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -2988,6 +3199,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3036,6 +3255,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3093,7 +3320,15 @@
                 "subtype": "variable",
                 "file": "src/app/app.module.ts",
                 "type": "[]",
-                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  QuillModule.forRoot(),\n]"
+                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  QuillModule.forRoot(),\n]"
+            },
+            {
+                "name": "mockTag",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "",
+                "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
             },
             {
                 "name": "mockTemplate",
@@ -3154,17 +3389,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
-                "type": "Story<ImportExportPageComponent>",
-                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
+                "file": "src/app/landing-page/landing-page.stories.ts",
+                "type": "Story<LandingPageComponent>",
+                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
-                "type": "Story<LandingPageComponent>",
-                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "type": "Story<ImportExportPageComponent>",
+                "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -3181,6 +3416,14 @@
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "Story<StructureTemplateNavComponent>",
                 "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "Story<TagDetailsComponent>",
+                "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -3500,24 +3743,6 @@
                     "defaultValue": "'workspaceMetadata'"
                 }
             ],
-            "src/app/import-export-page/import-export-page.stories.ts": [
-                {
-                    "name": "DefaultExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/import-export-page/import-export-page.stories.ts",
-                    "type": "Story<ImportExportPageComponent>",
-                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/landing-page/landing-page.stories.ts": [
                 {
                     "name": "DefaultExample",
@@ -3534,6 +3759,24 @@
                     "file": "src/app/landing-page/landing-page.stories.ts",
                     "type": "Story<LandingPageComponent>",
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/import-export-page/import-export-page.stories.ts": [
+                {
+                    "name": "DefaultExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/import-export-page/import-export-page.stories.ts",
+                    "type": "Story<ImportExportPageComponent>",
+                    "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -3612,6 +3855,40 @@
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/tag-page/tag-details/tag-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTag",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "Story<TagDetailsComponent>",
+                    "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/tag-page/tag-nav/tag-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -3681,7 +3958,7 @@
                     "subtype": "variable",
                     "file": "src/app/app.module.ts",
                     "type": "[]",
-                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  QuillModule.forRoot(),\n]"
+                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  QuillModule.forRoot(),\n]"
                 }
             ],
             "src/app/storage.service.ts": [
@@ -4295,6 +4572,64 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/tag-page/tag-details/tag-details.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TagDetailsComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/8",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-details/tag-details.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "TagUpdate",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "mockTag",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/tag-page/tag-nav/tag-nav.component.ts",
                 "type": "component",
                 "linktype": "component",
@@ -4359,7 +4694,7 @@
                 "linktype": "component",
                 "name": "TagPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/7",
+                "coverageCount": "0/12",
                 "status": "low"
             },
             {

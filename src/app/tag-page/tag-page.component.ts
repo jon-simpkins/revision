@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {TagListView, TagService} from '../tag.service';
 import {Tag} from '../../protos';
+import {TagUpdate} from './tag-details/tag-details.component';
 
 @Component({
   selector: 'app-tag-page',
@@ -60,4 +61,7 @@ export class TagPageComponent implements OnInit, OnDestroy {
     await this.tagService.deleteTag(tagToDelete);
   }
 
+  async onTagChanges(newValue: TagUpdate): Promise<void> {
+    await this.tagService.setTag(newValue.tag, newValue.modifiesListView);
+  }
 }

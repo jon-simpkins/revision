@@ -6,10 +6,9 @@
     (selectTag)="selectTag($event)"
     (deleteTag)="deleteTag()"
   ></app-tag-nav>
-  <div class="details">
-    <p>Selected: {{selectedTagId}}</p>
-    <div *ngIf="!!selectedTag">
-      {{selectedTag.description}}
-    </div>
-  </div>
+  <app-tag-details
+    class="details"
+    [tag]="selectedTag"
+    (tagUpdated)="onTagChanges($event)">
+  </app-tag-details>
 </div>

@@ -1,0 +1,31 @@
+<h3 *ngIf="isEmpty()">no tag selected</h3>
+
+<ng-container *ngIf="!isEmpty()">
+  <div class="row">
+    <mat-form-field class="full-width">
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        placeholder="Tag name"
+        [value]="tag?.name"
+        (input)="onNameInput($event)"/>
+    </mat-form-field>
+
+    <mat-checkbox
+      [checked]="hasNumericValue()"
+      (change)="onHasNumericValueCheckbox($event)"
+    >Has numeric value</mat-checkbox>
+  </div>
+
+  <div class="row">
+    <mat-form-field class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        placeholder="Tag description"
+        [rows]="5"
+        [value]="tag?.description"
+        (input)="onDescriptionInput($event)"></textarea>
+    </mat-form-field>
+  </div>
+</ng-container>

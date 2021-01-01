@@ -23,6 +23,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {QuillModule} from 'ngx-quill';
 import { TagPageComponent } from './tag-page/tag-page.component';
 import { TagNavComponent } from './tag-page/tag-nav/tag-nav.component';
+import { TagDetailsComponent } from './tag-page/tag-details/tag-details.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -31,6 +33,7 @@ export const MaterialModules = [
   MatInputModule,
   MatIconModule,
   BrowserAnimationsModule,
+  MatCheckboxModule,
   QuillModule.forRoot(),
 ];
 
@@ -46,6 +49,7 @@ export const MaterialModules = [
     StructureTemplateDetailsComponent,
     TagPageComponent,
     TagNavComponent,
+    TagDetailsComponent,
   ],
   imports: [
     BrowserModule,
