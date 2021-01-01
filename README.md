@@ -12,6 +12,12 @@ https://jon-simpkins.github.io/revision/
 # Disclaimer
 This is **not** an official Google product.
 
+# What's the current phase of the project?
+
+Early early stages of a ground-up rewrite. At this point, the app is basically unusable,
+but the foundation is in place for a more scalable way of storing / representing stories,
+and the UI is a bit slapdash on the way to MVP. Check back later for updates.
+
 # Running Storybook
 
 `npm run storybook`
