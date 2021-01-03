@@ -35,6 +35,32 @@
             "methods": []
         },
         {
+            "name": "BeatUpdate",
+            "id": "interface-BeatUpdate-68b9b2d078db445867a13f41b52eb83d",
+            "file": "src/app/beat-prose-edit/beat-prose-edit.component.ts",
+            "type": "interface",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../protos';\n\nexport interface BeatUpdate {\n  beat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-beat-prose-edit',\n  templateUrl: './beat-prose-edit.component.html',\n  styleUrls: ['./beat-prose-edit.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BeatProseEditComponent implements OnInit {\n\n  @Input()\n  beat: Beat|null = null;\n\n  @Output() beatUpdated = new EventEmitter<BeatUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  isEmpty(): boolean {\n    return this.beat == null;\n  }\n\n  onSynopsisInput(event: any): void {\n    const beat = this.beat as Beat;\n\n    beat.synopsis = event.target.value;\n\n    this.beatUpdated.emit({\n      beat,\n      modifiesListView: true,\n    } as BeatUpdate);\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "beat",
+                    "type": "Beat",
+                    "optional": false,
+                    "description": "",
+                    "line": 5
+                },
+                {
+                    "name": "modifiesListView",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 6
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
             "name": "StorageSubscription",
             "id": "interface-StorageSubscription-6de4006da1f890b4961a2860c62904b4",
             "file": "src/app/storage.service.ts",
@@ -154,10 +180,10 @@
         },
         {
             "name": "TagUpdate",
-            "id": "interface-TagUpdate-0872e2007ee26866b2fe917b443cc142",
+            "id": "interface-TagUpdate-9aaf42335be741f4a4b1761b72ce4eb4",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
@@ -2021,8 +2047,9 @@
         },
         {
             "name": "BeatNavComponent",
-            "id": "component-BeatNavComponent-2cedbe005860f5ccb4d8c4f874707018",
+            "id": "component-BeatNavComponent-b7442ce02438b0427b33b983aa5ba993",
             "file": "src/app/beat-nav/beat-nav.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -2041,32 +2068,32 @@
                 {
                     "name": "beatListView",
                     "defaultValue": "[]",
-                    "line": 15,
+                    "line": 16,
                     "type": "BeatMapView[]"
                 },
                 {
                     "name": "selectedBeatId",
                     "defaultValue": "''",
-                    "line": 12
+                    "line": 13
                 }
             ],
             "outputsClass": [
                 {
                     "name": "deleteBeat",
                     "defaultValue": "new EventEmitter<void>()",
-                    "line": 21,
+                    "line": 22,
                     "type": "EventEmitter"
                 },
                 {
                     "name": "newBeat",
                     "defaultValue": "new EventEmitter<void>()",
-                    "line": 17,
+                    "line": 18,
                     "type": "EventEmitter"
                 },
                 {
                     "name": "selectBeat",
                     "defaultValue": "new EventEmitter<string>()",
-                    "line": 19,
+                    "line": 20,
                     "type": "EventEmitter"
                 }
             ],
@@ -2078,7 +2105,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 29
+                    "line": 30
                 },
                 {
                     "name": "ngOnInit",
@@ -2086,7 +2113,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 26
+                    "line": 27
                 }
             ],
             "hostBindings": [],
@@ -2094,7 +2121,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BeatMapView} from '../beats.service';\n\n@Component({\n  selector: 'app-beat-nav',\n  templateUrl: './beat-nav.component.html',\n  styleUrls: ['./beat-nav.component.scss']\n})\nexport class BeatNavComponent implements OnInit {\n\n  @Input()\n  selectedBeatId = '';\n\n  @Input()\n  beatListView: BeatMapView[] = [];\n\n  @Output() newBeat = new EventEmitter<void>();\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  @Output() deleteBeat = new EventEmitter<void>();\n\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  canDelete(): boolean {\n    return this.selectedBeatId.length > 0;\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BeatMapView} from '../beats.service';\n\n@Component({\n  selector: 'app-beat-nav',\n  templateUrl: './beat-nav.component.html',\n  styleUrls: ['./beat-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BeatNavComponent implements OnInit {\n\n  @Input()\n  selectedBeatId = '';\n\n  @Input()\n  beatListView: BeatMapView[] = [];\n\n  @Output() newBeat = new EventEmitter<void>();\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  @Output() deleteBeat = new EventEmitter<void>();\n\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  canDelete(): boolean {\n    return this.selectedBeatId.length > 0;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2107,7 +2134,7 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 21
+                "line": 22
             },
             "implements": [
                 "OnInit"
@@ -2116,7 +2143,7 @@
         },
         {
             "name": "BeatPageComponent",
-            "id": "component-BeatPageComponent-72c46f91e37ac5a8b7c1aa5de050f1b5",
+            "id": "component-BeatPageComponent-ac65746a6aa34c658e25d7fa776aa244",
             "file": "src/app/beat-page/beat-page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2136,12 +2163,12 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
-                    "name": "allBeatsSummary",
+                    "name": "beatListView",
                     "defaultValue": "[]",
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 11
+                    "line": 12
                 },
                 {
                     "name": "beatMapViewSubscription",
@@ -2149,25 +2176,41 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 13
+                },
+                {
+                    "name": "selectedBeat",
+                    "defaultValue": "null",
+                    "type": "Beat | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                },
+                {
+                    "name": "selectedBeatId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
+                },
+                {
+                    "name": "selectedBeatSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
                 }
             ],
             "methodsClass": [
-                {
-                    "name": "beatCount",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "number",
-                    "typeParameters": [],
-                    "line": 43
-                },
                 {
                     "name": "deleteBeat",
                     "args": [],
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 56,
                     "modifierKind": [
                         120
                     ]
@@ -2178,7 +2221,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 29,
+                    "line": 36,
                     "modifierKind": [
                         120
                     ]
@@ -2189,7 +2232,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 25
+                    "line": 31
                 },
                 {
                     "name": "ngOnInit",
@@ -2197,7 +2240,32 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 16
+                    "line": 22
+                },
+                {
+                    "name": "selectBeat",
+                    "args": [
+                        {
+                            "name": "newUuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 41,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newUuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -2205,7 +2273,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  allBeatsSummary: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.allBeatsSummary = Array.from(newValue.values()).sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    console.log(newUuid + ' created');\n  }\n\n  async deleteBeat(): Promise<void> {\n    // for now, just delete the last beat\n    const uuidToDelete = this.allBeatsSummary[this.allBeatsSummary.length - 1].id;\n\n    await this.beatsService.deleteBeat(\n      uuidToDelete\n    );\n  }\n\n  beatCount(): number {\n    return this.allBeatsSummary.length;\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Beat} from '../../protos';\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  beatListView: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  selectedBeatId = '';\n\n  selectedBeat: Beat|null = null;\n  selectedBeatSubscription = '';\n\n  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.beatListView = Array.from(newValue.values()).sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    await this.selectBeat(newUuid);\n  }\n\n  async selectBeat(newUuid: string): Promise<void> {\n    this.selectedBeatId = newUuid;\n    this.selectedBeat = null;\n\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    if (!!newUuid.length) {\n      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {\n        this.selectedBeat = newValue;\n        this.ref.markForCheck();\n      });\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async deleteBeat(): Promise<void> {\n    await this.beatsService.deleteBeat(\n      this.selectedBeatId\n    );\n    await this.selectBeat('');\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2227,7 +2295,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 12,
+                "line": 18,
                 "jsdoctags": [
                     {
                         "name": "beatsService",
@@ -2249,7 +2317,108 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<h1>placeholder beats page</h1>\n\n<button (click)=\"newBeat()\">New Beat</button>\n<button [disabled]=\"beatCount() == 0\" (click)=\"deleteBeat()\">Delete Beat</button>\n\n<p>{{beatCount()}} beats</p>\n\n<div *ngFor=\"let beat of allBeatsSummary\">\n  {{beat.id}}, {{beat.lastUpdated | date: 'short'}}, {{beat.name}}\n</div>\n"
+            "templateData": "<h1>placeholder beats page</h1>\n\n<app-beat-nav\n  [selectedBeatId]=\"selectedBeatId\"\n  [beatListView]=\"beatListView\"\n  (newBeat)=\"newBeat()\"\n  (selectBeat)=\"selectBeat($event)\"\n  (deleteBeat)=\"deleteBeat()\"\n></app-beat-nav>\n\n<div *ngIf=\"!!selectedBeat\">\n  Currently selected: {{selectedBeat.id}}, {{selectedBeat.synopsis}}\n</div>\n"
+        },
+        {
+            "name": "BeatProseEditComponent",
+            "id": "component-BeatProseEditComponent-68b9b2d078db445867a13f41b52eb83d",
+            "file": "src/app/beat-prose-edit/beat-prose-edit.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-beat-prose-edit",
+            "styleUrls": [
+                "./beat-prose-edit.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./beat-prose-edit.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "beat",
+                    "defaultValue": "null",
+                    "line": 18,
+                    "type": "Beat | null"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "beatUpdated",
+                    "defaultValue": "new EventEmitter<BeatUpdate>()",
+                    "line": 20,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "isEmpty",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 27
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 24
+                },
+                {
+                    "name": "onSynopsisInput",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 31,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../protos';\n\nexport interface BeatUpdate {\n  beat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-beat-prose-edit',\n  templateUrl: './beat-prose-edit.component.html',\n  styleUrls: ['./beat-prose-edit.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BeatProseEditComponent implements OnInit {\n\n  @Input()\n  beat: Beat|null = null;\n\n  @Output() beatUpdated = new EventEmitter<BeatUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  isEmpty(): boolean {\n    return this.beat == null;\n  }\n\n  onSynopsisInput(event: any): void {\n    const beat = this.beat as Beat;\n\n    beat.synopsis = event.target.value;\n\n    this.beatUpdated.emit({\n      beat,\n      modifiesListView: true,\n    } as BeatUpdate);\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./beat-prose-edit.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 20
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no beat selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n  <mat-form-field class=\"full-width\">\n    <mat-label>One-Liner Synopsis</mat-label>\n    <input\n      matInput\n      placeholder=\"Beat synopsis\"\n      [value]=\"beat?.synopsis\"\n      (input)=\"onSynopsisInput($event)\"/>\n  </mat-form-field>\n</ng-container>\n"
         },
         {
             "name": "HeaderTimerComponent",
@@ -3301,8 +3470,9 @@
         },
         {
             "name": "TagDetailsComponent",
-            "id": "component-TagDetailsComponent-0872e2007ee26866b2fe917b443cc142",
+            "id": "component-TagDetailsComponent-9aaf42335be741f4a4b1761b72ce4eb4",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -3321,7 +3491,7 @@
                 {
                     "name": "tag",
                     "defaultValue": "null",
-                    "line": 18,
+                    "line": 19,
                     "type": "Tag | null"
                 }
             ],
@@ -3329,7 +3499,7 @@
                 {
                     "name": "tagUpdated",
                     "defaultValue": "new EventEmitter<TagUpdate>()",
-                    "line": 20,
+                    "line": 21,
                     "type": "EventEmitter"
                 }
             ],
@@ -3341,7 +3511,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 38
+                    "line": 39
                 },
                 {
                     "name": "isEmpty",
@@ -3349,7 +3519,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 64
+                    "line": 65
                 },
                 {
                     "name": "ngOnInit",
@@ -3357,7 +3527,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 24
+                    "line": 25
                 },
                 {
                     "name": "onDescriptionInput",
@@ -3370,7 +3540,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 53,
+                    "line": 54,
                     "jsdoctags": [
                         {
                             "name": "event",
@@ -3392,7 +3562,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 42,
+                    "line": 43,
                     "jsdoctags": [
                         {
                             "name": "event",
@@ -3414,7 +3584,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 27,
+                    "line": 28,
                     "jsdoctags": [
                         {
                             "name": "event",
@@ -3431,7 +3601,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -3444,7 +3614,7 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 20
+                "line": 21
             },
             "implements": [
                 "OnInit"
@@ -3780,6 +3950,9 @@
                             "name": "BeatPageComponent"
                         },
                         {
+                            "name": "BeatProseEditComponent"
+                        },
+                        {
                             "name": "HeaderTimerComponent"
                         },
                         {
@@ -3945,7 +4118,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3954,6 +4127,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -4012,6 +4193,14 @@
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "[]",
                 "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first tag'\n  } as TagListView,\n  {\n    id: 'def-456',\n    name: 'My second tag'\n  } as TagListView\n]"
+            },
+            {
+                "name": "FullExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
             },
             {
                 "name": "FullExample",
@@ -4102,6 +4291,14 @@
                 "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  QuillModule.forRoot(),\n]"
             },
             {
+                "name": "mockBeat",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "",
+                "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+            },
+            {
                 "name": "mockTag",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -4176,6 +4373,14 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "Story<BeatProseEditComponent>",
+                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "Story<ImportExportPageComponent>",
                 "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
@@ -4192,17 +4397,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "Story<StructureTemplateDetailsComponent>",
+                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                "type": "Story<StructureTemplateDetailsComponent>",
-                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -4668,6 +4873,74 @@
                     "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockBeat",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTemplate",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "Story<StructureTemplateDetailsComponent>",
+                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -4708,40 +4981,6 @@
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "Story<StructureTemplateNavComponent>",
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTemplate",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "Story<StructureTemplateDetailsComponent>",
-                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-details/tag-details.stories.ts": [
@@ -5241,7 +5480,65 @@
                 "linktype": "component",
                 "name": "BeatPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/9",
+                "coverageCount": "0/12",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BeatProseEditComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "BeatUpdate",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "mockBeat",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

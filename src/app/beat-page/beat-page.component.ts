@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
 import {Beat} from '../../protos';
+import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 
 @Component({
   selector: 'app-beat-page',
@@ -58,6 +59,13 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       this.selectedBeatId
     );
     await this.selectBeat('');
+  }
+
+  async onBeatUpdated(updatedBeat: BeatUpdate): Promise<void> {
+    await this.beatsService.setBeat(
+      updatedBeat.beat,
+      updatedBeat.modifiesListView,
+      true);
   }
 
 }

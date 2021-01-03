@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {BeatMapView} from '../beats.service';
 
 @Component({
   selector: 'app-beat-nav',
   templateUrl: './beat-nav.component.html',
-  styleUrls: ['./beat-nav.component.scss']
+  styleUrls: ['./beat-nav.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BeatNavComponent implements OnInit {
 

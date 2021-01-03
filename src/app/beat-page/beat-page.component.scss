@@ -1,0 +1,12 @@
+.content-wrapper {
+  display: flex;
+}
+
+.story-nav {
+  flex: 0 250px;
+}
+
+.story-prose {
+  flex: 1;
+  margin-left: 16px;
+}

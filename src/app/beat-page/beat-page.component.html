@@ -1,13 +1,16 @@
-<h1>placeholder beats page</h1>
+<div class="content-wrapper">
+  <div class="story-nav">
+    <h3>All Stories</h3>
+    <app-beat-nav
+      [selectedBeatId]="selectedBeatId"
+      [beatListView]="beatListView"
+      (newBeat)="newBeat()"
+      (selectBeat)="selectBeat($event)"
+      (deleteBeat)="deleteBeat()"></app-beat-nav>
+  </div>
 
-<app-beat-nav
-  [selectedBeatId]="selectedBeatId"
-  [beatListView]="beatListView"
-  (newBeat)="newBeat()"
-  (selectBeat)="selectBeat($event)"
-  (deleteBeat)="deleteBeat()"
-></app-beat-nav>
-
-<div *ngIf="!!selectedBeat">
-  Currently selected: {{selectedBeat.id}}, {{selectedBeat.synopsis}}
+  <app-beat-prose-edit
+    class="story-prose"
+    [beat]="selectedBeat"
+    (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
 </div>

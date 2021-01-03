@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Tag} from '../../../protos';
 import {MatCheckboxChange} from '@angular/material/checkbox';
 
@@ -10,7 +10,8 @@ export interface TagUpdate {
 @Component({
   selector: 'app-tag-details',
   templateUrl: './tag-details.component.html',
-  styleUrls: ['./tag-details.component.scss']
+  styleUrls: ['./tag-details.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagDetailsComponent implements OnInit {
 

@@ -27,6 +27,7 @@ import { TagDetailsComponent } from './tag-page/tag-details/tag-details.componen
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { BeatPageComponent } from './beat-page/beat-page.component';
 import { BeatNavComponent } from './beat-nav/beat-nav.component';
+import { BeatProseEditComponent } from './beat-prose-edit/beat-prose-edit.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -54,6 +55,7 @@ export const MaterialModules = [
     TagDetailsComponent,
     BeatPageComponent,
     BeatNavComponent,
+    BeatProseEditComponent,
   ],
   imports: [
     BrowserModule,

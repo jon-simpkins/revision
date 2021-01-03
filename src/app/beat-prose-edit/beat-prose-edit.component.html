@@ -1,0 +1,22 @@
+<h3 *ngIf="isEmpty()">no beat selected</h3>
+
+<ng-container *ngIf="!isEmpty()">
+  <mat-form-field class="full-width">
+    <mat-label>One-Liner Synopsis</mat-label>
+    <input
+      matInput
+      placeholder="Beat synopsis"
+      [value]="beat?.synopsis"
+      (input)="onSynopsisInput($event)"/>
+  </mat-form-field>
+  <quill-editor
+    [ngModel]="beat?.prose"
+    format="text"
+    [formats]="[]"
+    (onContentChanged)="onProseChanged($event)"
+  >
+    <div quill-editor-toolbar>
+      &nbsp;
+    </div>
+  </quill-editor>
+</ng-container>
