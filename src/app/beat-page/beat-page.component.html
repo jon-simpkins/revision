@@ -1,10 +1,13 @@
 <h1>placeholder beats page</h1>
 
-<button (click)="newBeat()">New Beat</button>
-<button [disabled]="beatCount() == 0" (click)="deleteBeat()">Delete Beat</button>
+<app-beat-nav
+  [selectedBeatId]="selectedBeatId"
+  [beatListView]="beatListView"
+  (newBeat)="newBeat()"
+  (selectBeat)="selectBeat($event)"
+  (deleteBeat)="deleteBeat()"
+></app-beat-nav>
 
-<p>{{beatCount()}} beats</p>
-
-<div *ngFor="let beat of allBeatsSummary">
-  {{beat.id}}, {{beat.lastUpdated | date: 'short'}}, {{beat.name}}
+<div *ngIf="!!selectedBeat">
+  Currently selected: {{selectedBeat.id}}, {{selectedBeat.synopsis}}
 </div>

@@ -1,0 +1,27 @@
+<div class="left-rail">
+  <div class="button-row">
+    <button mat-icon-button (click)="newBeat.emit()">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      (click)="deleteBeat.emit()"
+      [disabled]="!canDelete()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+  <mat-action-list dense>
+    <button
+      *ngFor="let beat of beatListView"
+      mat-list-item
+      (click)="selectBeat.emit(beat.id)">
+      <mat-icon
+        *ngIf="beat.id === selectedBeatId"
+        matListIcon>
+        arrow_right
+      </mat-icon>
+      <div mat-line>{{beat.name}}</div>
+      <div mat-line>{{beat.lastUpdated | date: 'short'}}</div>
+    </button>
+  </mat-action-list>
+</div>

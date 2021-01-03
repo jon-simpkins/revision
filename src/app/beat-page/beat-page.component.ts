@@ -1,5 +1,6 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
+import {Beat} from '../../protos';
 
 @Component({
   selector: 'app-beat-page',
@@ -8,14 +9,19 @@ import {BeatMapView, BeatsService} from '../beats.service';
 })
 export class BeatPageComponent implements OnInit, OnDestroy {
 
-  allBeatsSummary: BeatMapView[] = [];
+  beatListView: BeatMapView[] = [];
   beatMapViewSubscription = '';
+
+  selectedBeatId = '';
+
+  selectedBeat: Beat|null = null;
+  selectedBeatSubscription = '';
 
   constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {
-      this.allBeatsSummary = Array.from(newValue.values()).sort((a, b) => {
+      this.beatListView = Array.from(newValue.values()).sort((a, b) => {
         return b.lastUpdated - a.lastUpdated;
       });
       this.ref.markForCheck();
@@ -24,24 +30,34 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.beatsService.cancelSubscription(this.beatMapViewSubscription);
+    this.beatsService.cancelSubscription(this.selectedBeatSubscription);
   }
 
   async newBeat(): Promise<void> {
     const newUuid = await this.beatsService.createNewBeat();
-    console.log(newUuid + ' created');
+    await this.selectBeat(newUuid);
+  }
+
+  async selectBeat(newUuid: string): Promise<void> {
+    this.selectedBeatId = newUuid;
+    this.selectedBeat = null;
+
+    this.beatsService.cancelSubscription(this.selectedBeatSubscription);
+    if (!!newUuid.length) {
+      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {
+        this.selectedBeat = newValue;
+        this.ref.markForCheck();
+      });
+    }
+
+    this.ref.markForCheck();
   }
 
   async deleteBeat(): Promise<void> {
-    // for now, just delete the last beat
-    const uuidToDelete = this.allBeatsSummary[this.allBeatsSummary.length - 1].id;
-
     await this.beatsService.deleteBeat(
-      uuidToDelete
+      this.selectedBeatId
     );
-  }
-
-  beatCount(): number {
-    return this.allBeatsSummary.length;
+    await this.selectBeat('');
   }
 
 }

@@ -2,6 +2,39 @@
     "pipes": [],
     "interfaces": [
         {
+            "name": "BeatMapView",
+            "id": "interface-BeatMapView-48f70fcbd639b49ba8d6dd785c8573e2",
+            "file": "src/app/beats.service.ts",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId)\n    );\n\n    const beatMap = await this.getBeatMap();\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n\n    if (affectsMapView) {\n      const beatMap = await this.getBeatMap();\n      beatMap.set(beat.id, BeatsService.getMapVersion(beat));\n      await this.setBeatMap(beatMap);\n    }\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getMapVersion(beat)\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "lastUpdated",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
             "name": "StorageSubscription",
             "id": "interface-StorageSubscription-6de4006da1f890b4961a2860c62904b4",
             "file": "src/app/storage.service.ts",
@@ -121,10 +154,10 @@
         },
         {
             "name": "TagUpdate",
-            "id": "interface-TagUpdate-f9339a429b6538212564b3b1fed92833",
+            "id": "interface-TagUpdate-0872e2007ee26866b2fe917b443cc142",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(newValue: string): void {\n    const tag = this.tag as Tag;\n\n    tag.name = newValue;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
@@ -148,8 +181,402 @@
     ],
     "injectables": [
         {
+            "name": "BeatsService",
+            "id": "injectable-BeatsService-48f70fcbd639b49ba8d6dd785c8573e2",
+            "file": "src/app/beats.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "cancelSubscription",
+                    "args": [
+                        {
+                            "name": "subscription",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 165,
+                    "jsdoctags": [
+                        {
+                            "name": "subscription",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "createNewBeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<string>",
+                    "typeParameters": [],
+                    "line": 45,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "deleteBeat",
+                    "args": [
+                        {
+                            "name": "beatId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 61,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "generateBeatMap",
+                    "args": [
+                        {
+                            "name": "beats",
+                            "type": "IBeat[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Map<string, BeatMapView>",
+                    "typeParameters": [],
+                    "line": 123,
+                    "modifierKind": [
+                        112
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beats",
+                            "type": "IBeat[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getAllBeats",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<Beat[]>",
+                    "typeParameters": [],
+                    "line": 102,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getBeat",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<Beat | null>",
+                    "typeParameters": [],
+                    "line": 89,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getBeatKey",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 31,
+                    "modifierKind": [
+                        112,
+                        115
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getBeatMap",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<Map<string, BeatMapView>>",
+                    "typeParameters": [],
+                    "line": 136,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getMapVersion",
+                    "args": [
+                        {
+                            "name": "beat",
+                            "type": "IBeat"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "BeatMapView",
+                    "typeParameters": [],
+                    "line": 23,
+                    "modifierKind": [
+                        112,
+                        115
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beat",
+                            "type": "IBeat",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setAllBeats",
+                    "args": [
+                        {
+                            "name": "beats",
+                            "type": "IBeat[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 35,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beats",
+                            "type": "IBeat[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setBeat",
+                    "args": [
+                        {
+                            "name": "beat",
+                            "type": "Beat"
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean",
+                            "defaultValue": "true"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 71,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beat",
+                            "type": "Beat",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean",
+                            "defaultValue": "true",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setBeatMap",
+                    "args": [
+                        {
+                            "name": "beatMap",
+                            "type": "Map<string | BeatMapView>"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 119,
+                    "modifierKind": [
+                        112,
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beatMap",
+                            "type": "Map<string | BeatMapView>",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToBeat",
+                    "args": [
+                        {
+                            "name": "beatId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newBeat",
+                                    "type": "Beat | null"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 146,
+                    "jsdoctags": [
+                        {
+                            "name": "beatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newBeat",
+                                    "type": "Beat | null"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToBeatMapView",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newBeatMapView",
+                                    "type": "Map<string | BeatMapView>"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 140,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newBeatMapView",
+                                    "type": "Map<string | BeatMapView>"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId)\n    );\n\n    const beatMap = await this.getBeatMap();\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n\n    if (affectsMapView) {\n      const beatMap = await this.getBeatMap();\n      beatMap.set(beat.id, BeatsService.getMapVersion(beat));\n      await this.setBeatMap(beatMap);\n    }\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getMapVersion(beat)\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    }
+                ],
+                "line": 19,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
             "name": "MonolithicDataService",
-            "id": "injectable-MonolithicDataService-d2ba9c346b6af05f71604c031df5b5c2",
+            "id": "injectable-MonolithicDataService-de2f5626120483a3882b812624be0e3b",
             "file": "src/app/monolithic-data.service.ts",
             "properties": [],
             "methods": [
@@ -164,7 +591,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 66,
+                    "line": 70,
                     "jsdoctags": [
                         {
                             "name": "subscriptionId",
@@ -181,7 +608,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 70,
+                    "line": 74,
                     "modifierKind": [
                         120
                     ]
@@ -192,7 +619,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 55,
+                    "line": 59,
                     "modifierKind": [
                         120
                     ]
@@ -208,7 +635,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 31,
+                    "line": 33,
                     "modifierKind": [
                         120
                     ],
@@ -233,7 +660,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 23,
+                    "line": 25,
                     "modifierKind": [
                         120
                     ],
@@ -253,7 +680,7 @@
                     "optional": false,
                     "returnType": "Promise<WritingWorkspace>",
                     "typeParameters": [],
-                    "line": 40,
+                    "line": 43,
                     "modifierKind": [
                         120
                     ]
@@ -269,7 +696,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 51,
+                    "line": 55,
                     "modifierKind": [
                         120
                     ],
@@ -300,7 +727,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 60,
+                    "line": 64,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -319,7 +746,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\nimport {TagService} from './tag.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService,\n              private tagService: TagService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n    await this.tagService.setAllTags(workspace.tags || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n    workspace.tags = await this.tagService.getAllTags();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\nimport {TagService} from './tag.service';\nimport {BeatsService} from './beats.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService,\n              private tagService: TagService,\n              private beatService: BeatsService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n    await this.tagService.setAllTags(workspace.tags || []);\n    await this.beatService.setAllBeats(workspace.beats || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n    workspace.tags = await this.tagService.getAllTags();\n    workspace.beats = await this.beatService.getAllBeats();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -339,9 +766,13 @@
                     {
                         "name": "tagService",
                         "type": "TagService"
+                    },
+                    {
+                        "name": "beatService",
+                        "type": "BeatsService"
                     }
                 ],
-                "line": 16,
+                "line": 17,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -367,6 +798,13 @@
                     {
                         "name": "tagService",
                         "type": "TagService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "beatService",
+                        "type": "BeatsService",
                         "tagName": {
                             "text": "param"
                         }
@@ -1582,6 +2020,238 @@
             "templateData": "<div class=\"header\">\n  <h1>\n    <a routerLink=\"/\" routerLinkActive=\"active\">\n      Revision\n    </a>\n  </h1>\n\n  <app-header-timer class=\"timer\"></app-header-timer>\n\n  <a routerLink=\"/data\" routerLinkActive=\"active\">\n    Data\n  </a>\n</div>\n\n<div class=\"body\">\n  <router-outlet></router-outlet>\n</div>\n"
         },
         {
+            "name": "BeatNavComponent",
+            "id": "component-BeatNavComponent-2cedbe005860f5ccb4d8c4f874707018",
+            "file": "src/app/beat-nav/beat-nav.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-beat-nav",
+            "styleUrls": [
+                "./beat-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./beat-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "beatListView",
+                    "defaultValue": "[]",
+                    "line": 15,
+                    "type": "BeatMapView[]"
+                },
+                {
+                    "name": "selectedBeatId",
+                    "defaultValue": "''",
+                    "line": 12
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "deleteBeat",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "newBeat",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 17,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "selectBeat",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 19,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "canDelete",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 29
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 26
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BeatMapView} from '../beats.service';\n\n@Component({\n  selector: 'app-beat-nav',\n  templateUrl: './beat-nav.component.html',\n  styleUrls: ['./beat-nav.component.scss']\n})\nexport class BeatNavComponent implements OnInit {\n\n  @Input()\n  selectedBeatId = '';\n\n  @Input()\n  beatListView: BeatMapView[] = [];\n\n  @Output() newBeat = new EventEmitter<void>();\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  @Output() deleteBeat = new EventEmitter<void>();\n\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  canDelete(): boolean {\n    return this.selectedBeatId.length > 0;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./beat-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 21
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"newBeat.emit()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteBeat.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let beat of beatListView\"\n      mat-list-item\n      (click)=\"selectBeat.emit(beat.id)\">\n      <mat-icon\n        *ngIf=\"beat.id === selectedBeatId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      <div mat-line>{{beat.name}}</div>\n      <div mat-line>{{beat.lastUpdated | date: 'short'}}</div>\n    </button>\n  </mat-action-list>\n</div>\n"
+        },
+        {
+            "name": "BeatPageComponent",
+            "id": "component-BeatPageComponent-72c46f91e37ac5a8b7c1aa5de050f1b5",
+            "file": "src/app/beat-page/beat-page.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-beat-page",
+            "styleUrls": [
+                "./beat-page.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./beat-page.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "allBeatsSummary",
+                    "defaultValue": "[]",
+                    "type": "BeatMapView[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 11
+                },
+                {
+                    "name": "beatMapViewSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "beatCount",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 43
+                },
+                {
+                    "name": "deleteBeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 34,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "newBeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 29,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "ngOnDestroy",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 16
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  allBeatsSummary: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.allBeatsSummary = Array.from(newValue.values()).sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    console.log(newUuid + ' created');\n  }\n\n  async deleteBeat(): Promise<void> {\n    // for now, just delete the last beat\n    const uuidToDelete = this.allBeatsSummary[this.allBeatsSummary.length - 1].id;\n\n    await this.beatsService.deleteBeat(\n      uuidToDelete\n    );\n  }\n\n  beatCount(): number {\n    return this.allBeatsSummary.length;\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./beat-page.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 12,
+                "jsdoctags": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit",
+                "OnDestroy"
+            ],
+            "templateData": "<h1>placeholder beats page</h1>\n\n<button (click)=\"newBeat()\">New Beat</button>\n<button [disabled]=\"beatCount() == 0\" (click)=\"deleteBeat()\">Delete Beat</button>\n\n<p>{{beatCount()}} beats</p>\n\n<div *ngFor=\"let beat of allBeatsSummary\">\n  {{beat.id}}, {{beat.lastUpdated | date: 'short'}}, {{beat.name}}\n</div>\n"
+        },
+        {
             "name": "HeaderTimerComponent",
             "id": "component-HeaderTimerComponent-2d9b65fb60cd8135042228092b977ee5",
             "file": "src/app/header-timer/header-timer.component.ts",
@@ -1960,7 +2630,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ShowSessionHistoryComponent",
@@ -2631,7 +3301,7 @@
         },
         {
             "name": "TagDetailsComponent",
-            "id": "component-TagDetailsComponent-f9339a429b6538212564b3b1fed92833",
+            "id": "component-TagDetailsComponent-0872e2007ee26866b2fe917b443cc142",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2666,12 +3336,20 @@
             "propertiesClass": [],
             "methodsClass": [
                 {
+                    "name": "hasNumericValue",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 38
+                },
+                {
                     "name": "isEmpty",
                     "args": [],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 49
+                    "line": 64
                 },
                 {
                     "name": "ngOnInit",
@@ -2680,6 +3358,28 @@
                     "returnType": "void",
                     "typeParameters": [],
                     "line": 24
+                },
+                {
+                    "name": "onDescriptionInput",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 53,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "onHasNumericValueCheckbox",
@@ -2692,7 +3392,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 38,
+                    "line": 42,
                     "jsdoctags": [
                         {
                             "name": "event",
@@ -2707,8 +3407,8 @@
                     "name": "onNameInput",
                     "args": [
                         {
-                            "name": "newValue",
-                            "type": "string"
+                            "name": "event",
+                            "type": "any"
                         }
                     ],
                     "optional": false,
@@ -2717,8 +3417,8 @@
                     "line": 27,
                     "jsdoctags": [
                         {
-                            "name": "newValue",
-                            "type": "string",
+                            "name": "event",
+                            "type": "any",
                             "tagName": {
                                 "text": "param"
                             }
@@ -2731,11 +3431,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(newValue: string): void {\n    const tag = this.tag as Tag;\n\n    tag.name = newValue;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss']\n})\nexport class TagDetailsComponent implements OnInit {\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onNameInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  onDescriptionInput(event: any): void {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".full-width {\n  width: 100%;\n}\n",
+                    "data": ".row {\n  display: flex;\n  max-width: 500px;\n\n  mat-form-field {\n    flex: 1;\n  }\n}\n",
                     "styleUrl": "./tag-details.component.scss"
                 }
             ],
@@ -2749,7 +3449,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h3 *ngIf=\"isEmpty()\">no tag selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n\n  <mat-form-field class=\"full-width\">\n    <mat-label>Name</mat-label>\n    <input\n      matInput\n      placeholder=\"Tag name\"\n      [value]=\"tag.name\"\n      (input)=\"onNameInput($event.target.value)\"/>\n  </mat-form-field>\n\n  <mat-checkbox\n    [checked]=\"tag.hasNumericValue\"\n    (change)=\"onHasNumericValueCheckbox($event)\"\n  >Has numeric value</mat-checkbox>\n\n</ng-container>\n"
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no tag selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Name</mat-label>\n      <input\n        matInput\n        placeholder=\"Tag name\"\n        [value]=\"tag?.name\"\n        (input)=\"onNameInput($event)\"/>\n    </mat-form-field>\n\n    <mat-checkbox\n      [checked]=\"hasNumericValue()\"\n      (change)=\"onHasNumericValueCheckbox($event)\"\n    >Has numeric value</mat-checkbox>\n  </div>\n\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Description</mat-label>\n      <textarea\n        matInput\n        placeholder=\"Tag description\"\n        [rows]=\"5\"\n        [value]=\"tag?.description\"\n        (input)=\"onDescriptionInput($event)\"></textarea>\n    </mat-form-field>\n  </div>\n</ng-container>\n"
         },
         {
             "name": "TagNavComponent",
@@ -2856,7 +3556,7 @@
         },
         {
             "name": "TagPageComponent",
-            "id": "component-TagPageComponent-f022918d02743507b83c085d467fa354",
+            "id": "component-TagPageComponent-0b686474c2e66b2aec2b50cd65a4b0ae",
             "file": "src/app/tag-page/tag-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -2882,7 +3582,7 @@
                     "type": "Tag | null",
                     "optional": false,
                     "description": "",
-                    "line": 15
+                    "line": 16
                 },
                 {
                     "name": "selectedTagId",
@@ -2890,7 +3590,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 14
                 },
                 {
                     "name": "selectedTagSubscription",
@@ -2898,7 +3598,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 16
+                    "line": 17
                 },
                 {
                     "name": "tagListView",
@@ -2906,7 +3606,7 @@
                     "type": "TagListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 19
                 },
                 {
                     "name": "tagListViewSubscription",
@@ -2914,7 +3614,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 20
                 }
             ],
             "methodsClass": [
@@ -2924,7 +3624,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 56,
+                    "line": 57,
                     "modifierKind": [
                         120
                     ]
@@ -2935,7 +3635,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 35,
+                    "line": 36,
                     "modifierKind": [
                         120
                     ]
@@ -2946,7 +3646,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 30
+                    "line": 31
                 },
                 {
                     "name": "ngOnInit",
@@ -2954,7 +3654,32 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 23
+                    "line": 24
+                },
+                {
+                    "name": "onTagChanges",
+                    "args": [
+                        {
+                            "name": "newValue",
+                            "type": "TagUpdate"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 64,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newValue",
+                            "type": "TagUpdate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "selectTag",
@@ -2967,7 +3692,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 41,
+                    "line": 42,
                     "modifierKind": [
                         120
                     ],
@@ -2987,11 +3712,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {TagListView, TagService} from '../tag.service';\nimport {Tag} from '../../protos';\n\n@Component({\n  selector: 'app-tag-page',\n  templateUrl: './tag-page.component.html',\n  styleUrls: ['./tag-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagPageComponent implements OnInit, OnDestroy {\n\n  selectedTagId = '';\n\n  selectedTag: Tag|null = null;\n  selectedTagSubscription = '';\n\n  tagListView: TagListView[] = [];\n  tagListViewSubscription = '';\n\n  constructor(private tagService: TagService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.tagListViewSubscription = this.tagService.subscribeToTagListView((newValue) => {\n      this.tagListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.tagService.cancelSubscription(this.tagListViewSubscription);\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n  }\n\n  async newTag(): Promise<void> {\n    await this.selectTag(\n      await this.tagService.createNewTag()\n    );\n  }\n\n  async selectTag(tagId: string): Promise<void> {\n    this.selectedTagId = tagId;\n\n    // Clear old subscription setup new one\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n    if (!!tagId.length) {\n      this.selectedTagSubscription = this.tagService.subscribeToTag(tagId, (newValue) => {\n        this.selectedTag = newValue;\n        this.ref.markForCheck();\n      });\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async deleteTag(): Promise<void> {\n    const tagToDelete = this.selectedTagId;\n    this.selectedTag = null;\n    await this.selectTag('');\n    await this.tagService.deleteTag(tagToDelete);\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {TagListView, TagService} from '../tag.service';\nimport {Tag} from '../../protos';\nimport {TagUpdate} from './tag-details/tag-details.component';\n\n@Component({\n  selector: 'app-tag-page',\n  templateUrl: './tag-page.component.html',\n  styleUrls: ['./tag-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagPageComponent implements OnInit, OnDestroy {\n\n  selectedTagId = '';\n\n  selectedTag: Tag|null = null;\n  selectedTagSubscription = '';\n\n  tagListView: TagListView[] = [];\n  tagListViewSubscription = '';\n\n  constructor(private tagService: TagService, private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.tagListViewSubscription = this.tagService.subscribeToTagListView((newValue) => {\n      this.tagListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.tagService.cancelSubscription(this.tagListViewSubscription);\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n  }\n\n  async newTag(): Promise<void> {\n    await this.selectTag(\n      await this.tagService.createNewTag()\n    );\n  }\n\n  async selectTag(tagId: string): Promise<void> {\n    this.selectedTagId = tagId;\n\n    // Clear old subscription setup new one\n    this.tagService.cancelSubscription(this.selectedTagSubscription);\n    if (!!tagId.length) {\n      this.selectedTagSubscription = this.tagService.subscribeToTag(tagId, (newValue) => {\n        this.selectedTag = newValue;\n        this.ref.markForCheck();\n      });\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async deleteTag(): Promise<void> {\n    const tagToDelete = this.selectedTagId;\n    this.selectedTag = null;\n    await this.selectTag('');\n    await this.tagService.deleteTag(tagToDelete);\n  }\n\n  async onTagChanges(newValue: TagUpdate): Promise<void> {\n    await this.tagService.setTag(newValue.tag, newValue.modifiesListView);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".page {\n  height: 100%;\n  display: flex;\n}\n\n.details {\n  flex: 1;\n  padding-bottom: 48px;\n}\n",
+                    "data": ".page {\n  height: 100%;\n  display: flex;\n}\n\n.details {\n  flex: 1;\n  margin-left: 24px;\n  padding-bottom: 48px;\n}\n",
                     "styleUrl": "./tag-page.component.scss"
                 }
             ],
@@ -3009,7 +3734,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 19,
+                "line": 20,
                 "jsdoctags": [
                     {
                         "name": "tagService",
@@ -3031,7 +3756,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"page\">\n  <app-tag-nav\n    [selectedTagId]=\"selectedTagId\"\n    [tagListView]=\"tagListView\"\n    (newTag)=\"newTag()\"\n    (selectTag)=\"selectTag($event)\"\n    (deleteTag)=\"deleteTag()\"\n  ></app-tag-nav>\n  <div class=\"details\">\n    <p>Selected: {{selectedTagId}}</p>\n    <div *ngIf=\"!!selectedTag\">\n      {{selectedTag.description}}\n    </div>\n  </div>\n</div>\n"
+            "templateData": "<div class=\"page\">\n  <app-tag-nav\n    [selectedTagId]=\"selectedTagId\"\n    [tagListView]=\"tagListView\"\n    (newTag)=\"newTag()\"\n    (selectTag)=\"selectTag($event)\"\n    (deleteTag)=\"deleteTag()\"\n  ></app-tag-nav>\n  <app-tag-details\n    class=\"details\"\n    [tag]=\"selectedTag\"\n    (tagUpdated)=\"onTagChanges($event)\">\n  </app-tag-details>\n</div>\n"
         }
     ],
     "modules": [
@@ -3047,6 +3772,12 @@
                     "elements": [
                         {
                             "name": "AppComponent"
+                        },
+                        {
+                            "name": "BeatNavComponent"
+                        },
+                        {
+                            "name": "BeatPageComponent"
                         },
                         {
                             "name": "HeaderTimerComponent"
@@ -3139,6 +3870,14 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "ALL_BEAT_MAP_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beats.service.ts",
+                "type": "string",
+                "defaultValue": "'allBeatMap'"
+            },
+            {
                 "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -3153,6 +3892,14 @@
                 "file": "src/app/tag.service.ts",
                 "type": "string",
                 "defaultValue": "'allTagList'"
+            },
+            {
+                "name": "BEAT_KEY_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beats.service.ts",
+                "type": "string",
+                "defaultValue": "'beat-'"
             },
             {
                 "name": "context",
@@ -3174,7 +3921,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
+                "file": "src/app/import-export-page/import-export-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3182,7 +3929,7 @@
                 "name": "DefaultExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/import-export-page/import-export-page.stories.ts",
+                "file": "src/app/landing-page/landing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3190,7 +3937,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3199,6 +3946,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3233,6 +3988,14 @@
                 "file": "src/environments/environment.ts",
                 "type": "object",
                 "defaultValue": "{\n  production: false\n}"
+            },
+            {
+                "name": "exampleBeatListView",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
             },
             {
                 "name": "exampleStructureTemplateListView",
@@ -3270,6 +4033,14 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleNothingSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -3279,6 +4050,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -3389,9 +4168,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/landing-page/landing-page.stories.ts",
-                "type": "Story<LandingPageComponent>",
-                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -3405,9 +4184,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                "type": "Story<StructureTemplateDetailsComponent>",
-                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/landing-page/landing-page.stories.ts",
+                "type": "Story<LandingPageComponent>",
+                "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -3416,6 +4195,14 @@
                 "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "Story<StructureTemplateNavComponent>",
                 "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "Story<StructureTemplateDetailsComponent>",
+                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -3451,6 +4238,27 @@
             }
         ],
         "functions": [
+            {
+                "name": "epochMsToTimestamp",
+                "file": "src/app/timestamp-helpers.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "epochMs"
+                    }
+                ],
+                "returnType": "Timestamp",
+                "jsdoctags": [
+                    {
+                        "name": "epochMs",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
             {
                 "name": "getDurationBetweenTimestamps",
                 "file": "src/app/workspace-metadata.service.ts",
@@ -3635,11 +4443,50 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "timestampToEpochMs",
+                "file": "src/app/timestamp-helpers.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "description": "",
+                "args": [
+                    {
+                        "name": "timestampValue"
+                    }
+                ],
+                "returnType": "number",
+                "jsdoctags": [
+                    {
+                        "name": "timestampValue",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             }
         ],
         "typealiases": [],
         "enumerations": [],
         "groupedVariables": {
+            "src/app/beats.service.ts": [
+                {
+                    "name": "ALL_BEAT_MAP_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beats.service.ts",
+                    "type": "string",
+                    "defaultValue": "'allBeatMap'"
+                },
+                {
+                    "name": "BEAT_KEY_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beats.service.ts",
+                    "type": "string",
+                    "defaultValue": "'beat-'"
+                }
+            ],
             "src/app/structure-template.service.ts": [
                 {
                     "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
@@ -3743,24 +4590,6 @@
                     "defaultValue": "'workspaceMetadata'"
                 }
             ],
-            "src/app/landing-page/landing-page.stories.ts": [
-                {
-                    "name": "DefaultExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/landing-page/landing-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/landing-page/landing-page.stories.ts",
-                    "type": "Story<LandingPageComponent>",
-                    "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/import-export-page/import-export-page.stories.ts": [
                 {
                     "name": "DefaultExample",
@@ -3779,38 +4608,64 @@
                     "defaultValue": "(args: ImportExportPageComponent) => ({\n  component: ImportExportPageComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
+            "src/app/landing-page/landing-page.stories.ts": [
                 {
-                    "name": "EmptyExample",
+                    "name": "DefaultExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "file": "src/app/landing-page/landing-page.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTemplate",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
                 },
                 {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "Story<StructureTemplateDetailsComponent>",
-                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                    "file": "src/app/landing-page/landing-page.stories.ts",
+                    "type": "Story<LandingPageComponent>",
+                    "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-nav/beat-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
@@ -3853,6 +4708,40 @@
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "Story<StructureTemplateNavComponent>",
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTemplate",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "Story<StructureTemplateDetailsComponent>",
+                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-details/tag-details.stories.ts": [
@@ -3983,6 +4872,50 @@
             ]
         },
         "groupedFunctions": {
+            "src/app/timestamp-helpers.ts": [
+                {
+                    "name": "epochMsToTimestamp",
+                    "file": "src/app/timestamp-helpers.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "epochMs"
+                        }
+                    ],
+                    "returnType": "Timestamp",
+                    "jsdoctags": [
+                        {
+                            "name": "epochMs",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "timestampToEpochMs",
+                    "file": "src/app/timestamp-helpers.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "timestampValue"
+                        }
+                    ],
+                    "returnType": "number",
+                    "jsdoctags": [
+                        {
+                            "name": "timestampValue",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
             "src/app/workspace-metadata.service.ts": [
                 {
                     "name": "getDurationBetweenTimestamps",
@@ -4201,6 +5134,10 @@
                     {
                         "path": "tags",
                         "component": "TagPageComponent"
+                    },
+                    {
+                        "path": "beats",
+                        "component": "BeatPageComponent"
                     }
                 ],
                 "kind": "module"
@@ -4235,6 +5172,112 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "MaterialModules",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BeatNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleBeatListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleNothingSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleSecondSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-page/beat-page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BeatPageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beats.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "BeatsService",
+                "coveragePercent": 0,
+                "coverageCount": "0/16",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beats.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "BeatMapView",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beats.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ALL_BEAT_MAP_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beats.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "BEAT_KEY_PREFIX",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -4577,7 +5620,7 @@
                 "linktype": "component",
                 "name": "TagDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/10",
                 "status": "low"
             },
             {
@@ -4694,7 +5737,7 @@
                 "linktype": "component",
                 "name": "TagPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/12",
+                "coverageCount": "0/13",
                 "status": "low"
             },
             {
@@ -4731,6 +5774,24 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "TAG_KEY_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timestamp-helpers.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "epochMsToTimestamp",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timestamp-helpers.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "timestampToEpochMs",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
