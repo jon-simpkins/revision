@@ -133,4 +133,6 @@ message Beat {
   repeated BrainstormEntry brainstorm = 7;
 
   // TODO: measure of completeness here, maybe couple with feedback solicitation
+
+  Timestamp last_updated = 8;
 }

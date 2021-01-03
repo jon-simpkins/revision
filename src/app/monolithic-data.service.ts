@@ -4,6 +4,7 @@ import {WorkspaceMetadataService} from './workspace-metadata.service';
 import {StructureTemplateService} from './structure-template.service';
 import {StorageService} from './storage.service';
 import {TagService} from './tag.service';
+import {BeatsService} from './beats.service';
 
 const WORKSPACE_NAME_KEY = 'workspaceName';
 
@@ -18,7 +19,8 @@ export class MonolithicDataService {
   constructor(private storageService: StorageService,
               private workspaceMetadataService: WorkspaceMetadataService,
               private structureTemplateService: StructureTemplateService,
-              private tagService: TagService) { }
+              private tagService: TagService,
+              private beatService: BeatsService) { }
 
   async newWorkspace(name: string): Promise<void> {
     await this.clear();
@@ -34,6 +36,7 @@ export class MonolithicDataService {
     await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);
     await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);
     await this.tagService.setAllTags(workspace.tags || []);
+    await this.beatService.setAllBeats(workspace.beats || []);
   }
 
   // Function to pull workspace from local memory.
@@ -44,6 +47,7 @@ export class MonolithicDataService {
     workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);
     workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();
     workspace.tags = await this.tagService.getAllTags();
+    workspace.beats = await this.beatService.getAllBeats();
 
     return Promise.resolve(workspace);
   }
