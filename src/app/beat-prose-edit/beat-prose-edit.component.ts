@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Beat} from '../../protos';
 
+import {debounce} from 'debounce';
+
 export interface BeatUpdate {
   beat: Beat;
   modifiesListView: boolean;
@@ -19,6 +21,28 @@ export class BeatProseEditComponent implements OnInit {
 
   @Output() onBeatUpdated = new EventEmitter<BeatUpdate>();
 
+  onSynopsisInput = debounce((event: any) => {
+    const beat = this.beat as Beat;
+
+    beat.synopsis = event.target.value;
+
+    this.onBeatUpdated.emit({
+      beat,
+      modifiesListView: true,
+    } as BeatUpdate);
+  }, 200);
+
+  onProseChanged = debounce((event: any) => {
+    const beat = this.beat as Beat;
+
+    beat.prose = event.text;
+
+    this.onBeatUpdated.emit({
+      beat,
+      modifiesListView: false,
+    } as BeatUpdate);
+  }, 200);
+
   constructor() { }
 
   ngOnInit(): void {
@@ -28,25 +52,4 @@ export class BeatProseEditComponent implements OnInit {
     return this.beat == null;
   }
 
-  onSynopsisInput(event: any): void {
-    const beat = this.beat as Beat;
-
-    beat.synopsis = event.target.value;
-
-    this.onBeatUpdated.emit({
-      beat,
-      modifiesListView: true,
-    } as BeatUpdate);
-  }
-
-  onProseChanged(event: any): void {
-    const beat = this.beat as Beat;
-
-    beat.prose = event.text;
-
-    this.onBeatUpdated.emit({
-      beat,
-      modifiesListView: false,
-    } as BeatUpdate);
-  }
 }

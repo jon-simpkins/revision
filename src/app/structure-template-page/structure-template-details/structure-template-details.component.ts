@@ -4,6 +4,8 @@ import {ContentChange} from 'ngx-quill/lib/quill-editor.component';
 import {DeltaOperation} from 'quill';
 import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
+import {debounce} from 'debounce';
+
 export interface StructureTemplateUpdate {
   structureTemplate: StructureTemplate;
   modifiesListView: boolean;
@@ -16,6 +18,8 @@ export interface StructureTemplateUpdate {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StructureTemplateDetailsComponent implements OnChanges {
+
+  constructor(private ref: ChangeDetectorRef) {}
   @Input()
   structureTemplate: StructureTemplate|null = null;
 
@@ -25,7 +29,9 @@ export class StructureTemplateDetailsComponent implements OnChanges {
   errorMessage = '';
   lastStructureTemplateInput: StructureTemplate|null = null;
 
-  constructor(private ref: ChangeDetectorRef) {}
+  onContentChanged = debounce((contentChangeEvent: ContentChange) => {
+    this.parseContent(contentChangeEvent.text + '\n');
+  }, 200);
 
   ngOnChanges(): void {
     if (this.areStructureTemplatesEqual(this.lastStructureTemplateInput, this.structureTemplate)) {
@@ -96,10 +102,6 @@ export class StructureTemplateDetailsComponent implements OnChanges {
 
   isEmpty(): boolean {
     return this.structureTemplate == null;
-  }
-
-  onContentChanged(contentChangeEvent: ContentChange): void {
-    this.parseContent(contentChangeEvent.text + '\n');
   }
 
   parseContent(newContent: string): void {

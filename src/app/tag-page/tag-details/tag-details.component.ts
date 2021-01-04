@@ -2,6 +2,8 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output}
 import {Tag} from '../../../protos';
 import {MatCheckboxChange} from '@angular/material/checkbox';
 
+import {debounce} from 'debounce';
+
 export interface TagUpdate {
   tag: Tag;
   modifiesListView: boolean;
@@ -15,17 +17,14 @@ export interface TagUpdate {
 })
 export class TagDetailsComponent implements OnInit {
 
+  constructor() { }
+
   @Input()
   tag: Tag|null = null;
 
   @Output() tagUpdated = new EventEmitter<TagUpdate>();
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-  onNameInput(event: any): void {
+  onNameInput = debounce((event: any) => {
     const tag = this.tag as Tag;
 
     tag.name = event.target.value;
@@ -34,6 +33,20 @@ export class TagDetailsComponent implements OnInit {
       tag,
       modifiesListView: true,
     } as TagUpdate);
+  }, 200);
+
+  onDescriptionInput = debounce((event: any) => {
+    const tag = this.tag as Tag;
+
+    tag.description = event.target.value;
+
+    this.tagUpdated.emit({
+      tag,
+      modifiesListView: false,
+    } as TagUpdate);
+  }, 200);
+
+  ngOnInit(): void {
   }
 
   hasNumericValue(): boolean {
@@ -44,17 +57,6 @@ export class TagDetailsComponent implements OnInit {
     const tag = this.tag as Tag;
 
     tag.hasNumericValue = event.checked;
-
-    this.tagUpdated.emit({
-      tag,
-      modifiesListView: false,
-    } as TagUpdate);
-  }
-
-  onDescriptionInput(event: any): void {
-    const tag = this.tag as Tag;
-
-    tag.description = event.target.value;
 
     this.tagUpdated.emit({
       tag,
