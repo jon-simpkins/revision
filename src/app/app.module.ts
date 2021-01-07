@@ -28,6 +28,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { BeatPageComponent } from './beat-page/beat-page.component';
 import { BeatNavComponent } from './beat-nav/beat-nav.component';
 import { BeatProseEditComponent } from './beat-prose-edit/beat-prose-edit.component';
+import { BeatRelatedBeatNavComponent } from './beat-related-beat-nav/beat-related-beat-nav.component';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -37,6 +39,7 @@ export const MaterialModules = [
   MatIconModule,
   BrowserAnimationsModule,
   MatCheckboxModule,
+  DragDropModule,
   QuillModule.forRoot(),
 ];
 
@@ -56,6 +59,7 @@ export const MaterialModules = [
     BeatPageComponent,
     BeatNavComponent,
     BeatProseEditComponent,
+    BeatRelatedBeatNavComponent,
   ],
   imports: [
     BrowserModule,

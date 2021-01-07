@@ -119,18 +119,8 @@ message Beat {
   // All tag references
   repeated TagReference tag_references = 6;
 
-  message BrainstormEntry {
-    // ID of the beat that this brainstorm entry references
-    string beat_id = 1;
-
-    // Should this brainstorm entry be visible by default?
-    bool show = 2;
-
-    // TODO: some measure of voting / score for how good the idea is
-  }
-
-  // Loose collection of brainstorm entries
-  repeated BrainstormEntry brainstorm = 7;
+  // Brainstorm entries, consisting of an ordered list of beat ids
+  repeated string brainstorm = 7;
 
   // TODO: measure of completeness here, maybe couple with feedback solicitation
 
