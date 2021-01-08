@@ -91,7 +91,8 @@ export class BeatsService {
     await this.setBeatMap(beatMap);
 
     await this.storageService.delete(
-      BeatsService.getBeatKey(beatId)
+      BeatsService.getBeatKey(beatId),
+      true
     );
   }
 

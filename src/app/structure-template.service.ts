@@ -118,7 +118,8 @@ export class StructureTemplateService {
 
   async deleteTemplate(templateId: string): Promise<void> {
     await this.storageService.delete(
-      this.getTemplateKey(templateId)
+      this.getTemplateKey(templateId),
+      true
     );
 
     const listViewEligible = (await this.getAllTemplatesListView())

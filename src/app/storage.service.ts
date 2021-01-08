@@ -98,7 +98,12 @@ export class StorageService {
     await this.storage.clear().toPromise();
   }
 
-  async delete(key: string): Promise<void> {
+  async delete(key: string, isSubscribable: boolean = false): Promise<void> {
+    if (isSubscribable) {
+      // Notify subscriptions that the value no longer exists
+      await this.storage.set(this.getHashKey(key), 'nolongervalid').toPromise();
+    }
+
     await this.storage.delete(key).toPromise();
   }
 }

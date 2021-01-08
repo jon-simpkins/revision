@@ -9,18 +9,50 @@
       (deleteBeat)="deleteBeat()"></app-beat-nav>
   </div>
 
-  <app-beat-prose-edit
-    class="story-prose"
-    [beat]="selectedBeat"
-    (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
+  <div class="story-prose">
+    <div class="button-row">
+      <span class="spacer">&nbsp;</span>
+      <span *ngIf="parentListView.length > 0">
+        Parent Beat(s):
+      </span>
+      <button
+        *ngFor="let parentBeat of parentListView"
+        mat-stroked-button
+        (click)="selectBeat(parentBeat.id)"
+        >
+        {{parentBeat.name}}
+      </button>
+    </div>
+    <app-beat-prose-edit
+      [beat]="selectedBeat"
+      (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
+  </div>
 
-  <app-beat-related-beat-nav
-    class="beat-nav"
-    [selectedBeatId]="selectedChildBeatId"
-    [brainstormListView]="brainstormListView"
-    [structureListView]="structureListView"
-    (newBeat)="newChildBeat($event)"
-    (selectBeat)="selectChildBeat($event)"
-    (moveBeat)="moveChildBeat($event)"
-    (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
+  <ng-container *ngIf="!!selectedBeat">
+    <app-beat-related-beat-nav
+      class="beat-nav"
+      [selectedBeatId]="selectedChildBeatId"
+      [brainstormListView]="brainstormListView"
+      [structureListView]="structureListView"
+      (newBeat)="newChildBeat($event)"
+      (selectBeat)="selectChildBeat($event)"
+      (moveBeat)="moveChildBeat($event)"
+      (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
+
+    <div
+      *ngIf="!!selectedChildBeatId"
+      class="story-prose">
+      <div class="button-row">
+        <span class="spacer">&nbsp;</span>
+        <button
+          mat-stroked-button
+          (click)="selectBeat(selectedChildBeatId)"
+        >Edit</button>
+      </div>
+      <app-beat-prose-edit
+        [beat]="selectedChildBeat"
+        (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
+    </div>
+  </ng-container>
+
 </div>

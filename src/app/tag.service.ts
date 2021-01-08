@@ -75,7 +75,8 @@ export class TagService {
 
   async deleteTag(tagId: string): Promise<void> {
     await this.storageService.delete(
-      this.getTagKey(tagId)
+      this.getTagKey(tagId),
+      true
     );
 
     const listViewEligible = (await this.getAllTagsListView())

@@ -17,6 +17,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
   selectedBeatId = '';
 
+  parentListView: BeatMapView[] = [];
+
   selectedBeat: Beat|null = null;
   selectedBeatSubscription = '';
 
@@ -24,6 +26,9 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   structureListView: BeatMapView[] = [];
 
   selectedChildBeatId = '';
+
+  selectedChildBeat: Beat|null = null;
+  selectedChildBeatSubscription = '';
 
   constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }
 
@@ -46,17 +51,22 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.beatsService.cancelSubscription(this.beatMapViewSubscription);
     this.beatsService.cancelSubscription(this.selectedBeatSubscription);
+    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);
   }
 
   private buildRelatedListViews(): void {
     if (this.selectedBeat == null) {
       this.brainstormListView = [];
       this.structureListView = [];
+      this.parentListView = [];
     } else {
       this.brainstormListView = (this.selectedBeat.brainstorm || [])
         .map((id) => this.beatMapView.get(id) as BeatMapView)
         .filter(Boolean);
       this.structureListView = (this.selectedBeat.structure || [])
+        .map((id) => this.beatMapView.get(id) as BeatMapView)
+        .filter(Boolean);
+      this.parentListView = (this.beatMapView.get(this.selectedBeatId)?.parentBeats || [])
         .map((id) => this.beatMapView.get(id) as BeatMapView)
         .filter(Boolean);
     }
@@ -68,6 +78,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   }
 
   async selectBeat(newUuid: string): Promise<void> {
+    await this.selectChildBeat('');
+
     this.selectedBeatId = newUuid;
     this.selectedBeat = null;
 
@@ -78,6 +90,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
         this.buildRelatedListViews();
         this.ref.markForCheck();
       });
+      this.selectedBeat = await this.beatsService.getBeat(newUuid);
     }
 
     this.ref.markForCheck();
@@ -118,14 +131,26 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       true
     );
 
-    this.ref.markForCheck();
+    await this.selectChildBeat(newUuid);
   }
 
-  selectChildBeat(selectedChildId: string): void {
+  async selectChildBeat(selectedChildId: string): Promise<void> {
+    this.selectedChildBeat = null;
+    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);
+
     if (selectedChildId === this.selectedChildBeatId) {
       this.selectedChildBeatId = ''; // Treat as deselecting
     } else {
       this.selectedChildBeatId = selectedChildId;
+    }
+
+    if (!!this.selectedChildBeatId.length) {
+      this.selectedChildBeatSubscription = this.beatsService.subscribeToBeat(this.selectedChildBeatId, (newValue) => {
+        this.selectedChildBeat = newValue;
+        this.buildRelatedListViews();
+        this.ref.markForCheck();
+      });
+      this.selectedChildBeat = await this.beatsService.getBeat(this.selectedChildBeatId);
     }
 
     this.ref.markForCheck();
