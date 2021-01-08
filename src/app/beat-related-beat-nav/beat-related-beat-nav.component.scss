@@ -4,8 +4,8 @@
     border: 1px solid black;
     background: #fff;
     border-radius: 4px;
-    overflow: scroll;
     display: block;
+    margin-bottom: 24px;
   }
 
   .empty-message {
@@ -36,6 +36,7 @@
 
   h2 {
     flex: 1;
+    margin: auto;
   }
 
   button {

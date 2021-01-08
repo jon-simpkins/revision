@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
 import {Beat} from '../../protos';
 import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
+import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
 
 @Component({
   selector: 'app-beat-page',
@@ -10,6 +11,7 @@ import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 })
 export class BeatPageComponent implements OnInit, OnDestroy {
 
+  beatMapView: Map<string, BeatMapView> = new Map();
   beatListView: BeatMapView[] = [];
   beatMapViewSubscription = '';
 
@@ -18,13 +20,25 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   selectedBeat: Beat|null = null;
   selectedBeatSubscription = '';
 
+  brainstormListView: BeatMapView[] = [];
+  structureListView: BeatMapView[] = [];
+
+  selectedChildBeatId = '';
+
   constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {
-      this.beatListView = Array.from(newValue.values()).sort((a, b) => {
+      this.beatMapView = newValue;
+
+      this.beatListView = Array.from(newValue.values())
+        .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats
+        .sort((a, b) => {
         return b.lastUpdated - a.lastUpdated;
       });
+
+      this.buildRelatedListViews();
+
       this.ref.markForCheck();
     });
   }
@@ -32,6 +46,20 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.beatsService.cancelSubscription(this.beatMapViewSubscription);
     this.beatsService.cancelSubscription(this.selectedBeatSubscription);
+  }
+
+  private buildRelatedListViews(): void {
+    if (this.selectedBeat == null) {
+      this.brainstormListView = [];
+      this.structureListView = [];
+    } else {
+      this.brainstormListView = (this.selectedBeat.brainstorm || [])
+        .map((id) => this.beatMapView.get(id) as BeatMapView)
+        .filter(Boolean);
+      this.structureListView = (this.selectedBeat.structure || [])
+        .map((id) => this.beatMapView.get(id) as BeatMapView)
+        .filter(Boolean);
+    }
   }
 
   async newBeat(): Promise<void> {
@@ -47,6 +75,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     if (!!newUuid.length) {
       this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {
         this.selectedBeat = newValue;
+        this.buildRelatedListViews();
         this.ref.markForCheck();
       });
     }
@@ -68,4 +97,69 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       true);
   }
 
+  async newChildBeat(whichList: BeatSubList): Promise<void> {
+    const newUuid = await this.beatsService.createNewBeat();
+
+    const beat = this.selectedBeat as Beat;
+
+    if (whichList === BeatSubList.Structure) {
+      const structure = beat.structure || [];
+      structure.unshift(newUuid);
+      beat.structure = structure;
+    } else {
+      const brainstorm = beat.brainstorm || [];
+      brainstorm.unshift(newUuid);
+      beat.brainstorm = brainstorm;
+    }
+
+    await this.beatsService.setBeat(
+      beat,
+      true,
+      true
+    );
+
+    this.ref.markForCheck();
+  }
+
+  selectChildBeat(selectedChildId: string): void {
+    if (selectedChildId === this.selectedChildBeatId) {
+      this.selectedChildBeatId = ''; // Treat as deselecting
+    } else {
+      this.selectedChildBeatId = selectedChildId;
+    }
+
+    this.ref.markForCheck();
+  }
+
+  async moveChildBeat(moveEvent: BeatDropEvent): Promise<void> {
+    const beat = this.selectedBeat as Beat;
+
+    let uuidToMove: string;
+    if (moveEvent.sourceList === BeatSubList.Structure) {
+      uuidToMove = beat.structure.splice(moveEvent.sourceIndex, 1)[0];
+    } else {
+      uuidToMove = beat.brainstorm.splice(moveEvent.sourceIndex, 1)[0];
+    }
+
+    if (moveEvent.targetList === BeatSubList.Structure) {
+      beat.structure.splice(moveEvent.targetIndex, 0, uuidToMove);
+    } else {
+      beat.brainstorm.splice(moveEvent.targetIndex, 0, uuidToMove);
+    }
+
+    await this.beatsService.setBeat(
+      beat,
+      true,
+      true
+    );
+
+    this.ref.markForCheck();
+  }
+
+  async deleteChildBeat(): Promise<void> {
+    const uuidToDelete = this.selectedChildBeatId;
+    this.selectedChildBeatId = '';
+
+    await this.beatsService.deleteBeat(uuidToDelete);
+  }
 }

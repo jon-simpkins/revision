@@ -8,6 +8,7 @@ export interface BeatMapView {
   id: string;
   name: string;
   lastUpdated: number;
+  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm
 }
 
 const ALL_BEAT_MAP_KEY = 'allBeatMap';
@@ -20,11 +21,12 @@ export class BeatsService {
 
   constructor(private storageService: StorageService) { }
 
-  private static getMapVersion(beat: IBeat): BeatMapView {
+  private static getInitialMapVersion(beat: IBeat): BeatMapView {
     return {
       id: beat.id,
       name: beat.synopsis,
       lastUpdated: timestampToEpochMs(beat.lastUpdated),
+      parentBeats: []
     } as BeatMapView;
   }
 
@@ -59,13 +61,38 @@ export class BeatsService {
   }
 
   async deleteBeat(beatId: string): Promise<void> {
+    const beat = await this.getBeat(beatId) as Beat;
+    let beatMap = await this.getBeatMap();
+
+    // Remove any references to this beat as child
+    const parentIds = beatMap.get(beatId)?.parentBeats as string[];
+    for (const parentId of parentIds) {
+      const parentBeat = await this.getBeat(parentId) as Beat;
+      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);
+      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);
+      await this.setBeat(parentBeat, true, true);
+    }
+
+    // Re-fetch the beat map, to pick up all the recent changes
+    beatMap = await this.getBeatMap();
+
+    // Remove this beat as "parent" in any children
+    BeatsService.removeIdFromParents(
+      beatMap,
+      beatId,
+      (beat.structure || [])
+    );
+    BeatsService.removeIdFromParents(
+      beatMap,
+      beatId,
+      (beat.brainstorm || [])
+    );
+    beatMap.delete(beatId);
+    await this.setBeatMap(beatMap);
+
     await this.storageService.delete(
       BeatsService.getBeatKey(beatId)
     );
-
-    const beatMap = await this.getBeatMap();
-    beatMap.delete(beatId);
-    await this.setBeatMap(beatMap);
   }
 
   async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {
@@ -73,17 +100,51 @@ export class BeatsService {
       beat.lastUpdated = epochMsToTimestamp(Date.now());
     }
 
+    if (affectsMapView) {
+      const originalBeat = await this.getBeat(beat.id) as Beat;
+      const beatMap = await this.getBeatMap();
+
+      const originalBrainstorm = (originalBeat?.brainstorm || []);
+      const originalStructure = (originalBeat?.structure || []);
+
+      // Determine if there are any changes in the children
+      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)
+        || !allStringsInBothArrays(beat.structure, originalStructure)) {
+        BeatsService.removeIdFromParents(
+          beatMap,
+          beat.id,
+          originalBrainstorm
+        );
+        BeatsService.removeIdFromParents(
+          beatMap,
+          beat.id,
+          originalStructure
+        );
+
+        BeatsService.addParentToChildren(
+          beatMap,
+          beat.id,
+          beat.brainstorm
+        );
+        BeatsService.addParentToChildren(
+          beatMap,
+          beat.id,
+          beat.structure
+        );
+      }
+
+      const mapView = BeatsService.getInitialMapVersion(beat);
+      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];
+
+      beatMap.set(beat.id, mapView);
+      await this.setBeatMap(beatMap);
+    }
+
     await this.storageService.set(
       BeatsService.getBeatKey(beat.id),
       Beat.encode(beat).finish(),
       true
     );
-
-    if (affectsMapView) {
-      const beatMap = await this.getBeatMap();
-      beatMap.set(beat.id, BeatsService.getMapVersion(beat));
-      await this.setBeatMap(beatMap);
-    }
   }
 
   async getBeat(uuid: string): Promise<Beat|null> {
@@ -126,7 +187,23 @@ export class BeatsService {
     beats.forEach((beat: IBeat) => {
       beatMap.set(
         beat.id as string,
-        BeatsService.getMapVersion(beat)
+        BeatsService.getInitialMapVersion(beat)
+      );
+    });
+
+    // Set parent references
+    beats.forEach((beat: IBeat) => {
+      const id = beat.id as string;
+
+      BeatsService.addParentToChildren(
+        beatMap,
+        id,
+        (beat.brainstorm || [])
+      );
+      BeatsService.addParentToChildren(
+        beatMap,
+        id,
+        (beat.structure || [])
       );
     });
 
@@ -165,4 +242,28 @@ export class BeatsService {
   cancelSubscription(subscription: string): void {
     this.storageService.cancelSubscription(subscription);
   }
+
+  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {
+    children.forEach(childId => {
+      const childBeat = beatMap.get(childId) as BeatMapView;
+      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);
+    });
+  }
+
+  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {
+    children.forEach(childId => {
+      const childBeat = beatMap.get(childId) as BeatMapView;
+      childBeat.parentBeats.push(id);
+    });
+  }
+}
+
+function allStringsInBothArrays(array1: string[], array2: string[]): boolean {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  return array1.every((value) => {
+    return array2.indexOf(value) >= 0;
+  });
 }

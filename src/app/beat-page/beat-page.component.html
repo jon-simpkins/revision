@@ -13,4 +13,14 @@
     class="story-prose"
     [beat]="selectedBeat"
     (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
+
+  <app-beat-related-beat-nav
+    class="beat-nav"
+    [selectedBeatId]="selectedChildBeatId"
+    [brainstormListView]="brainstormListView"
+    [structureListView]="structureListView"
+    (newBeat)="newChildBeat($event)"
+    (selectBeat)="selectChildBeat($event)"
+    (moveBeat)="moveChildBeat($event)"
+    (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
 </div>
