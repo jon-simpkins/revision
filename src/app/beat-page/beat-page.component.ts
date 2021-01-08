@@ -187,4 +187,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
     await this.beatsService.deleteBeat(uuidToDelete);
   }
+
+  tabChange(newIndex: number): void {
+    console.log(newIndex);
+  }
 }

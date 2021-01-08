@@ -29,15 +29,24 @@
   </div>
 
   <ng-container *ngIf="!!selectedBeat">
-    <app-beat-related-beat-nav
-      class="beat-nav"
-      [selectedBeatId]="selectedChildBeatId"
-      [brainstormListView]="brainstormListView"
-      [structureListView]="structureListView"
-      (newBeat)="newChildBeat($event)"
-      (selectBeat)="selectChildBeat($event)"
-      (moveBeat)="moveChildBeat($event)"
-      (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
+    <mat-tab-group
+      animationDuration="0ms"
+      (selectedIndexChange)="tabChange($event)">
+      <mat-tab label="Structure / Brainstorm">
+        <app-beat-related-beat-nav
+          class="beat-nav"
+          [selectedBeatId]="selectedChildBeatId"
+          [brainstormListView]="brainstormListView"
+          [structureListView]="structureListView"
+          (newBeat)="newChildBeat($event)"
+          (selectBeat)="selectChildBeat($event)"
+          (moveBeat)="moveChildBeat($event)"
+          (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
+      </mat-tab>
+      <mat-tab label="New Structure">
+        this will contain stuff
+      </mat-tab>
+    </mat-tab-group>
 
     <div
       *ngIf="!!selectedChildBeatId"

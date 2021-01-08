@@ -30,6 +30,7 @@ import { BeatNavComponent } from './beat-nav/beat-nav.component';
 import { BeatProseEditComponent } from './beat-prose-edit/beat-prose-edit.component';
 import { BeatRelatedBeatNavComponent } from './beat-related-beat-nav/beat-related-beat-nav.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
+import {MatTabsModule} from '@angular/material/tabs';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -40,6 +41,7 @@ export const MaterialModules = [
   BrowserAnimationsModule,
   MatCheckboxModule,
   DragDropModule,
+  MatTabsModule,
   QuillModule.forRoot(),
 ];
 
