@@ -25,6 +25,6 @@ export class StructureTemplateNavComponent {
   }
 
   canDelete(): boolean {
-    return this.selectedTemplateId.length > 0;
+    return (this.selectedTemplateId || '').length > 0;
   }
 }

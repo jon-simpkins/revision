@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
 import {StructureTemplate} from '../../protos';
 import {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-structure-template-page',
@@ -19,9 +20,17 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
   structureTemplateListView: StructureTemplateListView[] = [];
   structureTemplateListViewSubscription = '';
 
-  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef) { }
+  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
+    // Read the selected template ID from the route
+    this.route.params.subscribe(async (value) => {
+      const selectedId = value.id as string;
+      if (this.selectedTemplateUuid !== selectedId && !!selectedId) {
+        await this.selectTemplate(selectedId);
+      }
+    });
+
     this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {
       this.structureTemplateListView = newValue;
       this.ref.markForCheck();
@@ -54,6 +63,8 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
       this.selectedTemplate = newValue;
       this.ref.markForCheck();
     });
+
+    await this.router.navigate(['/structure-templates', { id: newId }]);
 
     this.ref.markForCheck();
   }

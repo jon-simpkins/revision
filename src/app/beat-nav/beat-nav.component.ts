@@ -28,6 +28,6 @@ export class BeatNavComponent implements OnInit {
   }
 
   canDelete(): boolean {
-    return this.selectedBeatId.length > 0;
+    return (this.selectedBeatId || '').length > 0;
   }
 }

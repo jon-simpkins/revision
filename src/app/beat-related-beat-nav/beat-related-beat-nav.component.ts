@@ -78,10 +78,10 @@ export class BeatRelatedBeatNavComponent implements OnInit, OnChanges {
 
   canDelete(listType: BeatSubList): boolean {
     if (listType === BeatSubList.Structure) {
-      return this.structureListView.filter((entry) => entry.id === this.selectedBeatId).length > 0;
+      return (this.structureListView || []).filter((entry) => entry.id === this.selectedBeatId).length > 0;
     }
 
-    return this.brainstormListView.filter((entry) => entry.id === this.selectedBeatId).length > 0;
+    return (this.brainstormListView || []).filter((entry) => entry.id === this.selectedBeatId).length > 0;
   }
 
   drop(event: CdkDragDrop<BeatMapView[]>): void {

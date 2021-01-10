@@ -30,6 +30,6 @@ export class TagNavComponent implements OnInit {
   }
 
   canDelete(): boolean {
-    return this.selectedTagId.length > 0;
+    return (this.selectedTagId || '').length > 0;
   }
 }

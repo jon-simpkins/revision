@@ -3,6 +3,7 @@ import {BeatMapView, BeatsService} from '../beats.service';
 import {Beat} from '../../protos';
 import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-beat-page',
@@ -30,9 +31,17 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   selectedChildBeat: Beat|null = null;
   selectedChildBeatSubscription = '';
 
-  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef) { }
+  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
+    // Read the selected beat ID from the route
+    this.route.params.subscribe(async (value) => {
+      const selectedId = value.id as string;
+      if (this.selectedBeatId !== selectedId && !!selectedId) {
+        await this.selectBeat(selectedId);
+      }
+    });
+
     this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {
       this.beatMapView = newValue;
 
@@ -92,6 +101,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       });
       this.selectedBeat = await this.beatsService.getBeat(newUuid);
     }
+
+    await this.router.navigate(['/beats', { id: newUuid }]);
 
     this.ref.markForCheck();
   }
