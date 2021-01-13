@@ -20,6 +20,9 @@ export class BeatProseEditComponent implements OnInit {
   @Input()
   beat: Beat|null = null;
 
+  @Input()
+  childSumDuration = 0;
+
   @Output() onBeatUpdated = new EventEmitter<BeatUpdate>();
 
   onSynopsisInput = debounce((event: any) => {
@@ -84,4 +87,11 @@ export class BeatProseEditComponent implements OnInit {
     return getDurationStr(beat.intendedDurationMs);
   }
 
+  shouldShowChildSumDuration(): boolean {
+    return this.childSumDuration > 0;
+  }
+
+  getChildSumDurationStr(): string {
+    return '(' + getDurationStr(this.childSumDuration) + ') from children';
+  }
 }

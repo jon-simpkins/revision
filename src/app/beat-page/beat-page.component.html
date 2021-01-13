@@ -25,6 +25,7 @@
     </div>
     <app-beat-prose-edit
       [beat]="selectedBeat"
+      [childSumDuration]="getChildSumDuration()"
       (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
   </div>
 

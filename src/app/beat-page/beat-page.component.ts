@@ -202,4 +202,21 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   tabChange(newIndex: number): void {
     console.log(newIndex);
   }
+
+  getChildSumDuration(): number {
+
+    if (!this.selectedBeat) {
+      return 0;
+    }
+
+    let sum = 0;
+    this.selectedBeat.structure.forEach(childId => {
+      const childBeatView = this.beatMapView.get(childId);
+      if (childBeatView) {
+        sum += childBeatView.intendedDurationMs;
+      }
+    });
+
+    return sum;
+  }
 }

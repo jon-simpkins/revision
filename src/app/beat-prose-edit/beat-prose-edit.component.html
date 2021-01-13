@@ -9,14 +9,20 @@
       [value]="beat?.synopsis"
       (input)="onSynopsisInput($event)"/>
   </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Duration (mm:ss)</mat-label>
-    <input
-      matInput
-      placeholder="Duration"
-      [value]="getBeatDurationStr()"
-      (input)="onDurationInput($event)"/>
-  </mat-form-field>
+  <div class="full-width">
+    <mat-form-field>
+      <mat-label>Duration (mm:ss)</mat-label>
+      <input
+        matInput
+        placeholder="Duration"
+        [value]="getBeatDurationStr()"
+        (input)="onDurationInput($event)"/>
+    </mat-form-field>
+    <div *ngIf="shouldShowChildSumDuration()">
+      {{getChildSumDurationStr()}}
+    </div>
+  </div>
+
   <quill-editor
     [ngModel]="beat?.prose"
     format="text"

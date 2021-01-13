@@ -1,3 +1,14 @@
 .full-width {
   width: 100%;
+
+  display: flex;
+
+  mat-form-field, div {
+    flex: 1;
+    margin: auto;
+  }
+
+  div {
+    margin-left: 16px;
+  }
 }
