@@ -1,6 +1,6 @@
 
 export function getDurationStr(durationMs: number): string {
-  let intendedDurationSec = durationMs / 1000;
+  let intendedDurationSec = durationMs * 0.001;
 
   let durationStr = '';
 
@@ -19,7 +19,7 @@ export function getDurationStr(durationMs: number): string {
     durationStr += '0';
   }
 
-  durationStr += intendedDurationSec;
+  durationStr += intendedDurationSec.toFixed(2);
 
   return durationStr;
 }

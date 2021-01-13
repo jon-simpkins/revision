@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {StructureTemplateListView} from '../structure-template.service';
 import {StructureTemplate} from '../../protos';
 import {getDurationStr} from '../duration-helpers';
@@ -9,7 +9,6 @@ import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
   selector: 'app-apply-structure-nav',
   templateUrl: './apply-structure-nav.component.html',
   styleUrls: ['./apply-structure-nav.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApplyStructureNavComponent implements OnInit {
 
@@ -26,7 +25,7 @@ export class ApplyStructureNavComponent implements OnInit {
 
   @Output() applyTemplate = new EventEmitter<void>();
 
-  constructor(private ref: ChangeDetectorRef) { }
+  constructor() { }
 
   ngOnInit(): void {
   }

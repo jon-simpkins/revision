@@ -36,6 +36,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   selectedTemplateUuid = '';
 
   selectedTemplate: StructureTemplate|null = null;
+  rescaledStructureTemplate: StructureTemplate|null = null;
   selectedTemplateSubscription = '';
 
   structureTemplateListView: StructureTemplateListView[] = [];
@@ -140,6 +141,10 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       updatedBeat.beat,
       updatedBeat.modifiesListView,
       true);
+
+    if (updatedBeat.modifiesListView) {
+      this.rescaleStructureTemplate();
+    }
   }
 
   async newChildBeat(whichList: BeatSubList): Promise<void> {
@@ -247,9 +252,38 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
     this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {
       this.selectedTemplate = newValue;
+
+      this.rescaleStructureTemplate();
       this.ref.markForCheck();
     });
 
+    this.ref.markForCheck();
+  }
+
+  rescaleStructureTemplate(): void {
+    this.rescaledStructureTemplate = this.selectedTemplate;
+
+    if (!this.rescaledStructureTemplate) {
+      return;
+    }
+
+    const currentIntendedDuration = this.selectedBeat?.intendedDurationMs;
+    let templateSumDuration = 0;
+    (this.selectedTemplate?.beats || []).forEach(beat => {
+      templateSumDuration += (beat.intendedDurationMs as number);
+    });
+
+    if (!templateSumDuration || !currentIntendedDuration) {
+      return;
+    }
+
+    const scale = currentIntendedDuration / templateSumDuration;
+    (this.selectedTemplate?.beats || []).forEach(beat => {
+      if (!!beat) {
+        const originalDuration = beat?.intendedDurationMs as number;
+        beat.intendedDurationMs = Math.floor(originalDuration * scale);
+      }
+    });
     this.ref.markForCheck();
   }
 
