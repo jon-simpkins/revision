@@ -1,9 +1,10 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
-import {Beat} from '../../protos';
+import {Beat, StructureTemplate} from '../../protos';
 import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
 import {ActivatedRoute, Router} from '@angular/router';
+import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
 
 @Component({
   selector: 'app-beat-page',
@@ -31,7 +32,20 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   selectedChildBeat: Beat|null = null;
   selectedChildBeatSubscription = '';
 
-  constructor(private beatsService: BeatsService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }
+  /** Structure templates */
+  selectedTemplateUuid = '';
+
+  selectedTemplate: StructureTemplate|null = null;
+  selectedTemplateSubscription = '';
+
+  structureTemplateListView: StructureTemplateListView[] = [];
+  structureTemplateListViewSubscription = '';
+
+  constructor(
+    private beatsService: BeatsService,
+    private ref: ChangeDetectorRef,
+    private structureTemplateService: StructureTemplateService,
+    private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
     // Read the selected beat ID from the route
@@ -55,12 +69,19 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
       this.ref.markForCheck();
     });
+
+    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {
+      this.structureTemplateListView = newValue;
+      this.ref.markForCheck();
+    });
   }
 
   ngOnDestroy(): void {
     this.beatsService.cancelSubscription(this.beatMapViewSubscription);
     this.beatsService.cancelSubscription(this.selectedBeatSubscription);
     this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);
+    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
+    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);
   }
 
   private buildRelatedListViews(): void {
@@ -218,5 +239,21 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     });
 
     return sum;
+  }
+
+  async selectStructureTemplate(newId: string): Promise<void> {
+    this.selectedTemplateUuid = newId;
+
+    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
+    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {
+      this.selectedTemplate = newValue;
+      this.ref.markForCheck();
+    });
+
+    this.ref.markForCheck();
+  }
+
+  applyStructureTemplate(): void {
+    console.log('apply structure template');
   }
 }

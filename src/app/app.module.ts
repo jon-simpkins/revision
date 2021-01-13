@@ -31,6 +31,7 @@ import { BeatProseEditComponent } from './beat-prose-edit/beat-prose-edit.compon
 import { BeatRelatedBeatNavComponent } from './beat-related-beat-nav/beat-related-beat-nav.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatTabsModule} from '@angular/material/tabs';
+import { ApplyStructureNavComponent } from './apply-structure-nav/apply-structure-nav.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -62,6 +63,7 @@ export const MaterialModules = [
     BeatNavComponent,
     BeatProseEditComponent,
     BeatRelatedBeatNavComponent,
+    ApplyStructureNavComponent,
   ],
   imports: [
     BrowserModule,
