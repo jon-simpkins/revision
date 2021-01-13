@@ -9,6 +9,7 @@ export interface BeatMapView {
   name: string;
   lastUpdated: number;
   parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm
+  intendedDurationMs: number;
 }
 
 const ALL_BEAT_MAP_KEY = 'allBeatMap';
@@ -26,7 +27,8 @@ export class BeatsService {
       id: beat.id,
       name: beat.synopsis,
       lastUpdated: timestampToEpochMs(beat.lastUpdated),
-      parentBeats: []
+      parentBeats: [],
+      intendedDurationMs: beat.intendedDurationMs
     } as BeatMapView;
   }
 
@@ -51,6 +53,7 @@ export class BeatsService {
       id: uuid,
       synopsis: 'My new beat',
       prose: '',
+      intendedDurationMs: 60 * 1000,
       structure: [],
       brainstorm: [],
     });

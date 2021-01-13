@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output}
 import {Beat} from '../../protos';
 
 import {debounce} from 'debounce';
+import {getDurationStr} from '../duration-helpers';
 
 export interface BeatUpdate {
   beat: Beat;
@@ -43,6 +44,31 @@ export class BeatProseEditComponent implements OnInit {
     } as BeatUpdate);
   }, 200);
 
+  onDurationInput = debounce((event: any) => {
+    const beat = this.beat as Beat;
+
+    const durationStr = event.target.value as string;
+    let parseDurationSec;
+
+    const splitDurationStr = durationStr.split(':');
+    if (splitDurationStr.length === 1) {
+      parseDurationSec = parseInt(splitDurationStr[0], 10) * 60;
+    } else {
+      parseDurationSec = parseFloat(splitDurationStr[1]) + 60 * parseInt(splitDurationStr[0], 10);
+    }
+
+    if (isNaN(parseDurationSec) || splitDurationStr.length > 2) {
+      return;
+    }
+
+    beat.intendedDurationMs = 1000 * parseDurationSec;
+
+    this.onBeatUpdated.emit({
+      beat,
+      modifiesListView: true
+    } as BeatUpdate);
+  }, 200);
+
   constructor() { }
 
   ngOnInit(): void {
@@ -50,6 +76,12 @@ export class BeatProseEditComponent implements OnInit {
 
   isEmpty(): boolean {
     return this.beat == null;
+  }
+
+  getBeatDurationStr(): string {
+    const beat = this.beat as Beat;
+
+    return getDurationStr(beat.intendedDurationMs);
   }
 
 }

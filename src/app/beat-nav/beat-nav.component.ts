@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {BeatMapView} from '../beats.service';
+import {getDurationStr} from '../duration-helpers';
 
 @Component({
   selector: 'app-beat-nav',
@@ -29,5 +30,9 @@ export class BeatNavComponent implements OnInit {
 
   canDelete(): boolean {
     return (this.selectedBeatId || '').length > 0;
+  }
+
+  formatDurationMs(value: number): string {
+    return getDurationStr(value);
   }
 }

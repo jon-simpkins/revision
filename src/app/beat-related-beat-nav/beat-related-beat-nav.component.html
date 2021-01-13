@@ -26,7 +26,7 @@
         class="beat-item" cdkDrag
         [class.selected]="beat.id == selectedBeatId"
         (click)="selectBeat.emit(beat.id)">
-        {{beat.name}}
+        {{beat.name}} ({{formatDurationMs(beat.intendedDurationMs)}})
       </div>
     </div>
   </div>

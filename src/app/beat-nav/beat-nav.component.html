@@ -20,7 +20,7 @@
         matListIcon>
         arrow_right
       </mat-icon>
-      <div mat-line>{{beat.name}}</div>
+      <div mat-line>{{beat.name}} ({{formatDurationMs(beat.intendedDurationMs)}})</div>
       <div mat-line>{{beat.lastUpdated | date: 'short'}}</div>
     </button>
   </mat-action-list>
