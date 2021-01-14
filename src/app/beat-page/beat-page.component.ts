@@ -5,6 +5,7 @@ import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
+import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
 @Component({
   selector: 'app-beat-page',
@@ -41,6 +42,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
   structureTemplateListView: StructureTemplateListView[] = [];
   structureTemplateListViewSubscription = '';
+
+  selectedTabIndex = 0;
 
   constructor(
     private beatsService: BeatsService,
@@ -226,7 +229,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   }
 
   tabChange(newIndex: number): void {
-    console.log(newIndex);
+    this.selectedTabIndex = newIndex;
   }
 
   getChildSumDuration(): number {
@@ -287,7 +290,32 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.ref.markForCheck();
   }
 
-  applyStructureTemplate(): void {
-    console.log('apply structure template');
+  async applyStructureTemplate(): Promise<void> {
+    const parentBeat = this.selectedBeat as Beat;
+
+    // Move everything from structure -> brainstorm
+    parentBeat.brainstorm = parentBeat.brainstorm.concat(parentBeat.structure);
+    parentBeat.structure = [];
+
+    // Create all relevant beats
+    const templateBeats = this.rescaledStructureTemplate?.beats as StructureTemplateBeat[];
+    for (const templateBeat of templateBeats) {
+      const newUuid = await this.beatsService.createNewBeat();
+
+      parentBeat.structure.push(newUuid);
+
+      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;
+      childBeat.synopsis = templateBeat.description;
+      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;
+
+      await this.beatsService.setBeat(childBeat, true);
+    }
+
+    await this.beatsService.setBeat(parentBeat, true);
+
+    await this.selectStructureTemplate('');
+    await this.selectChildBeat(parentBeat.structure[0]);
+    this.selectedTabIndex = 0;
+    this.ref.markForCheck();
   }
 }

@@ -32,6 +32,7 @@
   <ng-container *ngIf="!!selectedBeat">
     <mat-tab-group
       animationDuration="0ms"
+      [selectedIndex]="selectedTabIndex"
       (selectedIndexChange)="tabChange($event)">
       <mat-tab label="Structure / Brainstorm">
         <app-beat-related-beat-nav
