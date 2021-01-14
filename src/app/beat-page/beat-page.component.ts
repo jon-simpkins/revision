@@ -132,6 +132,12 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.ref.markForCheck();
   }
 
+  async selectParentBeat(parentUuid: string): Promise<void> {
+    const newChildId = this.selectedBeatId;
+    await this.selectBeat(parentUuid);
+    await this.selectChildBeat(newChildId);
+  }
+
   async deleteBeat(): Promise<void> {
     await this.beatsService.deleteBeat(
       this.selectedBeatId

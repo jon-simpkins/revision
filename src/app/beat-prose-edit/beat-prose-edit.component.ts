@@ -3,10 +3,16 @@ import {Beat} from '../../protos';
 
 import {debounce} from 'debounce';
 import {getDurationStr} from '../duration-helpers';
+import Completeness = Beat.Completeness;
 
 export interface BeatUpdate {
   beat: Beat;
   modifiesListView: boolean;
+}
+
+interface CompletenessOption {
+  value: number;
+  label: string;
 }
 
 @Component({
@@ -16,6 +22,8 @@ export interface BeatUpdate {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BeatProseEditComponent implements OnInit {
+
+  constructor() { }
 
   @Input()
   beat: Beat|null = null;
@@ -72,7 +80,28 @@ export class BeatProseEditComponent implements OnInit {
     } as BeatUpdate);
   }, 200);
 
-  constructor() { }
+  completenessOptions: CompletenessOption[] = [
+      {
+        value: Completeness.NOT_STARTED,
+        label: 'Not Started'
+      },
+      {
+        value: Completeness.BRAINSTORM,
+        label: 'Brainstorm'
+      },
+      {
+        value: Completeness.INITIAL_DRAFT,
+        label: 'Initial Draft'
+      },
+      {
+        value: Completeness.POLISHED,
+        label: 'Polished'
+      },
+      {
+        value: Completeness.FINAL,
+        label: 'Final'
+      }
+    ] as CompletenessOption[];
 
   ngOnInit(): void {
   }
@@ -93,5 +122,14 @@ export class BeatProseEditComponent implements OnInit {
 
   getChildSumDurationStr(): string {
     return '(' + getDurationStr(this.childSumDuration) + ') from children';
+  }
+
+  onCompletenessChange(newValue: any): void {
+    const beat = this.beat as Beat;
+    beat.completeness = newValue;
+    this.onBeatUpdated.emit({
+      beat,
+      modifiesListView: true
+    } as BeatUpdate);
   }
 }

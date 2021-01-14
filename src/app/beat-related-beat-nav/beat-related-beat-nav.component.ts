@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inp
 import {BeatMapView} from '../beats.service';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {getDurationStr} from '../duration-helpers';
+import {Beat} from '../../protos';
 
 interface BeatDropList {
   id: string;
@@ -102,5 +103,21 @@ export class BeatRelatedBeatNavComponent implements OnInit, OnChanges {
 
   formatDurationMs(value: number): string {
     return getDurationStr(value);
+  }
+
+  formatCompleteness(value: Beat.Completeness): string {
+    switch (value) {
+      case Beat.Completeness.NOT_STARTED:
+        return 'Not Started';
+      case Beat.Completeness.BRAINSTORM:
+        return 'Brainstorm';
+      case Beat.Completeness.INITIAL_DRAFT:
+        return 'Initial Draft';
+      case Beat.Completeness.POLISHED:
+        return 'Polished';
+      case Beat.Completeness.FINAL:
+        return 'Final';
+    }
+    return 'Unknown';
   }
 }

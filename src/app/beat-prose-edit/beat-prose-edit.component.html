@@ -11,6 +11,20 @@
   </mat-form-field>
   <div class="full-width">
     <mat-form-field>
+      <mat-label>Completeness</mat-label>
+      <mat-select
+        [value]="beat?.completeness"
+        (valueChange)="onCompletenessChange($event)">
+        <mat-option
+          *ngFor="let option of completenessOptions"
+          [value]="option.value">
+          {{option.label}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="full-width">
+    <mat-form-field>
       <mat-label>Duration (mm:ss)</mat-label>
       <input
         matInput

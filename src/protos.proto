@@ -122,7 +122,15 @@ message Beat {
   // Brainstorm entries, consisting of an ordered list of beat ids
   repeated string brainstorm = 7;
 
-  // TODO: measure of completeness here, maybe couple with feedback solicitation
-
   Timestamp last_updated = 8;
+
+  enum Completeness {
+    NOT_STARTED = 0;
+    BRAINSTORM = 1;
+    INITIAL_DRAFT = 2;
+    POLISHED = 3;
+    FINAL = 4;
+  }
+
+  Completeness completeness = 9;
 }
