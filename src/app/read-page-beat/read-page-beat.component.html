@@ -5,7 +5,5 @@
     </span>
     <a [routerLink]="['/beats', {id: beat?.id}]" >Edit</a>
   </header>
-  <p *ngIf="isExpanded" class="details">
-    {{beat?.prose}}
-  </p>
+  <p *ngIf="isExpanded" class="details">{{getProse()}}</p>
 </div>

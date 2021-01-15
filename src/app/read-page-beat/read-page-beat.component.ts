@@ -31,6 +31,11 @@ export class ReadPageBeatComponent implements OnInit {
     return !!this.beat;
   }
 
+  getProse(): string {
+    const prose = this.beat?.prose || '';
+    return prose.trim();
+  }
+
   getCompletionClass(): string {
     switch (this.beat?.completeness as Completeness) {
       case Completeness.FINAL:
