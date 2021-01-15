@@ -13,6 +13,14 @@ export interface BeatMapView {
   completeness: Beat.Completeness;
 }
 
+export interface BeatReadView {
+  id: string;
+  name: string;
+  prose: string;
+  showExpanded: boolean;
+  completeness: Beat.Completeness;
+}
+
 const ALL_BEAT_MAP_KEY = 'allBeatMap';
 const BEAT_KEY_PREFIX = 'beat-';
 
@@ -247,6 +255,37 @@ export class BeatsService {
 
   cancelSubscription(subscription: string): void {
     this.storageService.cancelSubscription(subscription);
+  }
+
+  async fetchReadView(beatId: string): Promise<BeatReadView[]> {
+    const readView: BeatReadView[] = [];
+
+    await this.appendReadView(beatId, readView);
+
+    return readView;
+  }
+
+  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {
+    const beat = await this.getBeat(beatId) as Beat;
+
+    if (!beat) {
+      return;
+    }
+
+    const beatReadView = {
+      id: beat.id,
+      name: beat.synopsis,
+      prose: beat.prose,
+      showExpanded: (beat.structure.length > 0),
+      completeness: beat.completeness
+    } as BeatReadView;
+
+    currentReadView.push(beatReadView);
+
+    // Recurse through child beats
+    for (const childBeat of beat.structure) {
+      await this.appendReadView(childBeat, currentReadView);
+    }
   }
 
   private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {
