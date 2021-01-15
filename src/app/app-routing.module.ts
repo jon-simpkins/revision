@@ -5,6 +5,7 @@ import {LandingPageComponent} from './landing-page/landing-page.component';
 import {StructureTemplatePageComponent} from './structure-template-page/structure-template-page.component';
 import {TagPageComponent} from './tag-page/tag-page.component';
 import {BeatPageComponent} from './beat-page/beat-page.component';
+import {ReadPageComponent} from './read-page/read-page.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent},
@@ -12,6 +13,7 @@ const routes: Routes = [
   { path: 'structure-templates', component: StructureTemplatePageComponent},
   { path: 'tags', component: TagPageComponent},
   { path: 'beats', component: BeatPageComponent},
+  { path: 'read', component: ReadPageComponent}
 ];
 
 @NgModule({

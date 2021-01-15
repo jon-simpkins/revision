@@ -11,6 +11,9 @@
 
   <div class="story-prose">
     <div class="button-row">
+      <button *ngIf="!!selectedBeat" mat-stroked-button (click)="openReadView()">
+        Read
+      </button>
       <span class="spacer">&nbsp;</span>
       <span *ngIf="parentListView.length > 0">
         Parent Beat(s):

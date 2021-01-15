@@ -324,4 +324,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.selectedTabIndex = 0;
     this.ref.markForCheck();
   }
+
+  async openReadView(): Promise<void> {
+    await this.router.navigate(['/read', { id: this.selectedBeatId }]);
+  }
 }
