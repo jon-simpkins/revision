@@ -34,6 +34,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { ApplyStructureNavComponent } from './apply-structure-nav/apply-structure-nav.component';
 import {MatSelectModule} from '@angular/material/select';
 import { ReadPageComponent } from './read-page/read-page.component';
+import { ReadPageBeatComponent } from './read-page-beat/read-page-beat.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -68,6 +69,7 @@ export const MaterialModules = [
     BeatRelatedBeatNavComponent,
     ApplyStructureNavComponent,
     ReadPageComponent,
+    ReadPageBeatComponent,
   ],
   imports: [
     BrowserModule,

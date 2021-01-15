@@ -276,7 +276,7 @@ export class BeatsService {
       id: beat.id,
       name: beat.synopsis,
       prose: beat.prose,
-      showExpanded: (beat.structure.length > 0),
+      showExpanded: (beat.structure.length === 0),
       completeness: beat.completeness
     } as BeatReadView;
 
