@@ -72,4 +72,33 @@ export class StructureTemplatePageComponent implements OnInit, OnDestroy {
   async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {
     await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);
   }
+
+  async generateStandardTemplates(): Promise<void> {
+    const threeActTemplateId = await this.structureTemplateService.createNewStructureTemplate();
+    const threeActTemplate = {
+      id: threeActTemplateId,
+      name: 'Three Act Structure',
+      description: 'Classic 3-Act Structure',
+      beats: [
+        {
+          description: 'Act 1: Establish the stasis, the risk of not changing',
+          intendedDurationMs: 1000
+        },
+        {
+          description: 'Act 2a: Establish superficial change, have things go well',
+          intendedDurationMs: 1000
+        },
+        {
+          description: 'Act 2b: Introduce consequences of change, show false hope as false',
+          intendedDurationMs: 1000
+        },
+        {
+          description: 'Act 3: Real change takes place, real resolution occurs',
+          intendedDurationMs: 1000
+        }
+      ]
+    } as StructureTemplate;
+
+    await this.structureTemplateService.setStructureTemplate(threeActTemplate, true);
+  }
 }

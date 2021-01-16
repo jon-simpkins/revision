@@ -20,6 +20,8 @@ export class StructureTemplateNavComponent {
 
   @Output() deleteTemplate = new EventEmitter<void>();
 
+  @Output() generateStandardTemplates = new EventEmitter<void>();
+
   createNewTemplate(): void {
     this.newTemplate.emit();
   }

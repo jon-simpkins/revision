@@ -9,6 +9,9 @@
       [disabled]="!canDelete()">
       <mat-icon>delete</mat-icon>
     </button>
+    <button mat-icon-button (click)="generateStandardTemplates.emit()">
+      <mat-icon>gesture</mat-icon>
+    </button>
   </div>
   <mat-action-list dense>
     <button
