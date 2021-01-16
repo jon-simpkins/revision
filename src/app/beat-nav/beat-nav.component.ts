@@ -22,6 +22,7 @@ export class BeatNavComponent implements OnInit {
 
   @Output() deleteBeat = new EventEmitter<void>();
 
+  collapsed = false;
 
   constructor() { }
 
@@ -34,5 +35,16 @@ export class BeatNavComponent implements OnInit {
 
   formatDurationMs(value: number): string {
     return getDurationStr(value);
+  }
+
+  toggleCollapsed(): void {
+    this.collapsed = !this.collapsed;
+  }
+
+  toggleIcon(): string {
+    if (this.collapsed) {
+      return 'chevron_right';
+    }
+    return 'chevron_left';
   }
 }

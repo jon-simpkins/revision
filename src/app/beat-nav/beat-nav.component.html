@@ -1,16 +1,21 @@
-<div class="left-rail">
+<div class="left-rail" [class.collapsed]="collapsed">
   <div class="button-row">
-    <button mat-icon-button (click)="newBeat.emit()">
-      <mat-icon>add_circle</mat-icon>
+    <button mat-icon-button (click)="toggleCollapsed()">
+      <mat-icon>{{toggleIcon()}}</mat-icon>
     </button>
-    <button
-      mat-icon-button
-      (click)="deleteBeat.emit()"
-      [disabled]="!canDelete()">
-      <mat-icon>delete</mat-icon>
-    </button>
+    <ng-container *ngIf="!collapsed">
+      <button mat-icon-button (click)="newBeat.emit()">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="deleteBeat.emit()"
+        [disabled]="!canDelete()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-container>
   </div>
-  <mat-action-list dense>
+  <mat-action-list *ngIf="!collapsed" dense>
     <button
       *ngFor="let beat of beatListView"
       mat-list-item

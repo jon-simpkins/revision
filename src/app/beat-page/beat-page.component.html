@@ -1,13 +1,10 @@
 <div class="content-wrapper">
-  <div class="story-nav">
-    <h3>All Stories</h3>
-    <app-beat-nav
-      [selectedBeatId]="selectedBeatId"
-      [beatListView]="beatListView"
-      (newBeat)="newBeat()"
-      (selectBeat)="selectBeat($event)"
-      (deleteBeat)="deleteBeat()"></app-beat-nav>
-  </div>
+  <app-beat-nav
+    [selectedBeatId]="selectedBeatId"
+    [beatListView]="beatListView"
+    (newBeat)="newBeat()"
+    (selectBeat)="selectBeat($event)"
+    (deleteBeat)="deleteBeat()"></app-beat-nav>
 
   <div class="story-prose">
     <div class="button-row">
