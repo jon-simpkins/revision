@@ -54,6 +54,9 @@ message WritingWorkspace {
 
   // All beats
   repeated Beat beats = 5;
+
+  // All brainstorm templates
+  repeated BrainstormTemplate brainstorm_templates = 6;
 }
 
 // Template for breaking a beat up into smaller structures
@@ -98,6 +101,17 @@ message Tag {
     bool is_deprecated = 3;
   }
   repeated EnumValue enum_values = 5;
+}
+
+message BrainstormTemplate {
+  // Unique identifier
+  string id = 1;
+
+  // Thing to show in list of options
+  string label = 2;
+
+  // The prompt to show the user
+  string template = 3;
 }
 
 message Beat {
