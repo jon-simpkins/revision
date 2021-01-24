@@ -35,6 +35,7 @@ import { ApplyStructureNavComponent } from './apply-structure-nav/apply-structur
 import {MatSelectModule} from '@angular/material/select';
 import { ReadPageComponent } from './read-page/read-page.component';
 import { ReadPageBeatComponent } from './read-page-beat/read-page-beat.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 export const MaterialModules = [
   MatButtonModule,

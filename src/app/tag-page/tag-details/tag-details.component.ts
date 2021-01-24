@@ -46,6 +46,17 @@ export class TagDetailsComponent implements OnInit {
     } as TagUpdate);
   }, 200);
 
+  setEnumLabel = debounce((index: number, event: any) => {
+    const tag = this.tag as Tag;
+
+    tag.enumValues[index].label = event.target.value;
+
+    this.tagUpdated.emit({
+      tag,
+      modifiesListView: false,
+    } as TagUpdate);
+  }, 200);
+
   ngOnInit(): void {
   }
 
@@ -68,4 +79,32 @@ export class TagDetailsComponent implements OnInit {
     return this.tag == null;
   }
 
+  setDeprecatedEnum(index: number, event: MatCheckboxChange): void {
+    const isDeprecated = !event.checked;
+
+    const tag = this.tag as Tag;
+
+    tag.enumValues[index].isDeprecated = isDeprecated;
+
+    this.tagUpdated.emit({
+      tag,
+      modifiesListView: false,
+    } as TagUpdate);
+  }
+
+  addEnumValue(): void {
+    const enumValue = {
+      label: 'My enum option',
+      isDeprecated: false,
+    } as Tag.EnumValue;
+
+    const tag = this.tag as Tag;
+
+    tag.enumValues.push(enumValue);
+
+    this.tagUpdated.emit({
+      tag,
+      modifiesListView: false,
+    } as TagUpdate);
+  }
 }

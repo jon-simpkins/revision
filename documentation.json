@@ -2508,7 +2508,7 @@
         },
         {
             "name": "BeatNavComponent",
-            "id": "component-BeatNavComponent-124334ec114dc5e1415a650f5945cb75",
+            "id": "component-BeatNavComponent-396754af3c2cbf3481be4a49b6bb7b8c",
             "file": "src/app/beat-nav/beat-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -2558,7 +2558,16 @@
                     "type": "EventEmitter"
                 }
             ],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "collapsed",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 25
+                }
+            ],
             "methodsClass": [
                 {
                     "name": "canDelete",
@@ -2566,7 +2575,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 31
+                    "line": 32
                 },
                 {
                     "name": "formatDurationMs",
@@ -2579,7 +2588,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 35,
+                    "line": 36,
                     "jsdoctags": [
                         {
                             "name": "value",
@@ -2596,7 +2605,23 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 28
+                    "line": 29
+                },
+                {
+                    "name": "toggleCollapsed",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 40
+                },
+                {
+                    "name": "toggleIcon",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 44
                 }
             ],
             "hostBindings": [],
@@ -2604,11 +2629,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BeatMapView} from '../beats.service';\nimport {getDurationStr} from '../duration-helpers';\n\n@Component({\n  selector: 'app-beat-nav',\n  templateUrl: './beat-nav.component.html',\n  styleUrls: ['./beat-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BeatNavComponent implements OnInit {\n\n  @Input()\n  selectedBeatId = '';\n\n  @Input()\n  beatListView: BeatMapView[] = [];\n\n  @Output() newBeat = new EventEmitter<void>();\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  @Output() deleteBeat = new EventEmitter<void>();\n\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  canDelete(): boolean {\n    return (this.selectedBeatId || '').length > 0;\n  }\n\n  formatDurationMs(value: number): string {\n    return getDurationStr(value);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BeatMapView} from '../beats.service';\nimport {getDurationStr} from '../duration-helpers';\n\n@Component({\n  selector: 'app-beat-nav',\n  templateUrl: './beat-nav.component.html',\n  styleUrls: ['./beat-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BeatNavComponent implements OnInit {\n\n  @Input()\n  selectedBeatId = '';\n\n  @Input()\n  beatListView: BeatMapView[] = [];\n\n  @Output() newBeat = new EventEmitter<void>();\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  @Output() deleteBeat = new EventEmitter<void>();\n\n  collapsed = false;\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  canDelete(): boolean {\n    return (this.selectedBeatId || '').length > 0;\n  }\n\n  formatDurationMs(value: number): string {\n    return getDurationStr(value);\n  }\n\n  toggleCollapsed(): void {\n    this.collapsed = !this.collapsed;\n  }\n\n  toggleIcon(): string {\n    if (this.collapsed) {\n      return 'chevron_right';\n    }\n    return 'chevron_left';\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".left-rail {\n  border-right: 1px solid black;\n\n  width: 250px;\n  padding-right: 16px;\n\n  &.collapsed {\n    width: inherit;\n  }\n}\n",
                     "styleUrl": "./beat-nav.component.scss"
                 }
             ],
@@ -2617,12 +2642,12 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 23
+                "line": 25
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"newBeat.emit()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteBeat.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let beat of beatListView\"\n      mat-list-item\n      (click)=\"selectBeat.emit(beat.id)\">\n      <mat-icon\n        *ngIf=\"beat.id === selectedBeatId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      <div mat-line>{{beat.name}} ({{formatDurationMs(beat.intendedDurationMs)}})</div>\n      <div mat-line>{{beat.lastUpdated | date: 'short'}}</div>\n    </button>\n  </mat-action-list>\n</div>\n"
+            "templateData": "<div class=\"left-rail\" [class.collapsed]=\"collapsed\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"toggleCollapsed()\">\n      <mat-icon>{{toggleIcon()}}</mat-icon>\n    </button>\n    <ng-container *ngIf=\"!collapsed\">\n      <button mat-icon-button (click)=\"newBeat.emit()\">\n        <mat-icon>add_circle</mat-icon>\n      </button>\n      <button\n        mat-icon-button\n        (click)=\"deleteBeat.emit()\"\n        [disabled]=\"!canDelete()\">\n        <mat-icon>delete</mat-icon>\n      </button>\n    </ng-container>\n  </div>\n  <mat-action-list *ngIf=\"!collapsed\" dense>\n    <button\n      *ngFor=\"let beat of beatListView\"\n      mat-list-item\n      (click)=\"selectBeat.emit(beat.id)\">\n      <mat-icon\n        *ngIf=\"beat.id === selectedBeatId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      <div mat-line>{{beat.name}} ({{formatDurationMs(beat.intendedDurationMs)}})</div>\n      <div mat-line>{{beat.lastUpdated | date: 'short'}}</div>\n    </button>\n  </mat-action-list>\n</div>\n"
         },
         {
             "name": "BeatPageComponent",
@@ -3177,7 +3202,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"content-wrapper\">\n  <div class=\"story-nav\">\n    <h3>All Stories</h3>\n    <app-beat-nav\n      [selectedBeatId]=\"selectedBeatId\"\n      [beatListView]=\"beatListView\"\n      (newBeat)=\"newBeat()\"\n      (selectBeat)=\"selectBeat($event)\"\n      (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n  </div>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
+            "templateData": "<div class=\"content-wrapper\">\n  <app-beat-nav\n    [selectedBeatId]=\"selectedBeatId\"\n    [beatListView]=\"beatListView\"\n    (newBeat)=\"newBeat()\"\n    (selectBeat)=\"selectBeat($event)\"\n    (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
         },
         {
             "name": "BeatProseEditComponent",
@@ -4575,7 +4600,7 @@
         },
         {
             "name": "StructureTemplateNavComponent",
-            "id": "component-StructureTemplateNavComponent-490be9242b4666c7ce496acf2cf05084",
+            "id": "component-StructureTemplateNavComponent-9d19e05f61aaf75e719d13d78e9cb4ec",
             "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -4613,6 +4638,12 @@
                     "type": "EventEmitter"
                 },
                 {
+                    "name": "generateStandardTemplates",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 23,
+                    "type": "EventEmitter"
+                },
+                {
                     "name": "newTemplate",
                     "defaultValue": "new EventEmitter<void>()",
                     "line": 17,
@@ -4633,7 +4664,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 27
+                    "line": 29
                 },
                 {
                     "name": "createNewTemplate",
@@ -4641,7 +4672,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 23
+                    "line": 25
                 }
             ],
             "hostBindings": [],
@@ -4649,7 +4680,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  selectedTemplateId = '';\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n\n  canDelete(): boolean {\n    return (this.selectedTemplateId || '').length > 0;\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';\nimport {StructureTemplateListView} from '../../structure-template.service';\n\n@Component({\n  selector: 'app-structure-template-nav',\n  templateUrl: './structure-template-nav.component.html',\n  styleUrls: ['./structure-template-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplateNavComponent {\n  @Input()\n  selectedTemplateId = '';\n\n  @Input()\n  structureTemplateListView: StructureTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  @Output() generateStandardTemplates = new EventEmitter<void>();\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n\n  canDelete(): boolean {\n    return (this.selectedTemplateId || '').length > 0;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4658,11 +4689,11 @@
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      <mat-icon\n        *ngIf=\"structureTemplate.id === selectedTemplateId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n    <button mat-icon-button (click)=\"generateStandardTemplates.emit()\">\n      <mat-icon>gesture</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let structureTemplate of structureTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(structureTemplate.id)\">\n      <mat-icon\n        *ngIf=\"structureTemplate.id === selectedTemplateId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      {{structureTemplate.name}}\n    </button>\n  </mat-action-list>\n</div>\n"
         },
         {
             "name": "StructureTemplatePageComponent",
-            "id": "component-StructureTemplatePageComponent-0a4a5ae144c65255f7faef8a1dee5921",
+            "id": "component-StructureTemplatePageComponent-d5faaf002a95856e563830846406897d",
             "file": "src/app/structure-template-page/structure-template-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -4731,6 +4762,17 @@
                     "returnType": "Promise<void>",
                     "typeParameters": [],
                     "line": 50,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "generateStandardTemplates",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 76,
                     "modifierKind": [
                         120
                     ]
@@ -4818,7 +4860,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport {StructureTemplate} from '../../protos';\nimport {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';\nimport {ActivatedRoute, Router} from '@angular/router';\n\n@Component({\n  selector: 'app-structure-template-page',\n  templateUrl: './structure-template-page.component.html',\n  styleUrls: ['./structure-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected template ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedTemplateUuid !== selectedId && !!selectedId) {\n        await this.selectTemplate(selectedId);\n      }\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n  }\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();\n    await this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  async deleteTemplate(): Promise<void> {\n    await this.structureTemplateService.deleteTemplate(this.selectedTemplateUuid);\n    this.selectedTemplateUuid = '';\n    this.selectedTemplate = null;\n    this.ref.markForCheck();\n  }\n\n  async selectTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    // Clear old subscription, setup new one\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n      this.ref.markForCheck();\n    });\n\n    await this.router.navigate(['/structure-templates', { id: newId }]);\n\n    this.ref.markForCheck();\n  }\n\n  async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {\n    await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport {StructureTemplate} from '../../protos';\nimport {StructureTemplateUpdate} from './structure-template-details/structure-template-details.component';\nimport {ActivatedRoute, Router} from '@angular/router';\n\n@Component({\n  selector: 'app-structure-template-page',\n  templateUrl: './structure-template-page.component.html',\n  styleUrls: ['./structure-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class StructureTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  constructor(private structureTemplateService: StructureTemplateService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected template ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedTemplateUuid !== selectedId && !!selectedId) {\n        await this.selectTemplate(selectedId);\n      }\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n  }\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.structureTemplateService.createNewStructureTemplate();\n    await this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  async deleteTemplate(): Promise<void> {\n    await this.structureTemplateService.deleteTemplate(this.selectedTemplateUuid);\n    this.selectedTemplateUuid = '';\n    this.selectedTemplate = null;\n    this.ref.markForCheck();\n  }\n\n  async selectTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    // Clear old subscription, setup new one\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n      this.ref.markForCheck();\n    });\n\n    await this.router.navigate(['/structure-templates', { id: newId }]);\n\n    this.ref.markForCheck();\n  }\n\n  async onTemplateChanges(newValue: StructureTemplateUpdate): Promise<void> {\n    await this.structureTemplateService.setStructureTemplate(newValue.structureTemplate, newValue.modifiesListView);\n  }\n\n  async generateStandardTemplates(): Promise<void> {\n    const threeActTemplateId = await this.structureTemplateService.createNewStructureTemplate();\n    const threeActTemplate = {\n      id: threeActTemplateId,\n      name: 'Three Act Structure',\n      description: 'Classic 3-Act Structure',\n      beats: [\n        {\n          description: 'Act 1: Establish the stasis, the risk of not changing',\n          intendedDurationMs: 1000\n        },\n        {\n          description: 'Act 2a: Establish superficial change, have things go well',\n          intendedDurationMs: 1000\n        },\n        {\n          description: 'Act 2b: Introduce consequences of change, show false hope as false',\n          intendedDurationMs: 1000\n        },\n        {\n          description: 'Act 3: Real change takes place, real resolution occurs',\n          intendedDurationMs: 1000\n        }\n      ]\n    } as StructureTemplate;\n\n    await this.structureTemplateService.setStructureTemplate(threeActTemplate, true);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4884,7 +4926,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [selectedTemplateId]=\"selectedTemplateUuid\"\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\">\n  </app-structure-template-nav>\n  <app-structure-template-details\n    class=\"details\"\n    [structureTemplate]=\"selectedTemplate\"\n    (templateUpdated)=\"onTemplateChanges($event)\">\n  </app-structure-template-details>\n</div>\n"
+            "templateData": "<div class=\"page\">\n  <app-structure-template-nav\n    [selectedTemplateId]=\"selectedTemplateUuid\"\n    [structureTemplateListView]=\"structureTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\"\n    (generateStandardTemplates)=\"generateStandardTemplates()\">\n  </app-structure-template-nav>\n  <app-structure-template-details\n    class=\"details\"\n    [structureTemplate]=\"selectedTemplate\"\n    (templateUpdated)=\"onTemplateChanges($event)\">\n  </app-structure-template-details>\n</div>\n"
         },
         {
             "name": "TagDetailsComponent",
@@ -5551,7 +5593,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5559,7 +5601,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5599,17 +5641,17 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.ts",
+                "file": "src/environments/environment.prod.ts",
                 "type": "object",
-                "defaultValue": "{\n  production: false\n}"
+                "defaultValue": "{\n  production: true\n}"
             },
             {
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.prod.ts",
+                "file": "src/environments/environment.ts",
                 "type": "object",
-                "defaultValue": "{\n  production: true\n}"
+                "defaultValue": "{\n  production: false\n}"
             },
             {
                 "name": "Example1",
@@ -5918,17 +5960,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                "type": "Story<BeatProseEditComponent>",
-                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "type": "Story<BeatRelatedBeatNavComponent>",
+                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
-                "type": "Story<BeatRelatedBeatNavComponent>",
-                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "Story<BeatProseEditComponent>",
+                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6551,40 +6593,6 @@
                     "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockBeat",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "Story<BeatProseEditComponent>",
-                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -6633,6 +6641,40 @@
                     "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                     "type": "Story<BeatRelatedBeatNavComponent>",
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockBeat",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -6787,16 +6829,6 @@
                     "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/environments/environment.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.ts",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -6805,6 +6837,16 @@
                     "file": "src/environments/environment.prod.ts",
                     "type": "object",
                     "defaultValue": "{\n  production: true\n}"
+                }
+            ],
+            "src/environments/environment.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.ts",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false\n}"
                 }
             ],
             "src/app/read-page-beat/read-page-beat.stories.ts": [
@@ -7337,7 +7379,7 @@
                 "linktype": "component",
                 "name": "BeatNavComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/10",
+                "coverageCount": "0/13",
                 "status": "low"
             },
             {
@@ -7918,7 +7960,7 @@
                 "linktype": "component",
                 "name": "StructureTemplateNavComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/9",
                 "status": "low"
             },
             {
@@ -7977,7 +8019,7 @@
                 "linktype": "component",
                 "name": "StructureTemplatePageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/13",
+                "coverageCount": "0/14",
                 "status": "low"
             },
             {

@@ -90,6 +90,14 @@ message Tag {
   // If true, then references to this tag can have numeric values that can be
   // graphed
   bool has_numeric_value = 4;
+
+  message EnumValue {
+    string label = 1;
+
+    // We don't actually delete values, we just flag them as deprecated
+    bool is_deprecated = 3;
+  }
+  repeated EnumValue enum_values = 5;
 }
 
 message Beat {
@@ -114,6 +122,9 @@ message Beat {
 
     // Optional numeric value
     float numeric_value = 2;
+
+    // Optional enum value
+    int32 enum_value = 3;
   }
 
   // All tag references

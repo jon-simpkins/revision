@@ -28,4 +28,26 @@
         (input)="onDescriptionInput($event)"></textarea>
     </mat-form-field>
   </div>
+
+  <div>
+    <h4>Enum values</h4>
+    <button mat-stroked-button (click)="addEnumValue()">
+      Add
+    </button>
+
+    <div *ngFor="let enumValue of tag?.enumValues; let i = index">
+      <mat-form-field class="full-width">
+        <mat-label>Label</mat-label>
+        <input
+          matInput
+          placeholder="Option label"
+          [value]="enumValue.label"
+          (input)="setEnumLabel(i, $event)"/>
+      </mat-form-field>
+      <mat-checkbox
+        [checked]="!enumValue.isDeprecated"
+        (change)="setDeprecatedEnum(i, $event)"
+      >Enabled</mat-checkbox>
+    </div>
+  </div>
 </ng-container>
