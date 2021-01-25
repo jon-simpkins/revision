@@ -1,11 +1,12 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
-import {Beat, StructureTemplate} from '../../protos';
+import {Beat, BrainstormTemplate, StructureTemplate} from '../../protos';
 import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
 import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
+import {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';
 
 @Component({
   selector: 'app-beat-page',
@@ -43,12 +44,22 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   structureTemplateListView: StructureTemplateListView[] = [];
   structureTemplateListViewSubscription = '';
 
+
+  /** Brainstorm Templates */
+  selectedBrainstormTemplate: BrainstormTemplate|null = null;
+  selectedBrainstormTemplateUuid = '';
+  selectedBrainstormTemplateSubscription = '';
+
+  brainstormTemplateListView: BrainstormTemplateListView[] = [];
+  brainstormTemplateListViewSubscription = '';
+
   selectedTabIndex = 0;
 
   constructor(
     private beatsService: BeatsService,
     private ref: ChangeDetectorRef,
     private structureTemplateService: StructureTemplateService,
+    private brainstormTemplateService: BrainstormTemplateService,
     private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
@@ -78,6 +89,11 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       this.structureTemplateListView = newValue;
       this.ref.markForCheck();
     });
+
+    this.brainstormTemplateListViewSubscription = this.brainstormTemplateService.subscribeToTemplateListView((newValue) => {
+      this.brainstormTemplateListView = newValue;
+      this.ref.markForCheck();
+    });
   }
 
   ngOnDestroy(): void {
@@ -86,6 +102,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);
     this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);
     this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);
+    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);
+    this.brainstormTemplateService.cancelSubscription(this.brainstormTemplateListViewSubscription);
   }
 
   private buildRelatedListViews(): void {
@@ -327,5 +345,41 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
   async openReadView(): Promise<void> {
     await this.router.navigate(['/read', { id: this.selectedBeatId }]);
+  }
+
+  async selectBrainstormTemplate(newId: string): Promise<void> {
+    this.selectedBrainstormTemplateUuid = newId;
+
+    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);
+    this.selectedBrainstormTemplateSubscription = this.brainstormTemplateService.subscribeToTemplate(newId, (newValue) => {
+      this.selectedBrainstormTemplate = newValue;
+
+      this.ref.markForCheck();
+    });
+
+    this.ref.markForCheck();
+  }
+
+  async applyBrainstormTemplate(): Promise<void> {
+    const parentBeat = this.selectedBeat as Beat;
+    const brainstormTemplate = this.selectedBrainstormTemplate as BrainstormTemplate;
+
+    const newBeatUuid = await this.beatsService.createNewBeat();
+
+    parentBeat.brainstorm.push(newBeatUuid);
+
+    const childBeat = await this.beatsService.getBeat(newBeatUuid) as Beat;
+    childBeat.intendedDurationMs = 0;
+    childBeat.synopsis = brainstormTemplate.label;
+    childBeat.prose = brainstormTemplate.template;
+
+    await this.beatsService.setBeat(childBeat, true);
+    await this.beatsService.setBeat(parentBeat, true);
+
+    await this.selectChildBeat(newBeatUuid);
+    await this.selectBrainstormTemplate('');
+
+    this.selectedTabIndex = 0;
+    this.ref.markForCheck();
   }
 }

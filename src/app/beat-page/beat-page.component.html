@@ -54,6 +54,15 @@
           (applyTemplate)="applyStructureTemplate()"
         ></app-apply-structure-nav>
       </mat-tab>
+      <mat-tab label="Brainstorm">
+        <app-beat-brainstorm-template-nav
+          [selectedTemplateId]="selectedBrainstormTemplateUuid"
+          [selectedBrainstormTemplate]="selectedBrainstormTemplate"
+          [brainstormTemplateListView]="brainstormTemplateListView"
+          (selectTemplate)="selectBrainstormTemplate($event)"
+          (applyTemplate)="applyBrainstormTemplate()"
+        ></app-beat-brainstorm-template-nav>
+      </mat-tab>
     </mat-tab-group>
 
     <div

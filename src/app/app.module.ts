@@ -38,6 +38,7 @@ import { ReadPageBeatComponent } from './read-page-beat/read-page-beat.component
 import { BrainstormTemplatePageComponent } from './brainstorm-template-page/brainstorm-template-page.component';
 import { BrainstormTemplateNavComponent } from './brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.component';
 import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component';
+import { BeatBrainstormTemplateNavComponent } from './beat-brainstorm-template-nav/beat-brainstorm-template-nav.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -76,6 +77,7 @@ export const MaterialModules = [
     BrainstormTemplatePageComponent,
     BrainstormTemplateNavComponent,
     BrainstormTemplateDetailsComponent,
+    BeatBrainstormTemplateNavComponent,
   ],
   imports: [
     BrowserModule,
