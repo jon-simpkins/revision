@@ -4,6 +4,23 @@
   </a>
 </div>
 
+<pre>
+  If you want to write a {{scriptLength}} page script,
+  you write a page in {{1 / pagesPerSprint}} "sprints",
+  each layer of the script splits on average into {{splitFactor}} pieces,
+  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you
+  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)
+  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day
+  ({{sessionsPerDay}} 15-minute sessions).
+
+  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions
+  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).
+
+  <button mat-stroked-button (click)="changeParameters()">
+    Change Parameters
+  </button>
+</pre>
+
 <div *ngIf="workspaceName.length > 0">
   <h3>Workspace: {{workspaceName}}</h3>
 
