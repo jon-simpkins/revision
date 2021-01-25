@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import {StorageService} from './storage.service';
-import {StructureTemplateListView} from './structure-template.service';
 import {BrainstormTemplate, IBrainstormTemplate} from '../protos';
 
 // Minimal details about a template to show in list view
 export interface BrainstormTemplateListView {
   id: string;
-  name: string;
+  label: string;
 }
 
 const ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY = 'allBrainstormTemplatesListView';
@@ -33,7 +32,7 @@ export class BrainstormTemplateService {
       }
     }
 
-    return allTemplates;
+    return allTemplates.filter((value) => !!value);
   }
 
   async getAllTemplatesListView(): Promise<BrainstormTemplateListView[]> {
@@ -44,8 +43,8 @@ export class BrainstormTemplateService {
     const listView = brainstormTemplates.map((brainstormTemplate: IBrainstormTemplate) => {
       return {
         id: brainstormTemplate.id,
-        name: brainstormTemplate.label,
-      } as StructureTemplateListView;
+        label: brainstormTemplate.label,
+      } as BrainstormTemplateListView;
     });
 
     await this.storageService.set(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY, listView, true);
@@ -96,7 +95,7 @@ export class BrainstormTemplateService {
     const allTemplates = await this.getAllBrainstormTemplates();
 
     await this.setAllTemplatesListView(
-      allTemplates
+      allTemplates.filter((template) => !!template)
     );
   }
 

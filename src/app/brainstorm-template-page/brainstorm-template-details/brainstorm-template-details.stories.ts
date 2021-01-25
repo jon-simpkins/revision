@@ -4,15 +4,15 @@ import { CommonModule } from '@angular/common';
 import { Story, Meta } from '@storybook/angular/types-6-0';
 
 import {MaterialModules} from '../../app.module';
-import {Tag} from '../../../protos';
-import {TagDetailsComponent} from './tag-details.component';
+import {BrainstormTemplate} from '../../../protos';
+import {BrainstormTemplateDetailsComponent} from './brainstorm-template-details.component';
 
 export default {
-  title: 'Tag Page / Details',
+  title: 'Brainstorm Template Page / Details',
   argTypes: {
-    tagUpdated: { action: 'tagUpdated' },
+    brainstormTemplateUpdated: { action: 'brainstormTemplateUpdated' },
   },
-  component: TagDetailsComponent,
+  component: BrainstormTemplateDetailsComponent,
   decorators: [
     moduleMetadata({
       declarations: [],
@@ -21,21 +21,20 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<TagDetailsComponent> = (args: TagDetailsComponent) => ({
-  component: TagDetailsComponent,
+const Template: Story<BrainstormTemplateDetailsComponent> = (args: BrainstormTemplateDetailsComponent) => ({
+  component: BrainstormTemplateDetailsComponent,
   props: args,
 });
 
 export const EmptyExample = Template.bind({});
 EmptyExample.args = {};
 
-const mockTag = Tag.create({
+const mockTag = BrainstormTemplate.create({
   id: 'abc-123',
-  name: 'My Template',
-  description: 'Like a 3-act structure, but turned up to 4',
-  hasNumericValue: true,
+  label: 'My Template',
+  template: 'Like a 3-act structure, but turned up to 4',
 });
 export const FullExample = Template.bind({});
 FullExample.args = {
-  tag: mockTag
+  brainstormTemplate: mockTag
 };

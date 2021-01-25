@@ -1,0 +1,15 @@
+<div class="page">
+  <app-brainstorm-template-nav
+    [selectedTemplateId]="selectedTemplateUuid"
+    [brainstormTemplateListView]="brainstormTemplateListView"
+    (newTemplate)="newTemplate()"
+    (selectTemplate)="selectTemplate($event)"
+    (deleteTemplate)="deleteTemplate()"
+    (generateStandardTemplates)="generateStandardTemplates()">
+  </app-brainstorm-template-nav>
+  <app-brainstorm-template-details
+    class="details"
+    [brainstormTemplate]="selectedTemplate"
+    (brainstormTemplateUpdated)="onBrainstormTemplateUpdate($event)"
+  ></app-brainstorm-template-details>
+</div>

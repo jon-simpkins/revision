@@ -3,19 +3,19 @@ import { CommonModule } from '@angular/common';
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
 import { Story, Meta } from '@storybook/angular/types-6-0';
 
-import {StructureTemplateNavComponent} from './structure-template-nav.component';
-import {StructureTemplateListView} from '../../structure-template.service';
 import {MaterialModules} from '../../app.module';
+import {BrainstormTemplateNavComponent} from './brainstorm-template-nav.component';
+import {BrainstormTemplateListView} from '../../brainstorm-template.service';
 
 export default {
-  title: 'Structure Template Page / Nav',
+  title: 'Brainstorm Template Page / Nav',
   argTypes: {
     newTemplate: { action: 'newTemplate' },
     selectTemplate: { action: 'selectTemplate' },
     deleteTemplate: { action: 'deleteTemplate' },
     generateStandardTemplates: {action: 'generateStandardTemplates'}
   },
-  component: StructureTemplateNavComponent,
+  component: BrainstormTemplateNavComponent,
   decorators: [
     moduleMetadata({
       declarations: [],
@@ -24,32 +24,32 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<StructureTemplateNavComponent> = (args: StructureTemplateNavComponent) => ({
-  component: StructureTemplateNavComponent,
+const Template: Story<BrainstormTemplateNavComponent> = (args: BrainstormTemplateNavComponent) => ({
+  component: BrainstormTemplateNavComponent,
   props: args,
 });
 
-const exampleStructureTemplateListView = [
-    {
-      id: 'abc-123',
-      name: 'My first template'
-    } as StructureTemplateListView,
-    {
-      id: 'def-456',
-      name: 'My second template'
-    } as StructureTemplateListView
-  ];
+const exampleBrainstormTemplateListView = [
+  {
+    id: 'abc-123',
+    label: 'My first template'
+  } as BrainstormTemplateListView,
+  {
+    id: 'def-456',
+    label: 'My second template'
+  } as BrainstormTemplateListView
+];
 
 export const EmptyExample = Template.bind({});
 EmptyExample.args = {};
 
 export const FullExampleNothingSelected = Template.bind({});
 FullExampleNothingSelected.args = {
-  structureTemplateListView: exampleStructureTemplateListView
+  brainstormTemplateListView: exampleBrainstormTemplateListView
 };
 
 export const FullExampleSecondSelected = Template.bind({});
 FullExampleSecondSelected.args = {
   selectedTemplateId: 'def-456',
-  structureTemplateListView: exampleStructureTemplateListView
+  brainstormTemplateListView: exampleBrainstormTemplateListView
 };

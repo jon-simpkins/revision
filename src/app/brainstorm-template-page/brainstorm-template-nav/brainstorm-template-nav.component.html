@@ -1,0 +1,29 @@
+<div class="left-rail">
+  <div class="button-row">
+    <button mat-icon-button (click)="createNewTemplate()">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      (click)="deleteTemplate.emit()"
+      [disabled]="!canDelete()">
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-icon-button (click)="generateStandardTemplates.emit()">
+      <mat-icon>gesture</mat-icon>
+    </button>
+  </div>
+  <mat-action-list dense>
+    <button
+      *ngFor="let brainstormTemplate of brainstormTemplateListView"
+      mat-list-item
+      (click)="selectTemplate.emit(brainstormTemplate.id)">
+      <mat-icon
+        *ngIf="brainstormTemplate.id === selectedTemplateId"
+        matListIcon>
+        arrow_right
+      </mat-icon>
+      {{brainstormTemplate.label}}
+    </button>
+  </mat-action-list>
+</div>

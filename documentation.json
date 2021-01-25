@@ -209,6 +209,58 @@
             "methods": []
         },
         {
+            "name": "BrainstormTemplateListView",
+            "id": "interface-BrainstormTemplateListView-4a6b6977c2ae369435fb435fbc58d50a",
+            "file": "src/app/brainstorm-template.service.ts",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {BrainstormTemplate, IBrainstormTemplate} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface BrainstormTemplateListView {\n  id: string;\n  label: string;\n}\n\nconst ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY = 'allBrainstormTemplatesListView';\nconst BRAINSTORM_TEMPLATE_KEY_PREFIX = 'brainstormTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BrainstormTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllBrainstormTemplates(): Promise<BrainstormTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: BrainstormTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getBrainstormTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<BrainstormTemplateListView[]> {\n    return (await this.storageService.get(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY) || []) as BrainstormTemplateListView[];\n  }\n\n  async setAllTemplatesListView(brainstormTemplates: IBrainstormTemplate[]): Promise<void> {\n    const listView = brainstormTemplates.map((brainstormTemplate: IBrainstormTemplate) => {\n      return {\n        id: brainstormTemplate.id,\n        label: brainstormTemplate.label,\n      } as BrainstormTemplateListView;\n    });\n\n    await this.storageService.set(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return BRAINSTORM_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getBrainstormTemplate(uuid: string): Promise<BrainstormTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find brainstorm template: ' + uuid);\n      return null;\n    }\n\n    return BrainstormTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllBrainstormTemplates(brainstormTemplates: IBrainstormTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(brainstormTemplates);\n\n    for (const brainstormTemplate of brainstormTemplates) {\n      await this.setBrainstormTemplate(brainstormTemplate as BrainstormTemplate);\n    }\n  }\n\n  async setBrainstormTemplate(brainstormTemplate: BrainstormTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(brainstormTemplate.id),\n      BrainstormTemplate.encode(brainstormTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllBrainstormTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId),\n      true\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((brainstormTemplate) => {\n        return brainstormTemplate.id !== templateId;\n      });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewBrainstormTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBrainstormTemplate = BrainstormTemplate.create({\n      id: uuid,\n      label: 'My new template',\n      template: 'This is the placeholder content that will appear when a user selects this.\\n\\nYou could pose a question here, or give an exercise to explore'\n    });\n\n    await this.setBrainstormTemplate(newBrainstormTemplate);\n\n    const allBrainstormTemplates = await this.getAllBrainstormTemplates();\n    allBrainstormTemplates.push(newBrainstormTemplate);\n\n    await this.setAllTemplatesListView(allBrainstormTemplates);\n\n    return uuid;\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: BrainstormTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as BrainstormTemplateListView[]);\n    });\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: BrainstormTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        BrainstormTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "label",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "BrainstormTemplateUpdate",
+            "id": "interface-BrainstormTemplateUpdate-d20ccb1ce8da872c5a37607ca49dfdf0",
+            "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, Input, Output} from '@angular/core';\nimport {BrainstormTemplate} from '../../../protos';\n\nimport {debounce} from 'debounce';\n\nexport interface BrainstormTemplateUpdate {\n  brainstormTemplate: BrainstormTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-brainstorm-template-details',\n  templateUrl: './brainstorm-template-details.component.html',\n  styleUrls: ['./brainstorm-template-details.component.scss']\n})\nexport class BrainstormTemplateDetailsComponent {\n\n  constructor() { }\n\n  @Input()\n  brainstormTemplate: BrainstormTemplate|null = null;\n\n  @Output() brainstormTemplateUpdated = new EventEmitter<BrainstormTemplateUpdate>();\n\n  onLabelInput = debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.label = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: true,\n    } as BrainstormTemplateUpdate);\n  }, 200);\n\n  onTemplateInput = debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.template = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: false,\n    } as BrainstormTemplateUpdate);\n  }, 200);\n\n  isEmpty(): boolean {\n    return this.brainstormTemplate == null;\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "brainstormTemplate",
+                    "type": "BrainstormTemplate",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "modifiesListView",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
             "name": "CompletenessOption",
             "id": "interface-CompletenessOption-21b84596a307155e9639fc9da2b917c9",
             "file": "src/app/beat-prose-edit/beat-prose-edit.component.ts",
@@ -354,10 +406,10 @@
         },
         {
             "name": "TagUpdate",
-            "id": "interface-TagUpdate-71965e6fb759f1c1dde8d2bed845f733",
+            "id": "interface-TagUpdate-02d26d01f70183a14eb73853c0dec6c0",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
             "type": "interface",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nimport {debounce} from 'debounce';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  constructor() { }\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  onNameInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }, 200);\n\n  onDescriptionInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  ngOnInit(): void {\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nimport {debounce} from 'debounce';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  constructor() { }\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  onNameInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }, 200);\n\n  onDescriptionInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  setEnumLabel = debounce((index: number, event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.enumValues[index].label = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  ngOnInit(): void {\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n  setDeprecatedEnum(index: number, event: MatCheckboxChange): void {\n    const isDeprecated = !event.checked;\n\n    const tag = this.tag as Tag;\n\n    tag.enumValues[index].isDeprecated = isDeprecated;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  addEnumValue(): void {\n    const enumValue = {\n      label: 'My enum option',\n      isDeprecated: false,\n    } as Tag.EnumValue;\n\n    const tag = this.tag as Tag;\n\n    tag.enumValues.push(enumValue);\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
@@ -932,8 +984,344 @@
             "type": "injectable"
         },
         {
+            "name": "BrainstormTemplateService",
+            "id": "injectable-BrainstormTemplateService-4a6b6977c2ae369435fb435fbc58d50a",
+            "file": "src/app/brainstorm-template.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "cancelSubscription",
+                    "args": [
+                        {
+                            "name": "subscription",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 53,
+                    "jsdoctags": [
+                        {
+                            "name": "subscription",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "createNewBrainstormTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<string>",
+                    "typeParameters": [],
+                    "line": 117,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "deleteTemplate",
+                    "args": [
+                        {
+                            "name": "templateId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 102,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "templateId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getAllBrainstormTemplates",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<BrainstormTemplate[]>",
+                    "typeParameters": [],
+                    "line": 22,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getAllTemplatesListView",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<BrainstormTemplateListView[]>",
+                    "typeParameters": [],
+                    "line": 38,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "getBrainstormTemplate",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<BrainstormTemplate | null>",
+                    "typeParameters": [],
+                    "line": 61,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getTemplateKey",
+                    "args": [
+                        {
+                            "name": "uuid",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 57,
+                    "jsdoctags": [
+                        {
+                            "name": "uuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "refreshAllTemplatesListView",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 94,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "setAllBrainstormTemplates",
+                    "args": [
+                        {
+                            "name": "brainstormTemplates",
+                            "type": "IBrainstormTemplate[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 74,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "brainstormTemplates",
+                            "type": "IBrainstormTemplate[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setAllTemplatesListView",
+                    "args": [
+                        {
+                            "name": "brainstormTemplates",
+                            "type": "IBrainstormTemplate[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 42,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "brainstormTemplates",
+                            "type": "IBrainstormTemplate[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setBrainstormTemplate",
+                    "args": [
+                        {
+                            "name": "brainstormTemplate",
+                            "type": "BrainstormTemplate"
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 82,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "brainstormTemplate",
+                            "type": "BrainstormTemplate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsListView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToTemplate",
+                    "args": [
+                        {
+                            "name": "templateId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "BrainstormTemplate"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 142,
+                    "jsdoctags": [
+                        {
+                            "name": "templateId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplate",
+                                    "type": "BrainstormTemplate"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "subscribeToTemplateListView",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplateListView",
+                                    "type": "BrainstormTemplateListView[]"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 136,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTemplateListView",
+                                    "type": "BrainstormTemplateListView[]"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {BrainstormTemplate, IBrainstormTemplate} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface BrainstormTemplateListView {\n  id: string;\n  label: string;\n}\n\nconst ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY = 'allBrainstormTemplatesListView';\nconst BRAINSTORM_TEMPLATE_KEY_PREFIX = 'brainstormTemplate-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BrainstormTemplateService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllBrainstormTemplates(): Promise<BrainstormTemplate[]> {\n    const allEntries = await this.getAllTemplatesListView();\n\n    const allTemplates: BrainstormTemplate[] = [];\n    for (const entry of allEntries) {\n      const fetchedTemplate = await this.getBrainstormTemplate(entry.id);\n      if (fetchedTemplate != null) {\n        allTemplates.push(\n          fetchedTemplate\n        );\n      }\n    }\n\n    return allTemplates.filter((value) => !!value);\n  }\n\n  async getAllTemplatesListView(): Promise<BrainstormTemplateListView[]> {\n    return (await this.storageService.get(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY) || []) as BrainstormTemplateListView[];\n  }\n\n  async setAllTemplatesListView(brainstormTemplates: IBrainstormTemplate[]): Promise<void> {\n    const listView = brainstormTemplates.map((brainstormTemplate: IBrainstormTemplate) => {\n      return {\n        id: brainstormTemplate.id,\n        label: brainstormTemplate.label,\n      } as BrainstormTemplateListView;\n    });\n\n    await this.storageService.set(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY, listView, true);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  getTemplateKey(uuid: string): string {\n    return BRAINSTORM_TEMPLATE_KEY_PREFIX + uuid;\n  }\n\n  async getBrainstormTemplate(uuid: string): Promise<BrainstormTemplate|null> {\n    const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find brainstorm template: ' + uuid);\n      return null;\n    }\n\n    return BrainstormTemplate.decode(\n      fetchedData\n    );\n  }\n\n  async setAllBrainstormTemplates(brainstormTemplates: IBrainstormTemplate[]): Promise<void> {\n    await this.setAllTemplatesListView(brainstormTemplates);\n\n    for (const brainstormTemplate of brainstormTemplates) {\n      await this.setBrainstormTemplate(brainstormTemplate as BrainstormTemplate);\n    }\n  }\n\n  async setBrainstormTemplate(brainstormTemplate: BrainstormTemplate, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTemplateKey(brainstormTemplate.id),\n      BrainstormTemplate.encode(brainstormTemplate).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTemplatesListView();\n    }\n  }\n\n  async refreshAllTemplatesListView(): Promise<void> {\n    const allTemplates = await this.getAllBrainstormTemplates();\n\n    await this.setAllTemplatesListView(\n      allTemplates.filter((template) => !!template)\n    );\n  }\n\n  async deleteTemplate(templateId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTemplateKey(templateId),\n      true\n    );\n\n    const listViewEligible = (await this.getAllTemplatesListView())\n      .filter((brainstormTemplate) => {\n        return brainstormTemplate.id !== templateId;\n      });\n\n    await this.setAllTemplatesListView(listViewEligible);\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewBrainstormTemplate(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBrainstormTemplate = BrainstormTemplate.create({\n      id: uuid,\n      label: 'My new template',\n      template: 'This is the placeholder content that will appear when a user selects this.\\n\\nYou could pose a question here, or give an exercise to explore'\n    });\n\n    await this.setBrainstormTemplate(newBrainstormTemplate);\n\n    const allBrainstormTemplates = await this.getAllBrainstormTemplates();\n    allBrainstormTemplates.push(newBrainstormTemplate);\n\n    await this.setAllTemplatesListView(allBrainstormTemplates);\n\n    return uuid;\n  }\n\n  subscribeToTemplateListView(handler: (newTemplateListView: BrainstormTemplateListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as BrainstormTemplateListView[]);\n    });\n  }\n\n  subscribeToTemplate(templateId: string, handler: (newTemplate: BrainstormTemplate) => void): string {\n    return this.storageService.generateSubscription(this.getTemplateKey(templateId), (fetchedValue) => {\n      handler(\n        BrainstormTemplate.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService"
+                    }
+                ],
+                "line": 18,
+                "jsdoctags": [
+                    {
+                        "name": "storageService",
+                        "type": "StorageService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "type": "injectable"
+        },
+        {
             "name": "MonolithicDataService",
-            "id": "injectable-MonolithicDataService-de2f5626120483a3882b812624be0e3b",
+            "id": "injectable-MonolithicDataService-a219ae137eecd52c629a3d6933fc7c37",
             "file": "src/app/monolithic-data.service.ts",
             "properties": [],
             "methods": [
@@ -948,7 +1336,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 70,
+                    "line": 74,
                     "jsdoctags": [
                         {
                             "name": "subscriptionId",
@@ -965,7 +1353,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 74,
+                    "line": 78,
                     "modifierKind": [
                         120
                     ]
@@ -976,7 +1364,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 59,
+                    "line": 63,
                     "modifierKind": [
                         120
                     ]
@@ -992,7 +1380,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 33,
+                    "line": 35,
                     "modifierKind": [
                         120
                     ],
@@ -1017,7 +1405,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 25,
+                    "line": 27,
                     "modifierKind": [
                         120
                     ],
@@ -1037,7 +1425,7 @@
                     "optional": false,
                     "returnType": "Promise<WritingWorkspace>",
                     "typeParameters": [],
-                    "line": 43,
+                    "line": 46,
                     "modifierKind": [
                         120
                     ]
@@ -1053,7 +1441,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 55,
+                    "line": 59,
                     "modifierKind": [
                         120
                     ],
@@ -1084,7 +1472,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 64,
+                    "line": 68,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -1103,7 +1491,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\nimport {TagService} from './tag.service';\nimport {BeatsService} from './beats.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService,\n              private tagService: TagService,\n              private beatService: BeatsService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n    await this.tagService.setAllTags(workspace.tags || []);\n    await this.beatService.setAllBeats(workspace.beats || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n    workspace.tags = await this.tagService.getAllTags();\n    workspace.beats = await this.beatService.getAllBeats();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {WritingWorkspace} from '../protos';\nimport {WorkspaceMetadataService} from './workspace-metadata.service';\nimport {StructureTemplateService} from './structure-template.service';\nimport {StorageService} from './storage.service';\nimport {TagService} from './tag.service';\nimport {BeatsService} from './beats.service';\nimport {BrainstormTemplateService} from './brainstorm-template.service';\n\nconst WORKSPACE_NAME_KEY = 'workspaceName';\n\n// This is the monolithic service that'll handle all the story data.\n//\n// This will certainly get broken up into smaller bits later on.\n@Injectable({\n  providedIn: 'root'\n})\nexport class MonolithicDataService {\n\n  constructor(private storageService: StorageService,\n              private workspaceMetadataService: WorkspaceMetadataService,\n              private structureTemplateService: StructureTemplateService,\n              private tagService: TagService,\n              private beatService: BeatsService,\n              private brainstormTemplateService: BrainstormTemplateService) { }\n\n  async newWorkspace(name: string): Promise<void> {\n    await this.clear();\n    await this.loadWorkspace(WritingWorkspace.create({\n      name,\n    }));\n  }\n\n  // Function to load workspace into local memory.\n  async loadWorkspace(workspace: WritingWorkspace): Promise<void> {\n    await this.clear();\n    await this.setWorkspaceName(workspace.name);\n    await this.workspaceMetadataService.setWorkspaceMetadata(workspace.metadata || null);\n    await this.structureTemplateService.setAllStructureTemplates(workspace.structureTemplates || []);\n    await this.tagService.setAllTags(workspace.tags || []);\n    await this.beatService.setAllBeats(workspace.beats || []);\n    await this.brainstormTemplateService.setAllBrainstormTemplates(workspace.brainstormTemplates || []);\n  }\n\n  // Function to pull workspace from local memory.\n  async saveWorkspace(): Promise<WritingWorkspace> {\n    const workspace = WritingWorkspace.create();\n\n    workspace.name = await this.getWorkspaceName();\n    workspace.metadata = await this.workspaceMetadataService.getWorkspaceMetadata(true);\n    workspace.structureTemplates = await this.structureTemplateService.getAllStructureTemplates();\n    workspace.tags = await this.tagService.getAllTags();\n    workspace.beats = await this.beatService.getAllBeats();\n    workspace.brainstormTemplates = await this.brainstormTemplateService.getAllBrainstormTemplates();\n\n    return Promise.resolve(workspace);\n  }\n\n  async setWorkspaceName(name: string): Promise<void> {\n    await this.storageService.set(WORKSPACE_NAME_KEY, name, true);\n  }\n\n  async getWorkspaceName(): Promise<string> {\n    return (await this.storageService.get(WORKSPACE_NAME_KEY) as string)\n      || '';\n  }\n\n  subscribeToWorkspaceName(handler: (workspaceName: string) => void): string {\n    return this.storageService.generateSubscription(WORKSPACE_NAME_KEY, (result) => {\n      handler(result as string);\n    });\n  }\n\n  cancelSubscriptionToWorkspaceName(subscriptionId: string): void {\n    this.storageService.cancelSubscription(subscriptionId);\n  }\n\n  async clear(): Promise<void> {\n    await this.storageService.clearAll();\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1127,9 +1515,13 @@
                     {
                         "name": "beatService",
                         "type": "BeatsService"
+                    },
+                    {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService"
                     }
                 ],
-                "line": 17,
+                "line": 18,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -1162,6 +1554,13 @@
                     {
                         "name": "beatService",
                         "type": "BeatsService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService",
                         "tagName": {
                             "text": "param"
                         }
@@ -3599,6 +3998,436 @@
             "templateData": "<div cdkDropListGroup>\n  <div *ngFor=\"let list of beatDropLists\" class=\"list-container\">\n    <div class=\"list-header\">\n      <h2>{{list.label}}</h2>\n      <button mat-icon-button (click)=\"newBeat.emit(list.listType)\">\n        <mat-icon>add_circle</mat-icon>\n      </button>\n      <button\n        mat-icon-button\n        [disabled]=\"!canDelete(list.listType)\"\n        (click)=\"deleteBeat.emit()\">\n        <mat-icon>delete</mat-icon>\n      </button>\n    </div>\n\n\n    <div\n      cdkDropList\n      [id]=\"list.id\"\n      [cdkDropListData]=\"list.items\"\n      class=\"beat-list\"\n      (cdkDropListDropped)=\"drop($event)\">\n      <div *ngIf=\"list.items.length == 0\" class=\"empty-message\">No items</div>\n      <div\n        *ngFor=\"let beat of list.items\"\n        class=\"beat-item\" cdkDrag\n        [class.selected]=\"beat.id == selectedBeatId\"\n        (click)=\"selectBeat.emit(beat.id)\">\n        <div>\n          {{beat.name}}\n        </div>\n        <div class=\"beat-details\">\n          ({{formatDurationMs(beat.intendedDurationMs)}}) {{formatCompleteness(beat.completeness)}}\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n"
         },
         {
+            "name": "BrainstormTemplateDetailsComponent",
+            "id": "component-BrainstormTemplateDetailsComponent-d20ccb1ce8da872c5a37607ca49dfdf0",
+            "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-brainstorm-template-details",
+            "styleUrls": [
+                "./brainstorm-template-details.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./brainstorm-template-details.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "brainstormTemplate",
+                    "defaultValue": "null",
+                    "line": 21,
+                    "type": "BrainstormTemplate | null"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "brainstormTemplateUpdated",
+                    "defaultValue": "new EventEmitter<BrainstormTemplateUpdate>()",
+                    "line": 23,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "onLabelInput",
+                    "defaultValue": "debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.label = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: true,\n    } as BrainstormTemplateUpdate);\n  }, 200)",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 25
+                },
+                {
+                    "name": "onTemplateInput",
+                    "defaultValue": "debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.template = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: false,\n    } as BrainstormTemplateUpdate);\n  }, 200)",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 36
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "isEmpty",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 47
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, Output} from '@angular/core';\nimport {BrainstormTemplate} from '../../../protos';\n\nimport {debounce} from 'debounce';\n\nexport interface BrainstormTemplateUpdate {\n  brainstormTemplate: BrainstormTemplate;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-brainstorm-template-details',\n  templateUrl: './brainstorm-template-details.component.html',\n  styleUrls: ['./brainstorm-template-details.component.scss']\n})\nexport class BrainstormTemplateDetailsComponent {\n\n  constructor() { }\n\n  @Input()\n  brainstormTemplate: BrainstormTemplate|null = null;\n\n  @Output() brainstormTemplateUpdated = new EventEmitter<BrainstormTemplateUpdate>();\n\n  onLabelInput = debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.label = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: true,\n    } as BrainstormTemplateUpdate);\n  }, 200);\n\n  onTemplateInput = debounce((event: any) => {\n    const brainstormTemplate = this.brainstormTemplate as BrainstormTemplate;\n\n    brainstormTemplate.template = event.target.value;\n\n    this.brainstormTemplateUpdated.emit({\n      brainstormTemplate,\n      modifiesListView: false,\n    } as BrainstormTemplateUpdate);\n  }, 200);\n\n  isEmpty(): boolean {\n    return this.brainstormTemplate == null;\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./brainstorm-template-details.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 16
+            },
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no template selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Label</mat-label>\n      <input\n        matInput\n        placeholder=\"Template label\"\n        [value]=\"brainstormTemplate?.label\"\n        (input)=\"onLabelInput($event)\"/>\n    </mat-form-field>\n  </div>\n\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Template</mat-label>\n      <textarea\n        matInput\n        placeholder=\"Template\"\n        [rows]=\"5\"\n        [value]=\"brainstormTemplate?.template\"\n        (input)=\"onTemplateInput($event)\"></textarea>\n    </mat-form-field>\n  </div>\n</ng-container>\n"
+        },
+        {
+            "name": "BrainstormTemplateNavComponent",
+            "id": "component-BrainstormTemplateNavComponent-74357ad06bdc5baf4b2ecf777f1285c3",
+            "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-brainstorm-template-nav",
+            "styleUrls": [
+                "./brainstorm-template-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./brainstorm-template-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "brainstormTemplateListView",
+                    "defaultValue": "[]",
+                    "line": 15,
+                    "type": "BrainstormTemplateListView[]"
+                },
+                {
+                    "name": "selectedTemplateId",
+                    "defaultValue": "''",
+                    "line": 12
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "deleteTemplate",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "generateStandardTemplates",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 23,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "newTemplate",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 17,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "selectTemplate",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 19,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "canDelete",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 34
+                },
+                {
+                    "name": "createNewTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 30
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BrainstormTemplateListView} from '../../brainstorm-template.service';\n\n@Component({\n  selector: 'app-brainstorm-template-nav',\n  templateUrl: './brainstorm-template-nav.component.html',\n  styleUrls: ['./brainstorm-template-nav.component.scss']\n})\nexport class BrainstormTemplateNavComponent implements OnInit {\n\n  @Input()\n  selectedTemplateId = '';\n\n  @Input()\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n\n  @Output() newTemplate = new EventEmitter<void>();\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() deleteTemplate = new EventEmitter<void>();\n\n  @Output() generateStandardTemplates = new EventEmitter<void>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  createNewTemplate(): void {\n    this.newTemplate.emit();\n  }\n\n  canDelete(): boolean {\n    return (this.selectedTemplateId || '').length > 0;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".left-rail {\n  width: 200px;\n}\n",
+                    "styleUrl": "./brainstorm-template-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 23
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"left-rail\">\n  <div class=\"button-row\">\n    <button mat-icon-button (click)=\"createNewTemplate()\">\n      <mat-icon>add_circle</mat-icon>\n    </button>\n    <button\n      mat-icon-button\n      (click)=\"deleteTemplate.emit()\"\n      [disabled]=\"!canDelete()\">\n      <mat-icon>delete</mat-icon>\n    </button>\n    <button mat-icon-button (click)=\"generateStandardTemplates.emit()\">\n      <mat-icon>gesture</mat-icon>\n    </button>\n  </div>\n  <mat-action-list dense>\n    <button\n      *ngFor=\"let brainstormTemplate of brainstormTemplateListView\"\n      mat-list-item\n      (click)=\"selectTemplate.emit(brainstormTemplate.id)\">\n      <mat-icon\n        *ngIf=\"brainstormTemplate.id === selectedTemplateId\"\n        matListIcon>\n        arrow_right\n      </mat-icon>\n      {{brainstormTemplate.label}}\n    </button>\n  </mat-action-list>\n</div>\n"
+        },
+        {
+            "name": "BrainstormTemplatePageComponent",
+            "id": "component-BrainstormTemplatePageComponent-e69a53353fd9ff12a56711398beb3827",
+            "file": "src/app/brainstorm-template-page/brainstorm-template-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-brainstorm-template-page",
+            "styleUrls": [
+                "./brainstorm-template-page.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./brainstorm-template-page.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "brainstormTemplateListView",
+                    "defaultValue": "[]",
+                    "type": "BrainstormTemplateListView[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "brainstormTemplateListViewSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 22
+                },
+                {
+                    "name": "selectedTemplate",
+                    "defaultValue": "null",
+                    "type": "BrainstormTemplate | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
+                },
+                {
+                    "name": "selectedTemplateSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                },
+                {
+                    "name": "selectedTemplateUuid",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 16
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "deleteTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 52,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "generateStandardTemplates",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 74,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "newTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 47,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "ngOnDestroy",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 41
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 26
+                },
+                {
+                    "name": "onBrainstormTemplateUpdate",
+                    "args": [
+                        {
+                            "name": "newValue",
+                            "type": "BrainstormTemplateUpdate"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 86,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newValue",
+                            "type": "BrainstormTemplateUpdate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selectTemplate",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 59,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BrainstormTemplate, StructureTemplate} from '../../protos';\nimport {TagUpdate} from '../tag-page/tag-details/tag-details.component';\nimport {BrainstormTemplateUpdate} from './brainstorm-template-details/brainstorm-template-details.component';\n\n@Component({\n  selector: 'app-brainstorm-template-page',\n  templateUrl: './brainstorm-template-page.component.html',\n  styleUrls: ['./brainstorm-template-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class BrainstormTemplatePageComponent implements OnInit, OnDestroy {\n\n  selectedTemplateUuid = '';\n\n  selectedTemplate: BrainstormTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n  brainstormTemplateListViewSubscription = '';\n\n  constructor(private brainstormTemplateService: BrainstormTemplateService, private ref: ChangeDetectorRef, private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected template ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedTemplateUuid !== selectedId && !!selectedId) {\n        await this.selectTemplate(selectedId);\n      }\n    });\n\n    this.brainstormTemplateListViewSubscription = this.brainstormTemplateService.subscribeToTemplateListView((newValue) => {\n      this.brainstormTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.brainstormTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.brainstormTemplateListViewSubscription);\n  }\n\n\n  async newTemplate(): Promise<void> {\n    this.selectedTemplateUuid = await this.brainstormTemplateService.createNewBrainstormTemplate();\n    await this.selectTemplate(this.selectedTemplateUuid);\n  }\n\n  async deleteTemplate(): Promise<void> {\n    await this.brainstormTemplateService.deleteTemplate(this.selectedTemplateUuid);\n    this.selectedTemplateUuid = '';\n    this.selectedTemplate = null;\n    this.ref.markForCheck();\n  }\n\n  async selectTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    // Clear old subscription, setup new one\n    this.brainstormTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.brainstormTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n      this.ref.markForCheck();\n    });\n\n    await this.router.navigate(['/brainstorm-templates', { id: newId }]);\n\n    this.ref.markForCheck();\n  }\n\n  async generateStandardTemplates(): Promise<void> {\n    const themeTemplateId = await this.brainstormTemplateService.createNewBrainstormTemplate();\n\n    const themeTemplate = {\n      id: themeTemplateId,\n      label: 'Theme',\n      template: 'What is the aspect of the theme depicted in this beat? What thematic statement does this contribute?'\n    } as BrainstormTemplate;\n\n    await this.brainstormTemplateService.setBrainstormTemplate(themeTemplate, true);\n  }\n\n  async onBrainstormTemplateUpdate(newValue: BrainstormTemplateUpdate): Promise<void> {\n    await this.brainstormTemplateService.setBrainstormTemplate(newValue.brainstormTemplate, newValue.modifiesListView);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".page {\n  height: 100%;\n  display: flex;\n}\n\n.details {\n  flex: 1;\n  margin-left: 24px;\n  padding-bottom: 48px;\n}\n",
+                    "styleUrl": "./brainstorm-template-page.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute"
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router"
+                    }
+                ],
+                "line": 22,
+                "jsdoctags": [
+                    {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit",
+                "OnDestroy"
+            ],
+            "templateData": "<div class=\"page\">\n  <app-brainstorm-template-nav\n    [selectedTemplateId]=\"selectedTemplateUuid\"\n    [brainstormTemplateListView]=\"brainstormTemplateListView\"\n    (newTemplate)=\"newTemplate()\"\n    (selectTemplate)=\"selectTemplate($event)\"\n    (deleteTemplate)=\"deleteTemplate()\"\n    (generateStandardTemplates)=\"generateStandardTemplates()\">\n  </app-brainstorm-template-nav>\n  <app-brainstorm-template-details\n    class=\"details\"\n    [brainstormTemplate]=\"selectedTemplate\"\n    (brainstormTemplateUpdated)=\"onBrainstormTemplateUpdate($event)\"\n  ></app-brainstorm-template-details>\n</div>\n"
+        },
+        {
             "name": "HeaderTimerComponent",
             "id": "component-HeaderTimerComponent-2d9b65fb60cd8135042228092b977ee5",
             "file": "src/app/header-timer/header-timer.component.ts",
@@ -3977,7 +4806,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ReadPageBeatComponent",
@@ -4930,7 +5759,7 @@
         },
         {
             "name": "TagDetailsComponent",
-            "id": "component-TagDetailsComponent-71965e6fb759f1c1dde8d2bed845f733",
+            "id": "component-TagDetailsComponent-02d26d01f70183a14eb73853c0dec6c0",
             "file": "src/app/tag-page/tag-details/tag-details.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -4979,16 +5808,32 @@
                     "optional": false,
                     "description": "",
                     "line": 27
+                },
+                {
+                    "name": "setEnumLabel",
+                    "defaultValue": "debounce((index: number, event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.enumValues[index].label = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200)",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 49
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "addEnumValue",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 95
+                },
                 {
                     "name": "hasNumericValue",
                     "args": [],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 52
+                    "line": 63
                 },
                 {
                     "name": "isEmpty",
@@ -4996,7 +5841,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 67
+                    "line": 78
                 },
                 {
                     "name": "ngOnInit",
@@ -5004,7 +5849,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 49
+                    "line": 60
                 },
                 {
                     "name": "onHasNumericValueCheckbox",
@@ -5017,8 +5862,41 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 56,
+                    "line": 67,
                     "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MatCheckboxChange",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDeprecatedEnum",
+                    "args": [
+                        {
+                            "name": "index",
+                            "type": "number"
+                        },
+                        {
+                            "name": "event",
+                            "type": "MatCheckboxChange"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 82,
+                    "jsdoctags": [
+                        {
+                            "name": "index",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
                         {
                             "name": "event",
                             "type": "MatCheckboxChange",
@@ -5034,7 +5912,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nimport {debounce} from 'debounce';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  constructor() { }\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  onNameInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }, 200);\n\n  onDescriptionInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  ngOnInit(): void {\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Tag} from '../../../protos';\nimport {MatCheckboxChange} from '@angular/material/checkbox';\n\nimport {debounce} from 'debounce';\n\nexport interface TagUpdate {\n  tag: Tag;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-tag-details',\n  templateUrl: './tag-details.component.html',\n  styleUrls: ['./tag-details.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TagDetailsComponent implements OnInit {\n\n  constructor() { }\n\n  @Input()\n  tag: Tag|null = null;\n\n  @Output() tagUpdated = new EventEmitter<TagUpdate>();\n\n  onNameInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.name = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: true,\n    } as TagUpdate);\n  }, 200);\n\n  onDescriptionInput = debounce((event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.description = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  setEnumLabel = debounce((index: number, event: any) => {\n    const tag = this.tag as Tag;\n\n    tag.enumValues[index].label = event.target.value;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }, 200);\n\n  ngOnInit(): void {\n  }\n\n  hasNumericValue(): boolean {\n    return this.tag?.hasNumericValue ?? false;\n  }\n\n  onHasNumericValueCheckbox(event: MatCheckboxChange): void {\n    const tag = this.tag as Tag;\n\n    tag.hasNumericValue = event.checked;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  isEmpty(): boolean {\n    return this.tag == null;\n  }\n\n  setDeprecatedEnum(index: number, event: MatCheckboxChange): void {\n    const isDeprecated = !event.checked;\n\n    const tag = this.tag as Tag;\n\n    tag.enumValues[index].isDeprecated = isDeprecated;\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n\n  addEnumValue(): void {\n    const enumValue = {\n      label: 'My enum option',\n      isDeprecated: false,\n    } as Tag.EnumValue;\n\n    const tag = this.tag as Tag;\n\n    tag.enumValues.push(enumValue);\n\n    this.tagUpdated.emit({\n      tag,\n      modifiesListView: false,\n    } as TagUpdate);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -5052,7 +5930,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<h3 *ngIf=\"isEmpty()\">no tag selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Name</mat-label>\n      <input\n        matInput\n        placeholder=\"Tag name\"\n        [value]=\"tag?.name\"\n        (input)=\"onNameInput($event)\"/>\n    </mat-form-field>\n\n    <mat-checkbox\n      [checked]=\"hasNumericValue()\"\n      (change)=\"onHasNumericValueCheckbox($event)\"\n    >Has numeric value</mat-checkbox>\n  </div>\n\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Description</mat-label>\n      <textarea\n        matInput\n        placeholder=\"Tag description\"\n        [rows]=\"5\"\n        [value]=\"tag?.description\"\n        (input)=\"onDescriptionInput($event)\"></textarea>\n    </mat-form-field>\n  </div>\n</ng-container>\n"
+            "templateData": "<h3 *ngIf=\"isEmpty()\">no tag selected</h3>\n\n<ng-container *ngIf=\"!isEmpty()\">\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Name</mat-label>\n      <input\n        matInput\n        placeholder=\"Tag name\"\n        [value]=\"tag?.name\"\n        (input)=\"onNameInput($event)\"/>\n    </mat-form-field>\n\n    <mat-checkbox\n      [checked]=\"hasNumericValue()\"\n      (change)=\"onHasNumericValueCheckbox($event)\"\n    >Has numeric value</mat-checkbox>\n  </div>\n\n  <div class=\"row\">\n    <mat-form-field class=\"full-width\">\n      <mat-label>Description</mat-label>\n      <textarea\n        matInput\n        placeholder=\"Tag description\"\n        [rows]=\"5\"\n        [value]=\"tag?.description\"\n        (input)=\"onDescriptionInput($event)\"></textarea>\n    </mat-form-field>\n  </div>\n\n  <div>\n    <h4>Enum values</h4>\n    <button mat-stroked-button (click)=\"addEnumValue()\">\n      Add\n    </button>\n\n    <div *ngFor=\"let enumValue of tag?.enumValues; let i = index\">\n      <mat-form-field class=\"full-width\">\n        <mat-label>Label</mat-label>\n        <input\n          matInput\n          placeholder=\"Option label\"\n          [value]=\"enumValue.label\"\n          (input)=\"setEnumLabel(i, $event)\"/>\n      </mat-form-field>\n      <mat-checkbox\n        [checked]=\"!enumValue.isDeprecated\"\n        (change)=\"setDeprecatedEnum(i, $event)\"\n      >Enabled</mat-checkbox>\n    </div>\n  </div>\n</ng-container>\n"
         },
         {
             "name": "TagNavComponent",
@@ -5414,6 +6292,15 @@
                             "name": "BeatRelatedBeatNavComponent"
                         },
                         {
+                            "name": "BrainstormTemplateDetailsComponent"
+                        },
+                        {
+                            "name": "BrainstormTemplateNavComponent"
+                        },
+                        {
+                            "name": "BrainstormTemplatePageComponent"
+                        },
+                        {
                             "name": "HeaderTimerComponent"
                         },
                         {
@@ -5518,6 +6405,14 @@
                 "defaultValue": "'allBeatMap'"
             },
             {
+                "name": "ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/brainstorm-template.service.ts",
+                "type": "string",
+                "defaultValue": "'allBrainstormTemplatesListView'"
+            },
+            {
                 "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5540,6 +6435,14 @@
                 "file": "src/app/beats.service.ts",
                 "type": "string",
                 "defaultValue": "'beat-'"
+            },
+            {
+                "name": "BRAINSTORM_TEMPLATE_KEY_PREFIX",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/brainstorm-template.service.ts",
+                "type": "string",
+                "defaultValue": "'brainstormTemplate-'"
             },
             {
                 "name": "context",
@@ -5577,14 +6480,6 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -5593,7 +6488,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5609,7 +6504,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5617,7 +6512,23 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5634,6 +6545,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5694,6 +6613,14 @@
                 "defaultValue": "[\n  {\n    id: 'ghi-789',\n    name: 'My third beat',\n    lastUpdated: Date.now() - (1000 * 12),\n  } as BeatMapView,\n  {\n    id: 'jkl-012',\n    name: 'My 4th beat with a really long title that will wrap at some point perhaps',\n    lastUpdated: Date.now() - (1000 * 9)\n  } as BeatMapView\n]"
             },
             {
+                "name": "exampleBrainstormTemplateListView",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\n  {\n    id: 'abc-123',\n    label: 'My first template'\n  } as BrainstormTemplateListView,\n  {\n    id: 'def-456',\n    label: 'My second template'\n  } as BrainstormTemplateListView\n]"
+            },
+            {
                 "name": "exampleStructureTemplate",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5737,6 +6664,14 @@
                 "name": "FullExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -5753,7 +6688,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5761,7 +6696,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5777,7 +6712,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5790,10 +6725,10 @@
                 "defaultValue": "Template.bind({})"
             },
             {
-                "name": "FullExampleSecondSelected",
+                "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5809,6 +6744,14 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -5817,7 +6760,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5826,6 +6769,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -5876,6 +6827,14 @@
                 "file": "src/app/read-page-beat/read-page-beat.stories.ts",
                 "type": "",
                 "defaultValue": "{\n  id: 'abc123',\n  name: 'My First Act',\n  prose: '   It was great\\nand\\n\\nalso good?',\n  completeness: Completeness.BRAINSTORM,\n  showExpanded: true,\n} as BeatReadView"
+            },
+            {
+                "name": "mockTag",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "",
+                "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
             },
             {
                 "name": "mockTag",
@@ -5944,14 +6903,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
-                "type": "Story<ApplyStructureNavComponent>",
-                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "Story<BeatNavComponent>",
                 "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
@@ -5960,9 +6911,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
-                "type": "Story<BeatRelatedBeatNavComponent>",
-                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "Story<ApplyStructureNavComponent>",
+                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -5971,6 +6922,14 @@
                 "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "Story<BeatProseEditComponent>",
                 "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "type": "Story<BeatRelatedBeatNavComponent>",
+                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6000,17 +6959,25 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                "type": "Story<StructureTemplateDetailsComponent>",
-                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "Story<BrainstormTemplateDetailsComponent>",
+                "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "Story<BrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "Story<StructureTemplateDetailsComponent>",
+                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6027,6 +6994,14 @@
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "Story<TagNavComponent>",
                 "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -6362,6 +7337,24 @@
                     "defaultValue": "'beat-'"
                 }
             ],
+            "src/app/brainstorm-template.service.ts": [
+                {
+                    "name": "ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template.service.ts",
+                    "type": "string",
+                    "defaultValue": "'allBrainstormTemplatesListView'"
+                },
+                {
+                    "name": "BRAINSTORM_TEMPLATE_KEY_PREFIX",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template.service.ts",
+                    "type": "string",
+                    "defaultValue": "'brainstormTemplate-'"
+                }
+            ],
             "src/app/structure-template.service.ts": [
                 {
                     "name": "ALL_STRUCTURE_TEMPLATE_LIST_VIEW_KEY",
@@ -6501,6 +7494,48 @@
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/beat-nav/beat-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/apply-structure-nav/apply-structure-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -6551,46 +7586,38 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-nav/beat-nav.stories.ts": [
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
                 {
                     "name": "EmptyExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "exampleBeatListView",
+                    "name": "FullExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "FullExampleSecondSelected",
+                    "name": "mockBeat",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                     "type": "",
-                    "defaultValue": "Template.bind({})"
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
                 },
                 {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "Story<BeatNavComponent>",
-                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
@@ -6643,12 +7670,12 @@
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+            "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
                 {
                     "name": "EmptyExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
@@ -6656,25 +7683,67 @@
                     "name": "FullExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "mockBeat",
+                    "name": "mockTag",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                     "type": "",
-                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                    "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
                 },
                 {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "Story<BeatProseEditComponent>",
-                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "Story<BrainstormTemplateDetailsComponent>",
+                    "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBrainstormTemplateListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    label: 'My first template'\n  } as BrainstormTemplateListView,\n  {\n    id: 'def-456',\n    label: 'My second template'\n  } as BrainstormTemplateListView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                    "type": "Story<BrainstormTemplateNavComponent>",
+                    "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -6709,48 +7778,6 @@
                     "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                     "type": "Story<StructureTemplateDetailsComponent>",
                     "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "exampleStructureTemplateListView",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExampleSecondSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "Story<StructureTemplateNavComponent>",
-                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-details/tag-details.stories.ts": [
@@ -6827,6 +7854,48 @@
                     "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                     "type": "Story<TagNavComponent>",
                     "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleStructureTemplateListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "Story<StructureTemplateNavComponent>",
+                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -7266,6 +8335,10 @@
                     {
                         "path": "read",
                         "component": "ReadPageComponent"
+                    },
+                    {
+                        "path": "brainstorm-templates",
+                        "component": "BrainstormTemplatePageComponent"
                     }
                 ],
                 "kind": "module"
@@ -7647,6 +8720,170 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "BEAT_KEY_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BrainstormTemplateDetailsComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "BrainstormTemplateUpdate",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "mockTag",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BrainstormTemplateNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/11",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleBrainstormTemplateListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleNothingSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleSecondSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template-page/brainstorm-template-page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BrainstormTemplatePageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/14",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "BrainstormTemplateService",
+                "coveragePercent": 0,
+                "coverageCount": "0/15",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "BrainstormTemplateListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ALL_BRAINSTORM_TEMPLATE_LIST_VIEW_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/brainstorm-template.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "BRAINSTORM_TEMPLATE_KEY_PREFIX",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -8066,7 +9303,7 @@
                 "linktype": "component",
                 "name": "TagDetailsComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/10",
+                "coverageCount": "0/13",
                 "status": "low"
             },
             {

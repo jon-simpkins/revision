@@ -35,7 +35,9 @@ import { ApplyStructureNavComponent } from './apply-structure-nav/apply-structur
 import {MatSelectModule} from '@angular/material/select';
 import { ReadPageComponent } from './read-page/read-page.component';
 import { ReadPageBeatComponent } from './read-page-beat/read-page-beat.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { BrainstormTemplatePageComponent } from './brainstorm-template-page/brainstorm-template-page.component';
+import { BrainstormTemplateNavComponent } from './brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.component';
+import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -71,6 +73,9 @@ export const MaterialModules = [
     ApplyStructureNavComponent,
     ReadPageComponent,
     ReadPageBeatComponent,
+    BrainstormTemplatePageComponent,
+    BrainstormTemplateNavComponent,
+    BrainstormTemplateDetailsComponent,
   ],
   imports: [
     BrowserModule,

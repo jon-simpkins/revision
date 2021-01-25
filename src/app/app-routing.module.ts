@@ -6,6 +6,7 @@ import {StructureTemplatePageComponent} from './structure-template-page/structur
 import {TagPageComponent} from './tag-page/tag-page.component';
 import {BeatPageComponent} from './beat-page/beat-page.component';
 import {ReadPageComponent} from './read-page/read-page.component';
+import {BrainstormTemplatePageComponent} from './brainstorm-template-page/brainstorm-template-page.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent},
@@ -13,7 +14,8 @@ const routes: Routes = [
   { path: 'structure-templates', component: StructureTemplatePageComponent},
   { path: 'tags', component: TagPageComponent},
   { path: 'beats', component: BeatPageComponent},
-  { path: 'read', component: ReadPageComponent}
+  { path: 'read', component: ReadPageComponent},
+  { path: 'brainstorm-templates', component: BrainstormTemplatePageComponent}
 ];
 
 @NgModule({
