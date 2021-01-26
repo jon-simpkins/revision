@@ -2906,6 +2906,93 @@
             "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/structure-templates\">Edit Structure Templates</a>\n</div>\n<div class=\"structure-nav-wrapper\">\n  <div\n    *ngFor=\"let structureTemplate of structureTemplateListView\"\n    class=\"structure-entry\"\n    [class.selected]=\"selectedTemplateId == structureTemplate.id\"\n    (click)=\"selectTemplate.emit(structureTemplate.id)\">\n    <div class=\"template-name\">{{structureTemplate.name}}</div>\n\n    <div\n      *ngIf=\"selectedTemplateId == structureTemplate.id\"\n      class=\"selected-template\">\n\n      <p class=\"description\">\n        {{rescaledSelectedTemplate?.description}}\n      </p>\n\n      <div class=\"structure-beats-wrapper\">\n        <div *ngFor=\"let beat of getBeats()\" class=\"structure-beat\">\n          {{beat.description}} ({{formatDurationMs(beat.intendedDurationMs)}})\n        </div>\n      </div>\n\n      <div class=\"action-row\">\n        <button\n          mat-raised-button color=\"primary\" (click)=\"applyTemplate.emit()\">\n          Apply Template\n        </button>\n      </div>\n\n    </div>\n\n  </div>\n</div>\n"
         },
         {
+            "name": "BeatBrainstormTemplateNavComponent",
+            "id": "component-BeatBrainstormTemplateNavComponent-e67586ef5f46c9245ebe21dc35f958c1",
+            "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-beat-brainstorm-template-nav",
+            "styleUrls": [
+                "./beat-brainstorm-template-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./beat-brainstorm-template-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "brainstormTemplateListView",
+                    "defaultValue": "[]",
+                    "line": 16,
+                    "type": "BrainstormTemplateListView[]"
+                },
+                {
+                    "name": "selectedBrainstormTemplate",
+                    "defaultValue": "null",
+                    "line": 19,
+                    "type": "BrainstormTemplate | null"
+                },
+                {
+                    "name": "selectedTemplateId",
+                    "defaultValue": "''",
+                    "line": 13
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "applyTemplate",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 23,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "selectTemplate",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {BrainstormTemplateListView} from '../brainstorm-template.service';\nimport {BrainstormTemplate} from '../../protos';\n\n@Component({\n  selector: 'app-beat-brainstorm-template-nav',\n  templateUrl: './beat-brainstorm-template-nav.component.html',\n  styleUrls: ['./beat-brainstorm-template-nav.component.scss']\n})\nexport class BeatBrainstormTemplateNavComponent implements OnInit {\n\n  @Input()\n  selectedTemplateId = '';\n\n  @Input()\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n\n  @Input()\n  selectedBrainstormTemplate: BrainstormTemplate|null = null;\n\n  @Output() selectTemplate = new EventEmitter<string>();\n\n  @Output() applyTemplate = new EventEmitter<void>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".edit-links {\n  display: flex;\n  margin-bottom: 8px;\n\n  span {\n    flex: 1;\n  }\n}\n\n.brainstorm-nav-wrapper {\n  background: #ccc;\n  padding: 8px;\n\n  .brainstorm-entry {\n    margin-bottom: 8px;\n    background: #fff;\n    border-radius: 4px;\n    padding: 8px;\n\n    &.selected {\n      border: 2px solid blue;\n    }\n  }\n}\n\n\n.action-row {\n  text-align: right;\n}\n",
+                    "styleUrl": "./beat-brainstorm-template-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 23
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/brainstorm-templates\">Edit Brainstorm Templates</a>\n</div>\n<div class=\"brainstorm-nav-wrapper\">\n <div *ngFor=\"let brainstormTemplate of brainstormTemplateListView\"\n      class=\"brainstorm-entry\"\n      [class.selected]=\"selectedTemplateId == brainstormTemplate.id\"\n      (click)=\"selectTemplate.emit(brainstormTemplate.id)\">\n   <div class=\"template-name\">{{brainstormTemplate.label}}</div>\n\n   <div\n     *ngIf=\"selectedTemplateId == brainstormTemplate.id\"\n     class=\"selected-template\">\n\n     <pre class=\"description\">{{selectedBrainstormTemplate?.template}}</pre>\n\n     <div class=\"action-row\">\n       <button\n         mat-raised-button color=\"primary\" (click)=\"applyTemplate.emit()\">\n         Apply Template\n       </button>\n     </div>\n\n   </div>\n </div>\n</div>\n"
+        },
+        {
             "name": "BeatNavComponent",
             "id": "component-BeatNavComponent-396754af3c2cbf3481be4a49b6bb7b8c",
             "file": "src/app/beat-nav/beat-nav.component.ts",
@@ -3050,7 +3137,7 @@
         },
         {
             "name": "BeatPageComponent",
-            "id": "component-BeatPageComponent-67c74390bb82023e55d059c7202d549e",
+            "id": "component-BeatPageComponent-9fdc4a09e9213b0bfe37f80b678fe9f9",
             "file": "src/app/beat-page/beat-page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3075,7 +3162,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 19
                 },
                 {
                     "name": "beatMapView",
@@ -3083,7 +3170,7 @@
                     "type": "Map<string | BeatMapView>",
                     "optional": false,
                     "description": "",
-                    "line": 17
+                    "line": 18
                 },
                 {
                     "name": "beatMapViewSubscription",
@@ -3091,7 +3178,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 20
                 },
                 {
                     "name": "brainstormListView",
@@ -3099,7 +3186,23 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 28
+                    "line": 29
+                },
+                {
+                    "name": "brainstormTemplateListView",
+                    "defaultValue": "[]",
+                    "type": "BrainstormTemplateListView[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 53
+                },
+                {
+                    "name": "brainstormTemplateListViewSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 54
                 },
                 {
                     "name": "parentListView",
@@ -3107,7 +3210,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 23
+                    "line": 24
                 },
                 {
                     "name": "rescaledStructureTemplate",
@@ -3115,7 +3218,7 @@
                     "type": "StructureTemplate | null",
                     "optional": false,
                     "description": "",
-                    "line": 40
+                    "line": 41
                 },
                 {
                     "name": "selectedBeat",
@@ -3123,7 +3226,7 @@
                     "type": "Beat | null",
                     "optional": false,
                     "description": "",
-                    "line": 25
+                    "line": 26
                 },
                 {
                     "name": "selectedBeatId",
@@ -3131,7 +3234,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 22
                 },
                 {
                     "name": "selectedBeatSubscription",
@@ -3139,7 +3242,31 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 26
+                    "line": 27
+                },
+                {
+                    "name": "selectedBrainstormTemplate",
+                    "defaultValue": "null",
+                    "type": "BrainstormTemplate | null",
+                    "optional": false,
+                    "description": "<p>Brainstorm Templates </p>\n",
+                    "line": 49
+                },
+                {
+                    "name": "selectedBrainstormTemplateSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 51
+                },
+                {
+                    "name": "selectedBrainstormTemplateUuid",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 50
                 },
                 {
                     "name": "selectedChildBeat",
@@ -3147,7 +3274,7 @@
                     "type": "Beat | null",
                     "optional": false,
                     "description": "",
-                    "line": 33
+                    "line": 34
                 },
                 {
                     "name": "selectedChildBeatId",
@@ -3155,7 +3282,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 31
+                    "line": 32
                 },
                 {
                     "name": "selectedChildBeatSubscription",
@@ -3163,7 +3290,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 34
+                    "line": 35
                 },
                 {
                     "name": "selectedTabIndex",
@@ -3171,7 +3298,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 46
+                    "line": 56
                 },
                 {
                     "name": "selectedTemplate",
@@ -3179,7 +3306,7 @@
                     "type": "StructureTemplate | null",
                     "optional": false,
                     "description": "",
-                    "line": 39
+                    "line": 40
                 },
                 {
                     "name": "selectedTemplateSubscription",
@@ -3187,7 +3314,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 41
+                    "line": 42
                 },
                 {
                     "name": "selectedTemplateUuid",
@@ -3195,7 +3322,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "<p>Structure templates </p>\n",
-                    "line": 37
+                    "line": 38
                 },
                 {
                     "name": "structureListView",
@@ -3203,7 +3330,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 29
+                    "line": 30
                 },
                 {
                     "name": "structureTemplateListView",
@@ -3211,7 +3338,7 @@
                     "type": "StructureTemplateListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 43
+                    "line": 44
                 },
                 {
                     "name": "structureTemplateListViewSubscription",
@@ -3219,17 +3346,28 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 44
+                    "line": 45
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "applyBrainstormTemplate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 363,
+                    "modifierKind": [
+                        120
+                    ]
+                },
                 {
                     "name": "applyStructureTemplate",
                     "args": [],
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 299,
+                    "line": 317,
                     "modifierKind": [
                         120
                     ]
@@ -3240,7 +3378,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 91,
+                    "line": 109,
                     "modifierKind": [
                         112
                     ]
@@ -3251,7 +3389,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 141,
+                    "line": 159,
                     "modifierKind": [
                         120
                     ]
@@ -3262,7 +3400,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 230,
+                    "line": 248,
                     "modifierKind": [
                         120
                     ]
@@ -3273,7 +3411,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 241
+                    "line": 259
                 },
                 {
                     "name": "moveChildBeat",
@@ -3286,7 +3424,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 205,
+                    "line": 223,
                     "modifierKind": [
                         120
                     ],
@@ -3306,7 +3444,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 127,
                     "modifierKind": [
                         120
                     ]
@@ -3322,7 +3460,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 159,
+                    "line": 177,
                     "modifierKind": [
                         120
                     ],
@@ -3342,7 +3480,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 83
+                    "line": 99
                 },
                 {
                     "name": "ngOnInit",
@@ -3350,7 +3488,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 54
+                    "line": 65
                 },
                 {
                     "name": "onBeatUpdated",
@@ -3363,7 +3501,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 148,
+                    "line": 166,
                     "modifierKind": [
                         120
                     ],
@@ -3383,7 +3521,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 328,
+                    "line": 346,
                     "modifierKind": [
                         120
                     ]
@@ -3394,7 +3532,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 272
+                    "line": 290
                 },
                 {
                     "name": "selectBeat",
@@ -3407,13 +3545,38 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 114,
+                    "line": 132,
                     "modifierKind": [
                         120
                     ],
                     "jsdoctags": [
                         {
                             "name": "newUuid",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selectBrainstormTemplate",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 350,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
                             "type": "string",
                             "tagName": {
                                 "text": "param"
@@ -3432,7 +3595,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 183,
+                    "line": 201,
                     "modifierKind": [
                         120
                     ],
@@ -3457,7 +3620,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 135,
+                    "line": 153,
                     "modifierKind": [
                         120
                     ],
@@ -3482,7 +3645,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 258,
+                    "line": 276,
                     "modifierKind": [
                         120
                     ],
@@ -3507,7 +3670,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 237,
+                    "line": 255,
                     "jsdoctags": [
                         {
                             "name": "newIndex",
@@ -3524,7 +3687,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Beat, StructureTemplate} from '../../protos';\nimport {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';\nimport {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  beatMapView: Map<string, BeatMapView> = new Map();\n  beatListView: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  selectedBeatId = '';\n\n  parentListView: BeatMapView[] = [];\n\n  selectedBeat: Beat|null = null;\n  selectedBeatSubscription = '';\n\n  brainstormListView: BeatMapView[] = [];\n  structureListView: BeatMapView[] = [];\n\n  selectedChildBeatId = '';\n\n  selectedChildBeat: Beat|null = null;\n  selectedChildBeatSubscription = '';\n\n  /** Structure templates */\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  rescaledStructureTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n  selectedTabIndex = 0;\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private structureTemplateService: StructureTemplateService,\n    private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.beatMapView = newValue;\n\n      this.beatListView = Array.from(newValue.values())\n        .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats\n        .sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n\n      this.buildRelatedListViews();\n\n      this.ref.markForCheck();\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n  }\n\n  private buildRelatedListViews(): void {\n    if (this.selectedBeat == null) {\n      this.brainstormListView = [];\n      this.structureListView = [];\n      this.parentListView = [];\n    } else {\n      this.brainstormListView = (this.selectedBeat.brainstorm || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.structureListView = (this.selectedBeat.structure || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.parentListView = (this.beatMapView.get(this.selectedBeatId)?.parentBeats || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n    }\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    await this.selectBeat(newUuid);\n  }\n\n  async selectBeat(newUuid: string): Promise<void> {\n    await this.selectChildBeat('');\n\n    this.selectedBeatId = newUuid;\n    this.selectedBeat = null;\n\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    if (!!newUuid.length) {\n      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {\n        this.selectedBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedBeat = await this.beatsService.getBeat(newUuid);\n    }\n\n    await this.router.navigate(['/beats', { id: newUuid }]);\n\n    this.ref.markForCheck();\n  }\n\n  async selectParentBeat(parentUuid: string): Promise<void> {\n    const newChildId = this.selectedBeatId;\n    await this.selectBeat(parentUuid);\n    await this.selectChildBeat(newChildId);\n  }\n\n  async deleteBeat(): Promise<void> {\n    await this.beatsService.deleteBeat(\n      this.selectedBeatId\n    );\n    await this.selectBeat('');\n  }\n\n  async onBeatUpdated(updatedBeat: BeatUpdate): Promise<void> {\n    await this.beatsService.setBeat(\n      updatedBeat.beat,\n      updatedBeat.modifiesListView,\n      true);\n\n    if (updatedBeat.modifiesListView) {\n      this.rescaleStructureTemplate();\n    }\n  }\n\n  async newChildBeat(whichList: BeatSubList): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n\n    const beat = this.selectedBeat as Beat;\n\n    if (whichList === BeatSubList.Structure) {\n      const structure = beat.structure || [];\n      structure.unshift(newUuid);\n      beat.structure = structure;\n    } else {\n      const brainstorm = beat.brainstorm || [];\n      brainstorm.unshift(newUuid);\n      beat.brainstorm = brainstorm;\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    await this.selectChildBeat(newUuid);\n  }\n\n  async selectChildBeat(selectedChildId: string): Promise<void> {\n    this.selectedChildBeat = null;\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n\n    if (selectedChildId === this.selectedChildBeatId) {\n      this.selectedChildBeatId = ''; // Treat as deselecting\n    } else {\n      this.selectedChildBeatId = selectedChildId;\n    }\n\n    if (!!this.selectedChildBeatId.length) {\n      this.selectedChildBeatSubscription = this.beatsService.subscribeToBeat(this.selectedChildBeatId, (newValue) => {\n        this.selectedChildBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedChildBeat = await this.beatsService.getBeat(this.selectedChildBeatId);\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async moveChildBeat(moveEvent: BeatDropEvent): Promise<void> {\n    const beat = this.selectedBeat as Beat;\n\n    let uuidToMove: string;\n    if (moveEvent.sourceList === BeatSubList.Structure) {\n      uuidToMove = beat.structure.splice(moveEvent.sourceIndex, 1)[0];\n    } else {\n      uuidToMove = beat.brainstorm.splice(moveEvent.sourceIndex, 1)[0];\n    }\n\n    if (moveEvent.targetList === BeatSubList.Structure) {\n      beat.structure.splice(moveEvent.targetIndex, 0, uuidToMove);\n    } else {\n      beat.brainstorm.splice(moveEvent.targetIndex, 0, uuidToMove);\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    this.ref.markForCheck();\n  }\n\n  async deleteChildBeat(): Promise<void> {\n    const uuidToDelete = this.selectedChildBeatId;\n    this.selectedChildBeatId = '';\n\n    await this.beatsService.deleteBeat(uuidToDelete);\n  }\n\n  tabChange(newIndex: number): void {\n    this.selectedTabIndex = newIndex;\n  }\n\n  getChildSumDuration(): number {\n\n    if (!this.selectedBeat) {\n      return 0;\n    }\n\n    let sum = 0;\n    this.selectedBeat.structure.forEach(childId => {\n      const childBeatView = this.beatMapView.get(childId);\n      if (childBeatView) {\n        sum += childBeatView.intendedDurationMs;\n      }\n    });\n\n    return sum;\n  }\n\n  async selectStructureTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n\n      this.rescaleStructureTemplate();\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rescaleStructureTemplate(): void {\n    this.rescaledStructureTemplate = this.selectedTemplate;\n\n    if (!this.rescaledStructureTemplate) {\n      return;\n    }\n\n    const currentIntendedDuration = this.selectedBeat?.intendedDurationMs;\n    let templateSumDuration = 0;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      templateSumDuration += (beat.intendedDurationMs as number);\n    });\n\n    if (!templateSumDuration || !currentIntendedDuration) {\n      return;\n    }\n\n    const scale = currentIntendedDuration / templateSumDuration;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      if (!!beat) {\n        const originalDuration = beat?.intendedDurationMs as number;\n        beat.intendedDurationMs = Math.floor(originalDuration * scale);\n      }\n    });\n    this.ref.markForCheck();\n  }\n\n  async applyStructureTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n\n    // Move everything from structure -> brainstorm\n    parentBeat.brainstorm = parentBeat.brainstorm.concat(parentBeat.structure);\n    parentBeat.structure = [];\n\n    // Create all relevant beats\n    const templateBeats = this.rescaledStructureTemplate?.beats as StructureTemplateBeat[];\n    for (const templateBeat of templateBeats) {\n      const newUuid = await this.beatsService.createNewBeat();\n\n      parentBeat.structure.push(newUuid);\n\n      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;\n      childBeat.synopsis = templateBeat.description;\n      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;\n\n      await this.beatsService.setBeat(childBeat, true);\n    }\n\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectStructureTemplate('');\n    await this.selectChildBeat(parentBeat.structure[0]);\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n\n  async openReadView(): Promise<void> {\n    await this.router.navigate(['/read', { id: this.selectedBeatId }]);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Beat, BrainstormTemplate, StructureTemplate} from '../../protos';\nimport {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';\nimport {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\nimport {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  beatMapView: Map<string, BeatMapView> = new Map();\n  beatListView: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  selectedBeatId = '';\n\n  parentListView: BeatMapView[] = [];\n\n  selectedBeat: Beat|null = null;\n  selectedBeatSubscription = '';\n\n  brainstormListView: BeatMapView[] = [];\n  structureListView: BeatMapView[] = [];\n\n  selectedChildBeatId = '';\n\n  selectedChildBeat: Beat|null = null;\n  selectedChildBeatSubscription = '';\n\n  /** Structure templates */\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  rescaledStructureTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n\n  /** Brainstorm Templates */\n  selectedBrainstormTemplate: BrainstormTemplate|null = null;\n  selectedBrainstormTemplateUuid = '';\n  selectedBrainstormTemplateSubscription = '';\n\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n  brainstormTemplateListViewSubscription = '';\n\n  selectedTabIndex = 0;\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private structureTemplateService: StructureTemplateService,\n    private brainstormTemplateService: BrainstormTemplateService,\n    private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.beatMapView = newValue;\n\n      this.beatListView = Array.from(newValue.values())\n        .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats\n        .sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n\n      this.buildRelatedListViews();\n\n      this.ref.markForCheck();\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n\n    this.brainstormTemplateListViewSubscription = this.brainstormTemplateService.subscribeToTemplateListView((newValue) => {\n      this.brainstormTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.brainstormTemplateListViewSubscription);\n  }\n\n  private buildRelatedListViews(): void {\n    if (this.selectedBeat == null) {\n      this.brainstormListView = [];\n      this.structureListView = [];\n      this.parentListView = [];\n    } else {\n      this.brainstormListView = (this.selectedBeat.brainstorm || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.structureListView = (this.selectedBeat.structure || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.parentListView = (this.beatMapView.get(this.selectedBeatId)?.parentBeats || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n    }\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    await this.selectBeat(newUuid);\n  }\n\n  async selectBeat(newUuid: string): Promise<void> {\n    await this.selectChildBeat('');\n\n    this.selectedBeatId = newUuid;\n    this.selectedBeat = null;\n\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    if (!!newUuid.length) {\n      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {\n        this.selectedBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedBeat = await this.beatsService.getBeat(newUuid);\n    }\n\n    await this.router.navigate(['/beats', { id: newUuid }]);\n\n    this.ref.markForCheck();\n  }\n\n  async selectParentBeat(parentUuid: string): Promise<void> {\n    const newChildId = this.selectedBeatId;\n    await this.selectBeat(parentUuid);\n    await this.selectChildBeat(newChildId);\n  }\n\n  async deleteBeat(): Promise<void> {\n    await this.beatsService.deleteBeat(\n      this.selectedBeatId\n    );\n    await this.selectBeat('');\n  }\n\n  async onBeatUpdated(updatedBeat: BeatUpdate): Promise<void> {\n    await this.beatsService.setBeat(\n      updatedBeat.beat,\n      updatedBeat.modifiesListView,\n      true);\n\n    if (updatedBeat.modifiesListView) {\n      this.rescaleStructureTemplate();\n    }\n  }\n\n  async newChildBeat(whichList: BeatSubList): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n\n    const beat = this.selectedBeat as Beat;\n\n    if (whichList === BeatSubList.Structure) {\n      const structure = beat.structure || [];\n      structure.unshift(newUuid);\n      beat.structure = structure;\n    } else {\n      const brainstorm = beat.brainstorm || [];\n      brainstorm.unshift(newUuid);\n      beat.brainstorm = brainstorm;\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    await this.selectChildBeat(newUuid);\n  }\n\n  async selectChildBeat(selectedChildId: string): Promise<void> {\n    this.selectedChildBeat = null;\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n\n    if (selectedChildId === this.selectedChildBeatId) {\n      this.selectedChildBeatId = ''; // Treat as deselecting\n    } else {\n      this.selectedChildBeatId = selectedChildId;\n    }\n\n    if (!!this.selectedChildBeatId.length) {\n      this.selectedChildBeatSubscription = this.beatsService.subscribeToBeat(this.selectedChildBeatId, (newValue) => {\n        this.selectedChildBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedChildBeat = await this.beatsService.getBeat(this.selectedChildBeatId);\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async moveChildBeat(moveEvent: BeatDropEvent): Promise<void> {\n    const beat = this.selectedBeat as Beat;\n\n    let uuidToMove: string;\n    if (moveEvent.sourceList === BeatSubList.Structure) {\n      uuidToMove = beat.structure.splice(moveEvent.sourceIndex, 1)[0];\n    } else {\n      uuidToMove = beat.brainstorm.splice(moveEvent.sourceIndex, 1)[0];\n    }\n\n    if (moveEvent.targetList === BeatSubList.Structure) {\n      beat.structure.splice(moveEvent.targetIndex, 0, uuidToMove);\n    } else {\n      beat.brainstorm.splice(moveEvent.targetIndex, 0, uuidToMove);\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    this.ref.markForCheck();\n  }\n\n  async deleteChildBeat(): Promise<void> {\n    const uuidToDelete = this.selectedChildBeatId;\n    this.selectedChildBeatId = '';\n\n    await this.beatsService.deleteBeat(uuidToDelete);\n  }\n\n  tabChange(newIndex: number): void {\n    this.selectedTabIndex = newIndex;\n  }\n\n  getChildSumDuration(): number {\n\n    if (!this.selectedBeat) {\n      return 0;\n    }\n\n    let sum = 0;\n    this.selectedBeat.structure.forEach(childId => {\n      const childBeatView = this.beatMapView.get(childId);\n      if (childBeatView) {\n        sum += childBeatView.intendedDurationMs;\n      }\n    });\n\n    return sum;\n  }\n\n  async selectStructureTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n\n      this.rescaleStructureTemplate();\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rescaleStructureTemplate(): void {\n    this.rescaledStructureTemplate = this.selectedTemplate;\n\n    if (!this.rescaledStructureTemplate) {\n      return;\n    }\n\n    const currentIntendedDuration = this.selectedBeat?.intendedDurationMs;\n    let templateSumDuration = 0;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      templateSumDuration += (beat.intendedDurationMs as number);\n    });\n\n    if (!templateSumDuration || !currentIntendedDuration) {\n      return;\n    }\n\n    const scale = currentIntendedDuration / templateSumDuration;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      if (!!beat) {\n        const originalDuration = beat?.intendedDurationMs as number;\n        beat.intendedDurationMs = Math.floor(originalDuration * scale);\n      }\n    });\n    this.ref.markForCheck();\n  }\n\n  async applyStructureTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n\n    // Move everything from structure -> brainstorm\n    parentBeat.brainstorm = parentBeat.brainstorm.concat(parentBeat.structure);\n    parentBeat.structure = [];\n\n    // Create all relevant beats\n    const templateBeats = this.rescaledStructureTemplate?.beats as StructureTemplateBeat[];\n    for (const templateBeat of templateBeats) {\n      const newUuid = await this.beatsService.createNewBeat();\n\n      parentBeat.structure.push(newUuid);\n\n      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;\n      childBeat.synopsis = templateBeat.description;\n      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;\n\n      await this.beatsService.setBeat(childBeat, true);\n    }\n\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectStructureTemplate('');\n    await this.selectChildBeat(parentBeat.structure[0]);\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n\n  async openReadView(): Promise<void> {\n    await this.router.navigate(['/read', { id: this.selectedBeatId }]);\n  }\n\n  async selectBrainstormTemplate(newId: string): Promise<void> {\n    this.selectedBrainstormTemplateUuid = newId;\n\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.selectedBrainstormTemplateSubscription = this.brainstormTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedBrainstormTemplate = newValue;\n\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  async applyBrainstormTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n    const brainstormTemplate = this.selectedBrainstormTemplate as BrainstormTemplate;\n\n    const newBeatUuid = await this.beatsService.createNewBeat();\n\n    parentBeat.brainstorm.push(newBeatUuid);\n\n    const childBeat = await this.beatsService.getBeat(newBeatUuid) as Beat;\n    childBeat.intendedDurationMs = 0;\n    childBeat.synopsis = brainstormTemplate.label;\n    childBeat.prose = brainstormTemplate.template;\n\n    await this.beatsService.setBeat(childBeat, true);\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectChildBeat(newBeatUuid);\n    await this.selectBrainstormTemplate('');\n\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -3550,6 +3713,10 @@
                         "type": "StructureTemplateService"
                     },
                     {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService"
+                    },
+                    {
                         "name": "route",
                         "type": "ActivatedRoute"
                     },
@@ -3558,7 +3725,7 @@
                         "type": "Router"
                     }
                 ],
-                "line": 46,
+                "line": 56,
                 "jsdoctags": [
                     {
                         "name": "beatsService",
@@ -3577,6 +3744,13 @@
                     {
                         "name": "structureTemplateService",
                         "type": "StructureTemplateService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "brainstormTemplateService",
+                        "type": "BrainstormTemplateService",
                         "tagName": {
                             "text": "param"
                         }
@@ -3601,7 +3775,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"content-wrapper\">\n  <app-beat-nav\n    [selectedBeatId]=\"selectedBeatId\"\n    [beatListView]=\"beatListView\"\n    (newBeat)=\"newBeat()\"\n    (selectBeat)=\"selectBeat($event)\"\n    (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
+            "templateData": "<div class=\"content-wrapper\">\n  <app-beat-nav\n    [selectedBeatId]=\"selectedBeatId\"\n    [beatListView]=\"beatListView\"\n    (newBeat)=\"newBeat()\"\n    (selectBeat)=\"selectBeat($event)\"\n    (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n      <mat-tab label=\"Brainstorm\">\n        <app-beat-brainstorm-template-nav\n          [selectedTemplateId]=\"selectedBrainstormTemplateUuid\"\n          [selectedBrainstormTemplate]=\"selectedBrainstormTemplate\"\n          [brainstormTemplateListView]=\"brainstormTemplateListView\"\n          (selectTemplate)=\"selectBrainstormTemplate($event)\"\n          (applyTemplate)=\"applyBrainstormTemplate()\"\n        ></app-beat-brainstorm-template-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
         },
         {
             "name": "BeatProseEditComponent",
@@ -4699,7 +4873,7 @@
         },
         {
             "name": "LandingPageComponent",
-            "id": "component-LandingPageComponent-c3d4ca7ff99a29cc8c2950a2fa1b32cc",
+            "id": "component-LandingPageComponent-f28d9e6c961c1f941df2387d846486f1",
             "file": "src/app/landing-page/landing-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -4720,6 +4894,46 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
+                    "name": "missesPerHit",
+                    "defaultValue": "3",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
+                },
+                {
+                    "name": "pagesPerSprint",
+                    "defaultValue": "0.25",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 16
+                },
+                {
+                    "name": "scriptLength",
+                    "defaultValue": "110",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
+                },
+                {
+                    "name": "sessionsPerDay",
+                    "defaultValue": "4",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                },
+                {
+                    "name": "splitFactor",
+                    "defaultValue": "3.5",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                },
+                {
                     "name": "workspaceName",
                     "defaultValue": "''",
                     "type": "string",
@@ -4738,12 +4952,77 @@
             ],
             "methodsClass": [
                 {
+                    "name": "calculateFlatAlternativeSessions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 64
+                },
+                {
+                    "name": "calculateSessionsRequired",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 54
+                },
+                {
+                    "name": "changeParameters",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 37
+                },
+                {
+                    "name": "cost",
+                    "args": [
+                        {
+                            "name": "treeDepth",
+                            "type": "number"
+                        },
+                        {
+                            "name": "splitFactor",
+                            "type": "number"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 71,
+                    "jsdoctags": [
+                        {
+                            "name": "treeDepth",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "splitFactor",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "giveUpRate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 50
+                },
+                {
                     "name": "ngOnDestroy",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 27
+                    "line": 33
                 },
                 {
                     "name": "ngOnInit",
@@ -4751,9 +5030,31 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 20,
+                    "line": 26,
                     "modifierKind": [
                         120
+                    ]
+                },
+                {
+                    "name": "pickRandomFromList",
+                    "args": [
+                        {
+                            "name": "options",
+                            "type": "number[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 45,
+                    "jsdoctags": [
+                        {
+                            "name": "options",
+                            "type": "number[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
                     ]
                 }
             ],
@@ -4762,7 +5063,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  scriptLength = 110;\n  pagesPerSprint = 0.25;\n  splitFactor = 3.5;\n  missesPerHit = 3;\n  sessionsPerDay = 4;\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n\n  changeParameters(): void {\n    this.scriptLength = this.pickRandomFromList([30, 60, 90, 110, 120]);\n    this.pagesPerSprint = this.pickRandomFromList([0.125, 0.25, 0.5, 1]);\n    this.splitFactor = this.pickRandomFromList([2, 3, 3.5, 4, 5]);\n    this.missesPerHit = this.pickRandomFromList([1, 2, 3, 4, 5]);\n    this.sessionsPerDay = this.pickRandomFromList([0.5, 1, 2, 4, 6, 8]);\n  }\n\n  pickRandomFromList(options: number[]): number {\n    const randomIndex = Math.floor(Math.random() * options.length);\n    return options[randomIndex];\n  }\n\n  giveUpRate(): number {\n    return 100 * this.missesPerHit / (this.missesPerHit + 1);\n  }\n\n  calculateSessionsRequired(): number {\n    const treeDepth = Math.log(this.scriptLength / this.pagesPerSprint) / Math.log(this.splitFactor);\n\n    const halfCost = this.cost(treeDepth / 2, this.splitFactor);\n    const fullCost = this.cost(treeDepth, this.splitFactor);\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n\n  }\n\n  calculateFlatAlternativeSessions(): number {\n    const halfCost = 0.5 * this.scriptLength / this.pagesPerSprint;\n    const fullCost = this.scriptLength / this.pagesPerSprint;\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n  }\n\n  cost(treeDepth: number, splitFactor: number): number {\n    let cost = 0;\n    for (let i = 0; i < treeDepth; i++) {\n      cost += Math.pow(splitFactor, i);\n    }\n\n    cost += Math.pow(splitFactor, treeDepth);\n\n    return cost;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4784,7 +5085,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 13,
+                "line": 19,
                 "jsdoctags": [
                     {
                         "name": "monolithicDataService",
@@ -4806,7 +5107,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<pre>\n  If you want to write a {{scriptLength}} page script,\n  you write a page in {{1 / pagesPerSprint}} \"sprints\",\n  each layer of the script splits on average into {{splitFactor}} pieces,\n  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you\n  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)\n  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day\n  ({{sessionsPerDay}} 15-minute sessions).\n\n  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions\n  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).\n\n  <button mat-stroked-button (click)=\"changeParameters()\">\n    Change Parameters\n  </button>\n</pre>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ReadPageBeatComponent",
@@ -6280,6 +6581,9 @@
                             "name": "ApplyStructureNavComponent"
                         },
                         {
+                            "name": "BeatBrainstormTemplateNavComponent"
+                        },
+                        {
                             "name": "BeatNavComponent"
                         },
                         {
@@ -6480,14 +6784,6 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -6496,7 +6792,23 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6536,7 +6848,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6552,7 +6864,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6611,6 +6923,22 @@
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "[]",
                 "defaultValue": "[\n  {\n    id: 'ghi-789',\n    name: 'My third beat',\n    lastUpdated: Date.now() - (1000 * 12),\n  } as BeatMapView,\n  {\n    id: 'jkl-012',\n    name: 'My 4th beat with a really long title that will wrap at some point perhaps',\n    lastUpdated: Date.now() - (1000 * 9)\n  } as BeatMapView\n]"
+            },
+            {
+                "name": "exampleBrainstormTemplate",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "{\n  id: 'def-456',\n  label: 'My second template',\n  template: 'Who is the main character here?',\n} as BrainstormTemplate"
+            },
+            {
+                "name": "exampleBrainstormTemplateListView",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\n  {\n    id: 'abc-123',\n    label: 'My first template',\n  } as BrainstormTemplateListView,\n  {\n    id: 'def-456',\n    label: 'My second template'\n  } as BrainstormTemplateListView\n]"
             },
             {
                 "name": "exampleBrainstormTemplateListView",
@@ -6688,7 +7016,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6696,7 +7024,15 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleNothingSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6720,7 +7056,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6728,15 +7064,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "FullExampleSecondSelected",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6745,6 +7073,22 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "FullExampleSecondSelected",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6768,7 +7112,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6776,7 +7120,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6903,14 +7247,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "Story<BeatNavComponent>",
-                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "Story<ApplyStructureNavComponent>",
                 "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
@@ -6919,9 +7255,25 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "Story<BeatBrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "Story<BeatProseEditComponent>",
                 "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6983,9 +7335,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                "type": "Story<TagDetailsComponent>",
-                "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -6999,9 +7351,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "Story<TagDetailsComponent>",
+                "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -7494,48 +7846,6 @@
                     "defaultValue": "(args: LandingPageComponent) => ({\n  component: LandingPageComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-nav/beat-nav.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "exampleBeatListView",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExampleSecondSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "Story<BeatNavComponent>",
-                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/apply-structure-nav/apply-structure-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -7586,6 +7896,56 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBrainstormTemplate",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "{\n  id: 'def-456',\n  label: 'My second template',\n  template: 'Who is the main character here?',\n} as BrainstormTemplate"
+                },
+                {
+                    "name": "exampleBrainstormTemplateListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    label: 'My first template',\n  } as BrainstormTemplateListView,\n  {\n    id: 'def-456',\n    label: 'My second template'\n  } as BrainstormTemplateListView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                    "type": "Story<BeatBrainstormTemplateNavComponent>",
+                    "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -7618,6 +7978,48 @@
                     "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                     "type": "Story<BeatProseEditComponent>",
                     "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-nav/beat-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
@@ -7780,38 +8182,46 @@
                     "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/tag-page/tag-details/tag-details.stories.ts": [
+            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "FullExample",
+                    "name": "exampleStructureTemplateListView",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "mockTag",
+                    "name": "FullExampleSecondSelected",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "",
-                    "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
+                    "defaultValue": "Template.bind({})"
                 },
                 {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                    "type": "Story<TagDetailsComponent>",
-                    "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
+                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "type": "Story<StructureTemplateNavComponent>",
+                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-nav/tag-nav.stories.ts": [
@@ -7856,46 +8266,38 @@
                     "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
+            "src/app/tag-page/tag-details/tag-details.stories.ts": [
                 {
                     "name": "EmptyExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "exampleStructureTemplateListView",
+                    "name": "FullExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n    {\n      id: 'abc-123',\n      name: 'My first template'\n    } as StructureTemplateListView,\n    {\n      id: 'def-456',\n      name: 'My second template'\n    } as StructureTemplateListView\n  ]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "FullExampleSecondSelected",
+                    "name": "mockTag",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                     "type": "",
-                    "defaultValue": "Template.bind({})"
+                    "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
                 },
                 {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                    "type": "Story<StructureTemplateNavComponent>",
-                    "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "Story<TagDetailsComponent>",
+                    "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -8447,6 +8849,75 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BeatBrainstormTemplateNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/8",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleBrainstormTemplate",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleBrainstormTemplateListView",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleNothingSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullExampleSecondSelected",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/beat-nav/beat-nav.component.ts",
                 "type": "component",
                 "linktype": "component",
@@ -8510,8 +8981,8 @@
                 "type": "component",
                 "linktype": "component",
                 "name": "BeatPageComponent",
-                "coveragePercent": 2,
-                "coverageCount": "1/39",
+                "coveragePercent": 4,
+                "coverageCount": "2/46",
                 "status": "low"
             },
             {
@@ -8941,7 +9412,7 @@
                 "linktype": "component",
                 "name": "LandingPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/6",
+                "coverageCount": "0/17",
                 "status": "low"
             },
             {
