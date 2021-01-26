@@ -2906,6 +2906,62 @@
             "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/structure-templates\">Edit Structure Templates</a>\n</div>\n<div class=\"structure-nav-wrapper\">\n  <div\n    *ngFor=\"let structureTemplate of structureTemplateListView\"\n    class=\"structure-entry\"\n    [class.selected]=\"selectedTemplateId == structureTemplate.id\"\n    (click)=\"selectTemplate.emit(structureTemplate.id)\">\n    <div class=\"template-name\">{{structureTemplate.name}}</div>\n\n    <div\n      *ngIf=\"selectedTemplateId == structureTemplate.id\"\n      class=\"selected-template\">\n\n      <p class=\"description\">\n        {{rescaledSelectedTemplate?.description}}\n      </p>\n\n      <div class=\"structure-beats-wrapper\">\n        <div *ngFor=\"let beat of getBeats()\" class=\"structure-beat\">\n          {{beat.description}} ({{formatDurationMs(beat.intendedDurationMs)}})\n        </div>\n      </div>\n\n      <div class=\"action-row\">\n        <button\n          mat-raised-button color=\"primary\" (click)=\"applyTemplate.emit()\">\n          Apply Template\n        </button>\n      </div>\n\n    </div>\n\n  </div>\n</div>\n"
         },
         {
+            "name": "ApplyTagNavComponent",
+            "id": "component-ApplyTagNavComponent-099b220f49874a4ffec5c185ea4bde5d",
+            "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-apply-tag-nav",
+            "styleUrls": [
+                "./apply-tag-nav.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./apply-tag-nav.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 12
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss']\n})\nexport class ApplyTagNavComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./apply-tag-nav.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 8
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<p>apply-tag-nav works!</p>\n"
+        },
+        {
             "name": "BeatBrainstormTemplateNavComponent",
             "id": "component-BeatBrainstormTemplateNavComponent-e67586ef5f46c9245ebe21dc35f958c1",
             "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.component.ts",
@@ -6581,6 +6637,9 @@
                             "name": "ApplyStructureNavComponent"
                         },
                         {
+                            "name": "ApplyTagNavComponent"
+                        },
+                        {
                             "name": "BeatBrainstormTemplateNavComponent"
                         },
                         {
@@ -6792,7 +6851,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6800,7 +6859,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6816,6 +6875,14 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -6824,7 +6891,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6832,7 +6899,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6856,7 +6923,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6864,7 +6931,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7255,6 +7322,14 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "Story<ApplyTagNavComponent>",
+                "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "Story<BeatBrainstormTemplateNavComponent>",
                 "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
@@ -7263,17 +7338,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                "type": "Story<BeatProseEditComponent>",
-                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "Story<BeatNavComponent>",
-                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "Story<BeatProseEditComponent>",
+                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7311,17 +7386,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                "type": "Story<BrainstormTemplateDetailsComponent>",
-                "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "Story<BrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
-                "type": "Story<BrainstormTemplateNavComponent>",
-                "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "Story<BrainstormTemplateDetailsComponent>",
+                "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7343,17 +7418,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
-                "type": "Story<TagNavComponent>",
-                "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
+                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                "type": "Story<TagDetailsComponent>",
+                "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                "type": "Story<TagDetailsComponent>",
-                "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
+                "type": "Story<TagNavComponent>",
+                "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -7896,6 +7971,24 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/apply-tag-nav/apply-tag-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "Story<ApplyTagNavComponent>",
+                    "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -7946,40 +8039,6 @@
                     "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockBeat",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "Story<BeatProseEditComponent>",
-                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/beat-nav/beat-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8020,6 +8079,40 @@
                     "file": "src/app/beat-nav/beat-nav.stories.ts",
                     "type": "Story<BeatNavComponent>",
                     "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockBeat",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
@@ -8072,40 +8165,6 @@
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTag",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "Story<BrainstormTemplateDetailsComponent>",
-                    "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8146,6 +8205,40 @@
                     "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                     "type": "Story<BrainstormTemplateNavComponent>",
                     "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTag",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "Story<BrainstormTemplateDetailsComponent>",
+                    "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -8224,6 +8317,40 @@
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/tag-page/tag-details/tag-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTag",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
+                    "type": "Story<TagDetailsComponent>",
+                    "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/tag-page/tag-nav/tag-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8264,40 +8391,6 @@
                     "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                     "type": "Story<TagNavComponent>",
                     "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/tag-page/tag-details/tag-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTag",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Tag.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4',\n  hasNumericValue: true,\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/tag-page/tag-details/tag-details.stories.ts",
-                    "type": "Story<TagDetailsComponent>",
-                    "defaultValue": "(args: TagDetailsComponent) => ({\n  component: TagDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/environments/environment.prod.ts": [
@@ -8840,6 +8933,35 @@
             },
             {
                 "filePath": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ApplyTagNavComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
