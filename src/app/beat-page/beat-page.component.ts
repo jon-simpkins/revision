@@ -1,12 +1,15 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {BeatMapView, BeatsService} from '../beats.service';
-import {Beat, BrainstormTemplate, StructureTemplate} from '../../protos';
+import {Beat, BrainstormTemplate, StructureTemplate, Tag} from '../../protos';
 import {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';
 import {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';
 import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 import {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';
+import {TagService} from '../tag.service';
+import TagReference = Beat.TagReference;
+import ITagReference = Beat.ITagReference;
 
 @Component({
   selector: 'app-beat-page',
@@ -53,6 +56,10 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   brainstormTemplateListView: BrainstormTemplateListView[] = [];
   brainstormTemplateListViewSubscription = '';
 
+  /** Tag Map */
+  tagMapSubscription = '';
+  tagMap: Map<string, Tag> = new Map<string, Tag>();
+
   selectedTabIndex = 0;
 
   constructor(
@@ -60,6 +67,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     private ref: ChangeDetectorRef,
     private structureTemplateService: StructureTemplateService,
     private brainstormTemplateService: BrainstormTemplateService,
+    private tagService: TagService,
     private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
@@ -94,6 +102,11 @@ export class BeatPageComponent implements OnInit, OnDestroy {
       this.brainstormTemplateListView = newValue;
       this.ref.markForCheck();
     });
+
+    this.tagMapSubscription = this.tagService.subscribeToTagMapView((newValue) => {
+      this.tagMap = newValue;
+      this.ref.markForCheck();
+    })
   }
 
   ngOnDestroy(): void {
@@ -381,5 +394,12 @@ export class BeatPageComponent implements OnInit, OnDestroy {
 
     this.selectedTabIndex = 0;
     this.ref.markForCheck();
+  }
+
+  async updateTagUses(tagReferences: ITagReference[]): Promise<void> {
+    const parentBeat = this.selectedBeat as Beat;
+    parentBeat.tagReferences = tagReferences;
+
+    await this.beatsService.setBeat(parentBeat);
   }
 }

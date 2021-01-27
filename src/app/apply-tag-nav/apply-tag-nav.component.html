@@ -1,2 +1,58 @@
-<p>apply-tag-nav works!</p>
-<button (click)="updateTagUses.emit([])">Click me!</button>
+<div class="edit-links">
+  <span>&nbsp;</span>
+  <a routerLink="/tags">Edit Tags</a>
+</div>
+
+<h4>Options</h4>
+<div class="tag-option-wrapper">
+  <div *ngFor="let tagOption of remainingTagOptions"
+       class="tag-option"
+       [class.selected]="tagOption.id == selectedOptionId"
+       (click)="selectOption(tagOption.id)"
+  >
+    {{tagOption.name}}
+
+    <div *ngIf="selectedOptionId == tagOption.id" class="selected-tag">
+      <p class="description">
+        {{tagOption.description}}
+      </p>
+
+      <div class="action-row">
+        <button
+          mat-raised-button color="primary" (click)="addTag()">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4>Selected Tags</h4>
+<div class="selected-tags-wrapper">
+  <div *ngFor="let tagReference of tagReferences" class="tag-reference">
+    <div class="title-row">
+      <span>{{getTagName(tagReference.tagId)}}</span>
+      <button
+        mat-icon-button
+        class="dereference-button"
+        (click)="dereferenceTag(tagReference.tagId)"><mat-icon>delete</mat-icon></button>
+    </div>
+    <div *ngIf="showNumericInput(tagReference.tagId)" class="number-input">
+      <input type="number"
+             [value]="tagReference.numericValue"
+             (input)="numericChange(tagReference.tagId, $event)">
+    </div>
+
+    <mat-form-field *ngIf="showEnumSelect(tagReference.tagId)" class="enum-input">
+      <mat-label>Value</mat-label>
+      <mat-select [value]="tagReference.enumValue" (valueChange)="enumChange(tagReference.tagId, $event)">
+        <mat-option
+          *ngFor="let option of getEnumOptions(tagReference.tagId)"
+          [value]="option.value"
+        >
+          {{option.label}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

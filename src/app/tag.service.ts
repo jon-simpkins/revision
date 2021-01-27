@@ -10,6 +10,7 @@ export interface TagListView {
 }
 
 const ALL_TAG_LIST_KEY = 'allTagList';
+const ALL_TAG_MAP_KEY = 'allTagMap';
 const TAG_KEY_PREFIX = 'tag-';
 
 @Injectable({
@@ -34,6 +35,14 @@ export class TagService {
     }
 
     return allTags;
+  }
+
+  async getTagMap(): Promise<Map<string, Tag>> {
+    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();
+  }
+
+  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {
+    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);
   }
 
   async getAllTagsListView(): Promise<TagListView[]> {
@@ -63,6 +72,12 @@ export class TagService {
     });
   }
 
+  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {
+    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {
+      handler(fetchedValue || new Map<string, Tag>());
+    });
+  }
+
   subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {
     return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {
       handler(
@@ -78,6 +93,10 @@ export class TagService {
       this.getTagKey(tagId),
       true
     );
+
+    const tagMap = await this.getTagMap();
+    tagMap.delete(tagId);
+    await this.setTagMap(tagMap);
 
     const listViewEligible = (await this.getAllTagsListView())
       .filter((tagListView) => {
@@ -124,6 +143,10 @@ export class TagService {
       Tag.encode(tag).finish(),
       true
     );
+
+    const tagMap = await this.getTagMap();
+    tagMap.set(tag.id, tag);
+    await this.setTagMap(tagMap);
 
     if (affectsListView) {
       await this.refreshAllTagsListView();

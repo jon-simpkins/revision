@@ -63,6 +63,12 @@
           (applyTemplate)="applyBrainstormTemplate()"
         ></app-beat-brainstorm-template-nav>
       </mat-tab>
+      <mat-tab label="Tag">
+        <app-apply-tag-nav
+        [tagMap]="tagMap"
+        [tagReferences]="selectedBeat?.tagReferences || []"
+        (updateTagUses)="updateTagUses($event)"></app-apply-tag-nav>
+      </mat-tab>
     </mat-tab-group>
 
     <div

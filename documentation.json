@@ -287,6 +287,32 @@
             "methods": []
         },
         {
+            "name": "EnumOption",
+            "id": "interface-EnumOption-e98cb20b146c77c8a246feed61c0a7bd",
+            "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: TagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<TagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  dereferenceTag(tagId: string): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string): EnumOption[] {\n    return this.enumOptionsMap.get(tagId) || [];\n  }\n\n  numericChange(tagId: string, inputEvent: any): void {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  enumChange(tagId: string, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "label",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                },
+                {
+                    "name": "value",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
             "name": "StorageSubscription",
             "id": "interface-StorageSubscription-4ddd1b1e4771cc3369577cbcc9221257",
             "file": "src/app/storage.service.ts",
@@ -2907,8 +2933,9 @@
         },
         {
             "name": "ApplyTagNavComponent",
-            "id": "component-ApplyTagNavComponent-099b220f49874a4ffec5c185ea4bde5d",
+            "id": "component-ApplyTagNavComponent-e98cb20b146c77c8a246feed61c0a7bd",
             "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -2923,17 +2950,278 @@
                 "./apply-tag-nav.component.html"
             ],
             "viewProviders": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [],
+            "inputsClass": [
+                {
+                    "name": "tagMap",
+                    "defaultValue": "null",
+                    "line": 20,
+                    "type": "Map<string | Tag> | null"
+                },
+                {
+                    "name": "tagReferences",
+                    "defaultValue": "[]",
+                    "line": 23,
+                    "type": "TagReference[]"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "updateTagUses",
+                    "defaultValue": "new EventEmitter<TagReference[]>()",
+                    "line": 25,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "alreadyReferencedTagIds",
+                    "defaultValue": "new Set<string>()",
+                    "type": "Set<string>",
+                    "optional": false,
+                    "description": "",
+                    "line": 28
+                },
+                {
+                    "name": "enumOptionsMap",
+                    "defaultValue": "new Map<string, EnumOption[]>()",
+                    "type": "Map<string | EnumOption[]>",
+                    "optional": false,
+                    "description": "",
+                    "line": 29
+                },
+                {
+                    "name": "remainingTagOptions",
+                    "defaultValue": "[]",
+                    "type": "Tag[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 27
+                },
+                {
+                    "name": "selectedOptionId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 31
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "addTag",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 83
+                },
+                {
+                    "name": "dereferenceTag",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 96,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "emitReferenceUpdate",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 107
+                },
+                {
+                    "name": "enumChange",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "changeEvent",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 141,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "changeEvent",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getEnumOptions",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "EnumOption[]",
+                    "typeParameters": [],
+                    "line": 121,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnChanges",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 40
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 12
+                    "line": 35
+                },
+                {
+                    "name": "numericChange",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "inputEvent",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 125,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "inputEvent",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "rebuildRemainingTagOptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 65
+                },
+                {
+                    "name": "selectOption",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 79,
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "showEnumSelect",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 116,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "showNumericInput",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 111,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -2941,11 +3229,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss']\n})\nexport class ApplyTagNavComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: TagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<TagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  dereferenceTag(tagId: string): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string): EnumOption[] {\n    return this.enumOptionsMap.get(tagId) || [];\n  }\n\n  numericChange(tagId: string, inputEvent: any): void {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  enumChange(tagId: string, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".edit-links {\n  display: flex;\n  margin-bottom: 8px;\n\n  span {\n    flex: 1;\n  }\n}\n\n.tag-option-wrapper {\n  background: #ccc;\n  padding: 8px;\n  overflow-y: scroll;\n  max-height: 200px;\n\n  .tag-option {\n    margin-bottom: 8px;\n    background: #fff;\n    border: 1px solid #fff;\n    border-radius: 4px;\n    padding: 8px;\n\n    &.selected {\n      border: 2px solid blue;\n    }\n  }\n}\n\n\n.selected-tag {\n  .description {\n    margin: 8px;\n    padding-left: 16px;\n    font-style: italic;\n  }\n}\n\n.action-row {\n  text-align: right;\n}\n\n.selected-tags-wrapper {\n  background: #ccc;\n  padding: 8px;\n  overflow-y: scroll;\n  max-height: 200px;\n\n  .tag-reference {\n    margin-bottom: 8px;\n    background: #fff;\n    border: 1px solid #fff;\n    border-radius: 4px;\n    padding: 8px;\n\n    .title-row {\n      display: flex;\n      span {\n        flex: 1;\n        margin: auto;\n      }\n    }\n\n    .number-input, .enum-input {\n      display: block;\n    }\n  }\n}\n",
                     "styleUrl": "./apply-tag-nav.component.scss"
                 }
             ],
@@ -2953,13 +3241,28 @@
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 8
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 31,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "implements": [
-                "OnInit"
+                "OnInit",
+                "OnChanges"
             ],
-            "templateData": "<p>apply-tag-nav works!</p>\n"
+            "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/tags\">Edit Tags</a>\n</div>\n\n<h4>Options</h4>\n<div class=\"tag-option-wrapper\">\n  <div *ngFor=\"let tagOption of remainingTagOptions\"\n       class=\"tag-option\"\n       [class.selected]=\"tagOption.id == selectedOptionId\"\n       (click)=\"selectOption(tagOption.id)\"\n  >\n    {{tagOption.name}}\n\n    <div *ngIf=\"selectedOptionId == tagOption.id\" class=\"selected-tag\">\n      <p class=\"description\">\n        {{tagOption.description}}\n      </p>\n\n      <div class=\"action-row\">\n        <button\n          mat-raised-button color=\"primary\" (click)=\"addTag()\">\n          Add\n        </button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<h4>Selected Tags</h4>\n<div class=\"selected-tags-wrapper\">\n  <div *ngFor=\"let tagReference of tagReferences\" class=\"tag-reference\">\n    <div class=\"title-row\">\n      <span>{{tagMap.get(tagReference.tagId).name}}</span>\n      <button\n        mat-icon-button\n        class=\"dereference-button\"\n        (click)=\"dereferenceTag(tagReference.tagId)\"><mat-icon>delete</mat-icon></button>\n    </div>\n    <div *ngIf=\"showNumericInput(tagReference.tagId)\" class=\"number-input\">\n      <input type=\"number\"\n             [value]=\"tagReference.numericValue\"\n             (input)=\"numericChange(tagReference.tagId, $event)\">\n    </div>\n\n    <mat-form-field *ngIf=\"showEnumSelect(tagReference.tagId)\" class=\"enum-input\">\n      <mat-label>Value</mat-label>\n      <mat-select [value]=\"tagReference.enumValue\" (valueChange)=\"enumChange(tagReference.tagId, $event)\">\n        <mat-option\n          *ngFor=\"let option of getEnumOptions(tagReference.tagId)\"\n          [value]=\"option.value\"\n        >\n          {{option.label}}\n        </mat-option>\n      </mat-select>\n    </mat-form-field>\n  </div>\n</div>\n"
         },
         {
             "name": "BeatBrainstormTemplateNavComponent",
@@ -6792,6 +7095,14 @@
                 "defaultValue": "'allTagList'"
             },
             {
+                "name": "AllAvailableTagExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "BEAT_KEY_PREFIX",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -6859,7 +7170,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6867,7 +7178,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6891,7 +7202,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -6899,7 +7210,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7048,6 +7359,22 @@
                 "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first tag'\n  } as TagListView,\n  {\n    id: 'def-456',\n    name: 'My second tag'\n  } as TagListView\n]"
             },
             {
+                "name": "exampleTagMap",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "Map<string, Tag>",
+                "defaultValue": "new Map<string, Tag>()"
+            },
+            {
+                "name": "exampleTagReferences",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "[\n  {\n    tagId: 'abc123',\n    enumValue: 1\n  },\n  {\n    tagId: 'def456',\n  },\n  {\n    tagId: 'ghi789',\n    enumValue: -1,\n    numericValue: 11\n  }\n] as TagReference[]"
+            },
+            {
                 "name": "FullExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -7091,7 +7418,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7099,7 +7426,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7147,7 +7474,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7155,7 +7482,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7264,6 +7591,14 @@
                 "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
             },
             {
+                "name": "NoAvailableTagExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "POLL_FREQUENCY",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -7330,17 +7665,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
-                "type": "Story<BeatBrainstormTemplateNavComponent>",
-                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "Story<BeatNavComponent>",
-                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "Story<BeatBrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7386,17 +7721,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
-                "type": "Story<BrainstormTemplateNavComponent>",
-                "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                "type": "Story<BrainstormTemplateDetailsComponent>",
+                "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                "type": "Story<BrainstormTemplateDetailsComponent>",
-                "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
+                "type": "Story<BrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7818,6 +8153,56 @@
                     "defaultValue": "'tag-'"
                 }
             ],
+            "src/app/apply-tag-nav/apply-tag-nav.stories.ts": [
+                {
+                    "name": "AllAvailableTagExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleTagMap",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "Map<string, Tag>",
+                    "defaultValue": "new Map<string, Tag>()"
+                },
+                {
+                    "name": "exampleTagReferences",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "[\n  {\n    tagId: 'abc123',\n    enumValue: 1\n  },\n  {\n    tagId: 'def456',\n  },\n  {\n    tagId: 'ghi789',\n    enumValue: -1,\n    numericValue: 11\n  }\n] as TagReference[]"
+                },
+                {
+                    "name": "NoAvailableTagExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "type": "Story<ApplyTagNavComponent>",
+                    "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+                }
+            ],
             "src/test.ts": [
                 {
                     "name": "context",
@@ -7971,12 +8356,36 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/apply-tag-nav/apply-tag-nav.stories.ts": [
+            "src/app/beat-nav/beat-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
                     "type": "",
                     "defaultValue": "Template.bind({})"
                 },
@@ -7984,9 +8393,9 @@
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
-                    "type": "Story<ApplyTagNavComponent>",
-                    "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts": [
@@ -8037,48 +8446,6 @@
                     "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                     "type": "Story<BeatBrainstormTemplateNavComponent>",
                     "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/beat-nav/beat-nav.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "exampleBeatListView",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExampleSecondSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "Story<BeatNavComponent>",
-                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
@@ -8165,6 +8532,40 @@
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTag",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
+                    "type": "Story<BrainstormTemplateDetailsComponent>",
+                    "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8205,40 +8606,6 @@
                     "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                     "type": "Story<BrainstormTemplateNavComponent>",
                     "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTag",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "BrainstormTemplate.create({\n  id: 'abc-123',\n  label: 'My Template',\n  template: 'Like a 3-act structure, but turned up to 4',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
-                    "type": "Story<BrainstormTemplateDetailsComponent>",
-                    "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
@@ -8947,6 +9314,15 @@
                 "linktype": "component",
                 "name": "ApplyTagNavComponent",
                 "coveragePercent": 0,
+                "coverageCount": "0/21",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "EnumOption",
+                "coveragePercent": 0,
                 "coverageCount": "0/3",
                 "status": "low"
             },
@@ -8955,7 +9331,47 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
+                "name": "AllAvailableTagExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
                 "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTagMap",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTagReferences",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "NoAvailableTagExample",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
