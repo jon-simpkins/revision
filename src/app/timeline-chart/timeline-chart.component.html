@@ -1,0 +1,15 @@
+<button mat-button (click)="zoomOut()" [disabled]="chartWidth === currentWidth">
+  <mat-icon>zoom_out</mat-icon>
+</button>
+<button mat-button (click)="zoomIn()">
+  <mat-icon>zoom_in</mat-icon>
+</button>
+<div style="overflow: scroll; border: 1px solid grey;"
+     [style.width.px]="chartWidth"
+>
+  <div id="{{chartId}}"
+       [style.width.px]="currentWidth"
+       [style.height.px]="chartHeight"
+       style="cursor: pointer;"
+  ></div>
+</div>

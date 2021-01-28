@@ -40,6 +40,7 @@ import { BrainstormTemplateNavComponent } from './brainstorm-template-page/brain
 import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component';
 import { BeatBrainstormTemplateNavComponent } from './beat-brainstorm-template-nav/beat-brainstorm-template-nav.component';
 import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
+import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -80,6 +81,7 @@ export const MaterialModules = [
     BrainstormTemplateDetailsComponent,
     BeatBrainstormTemplateNavComponent,
     ApplyTagNavComponent,
+    TimelineChartComponent,
   ],
   imports: [
     BrowserModule,

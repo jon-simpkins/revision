@@ -288,24 +288,24 @@
         },
         {
             "name": "EnumOption",
-            "id": "interface-EnumOption-e98cb20b146c77c8a246feed61c0a7bd",
+            "id": "interface-EnumOption-caafa6495653958e9a33f798b053a27d",
             "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: TagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<TagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  dereferenceTag(tagId: string): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string): EnumOption[] {\n    return this.enumOptionsMap.get(tagId) || [];\n  }\n\n  numericChange(tagId: string, inputEvent: any): void {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  enumChange(tagId: string, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
             "properties": [
                 {
                     "name": "label",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 8
+                    "line": 11
                 },
                 {
                     "name": "value",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 7
+                    "line": 10
                 }
             ],
             "indexSignatures": [],
@@ -406,10 +406,10 @@
         },
         {
             "name": "TagListView",
-            "id": "interface-TagListView-e9b0e0b678d1ee14b49e955dee7c9852",
+            "id": "interface-TagListView-b3df9f3a340191073fecdfbd7419466d",
             "file": "src/app/tag.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "properties": [
                 {
                     "name": "id",
@@ -450,6 +450,32 @@
                     "optional": false,
                     "description": "",
                     "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "TimelineBlock",
+            "id": "interface-TimelineBlock-7c645ba28c55952f11a8e71a40e2e907",
+            "file": "src/app/timeline-chart/timeline-chart.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';\n\nexport interface TimelineBlock {\n  startSec: number;\n  endSec: number;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "endSec",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 5
+                },
+                {
+                    "name": "startSec",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 4
                 }
             ],
             "indexSignatures": [],
@@ -2213,7 +2239,7 @@
         },
         {
             "name": "TagService",
-            "id": "injectable-TagService-e9b0e0b678d1ee14b49e955dee7c9852",
+            "id": "injectable-TagService-b3df9f3a340191073fecdfbd7419466d",
             "file": "src/app/tag.service.ts",
             "properties": [],
             "methods": [
@@ -2228,7 +2254,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 90,
+                    "line": 109,
                     "jsdoctags": [
                         {
                             "name": "subscription",
@@ -2245,7 +2271,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 134,
+                    "line": 157,
                     "modifierKind": [
                         120
                     ]
@@ -2261,7 +2287,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 76,
+                    "line": 91,
                     "modifierKind": [
                         120
                     ],
@@ -2281,7 +2307,7 @@
                     "optional": false,
                     "returnType": "Promise<Tag[]>",
                     "typeParameters": [],
-                    "line": 22,
+                    "line": 23,
                     "modifierKind": [
                         120
                     ]
@@ -2292,7 +2318,7 @@
                     "optional": false,
                     "returnType": "Promise<TagListView[]>",
                     "typeParameters": [],
-                    "line": 39,
+                    "line": 48,
                     "modifierKind": [
                         120
                     ]
@@ -2308,7 +2334,7 @@
                     "optional": false,
                     "returnType": "Promise<Tag | null>",
                     "typeParameters": [],
-                    "line": 47,
+                    "line": 56,
                     "modifierKind": [
                         120
                     ],
@@ -2333,7 +2359,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 43,
+                    "line": 52,
                     "jsdoctags": [
                         {
                             "name": "uuid",
@@ -2345,12 +2371,23 @@
                     ]
                 },
                 {
+                    "name": "getTagMap",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<Map<string, Tag>>",
+                    "typeParameters": [],
+                    "line": 40,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
                     "name": "refreshAllTagsListView",
                     "args": [],
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 105,
+                    "line": 124,
                     "modifierKind": [
                         120
                     ]
@@ -2366,7 +2403,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 113,
+                    "line": 132,
                     "modifierKind": [
                         120
                     ],
@@ -2391,7 +2428,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 94,
+                    "line": 113,
                     "modifierKind": [
                         120
                     ],
@@ -2421,7 +2458,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 121,
+                    "line": 140,
                     "modifierKind": [
                         120
                     ],
@@ -2437,6 +2474,31 @@
                             "name": "affectsListView",
                             "type": "boolean",
                             "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setTagMap",
+                    "args": [
+                        {
+                            "name": "tagMap",
+                            "type": "Map<string | Tag>"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 44,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tagMap",
+                            "type": "Map<string | Tag>",
                             "tagName": {
                                 "text": "param"
                             }
@@ -2464,7 +2526,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 66,
+                    "line": 81,
                     "jsdoctags": [
                         {
                             "name": "tagId",
@@ -2505,7 +2567,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 60,
+                    "line": 69,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -2521,10 +2583,44 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "subscribeToTagMapView",
+                    "args": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTagMapView",
+                                    "type": "Map<string | Tag>"
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 75,
+                    "jsdoctags": [
+                        {
+                            "name": "handler",
+                            "type": "function",
+                            "function": [
+                                {
+                                    "name": "newTagMapView",
+                                    "type": "Map<string | Tag>"
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: true,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -2534,7 +2630,7 @@
                         "type": "StorageService"
                     }
                 ],
-                "line": 18,
+                "line": 19,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -2933,7 +3029,7 @@
         },
         {
             "name": "ApplyTagNavComponent",
-            "id": "component-ApplyTagNavComponent-e98cb20b146c77c8a246feed61c0a7bd",
+            "id": "component-ApplyTagNavComponent-caafa6495653958e9a33f798b053a27d",
             "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -2954,21 +3050,21 @@
                 {
                     "name": "tagMap",
                     "defaultValue": "null",
-                    "line": 20,
+                    "line": 25,
                     "type": "Map<string | Tag> | null"
                 },
                 {
                     "name": "tagReferences",
                     "defaultValue": "[]",
-                    "line": 23,
-                    "type": "TagReference[]"
+                    "line": 28,
+                    "type": "ITagReference[]"
                 }
             ],
             "outputsClass": [
                 {
                     "name": "updateTagUses",
-                    "defaultValue": "new EventEmitter<TagReference[]>()",
-                    "line": 25,
+                    "defaultValue": "new EventEmitter<ITagReference[]>()",
+                    "line": 30,
                     "type": "EventEmitter"
                 }
             ],
@@ -2979,7 +3075,7 @@
                     "type": "Set<string>",
                     "optional": false,
                     "description": "",
-                    "line": 28
+                    "line": 33
                 },
                 {
                     "name": "enumOptionsMap",
@@ -2987,7 +3083,15 @@
                     "type": "Map<string | EnumOption[]>",
                     "optional": false,
                     "description": "",
-                    "line": 29
+                    "line": 34
+                },
+                {
+                    "name": "numericChange",
+                    "defaultValue": "debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250)",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 38
                 },
                 {
                     "name": "remainingTagOptions",
@@ -2995,7 +3099,7 @@
                     "type": "Tag[]",
                     "optional": false,
                     "description": "",
-                    "line": 27
+                    "line": 32
                 },
                 {
                     "name": "selectedOptionId",
@@ -3003,7 +3107,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 31
+                    "line": 36
                 }
             ],
             "methodsClass": [
@@ -3013,24 +3117,24 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 83
+                    "line": 102
                 },
                 {
                     "name": "dereferenceTag",
                     "args": [
                         {
                             "name": "tagId",
-                            "type": "string"
+                            "type": "string | undefined | null"
                         }
                     ],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 96,
+                    "line": 121,
                     "jsdoctags": [
                         {
                             "name": "tagId",
-                            "type": "string",
+                            "type": "string | undefined | null",
                             "tagName": {
                                 "text": "param"
                             }
@@ -3043,14 +3147,14 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 107
+                    "line": 132
                 },
                 {
                     "name": "enumChange",
                     "args": [
                         {
                             "name": "tagId",
-                            "type": "string"
+                            "type": "string | undefined | null"
                         },
                         {
                             "name": "changeEvent",
@@ -3060,11 +3164,11 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 141,
+                    "line": 150,
                     "jsdoctags": [
                         {
                             "name": "tagId",
-                            "type": "string",
+                            "type": "string | undefined | null",
                             "tagName": {
                                 "text": "param"
                             }
@@ -3083,17 +3187,39 @@
                     "args": [
                         {
                             "name": "tagId",
-                            "type": "string"
+                            "type": "string | undefined | null"
                         }
                     ],
                     "optional": false,
                     "returnType": "EnumOption[]",
                     "typeParameters": [],
-                    "line": 121,
+                    "line": 146,
                     "jsdoctags": [
                         {
                             "name": "tagId",
-                            "type": "string",
+                            "type": "string | undefined | null",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "getTagName",
+                    "args": [
+                        {
+                            "name": "tagId",
+                            "type": "string | undefined | null"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 115,
+                    "jsdoctags": [
+                        {
+                            "name": "tagId",
+                            "type": "string | undefined | null",
                             "tagName": {
                                 "text": "param"
                             }
@@ -3106,7 +3232,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 40
+                    "line": 59
                 },
                 {
                     "name": "ngOnInit",
@@ -3114,40 +3240,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 35
-                },
-                {
-                    "name": "numericChange",
-                    "args": [
-                        {
-                            "name": "tagId",
-                            "type": "string"
-                        },
-                        {
-                            "name": "inputEvent",
-                            "type": "any"
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 125,
-                    "jsdoctags": [
-                        {
-                            "name": "tagId",
-                            "type": "string",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "inputEvent",
-                            "type": "any",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
+                    "line": 54
                 },
                 {
                     "name": "rebuildRemainingTagOptions",
@@ -3155,7 +3248,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 65
+                    "line": 84
                 },
                 {
                     "name": "selectOption",
@@ -3168,7 +3261,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 79,
+                    "line": 98,
                     "jsdoctags": [
                         {
                             "name": "newId",
@@ -3184,17 +3277,17 @@
                     "args": [
                         {
                             "name": "tagId",
-                            "type": "string"
+                            "type": "string | undefined | null"
                         }
                     ],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 116,
+                    "line": 141,
                     "jsdoctags": [
                         {
                             "name": "tagId",
-                            "type": "string",
+                            "type": "string | undefined | null",
                             "tagName": {
                                 "text": "param"
                             }
@@ -3206,17 +3299,17 @@
                     "args": [
                         {
                             "name": "tagId",
-                            "type": "string"
+                            "type": "string | undefined | null"
                         }
                     ],
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 111,
+                    "line": 136,
                     "jsdoctags": [
                         {
                             "name": "tagId",
-                            "type": "string",
+                            "type": "string | undefined | null",
                             "tagName": {
                                 "text": "param"
                             }
@@ -3229,7 +3322,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: TagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<TagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  dereferenceTag(tagId: string): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string): boolean {\n    const tag = this.tagMap?.get(tagId);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string): EnumOption[] {\n    return this.enumOptionsMap.get(tagId) || [];\n  }\n\n  numericChange(tagId: string, inputEvent: any): void {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  enumChange(tagId: string, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -3247,7 +3340,7 @@
                         "type": "ChangeDetectorRef"
                     }
                 ],
-                "line": 31,
+                "line": 20,
                 "jsdoctags": [
                     {
                         "name": "ref",
@@ -3262,7 +3355,7 @@
                 "OnInit",
                 "OnChanges"
             ],
-            "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/tags\">Edit Tags</a>\n</div>\n\n<h4>Options</h4>\n<div class=\"tag-option-wrapper\">\n  <div *ngFor=\"let tagOption of remainingTagOptions\"\n       class=\"tag-option\"\n       [class.selected]=\"tagOption.id == selectedOptionId\"\n       (click)=\"selectOption(tagOption.id)\"\n  >\n    {{tagOption.name}}\n\n    <div *ngIf=\"selectedOptionId == tagOption.id\" class=\"selected-tag\">\n      <p class=\"description\">\n        {{tagOption.description}}\n      </p>\n\n      <div class=\"action-row\">\n        <button\n          mat-raised-button color=\"primary\" (click)=\"addTag()\">\n          Add\n        </button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<h4>Selected Tags</h4>\n<div class=\"selected-tags-wrapper\">\n  <div *ngFor=\"let tagReference of tagReferences\" class=\"tag-reference\">\n    <div class=\"title-row\">\n      <span>{{tagMap.get(tagReference.tagId).name}}</span>\n      <button\n        mat-icon-button\n        class=\"dereference-button\"\n        (click)=\"dereferenceTag(tagReference.tagId)\"><mat-icon>delete</mat-icon></button>\n    </div>\n    <div *ngIf=\"showNumericInput(tagReference.tagId)\" class=\"number-input\">\n      <input type=\"number\"\n             [value]=\"tagReference.numericValue\"\n             (input)=\"numericChange(tagReference.tagId, $event)\">\n    </div>\n\n    <mat-form-field *ngIf=\"showEnumSelect(tagReference.tagId)\" class=\"enum-input\">\n      <mat-label>Value</mat-label>\n      <mat-select [value]=\"tagReference.enumValue\" (valueChange)=\"enumChange(tagReference.tagId, $event)\">\n        <mat-option\n          *ngFor=\"let option of getEnumOptions(tagReference.tagId)\"\n          [value]=\"option.value\"\n        >\n          {{option.label}}\n        </mat-option>\n      </mat-select>\n    </mat-form-field>\n  </div>\n</div>\n"
+            "templateData": "<div class=\"edit-links\">\n  <span>&nbsp;</span>\n  <a routerLink=\"/tags\">Edit Tags</a>\n</div>\n\n<h4>Options</h4>\n<div class=\"tag-option-wrapper\">\n  <div *ngFor=\"let tagOption of remainingTagOptions\"\n       class=\"tag-option\"\n       [class.selected]=\"tagOption.id == selectedOptionId\"\n       (click)=\"selectOption(tagOption.id)\"\n  >\n    {{tagOption.name}}\n\n    <div *ngIf=\"selectedOptionId == tagOption.id\" class=\"selected-tag\">\n      <p class=\"description\">\n        {{tagOption.description}}\n      </p>\n\n      <div class=\"action-row\">\n        <button\n          mat-raised-button color=\"primary\" (click)=\"addTag()\">\n          Add\n        </button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<h4>Selected Tags</h4>\n<div class=\"selected-tags-wrapper\">\n  <div *ngFor=\"let tagReference of tagReferences\" class=\"tag-reference\">\n    <div class=\"title-row\">\n      <span>{{getTagName(tagReference.tagId)}}</span>\n      <button\n        mat-icon-button\n        class=\"dereference-button\"\n        (click)=\"dereferenceTag(tagReference.tagId)\"><mat-icon>delete</mat-icon></button>\n    </div>\n    <div *ngIf=\"showNumericInput(tagReference.tagId)\" class=\"number-input\">\n      <input type=\"number\"\n             [value]=\"tagReference.numericValue\"\n             (input)=\"numericChange(tagReference.tagId, $event)\">\n    </div>\n\n    <mat-form-field *ngIf=\"showEnumSelect(tagReference.tagId)\" class=\"enum-input\">\n      <mat-label>Value</mat-label>\n      <mat-select [value]=\"tagReference.enumValue\" (valueChange)=\"enumChange(tagReference.tagId, $event)\">\n        <mat-option\n          *ngFor=\"let option of getEnumOptions(tagReference.tagId)\"\n          [value]=\"option.value\"\n        >\n          {{option.label}}\n        </mat-option>\n      </mat-select>\n    </mat-form-field>\n  </div>\n</div>\n"
         },
         {
             "name": "BeatBrainstormTemplateNavComponent",
@@ -3496,7 +3589,7 @@
         },
         {
             "name": "BeatPageComponent",
-            "id": "component-BeatPageComponent-9fdc4a09e9213b0bfe37f80b678fe9f9",
+            "id": "component-BeatPageComponent-ab4cd583a365e27c08d82ae8ef5704f2",
             "file": "src/app/beat-page/beat-page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3521,7 +3614,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 22
                 },
                 {
                     "name": "beatMapView",
@@ -3529,7 +3622,7 @@
                     "type": "Map<string | BeatMapView>",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 21
                 },
                 {
                     "name": "beatMapViewSubscription",
@@ -3537,7 +3630,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 23
                 },
                 {
                     "name": "brainstormListView",
@@ -3545,7 +3638,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 29
+                    "line": 32
                 },
                 {
                     "name": "brainstormTemplateListView",
@@ -3553,7 +3646,7 @@
                     "type": "BrainstormTemplateListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 53
+                    "line": 56
                 },
                 {
                     "name": "brainstormTemplateListViewSubscription",
@@ -3561,7 +3654,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 54
+                    "line": 57
                 },
                 {
                     "name": "parentListView",
@@ -3569,7 +3662,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 24
+                    "line": 27
                 },
                 {
                     "name": "rescaledStructureTemplate",
@@ -3577,7 +3670,7 @@
                     "type": "StructureTemplate | null",
                     "optional": false,
                     "description": "",
-                    "line": 41
+                    "line": 44
                 },
                 {
                     "name": "selectedBeat",
@@ -3585,7 +3678,7 @@
                     "type": "Beat | null",
                     "optional": false,
                     "description": "",
-                    "line": 26
+                    "line": 29
                 },
                 {
                     "name": "selectedBeatId",
@@ -3593,7 +3686,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 22
+                    "line": 25
                 },
                 {
                     "name": "selectedBeatSubscription",
@@ -3601,7 +3694,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 27
+                    "line": 30
                 },
                 {
                     "name": "selectedBrainstormTemplate",
@@ -3609,7 +3702,7 @@
                     "type": "BrainstormTemplate | null",
                     "optional": false,
                     "description": "<p>Brainstorm Templates </p>\n",
-                    "line": 49
+                    "line": 52
                 },
                 {
                     "name": "selectedBrainstormTemplateSubscription",
@@ -3617,7 +3710,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 51
+                    "line": 54
                 },
                 {
                     "name": "selectedBrainstormTemplateUuid",
@@ -3625,7 +3718,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 50
+                    "line": 53
                 },
                 {
                     "name": "selectedChildBeat",
@@ -3633,7 +3726,7 @@
                     "type": "Beat | null",
                     "optional": false,
                     "description": "",
-                    "line": 34
+                    "line": 37
                 },
                 {
                     "name": "selectedChildBeatId",
@@ -3641,7 +3734,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 32
+                    "line": 35
                 },
                 {
                     "name": "selectedChildBeatSubscription",
@@ -3649,7 +3742,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 35
+                    "line": 38
                 },
                 {
                     "name": "selectedTabIndex",
@@ -3657,7 +3750,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 56
+                    "line": 63
                 },
                 {
                     "name": "selectedTemplate",
@@ -3665,7 +3758,7 @@
                     "type": "StructureTemplate | null",
                     "optional": false,
                     "description": "",
-                    "line": 40
+                    "line": 43
                 },
                 {
                     "name": "selectedTemplateSubscription",
@@ -3673,7 +3766,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 42
+                    "line": 45
                 },
                 {
                     "name": "selectedTemplateUuid",
@@ -3681,7 +3774,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "<p>Structure templates </p>\n",
-                    "line": 38
+                    "line": 41
                 },
                 {
                     "name": "structureListView",
@@ -3689,7 +3782,7 @@
                     "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
-                    "line": 30
+                    "line": 33
                 },
                 {
                     "name": "structureTemplateListView",
@@ -3697,7 +3790,7 @@
                     "type": "StructureTemplateListView[]",
                     "optional": false,
                     "description": "",
-                    "line": 44
+                    "line": 47
                 },
                 {
                     "name": "structureTemplateListViewSubscription",
@@ -3705,7 +3798,23 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 45
+                    "line": 48
+                },
+                {
+                    "name": "tagMap",
+                    "defaultValue": "new Map<string, Tag>()",
+                    "type": "Map<string | Tag>",
+                    "optional": false,
+                    "description": "",
+                    "line": 61
+                },
+                {
+                    "name": "tagMapSubscription",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "<p>Tag Map </p>\n",
+                    "line": 60
                 }
             ],
             "methodsClass": [
@@ -3715,7 +3824,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 363,
+                    "line": 376,
                     "modifierKind": [
                         120
                     ]
@@ -3726,7 +3835,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 317,
+                    "line": 330,
                     "modifierKind": [
                         120
                     ]
@@ -3737,7 +3846,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 122,
                     "modifierKind": [
                         112
                     ]
@@ -3748,7 +3857,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 159,
+                    "line": 172,
                     "modifierKind": [
                         120
                     ]
@@ -3759,7 +3868,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 248,
+                    "line": 261,
                     "modifierKind": [
                         120
                     ]
@@ -3770,7 +3879,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 259
+                    "line": 272
                 },
                 {
                     "name": "moveChildBeat",
@@ -3783,7 +3892,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 223,
+                    "line": 236,
                     "modifierKind": [
                         120
                     ],
@@ -3803,7 +3912,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 127,
+                    "line": 140,
                     "modifierKind": [
                         120
                     ]
@@ -3819,7 +3928,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 177,
+                    "line": 190,
                     "modifierKind": [
                         120
                     ],
@@ -3839,7 +3948,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 99
+                    "line": 112
                 },
                 {
                     "name": "ngOnInit",
@@ -3847,7 +3956,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 65
+                    "line": 73
                 },
                 {
                     "name": "onBeatUpdated",
@@ -3860,7 +3969,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 166,
+                    "line": 179,
                     "modifierKind": [
                         120
                     ],
@@ -3880,7 +3989,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 346,
+                    "line": 359,
                     "modifierKind": [
                         120
                     ]
@@ -3891,7 +4000,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 290
+                    "line": 303
                 },
                 {
                     "name": "selectBeat",
@@ -3904,7 +4013,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 132,
+                    "line": 145,
                     "modifierKind": [
                         120
                     ],
@@ -3929,7 +4038,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 350,
+                    "line": 363,
                     "modifierKind": [
                         120
                     ],
@@ -3954,7 +4063,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 201,
+                    "line": 214,
                     "modifierKind": [
                         120
                     ],
@@ -3979,7 +4088,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 153,
+                    "line": 166,
                     "modifierKind": [
                         120
                     ],
@@ -4004,7 +4113,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 276,
+                    "line": 289,
                     "modifierKind": [
                         120
                     ],
@@ -4029,11 +4138,36 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 255,
+                    "line": 268,
                     "jsdoctags": [
                         {
                             "name": "newIndex",
                             "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "updateTagUses",
+                    "args": [
+                        {
+                            "name": "tagReferences",
+                            "type": "ITagReference[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 399,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tagReferences",
+                            "type": "ITagReference[]",
                             "tagName": {
                                 "text": "param"
                             }
@@ -4046,7 +4180,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Beat, BrainstormTemplate, StructureTemplate} from '../../protos';\nimport {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';\nimport {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\nimport {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  beatMapView: Map<string, BeatMapView> = new Map();\n  beatListView: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  selectedBeatId = '';\n\n  parentListView: BeatMapView[] = [];\n\n  selectedBeat: Beat|null = null;\n  selectedBeatSubscription = '';\n\n  brainstormListView: BeatMapView[] = [];\n  structureListView: BeatMapView[] = [];\n\n  selectedChildBeatId = '';\n\n  selectedChildBeat: Beat|null = null;\n  selectedChildBeatSubscription = '';\n\n  /** Structure templates */\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  rescaledStructureTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n\n  /** Brainstorm Templates */\n  selectedBrainstormTemplate: BrainstormTemplate|null = null;\n  selectedBrainstormTemplateUuid = '';\n  selectedBrainstormTemplateSubscription = '';\n\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n  brainstormTemplateListViewSubscription = '';\n\n  selectedTabIndex = 0;\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private structureTemplateService: StructureTemplateService,\n    private brainstormTemplateService: BrainstormTemplateService,\n    private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.beatMapView = newValue;\n\n      this.beatListView = Array.from(newValue.values())\n        .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats\n        .sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n\n      this.buildRelatedListViews();\n\n      this.ref.markForCheck();\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n\n    this.brainstormTemplateListViewSubscription = this.brainstormTemplateService.subscribeToTemplateListView((newValue) => {\n      this.brainstormTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.brainstormTemplateListViewSubscription);\n  }\n\n  private buildRelatedListViews(): void {\n    if (this.selectedBeat == null) {\n      this.brainstormListView = [];\n      this.structureListView = [];\n      this.parentListView = [];\n    } else {\n      this.brainstormListView = (this.selectedBeat.brainstorm || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.structureListView = (this.selectedBeat.structure || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.parentListView = (this.beatMapView.get(this.selectedBeatId)?.parentBeats || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n    }\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    await this.selectBeat(newUuid);\n  }\n\n  async selectBeat(newUuid: string): Promise<void> {\n    await this.selectChildBeat('');\n\n    this.selectedBeatId = newUuid;\n    this.selectedBeat = null;\n\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    if (!!newUuid.length) {\n      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {\n        this.selectedBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedBeat = await this.beatsService.getBeat(newUuid);\n    }\n\n    await this.router.navigate(['/beats', { id: newUuid }]);\n\n    this.ref.markForCheck();\n  }\n\n  async selectParentBeat(parentUuid: string): Promise<void> {\n    const newChildId = this.selectedBeatId;\n    await this.selectBeat(parentUuid);\n    await this.selectChildBeat(newChildId);\n  }\n\n  async deleteBeat(): Promise<void> {\n    await this.beatsService.deleteBeat(\n      this.selectedBeatId\n    );\n    await this.selectBeat('');\n  }\n\n  async onBeatUpdated(updatedBeat: BeatUpdate): Promise<void> {\n    await this.beatsService.setBeat(\n      updatedBeat.beat,\n      updatedBeat.modifiesListView,\n      true);\n\n    if (updatedBeat.modifiesListView) {\n      this.rescaleStructureTemplate();\n    }\n  }\n\n  async newChildBeat(whichList: BeatSubList): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n\n    const beat = this.selectedBeat as Beat;\n\n    if (whichList === BeatSubList.Structure) {\n      const structure = beat.structure || [];\n      structure.unshift(newUuid);\n      beat.structure = structure;\n    } else {\n      const brainstorm = beat.brainstorm || [];\n      brainstorm.unshift(newUuid);\n      beat.brainstorm = brainstorm;\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    await this.selectChildBeat(newUuid);\n  }\n\n  async selectChildBeat(selectedChildId: string): Promise<void> {\n    this.selectedChildBeat = null;\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n\n    if (selectedChildId === this.selectedChildBeatId) {\n      this.selectedChildBeatId = ''; // Treat as deselecting\n    } else {\n      this.selectedChildBeatId = selectedChildId;\n    }\n\n    if (!!this.selectedChildBeatId.length) {\n      this.selectedChildBeatSubscription = this.beatsService.subscribeToBeat(this.selectedChildBeatId, (newValue) => {\n        this.selectedChildBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedChildBeat = await this.beatsService.getBeat(this.selectedChildBeatId);\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async moveChildBeat(moveEvent: BeatDropEvent): Promise<void> {\n    const beat = this.selectedBeat as Beat;\n\n    let uuidToMove: string;\n    if (moveEvent.sourceList === BeatSubList.Structure) {\n      uuidToMove = beat.structure.splice(moveEvent.sourceIndex, 1)[0];\n    } else {\n      uuidToMove = beat.brainstorm.splice(moveEvent.sourceIndex, 1)[0];\n    }\n\n    if (moveEvent.targetList === BeatSubList.Structure) {\n      beat.structure.splice(moveEvent.targetIndex, 0, uuidToMove);\n    } else {\n      beat.brainstorm.splice(moveEvent.targetIndex, 0, uuidToMove);\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    this.ref.markForCheck();\n  }\n\n  async deleteChildBeat(): Promise<void> {\n    const uuidToDelete = this.selectedChildBeatId;\n    this.selectedChildBeatId = '';\n\n    await this.beatsService.deleteBeat(uuidToDelete);\n  }\n\n  tabChange(newIndex: number): void {\n    this.selectedTabIndex = newIndex;\n  }\n\n  getChildSumDuration(): number {\n\n    if (!this.selectedBeat) {\n      return 0;\n    }\n\n    let sum = 0;\n    this.selectedBeat.structure.forEach(childId => {\n      const childBeatView = this.beatMapView.get(childId);\n      if (childBeatView) {\n        sum += childBeatView.intendedDurationMs;\n      }\n    });\n\n    return sum;\n  }\n\n  async selectStructureTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n\n      this.rescaleStructureTemplate();\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rescaleStructureTemplate(): void {\n    this.rescaledStructureTemplate = this.selectedTemplate;\n\n    if (!this.rescaledStructureTemplate) {\n      return;\n    }\n\n    const currentIntendedDuration = this.selectedBeat?.intendedDurationMs;\n    let templateSumDuration = 0;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      templateSumDuration += (beat.intendedDurationMs as number);\n    });\n\n    if (!templateSumDuration || !currentIntendedDuration) {\n      return;\n    }\n\n    const scale = currentIntendedDuration / templateSumDuration;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      if (!!beat) {\n        const originalDuration = beat?.intendedDurationMs as number;\n        beat.intendedDurationMs = Math.floor(originalDuration * scale);\n      }\n    });\n    this.ref.markForCheck();\n  }\n\n  async applyStructureTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n\n    // Move everything from structure -> brainstorm\n    parentBeat.brainstorm = parentBeat.brainstorm.concat(parentBeat.structure);\n    parentBeat.structure = [];\n\n    // Create all relevant beats\n    const templateBeats = this.rescaledStructureTemplate?.beats as StructureTemplateBeat[];\n    for (const templateBeat of templateBeats) {\n      const newUuid = await this.beatsService.createNewBeat();\n\n      parentBeat.structure.push(newUuid);\n\n      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;\n      childBeat.synopsis = templateBeat.description;\n      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;\n\n      await this.beatsService.setBeat(childBeat, true);\n    }\n\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectStructureTemplate('');\n    await this.selectChildBeat(parentBeat.structure[0]);\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n\n  async openReadView(): Promise<void> {\n    await this.router.navigate(['/read', { id: this.selectedBeatId }]);\n  }\n\n  async selectBrainstormTemplate(newId: string): Promise<void> {\n    this.selectedBrainstormTemplateUuid = newId;\n\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.selectedBrainstormTemplateSubscription = this.brainstormTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedBrainstormTemplate = newValue;\n\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  async applyBrainstormTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n    const brainstormTemplate = this.selectedBrainstormTemplate as BrainstormTemplate;\n\n    const newBeatUuid = await this.beatsService.createNewBeat();\n\n    parentBeat.brainstorm.push(newBeatUuid);\n\n    const childBeat = await this.beatsService.getBeat(newBeatUuid) as Beat;\n    childBeat.intendedDurationMs = 0;\n    childBeat.synopsis = brainstormTemplate.label;\n    childBeat.prose = brainstormTemplate.template;\n\n    await this.beatsService.setBeat(childBeat, true);\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectChildBeat(newBeatUuid);\n    await this.selectBrainstormTemplate('');\n\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Beat, BrainstormTemplate, StructureTemplate, Tag} from '../../protos';\nimport {BeatUpdate} from '../beat-prose-edit/beat-prose-edit.component';\nimport {BeatDropEvent, BeatSubList} from '../beat-related-beat-nav/beat-related-beat-nav.component';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {StructureTemplateListView, StructureTemplateService} from '../structure-template.service';\nimport StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;\nimport {BrainstormTemplateListView, BrainstormTemplateService} from '../brainstorm-template.service';\nimport {TagService} from '../tag.service';\nimport TagReference = Beat.TagReference;\nimport ITagReference = Beat.ITagReference;\n\n@Component({\n  selector: 'app-beat-page',\n  templateUrl: './beat-page.component.html',\n  styleUrls: ['./beat-page.component.scss']\n})\nexport class BeatPageComponent implements OnInit, OnDestroy {\n\n  beatMapView: Map<string, BeatMapView> = new Map();\n  beatListView: BeatMapView[] = [];\n  beatMapViewSubscription = '';\n\n  selectedBeatId = '';\n\n  parentListView: BeatMapView[] = [];\n\n  selectedBeat: Beat|null = null;\n  selectedBeatSubscription = '';\n\n  brainstormListView: BeatMapView[] = [];\n  structureListView: BeatMapView[] = [];\n\n  selectedChildBeatId = '';\n\n  selectedChildBeat: Beat|null = null;\n  selectedChildBeatSubscription = '';\n\n  /** Structure templates */\n  selectedTemplateUuid = '';\n\n  selectedTemplate: StructureTemplate|null = null;\n  rescaledStructureTemplate: StructureTemplate|null = null;\n  selectedTemplateSubscription = '';\n\n  structureTemplateListView: StructureTemplateListView[] = [];\n  structureTemplateListViewSubscription = '';\n\n\n  /** Brainstorm Templates */\n  selectedBrainstormTemplate: BrainstormTemplate|null = null;\n  selectedBrainstormTemplateUuid = '';\n  selectedBrainstormTemplateSubscription = '';\n\n  brainstormTemplateListView: BrainstormTemplateListView[] = [];\n  brainstormTemplateListViewSubscription = '';\n\n  /** Tag Map */\n  tagMapSubscription = '';\n  tagMap: Map<string, Tag> = new Map<string, Tag>();\n\n  selectedTabIndex = 0;\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private structureTemplateService: StructureTemplateService,\n    private brainstormTemplateService: BrainstormTemplateService,\n    private tagService: TagService,\n    private route: ActivatedRoute, private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n    this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView((newValue) => {\n      this.beatMapView = newValue;\n\n      this.beatListView = Array.from(newValue.values())\n        .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats\n        .sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n\n      this.buildRelatedListViews();\n\n      this.ref.markForCheck();\n    });\n\n    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {\n      this.structureTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n\n    this.brainstormTemplateListViewSubscription = this.brainstormTemplateService.subscribeToTemplateListView((newValue) => {\n      this.brainstormTemplateListView = newValue;\n      this.ref.markForCheck();\n    });\n\n    this.tagMapSubscription = this.tagService.subscribeToTagMapView((newValue) => {\n      this.tagMap = newValue;\n      this.ref.markForCheck();\n    })\n  }\n\n  ngOnDestroy(): void {\n    this.beatsService.cancelSubscription(this.beatMapViewSubscription);\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.structureTemplateService.cancelSubscription(this.structureTemplateListViewSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.brainstormTemplateService.cancelSubscription(this.brainstormTemplateListViewSubscription);\n  }\n\n  private buildRelatedListViews(): void {\n    if (this.selectedBeat == null) {\n      this.brainstormListView = [];\n      this.structureListView = [];\n      this.parentListView = [];\n    } else {\n      this.brainstormListView = (this.selectedBeat.brainstorm || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.structureListView = (this.selectedBeat.structure || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n      this.parentListView = (this.beatMapView.get(this.selectedBeatId)?.parentBeats || [])\n        .map((id) => this.beatMapView.get(id) as BeatMapView)\n        .filter(Boolean);\n    }\n  }\n\n  async newBeat(): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n    await this.selectBeat(newUuid);\n  }\n\n  async selectBeat(newUuid: string): Promise<void> {\n    await this.selectChildBeat('');\n\n    this.selectedBeatId = newUuid;\n    this.selectedBeat = null;\n\n    this.beatsService.cancelSubscription(this.selectedBeatSubscription);\n    if (!!newUuid.length) {\n      this.selectedBeatSubscription = this.beatsService.subscribeToBeat(newUuid, (newValue) => {\n        this.selectedBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedBeat = await this.beatsService.getBeat(newUuid);\n    }\n\n    await this.router.navigate(['/beats', { id: newUuid }]);\n\n    this.ref.markForCheck();\n  }\n\n  async selectParentBeat(parentUuid: string): Promise<void> {\n    const newChildId = this.selectedBeatId;\n    await this.selectBeat(parentUuid);\n    await this.selectChildBeat(newChildId);\n  }\n\n  async deleteBeat(): Promise<void> {\n    await this.beatsService.deleteBeat(\n      this.selectedBeatId\n    );\n    await this.selectBeat('');\n  }\n\n  async onBeatUpdated(updatedBeat: BeatUpdate): Promise<void> {\n    await this.beatsService.setBeat(\n      updatedBeat.beat,\n      updatedBeat.modifiesListView,\n      true);\n\n    if (updatedBeat.modifiesListView) {\n      this.rescaleStructureTemplate();\n    }\n  }\n\n  async newChildBeat(whichList: BeatSubList): Promise<void> {\n    const newUuid = await this.beatsService.createNewBeat();\n\n    const beat = this.selectedBeat as Beat;\n\n    if (whichList === BeatSubList.Structure) {\n      const structure = beat.structure || [];\n      structure.unshift(newUuid);\n      beat.structure = structure;\n    } else {\n      const brainstorm = beat.brainstorm || [];\n      brainstorm.unshift(newUuid);\n      beat.brainstorm = brainstorm;\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    await this.selectChildBeat(newUuid);\n  }\n\n  async selectChildBeat(selectedChildId: string): Promise<void> {\n    this.selectedChildBeat = null;\n    this.beatsService.cancelSubscription(this.selectedChildBeatSubscription);\n\n    if (selectedChildId === this.selectedChildBeatId) {\n      this.selectedChildBeatId = ''; // Treat as deselecting\n    } else {\n      this.selectedChildBeatId = selectedChildId;\n    }\n\n    if (!!this.selectedChildBeatId.length) {\n      this.selectedChildBeatSubscription = this.beatsService.subscribeToBeat(this.selectedChildBeatId, (newValue) => {\n        this.selectedChildBeat = newValue;\n        this.buildRelatedListViews();\n        this.ref.markForCheck();\n      });\n      this.selectedChildBeat = await this.beatsService.getBeat(this.selectedChildBeatId);\n    }\n\n    this.ref.markForCheck();\n  }\n\n  async moveChildBeat(moveEvent: BeatDropEvent): Promise<void> {\n    const beat = this.selectedBeat as Beat;\n\n    let uuidToMove: string;\n    if (moveEvent.sourceList === BeatSubList.Structure) {\n      uuidToMove = beat.structure.splice(moveEvent.sourceIndex, 1)[0];\n    } else {\n      uuidToMove = beat.brainstorm.splice(moveEvent.sourceIndex, 1)[0];\n    }\n\n    if (moveEvent.targetList === BeatSubList.Structure) {\n      beat.structure.splice(moveEvent.targetIndex, 0, uuidToMove);\n    } else {\n      beat.brainstorm.splice(moveEvent.targetIndex, 0, uuidToMove);\n    }\n\n    await this.beatsService.setBeat(\n      beat,\n      true,\n      true\n    );\n\n    this.ref.markForCheck();\n  }\n\n  async deleteChildBeat(): Promise<void> {\n    const uuidToDelete = this.selectedChildBeatId;\n    this.selectedChildBeatId = '';\n\n    await this.beatsService.deleteBeat(uuidToDelete);\n  }\n\n  tabChange(newIndex: number): void {\n    this.selectedTabIndex = newIndex;\n  }\n\n  getChildSumDuration(): number {\n\n    if (!this.selectedBeat) {\n      return 0;\n    }\n\n    let sum = 0;\n    this.selectedBeat.structure.forEach(childId => {\n      const childBeatView = this.beatMapView.get(childId);\n      if (childBeatView) {\n        sum += childBeatView.intendedDurationMs;\n      }\n    });\n\n    return sum;\n  }\n\n  async selectStructureTemplate(newId: string): Promise<void> {\n    this.selectedTemplateUuid = newId;\n\n    this.structureTemplateService.cancelSubscription(this.selectedTemplateSubscription);\n    this.selectedTemplateSubscription = this.structureTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedTemplate = newValue;\n\n      this.rescaleStructureTemplate();\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rescaleStructureTemplate(): void {\n    this.rescaledStructureTemplate = this.selectedTemplate;\n\n    if (!this.rescaledStructureTemplate) {\n      return;\n    }\n\n    const currentIntendedDuration = this.selectedBeat?.intendedDurationMs;\n    let templateSumDuration = 0;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      templateSumDuration += (beat.intendedDurationMs as number);\n    });\n\n    if (!templateSumDuration || !currentIntendedDuration) {\n      return;\n    }\n\n    const scale = currentIntendedDuration / templateSumDuration;\n    (this.selectedTemplate?.beats || []).forEach(beat => {\n      if (!!beat) {\n        const originalDuration = beat?.intendedDurationMs as number;\n        beat.intendedDurationMs = Math.floor(originalDuration * scale);\n      }\n    });\n    this.ref.markForCheck();\n  }\n\n  async applyStructureTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n\n    // Move everything from structure -> brainstorm\n    parentBeat.brainstorm = parentBeat.brainstorm.concat(parentBeat.structure);\n    parentBeat.structure = [];\n\n    // Create all relevant beats\n    const templateBeats = this.rescaledStructureTemplate?.beats as StructureTemplateBeat[];\n    for (const templateBeat of templateBeats) {\n      const newUuid = await this.beatsService.createNewBeat();\n\n      parentBeat.structure.push(newUuid);\n\n      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;\n      childBeat.synopsis = templateBeat.description;\n      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;\n\n      await this.beatsService.setBeat(childBeat, true);\n    }\n\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectStructureTemplate('');\n    await this.selectChildBeat(parentBeat.structure[0]);\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n\n  async openReadView(): Promise<void> {\n    await this.router.navigate(['/read', { id: this.selectedBeatId }]);\n  }\n\n  async selectBrainstormTemplate(newId: string): Promise<void> {\n    this.selectedBrainstormTemplateUuid = newId;\n\n    this.brainstormTemplateService.cancelSubscription(this.selectedBrainstormTemplateSubscription);\n    this.selectedBrainstormTemplateSubscription = this.brainstormTemplateService.subscribeToTemplate(newId, (newValue) => {\n      this.selectedBrainstormTemplate = newValue;\n\n      this.ref.markForCheck();\n    });\n\n    this.ref.markForCheck();\n  }\n\n  async applyBrainstormTemplate(): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n    const brainstormTemplate = this.selectedBrainstormTemplate as BrainstormTemplate;\n\n    const newBeatUuid = await this.beatsService.createNewBeat();\n\n    parentBeat.brainstorm.push(newBeatUuid);\n\n    const childBeat = await this.beatsService.getBeat(newBeatUuid) as Beat;\n    childBeat.intendedDurationMs = 0;\n    childBeat.synopsis = brainstormTemplate.label;\n    childBeat.prose = brainstormTemplate.template;\n\n    await this.beatsService.setBeat(childBeat, true);\n    await this.beatsService.setBeat(parentBeat, true);\n\n    await this.selectChildBeat(newBeatUuid);\n    await this.selectBrainstormTemplate('');\n\n    this.selectedTabIndex = 0;\n    this.ref.markForCheck();\n  }\n\n  async updateTagUses(tagReferences: ITagReference[]): Promise<void> {\n    const parentBeat = this.selectedBeat as Beat;\n    parentBeat.tagReferences = tagReferences;\n\n    await this.beatsService.setBeat(parentBeat);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -4076,6 +4210,10 @@
                         "type": "BrainstormTemplateService"
                     },
                     {
+                        "name": "tagService",
+                        "type": "TagService"
+                    },
+                    {
                         "name": "route",
                         "type": "ActivatedRoute"
                     },
@@ -4084,7 +4222,7 @@
                         "type": "Router"
                     }
                 ],
-                "line": 56,
+                "line": 63,
                 "jsdoctags": [
                     {
                         "name": "beatsService",
@@ -4115,6 +4253,13 @@
                         }
                     },
                     {
+                        "name": "tagService",
+                        "type": "TagService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
                         "name": "route",
                         "type": "ActivatedRoute",
                         "tagName": {
@@ -4134,7 +4279,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div class=\"content-wrapper\">\n  <app-beat-nav\n    [selectedBeatId]=\"selectedBeatId\"\n    [beatListView]=\"beatListView\"\n    (newBeat)=\"newBeat()\"\n    (selectBeat)=\"selectBeat($event)\"\n    (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n      <mat-tab label=\"Brainstorm\">\n        <app-beat-brainstorm-template-nav\n          [selectedTemplateId]=\"selectedBrainstormTemplateUuid\"\n          [selectedBrainstormTemplate]=\"selectedBrainstormTemplate\"\n          [brainstormTemplateListView]=\"brainstormTemplateListView\"\n          (selectTemplate)=\"selectBrainstormTemplate($event)\"\n          (applyTemplate)=\"applyBrainstormTemplate()\"\n        ></app-beat-brainstorm-template-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
+            "templateData": "<div class=\"content-wrapper\">\n  <app-beat-nav\n    [selectedBeatId]=\"selectedBeatId\"\n    [beatListView]=\"beatListView\"\n    (newBeat)=\"newBeat()\"\n    (selectBeat)=\"selectBeat($event)\"\n    (deleteBeat)=\"deleteBeat()\"></app-beat-nav>\n\n  <div class=\"story-prose\">\n    <div class=\"button-row\">\n      <button *ngIf=\"!!selectedBeat\" mat-stroked-button (click)=\"openReadView()\">\n        Read\n      </button>\n      <span class=\"spacer\">&nbsp;</span>\n      <span *ngIf=\"parentListView.length > 0\">\n        Parent Beat(s):\n      </span>\n      <button\n        *ngFor=\"let parentBeat of parentListView\"\n        mat-stroked-button\n        (click)=\"selectParentBeat(parentBeat.id)\"\n        >\n        {{parentBeat.name}}\n      </button>\n    </div>\n    <app-beat-prose-edit\n      [beat]=\"selectedBeat\"\n      [childSumDuration]=\"getChildSumDuration()\"\n      (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n  </div>\n\n  <ng-container *ngIf=\"!!selectedBeat\">\n    <mat-tab-group\n      animationDuration=\"0ms\"\n      [selectedIndex]=\"selectedTabIndex\"\n      (selectedIndexChange)=\"tabChange($event)\">\n      <mat-tab label=\"Structure / Brainstorm\">\n        <app-beat-related-beat-nav\n          class=\"beat-nav\"\n          [selectedBeatId]=\"selectedChildBeatId\"\n          [brainstormListView]=\"brainstormListView\"\n          [structureListView]=\"structureListView\"\n          (newBeat)=\"newChildBeat($event)\"\n          (selectBeat)=\"selectChildBeat($event)\"\n          (moveBeat)=\"moveChildBeat($event)\"\n          (deleteBeat)=\"deleteChildBeat()\"></app-beat-related-beat-nav>\n      </mat-tab>\n      <mat-tab label=\"New Structure\">\n        <app-apply-structure-nav\n          [selectedTemplateId]=\"selectedTemplateUuid\"\n          [structureTemplateListView]=\"structureTemplateListView\"\n          [rescaledSelectedTemplate]=\"rescaledStructureTemplate\"\n          (selectTemplate)=\"selectStructureTemplate($event)\"\n          (applyTemplate)=\"applyStructureTemplate()\"\n        ></app-apply-structure-nav>\n      </mat-tab>\n      <mat-tab label=\"Brainstorm\">\n        <app-beat-brainstorm-template-nav\n          [selectedTemplateId]=\"selectedBrainstormTemplateUuid\"\n          [selectedBrainstormTemplate]=\"selectedBrainstormTemplate\"\n          [brainstormTemplateListView]=\"brainstormTemplateListView\"\n          (selectTemplate)=\"selectBrainstormTemplate($event)\"\n          (applyTemplate)=\"applyBrainstormTemplate()\"\n        ></app-beat-brainstorm-template-nav>\n      </mat-tab>\n      <mat-tab label=\"Tag\">\n        <app-apply-tag-nav\n        [tagMap]=\"tagMap\"\n        [tagReferences]=\"selectedBeat?.tagReferences || []\"\n        (updateTagUses)=\"updateTagUses($event)\"></app-apply-tag-nav>\n      </mat-tab>\n    </mat-tab-group>\n\n    <div\n      *ngIf=\"!!selectedChildBeatId\"\n      class=\"story-prose\">\n      <div class=\"button-row\">\n        <span class=\"spacer\">&nbsp;</span>\n        <button\n          mat-stroked-button\n          (click)=\"selectBeat(selectedChildBeatId)\"\n        >Edit</button>\n      </div>\n      <app-beat-prose-edit\n        [beat]=\"selectedChildBeat\"\n        (onBeatUpdated)=\"onBeatUpdated($event)\"></app-beat-prose-edit>\n    </div>\n  </ng-container>\n\n</div>\n"
         },
         {
             "name": "BeatProseEditComponent",
@@ -6920,6 +7065,76 @@
                 "OnDestroy"
             ],
             "templateData": "<div class=\"page\">\n  <app-tag-nav\n    [selectedTagId]=\"selectedTagId\"\n    [tagListView]=\"tagListView\"\n    (newTag)=\"newTag()\"\n    (selectTag)=\"selectTag($event)\"\n    (deleteTag)=\"deleteTag()\"\n  ></app-tag-nav>\n  <app-tag-details\n    class=\"details\"\n    [tag]=\"selectedTag\"\n    (tagUpdated)=\"onTagChanges($event)\">\n  </app-tag-details>\n</div>\n"
+        },
+        {
+            "name": "TimelineChartComponent",
+            "id": "component-TimelineChartComponent-7c645ba28c55952f11a8e71a40e2e907",
+            "file": "src/app/timeline-chart/timeline-chart.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-timeline-chart",
+            "styleUrls": [
+                "./timeline-chart.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./timeline-chart.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "timelineBlocks",
+                    "defaultValue": "[]",
+                    "line": 16,
+                    "type": "TimelineBlock[]"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "selectBeat",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 18,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 22
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';\n\nexport interface TimelineBlock {\n  startSec: number;\n  endSec: number;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./timeline-chart.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 18
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<p>timeline-chart works!</p>\n"
         }
     ],
     "modules": [
@@ -7001,6 +7216,9 @@
                         },
                         {
                             "name": "TagPageComponent"
+                        },
+                        {
+                            "name": "TimelineChartComponent"
                         }
                     ]
                 },
@@ -7095,10 +7313,26 @@
                 "defaultValue": "'allTagList'"
             },
             {
+                "name": "ALL_TAG_MAP_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/tag.service.ts",
+                "type": "string",
+                "defaultValue": "'allTagMap'"
+            },
+            {
                 "name": "AllAvailableTagExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "BasicExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7170,7 +7404,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7178,7 +7412,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7202,6 +7436,14 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -7218,7 +7460,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7226,7 +7468,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7375,6 +7617,14 @@
                 "defaultValue": "[\n  {\n    tagId: 'abc123',\n    enumValue: 1\n  },\n  {\n    tagId: 'def456',\n  },\n  {\n    tagId: 'ghi789',\n    enumValue: -1,\n    numericValue: 11\n  }\n] as TagReference[]"
             },
             {
+                "name": "exampleTimelineBlocks",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "",
+                "defaultValue": "[\n  {\n    startSec: 0,\n    endSec: 60 * 15\n  },\n  {\n    startSec: 60 * 15,\n    endSec: 60 * 30\n  }\n] as TimelineBlock[]"
+            },
+            {
                 "name": "FullExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -7418,7 +7668,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7426,7 +7676,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7474,7 +7724,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7482,7 +7732,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7665,17 +7915,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "Story<BeatNavComponent>",
-                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "Story<BeatBrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
-                "type": "Story<BeatBrainstormTemplateNavComponent>",
-                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -7721,6 +7971,14 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "Story<TimelineChartComponent>",
+                "defaultValue": "(args: TimelineChartComponent) => ({\n  component: TimelineChartComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts",
                 "type": "Story<BrainstormTemplateDetailsComponent>",
                 "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
@@ -7737,17 +7995,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                "type": "Story<StructureTemplateDetailsComponent>",
-                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "Story<StructureTemplateDetailsComponent>",
+                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8145,6 +8403,14 @@
                     "defaultValue": "'allTagList'"
                 },
                 {
+                    "name": "ALL_TAG_MAP_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/tag.service.ts",
+                    "type": "string",
+                    "defaultValue": "'allTagMap'"
+                },
+                {
                     "name": "TAG_KEY_PREFIX",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -8201,6 +8467,40 @@
                     "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                     "type": "Story<ApplyTagNavComponent>",
                     "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/timeline-chart/timeline-chart.stories.ts": [
+                {
+                    "name": "BasicExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleTimelineBlocks",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                    "type": "",
+                    "defaultValue": "[\n  {\n    startSec: 0,\n    endSec: 60 * 15\n  },\n  {\n    startSec: 60 * 15,\n    endSec: 60 * 30\n  }\n] as TimelineBlock[]"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                    "type": "Story<TimelineChartComponent>",
+                    "defaultValue": "(args: TimelineChartComponent) => ({\n  component: TimelineChartComponent,\n  props: args,\n})"
                 }
             ],
             "src/test.ts": [
@@ -8356,48 +8656,6 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-nav/beat-nav.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "exampleBeatListView",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExampleSecondSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "Story<BeatNavComponent>",
-                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8446,6 +8704,48 @@
                     "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                     "type": "Story<BeatBrainstormTemplateNavComponent>",
                     "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-nav/beat-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
@@ -8608,40 +8908,6 @@
                     "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTemplate",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "Story<StructureTemplateDetailsComponent>",
-                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -8682,6 +8948,40 @@
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "Story<StructureTemplateNavComponent>",
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTemplate",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "Story<StructureTemplateDetailsComponent>",
+                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-details/tag-details.stories.ts": [
@@ -9314,7 +9614,7 @@
                 "linktype": "component",
                 "name": "ApplyTagNavComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/21",
+                "coverageCount": "0/22",
                 "status": "low"
             },
             {
@@ -9519,8 +9819,8 @@
                 "type": "component",
                 "linktype": "component",
                 "name": "BeatPageComponent",
-                "coveragePercent": 4,
-                "coverageCount": "2/46",
+                "coveragePercent": 6,
+                "coverageCount": "3/49",
                 "status": "low"
             },
             {
@@ -10438,7 +10738,7 @@
                 "linktype": "injectable",
                 "name": "TagService",
                 "coveragePercent": 0,
-                "coverageCount": "0/15",
+                "coverageCount": "0/18",
                 "status": "low"
             },
             {
@@ -10465,7 +10765,75 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
+                "name": "ALL_TAG_MAP_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/tag.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
                 "name": "TAG_KEY_PREFIX",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TimelineChartComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "TimelineBlock",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "BasicExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTimelineBlocks",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
