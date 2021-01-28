@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BeatReadView, BeatsService} from '../beats.service';
+import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
 
 @Component({
   selector: 'app-read-page',
@@ -11,6 +12,7 @@ export class ReadPageComponent implements OnInit {
 
   selectedBeatId = '';
   readView: BeatReadView[] = [];
+  timelineView: TimelineBlock[] = [];
 
   constructor(
     private beatsService: BeatsService,
@@ -31,9 +33,14 @@ export class ReadPageComponent implements OnInit {
 
   async selectBeat(selectedId: string): Promise<void> {
     this.readView = await this.beatsService.fetchReadView(selectedId);
+    this.timelineView = await this.beatsService.fetchTimelineView(selectedId);
 
     this.selectedBeatId = selectedId;
     this.ref.markForCheck();
+  }
+
+  async timelineSelectBeat(selectedId: string): Promise<void> {
+    await this.router.navigate(['/beats', { id: selectedId }]);
   }
 
 }

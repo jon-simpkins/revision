@@ -6,6 +6,7 @@ export interface TimelineBlock {
   endSec: number;
   row: string;
   label: string;
+  depth: number;
 }
 
 @Component({

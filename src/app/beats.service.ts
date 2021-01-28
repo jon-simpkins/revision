@@ -3,6 +3,7 @@ import {StorageService} from './storage.service';
 import {Beat, IBeat} from '../protos';
 import {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';
 import {v4 as uuidv4} from 'uuid';
+import {TimelineBlock} from './timeline-chart/timeline-chart.component';
 
 export interface BeatMapView {
   id: string;
@@ -255,6 +256,46 @@ export class BeatsService {
 
   cancelSubscription(subscription: string): void {
     this.storageService.cancelSubscription(subscription);
+  }
+
+  async fetchTimelineView(beatId: string): Promise<TimelineBlock[]> {
+    const timelineView: TimelineBlock[] = [];
+
+    await this.appendTimelineView(beatId, timelineView, 0, 0);
+
+    return timelineView.sort((a, b) => {
+      return a.depth - b.depth;
+    });
+  }
+
+  async appendTimelineView(
+    beatId: string,
+    currentTimelineView: TimelineBlock[],
+    currentDepth: number,
+    currentStartSec: number): Promise<void> {
+    const beat = await this.getBeat(beatId) as Beat;
+
+    if (!beat) {
+      return;
+    }
+
+    const beatTimelineView = {
+      id: beat.id,
+      depth: currentDepth,
+      row: 'Depth ' + currentDepth,
+      label: beat.synopsis,
+      startSec: currentStartSec,
+      endSec: currentStartSec + (beat.intendedDurationMs / 1000)
+    } as TimelineBlock;
+
+    currentTimelineView.push(beatTimelineView);
+
+    let offsetSec = 0;
+    for (const childBeatId of beat.structure) {
+      const childBeat = await this.getBeat(childBeatId) as Beat;
+      await this.appendTimelineView(childBeatId, currentTimelineView, currentDepth + 1, offsetSec);
+      offsetSec += childBeat.intendedDurationMs / 1000;
+    }
   }
 
   async fetchReadView(beatId: string): Promise<BeatReadView[]> {
