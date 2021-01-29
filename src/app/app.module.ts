@@ -41,6 +41,7 @@ import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/b
 import { BeatBrainstormTemplateNavComponent } from './beat-brainstorm-template-nav/beat-brainstorm-template-nav.component';
 import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -53,6 +54,7 @@ export const MaterialModules = [
   DragDropModule,
   MatTabsModule,
   MatSelectModule,
+  MatTooltipModule,
   QuillModule.forRoot(),
 ];
 

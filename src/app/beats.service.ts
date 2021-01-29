@@ -285,7 +285,8 @@ export class BeatsService {
       row: 'Depth ' + currentDepth,
       label: beat.synopsis,
       startSec: currentStartSec,
-      endSec: currentStartSec + (beat.intendedDurationMs / 1000)
+      endSec: currentStartSec + (beat.intendedDurationMs / 1000),
+      completeness: beat.completeness
     } as TimelineBlock;
 
     currentTimelineView.push(beatTimelineView);

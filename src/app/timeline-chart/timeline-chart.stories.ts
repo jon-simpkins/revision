@@ -1,11 +1,13 @@
-import { moduleMetadata } from '@storybook/angular';
-import { CommonModule } from '@angular/common';
+import {moduleMetadata} from '@storybook/angular';
+import {CommonModule} from '@angular/common';
 // also exported from '@storybook/angular' if you can deal with breaking changes in 6.1
-import { Story, Meta } from '@storybook/angular/types-6-0';
+import {Meta, Story} from '@storybook/angular/types-6-0';
 
 import {MaterialModules} from '../app.module';
 import {AppRoutingModule} from '../app-routing.module';
-import {TimelineChartComponent, TimelineBlock} from './timeline-chart.component';
+import {TimelineBlock, TimelineChartComponent} from './timeline-chart.component';
+import {Beat} from '../../protos';
+import Completeness = Beat.Completeness;
 
 export default {
   title: 'Timeline Chart',
@@ -31,35 +33,34 @@ const exampleTimelineBlocks = [
     id: 'abc123',
     startSec: 0,
     endSec: 60 * 15,
-    row: 'Top Level',
-    label: 'First Act'
+    label: 'First Act',
+    depth: 0
   },
   {
     id: 'def456',
     startSec: 60 * 15,
     endSec: 60 * 30,
-    row: 'Top Level',
-    label: 'Second Act, oh wow is this a cool act, just the bestest'
+    label: 'Second Act, oh wow is this a cool act, just the bestest',
+    depth: 0,
+    completeness: Completeness.FINAL
   },
   {
     id: 'ghi789',
     startSec: 60 * 5,
     endSec: 60 * 20,
-    row: 'Second Level',
-    label: 'More involved stuff'
+    label: 'More involved stuff',
+    depth: 1
   },
   {
-    id: 'ghi789',
+    id: 'abc091',
     startSec: 3600 + 60 * 5,
     endSec: 3600 + 60 * 20,
-    row: 'Top Level',
-    label: 'One for the road'
+    label: 'One for the road',
+    depth: 1
   }
 ] as TimelineBlock[];
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
-  chartWidth: 800,
-  chartHeight: 200,
   timelineBlocks: exampleTimelineBlocks
 };

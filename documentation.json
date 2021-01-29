@@ -83,52 +83,52 @@
         },
         {
             "name": "BeatMapView",
-            "id": "interface-BeatMapView-64f7ccede97f9cc72ea4c676f138b50f",
+            "id": "interface-BeatMapView-ddff0ee6108b0ebef1266c5bc45e2cf3",
             "file": "src/app/beats.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\nimport {TimelineBlock} from './timeline-chart/timeline-chart.component';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchTimelineView(beatId: string): Promise<TimelineBlock[]> {\n    const timelineView: TimelineBlock[] = [];\n\n    await this.appendTimelineView(beatId, timelineView, 0, 0);\n\n    return timelineView.sort((a, b) => {\n      return a.depth - b.depth;\n    });\n  }\n\n  async appendTimelineView(\n    beatId: string,\n    currentTimelineView: TimelineBlock[],\n    currentDepth: number,\n    currentStartSec: number): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatTimelineView = {\n      id: beat.id,\n      depth: currentDepth,\n      row: 'Depth ' + currentDepth,\n      label: beat.synopsis,\n      startSec: currentStartSec,\n      endSec: currentStartSec + (beat.intendedDurationMs / 1000),\n      completeness: beat.completeness\n    } as TimelineBlock;\n\n    currentTimelineView.push(beatTimelineView);\n\n    let offsetSec = 0;\n    for (const childBeatId of beat.structure) {\n      const childBeat = await this.getBeat(childBeatId) as Beat;\n      await this.appendTimelineView(childBeatId, currentTimelineView, currentDepth + 1, offsetSec);\n      offsetSec += childBeat.intendedDurationMs / 1000;\n    }\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
             "properties": [
                 {
                     "name": "completeness",
                     "type": "Beat.Completeness",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 14
                 },
                 {
                     "name": "id",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 8
+                    "line": 9
                 },
                 {
                     "name": "intendedDurationMs",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 13
                 },
                 {
                     "name": "lastUpdated",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 10
+                    "line": 11
                 },
                 {
                     "name": "name",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 9
+                    "line": 10
                 },
                 {
                     "name": "parentBeats",
                     "type": "string[]",
                     "optional": false,
                     "description": "",
-                    "line": 11
+                    "line": 12
                 }
             ],
             "indexSignatures": [],
@@ -137,45 +137,45 @@
         },
         {
             "name": "BeatReadView",
-            "id": "interface-BeatReadView-64f7ccede97f9cc72ea4c676f138b50f",
+            "id": "interface-BeatReadView-ddff0ee6108b0ebef1266c5bc45e2cf3",
             "file": "src/app/beats.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\nimport {TimelineBlock} from './timeline-chart/timeline-chart.component';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchTimelineView(beatId: string): Promise<TimelineBlock[]> {\n    const timelineView: TimelineBlock[] = [];\n\n    await this.appendTimelineView(beatId, timelineView, 0, 0);\n\n    return timelineView.sort((a, b) => {\n      return a.depth - b.depth;\n    });\n  }\n\n  async appendTimelineView(\n    beatId: string,\n    currentTimelineView: TimelineBlock[],\n    currentDepth: number,\n    currentStartSec: number): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatTimelineView = {\n      id: beat.id,\n      depth: currentDepth,\n      row: 'Depth ' + currentDepth,\n      label: beat.synopsis,\n      startSec: currentStartSec,\n      endSec: currentStartSec + (beat.intendedDurationMs / 1000),\n      completeness: beat.completeness\n    } as TimelineBlock;\n\n    currentTimelineView.push(beatTimelineView);\n\n    let offsetSec = 0;\n    for (const childBeatId of beat.structure) {\n      const childBeat = await this.getBeat(childBeatId) as Beat;\n      await this.appendTimelineView(childBeatId, currentTimelineView, currentDepth + 1, offsetSec);\n      offsetSec += childBeat.intendedDurationMs / 1000;\n    }\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
             "properties": [
                 {
                     "name": "completeness",
                     "type": "Beat.Completeness",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 22
                 },
                 {
                     "name": "id",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 17
+                    "line": 18
                 },
                 {
                     "name": "name",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 19
                 },
                 {
                     "name": "prose",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 20
                 },
                 {
                     "name": "showExpanded",
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 21
                 }
             ],
             "indexSignatures": [],
@@ -306,6 +306,53 @@
                     "optional": false,
                     "description": "",
                     "line": 10
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "PreppedTimelineBlock",
+            "id": "interface-PreppedTimelineBlock-16f5883fba9a620099c4a0447e6b73d4",
+            "file": "src/app/timeline-chart/timeline-chart.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "color",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                },
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 16
+                },
+                {
+                    "name": "label",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
+                },
+                {
+                    "name": "left",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
+                },
+                {
+                    "name": "width",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
                 }
             ],
             "indexSignatures": [],
@@ -458,24 +505,78 @@
         },
         {
             "name": "TimelineBlock",
-            "id": "interface-TimelineBlock-7c645ba28c55952f11a8e71a40e2e907",
+            "id": "interface-TimelineBlock-16f5883fba9a620099c4a0447e6b73d4",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';\n\nexport interface TimelineBlock {\n  startSec: number;\n  endSec: number;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
             "properties": [
+                {
+                    "name": "completeness",
+                    "type": "Completeness",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                },
+                {
+                    "name": "depth",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 11
+                },
                 {
                     "name": "endSec",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 5
+                    "line": 9
+                },
+                {
+                    "name": "id",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "label",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
                 },
                 {
                     "name": "startSec",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 4
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
+            "name": "TimelineMarker",
+            "id": "interface-TimelineMarker-16f5883fba9a620099c4a0447e6b73d4",
+            "file": "src/app/timeline-chart/timeline-chart.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "label",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 25
+                },
+                {
+                    "name": "left",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 24
                 }
             ],
             "indexSignatures": [],
@@ -486,7 +587,7 @@
     "injectables": [
         {
             "name": "BeatsService",
-            "id": "injectable-BeatsService-64f7ccede97f9cc72ea4c676f138b50f",
+            "id": "injectable-BeatsService-ddff0ee6108b0ebef1266c5bc45e2cf3",
             "file": "src/app/beats.service.ts",
             "properties": [],
             "methods": [
@@ -509,7 +610,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 298,
+                    "line": 340,
                     "modifierKind": [
                         112,
                         115
@@ -553,7 +654,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 268,
+                    "line": 310,
                     "modifierKind": [
                         120
                     ],
@@ -575,6 +676,64 @@
                     ]
                 },
                 {
+                    "name": "appendTimelineView",
+                    "args": [
+                        {
+                            "name": "beatId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "currentTimelineView",
+                            "type": "TimelineBlock[]"
+                        },
+                        {
+                            "name": "currentDepth",
+                            "type": "number"
+                        },
+                        {
+                            "name": "currentStartSec",
+                            "type": "number"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 271,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "currentTimelineView",
+                            "type": "TimelineBlock[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "currentDepth",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "currentStartSec",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "cancelSubscription",
                     "args": [
                         {
@@ -585,7 +744,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 256,
+                    "line": 257,
                     "jsdoctags": [
                         {
                             "name": "subscription",
@@ -602,7 +761,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 59,
+                    "line": 60,
                     "modifierKind": [
                         120
                     ]
@@ -618,7 +777,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 76,
+                    "line": 77,
                     "modifierKind": [
                         120
                     ],
@@ -643,7 +802,32 @@
                     "optional": false,
                     "returnType": "Promise<BeatReadView[]>",
                     "typeParameters": [],
-                    "line": 260,
+                    "line": 302,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "fetchTimelineView",
+                    "args": [
+                        {
+                            "name": "beatId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<TimelineBlock[]>",
+                    "typeParameters": [],
+                    "line": 261,
                     "modifierKind": [
                         120
                     ],
@@ -668,7 +852,7 @@
                     "optional": false,
                     "returnType": "Map<string, BeatMapView>",
                     "typeParameters": [],
-                    "line": 198,
+                    "line": 199,
                     "modifierKind": [
                         112
                     ],
@@ -688,7 +872,7 @@
                     "optional": false,
                     "returnType": "Promise<Beat[]>",
                     "typeParameters": [],
-                    "line": 177,
+                    "line": 178,
                     "modifierKind": [
                         120
                     ]
@@ -704,7 +888,7 @@
                     "optional": false,
                     "returnType": "Promise<Beat | null>",
                     "typeParameters": [],
-                    "line": 164,
+                    "line": 165,
                     "modifierKind": [
                         120
                     ],
@@ -729,7 +913,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 45,
+                    "line": 46,
                     "modifierKind": [
                         112,
                         115
@@ -750,7 +934,7 @@
                     "optional": false,
                     "returnType": "Promise<Map<string, BeatMapView>>",
                     "typeParameters": [],
-                    "line": 227,
+                    "line": 228,
                     "modifierKind": [
                         120
                     ]
@@ -766,7 +950,7 @@
                     "optional": false,
                     "returnType": "BeatMapView",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 35,
                     "modifierKind": [
                         112,
                         115
@@ -800,7 +984,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 291,
+                    "line": 333,
                     "modifierKind": [
                         112,
                         115
@@ -840,7 +1024,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 49,
+                    "line": 50,
                     "modifierKind": [
                         120
                     ],
@@ -875,7 +1059,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 112,
+                    "line": 113,
                     "modifierKind": [
                         120
                     ],
@@ -916,7 +1100,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 194,
+                    "line": 195,
                     "modifierKind": [
                         112,
                         120
@@ -952,7 +1136,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 237,
+                    "line": 238,
                     "jsdoctags": [
                         {
                             "name": "beatId",
@@ -993,7 +1177,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 231,
+                    "line": 232,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -1012,7 +1196,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport {StorageService} from './storage.service';\nimport {Beat, IBeat} from '../protos';\nimport {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';\nimport {v4 as uuidv4} from 'uuid';\nimport {TimelineBlock} from './timeline-chart/timeline-chart.component';\n\nexport interface BeatMapView {\n  id: string;\n  name: string;\n  lastUpdated: number;\n  parentBeats: string[]; // IDs of any beats which include this one in the structure or brainstorm\n  intendedDurationMs: number;\n  completeness: Beat.Completeness;\n}\n\nexport interface BeatReadView {\n  id: string;\n  name: string;\n  prose: string;\n  showExpanded: boolean;\n  completeness: Beat.Completeness;\n}\n\nconst ALL_BEAT_MAP_KEY = 'allBeatMap';\nconst BEAT_KEY_PREFIX = 'beat-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class BeatsService {\n\n  constructor(private storageService: StorageService) { }\n\n  private static getInitialMapVersion(beat: IBeat): BeatMapView {\n    return {\n      id: beat.id,\n      name: beat.synopsis,\n      lastUpdated: timestampToEpochMs(beat.lastUpdated),\n      parentBeats: [],\n      intendedDurationMs: beat.intendedDurationMs,\n      completeness: beat.completeness\n    } as BeatMapView;\n  }\n\n  private static getBeatKey(uuid: string): string {\n    return BEAT_KEY_PREFIX + uuid;\n  }\n\n  async setAllBeats(beats: IBeat[]): Promise<void> {\n    await this.setBeatMap(\n      this.generateBeatMap(beats)\n    );\n\n    for (const beat of beats) {\n      await this.setBeat(beat as Beat, false, false);\n    }\n  }\n\n  async createNewBeat(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newBeat = Beat.create({\n      id: uuid,\n      synopsis: 'My new beat',\n      prose: '',\n      intendedDurationMs: 60 * 1000,\n      structure: [],\n      brainstorm: [],\n    });\n\n    await this.setBeat(newBeat, true, true);\n\n    return uuid;\n  }\n\n  async deleteBeat(beatId: string): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n    let beatMap = await this.getBeatMap();\n\n    // Remove any references to this beat as child\n    const parentIds = beatMap.get(beatId)?.parentBeats as string[];\n    for (const parentId of parentIds) {\n      const parentBeat = await this.getBeat(parentId) as Beat;\n      parentBeat.brainstorm = parentBeat.brainstorm.filter(brainstormId => brainstormId !== beatId);\n      parentBeat.structure = parentBeat.structure.filter(structureId => structureId !== beatId);\n      await this.setBeat(parentBeat, true, true);\n    }\n\n    // Re-fetch the beat map, to pick up all the recent changes\n    beatMap = await this.getBeatMap();\n\n    // Remove this beat as \"parent\" in any children\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.structure || [])\n    );\n    BeatsService.removeIdFromParents(\n      beatMap,\n      beatId,\n      (beat.brainstorm || [])\n    );\n    beatMap.delete(beatId);\n    await this.setBeatMap(beatMap);\n\n    await this.storageService.delete(\n      BeatsService.getBeatKey(beatId),\n      true\n    );\n  }\n\n  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {\n    if (affectsLastUpdated) {\n      beat.lastUpdated = epochMsToTimestamp(Date.now());\n    }\n\n    if (affectsMapView) {\n      const originalBeat = await this.getBeat(beat.id) as Beat;\n      const beatMap = await this.getBeatMap();\n\n      const originalBrainstorm = (originalBeat?.brainstorm || []);\n      const originalStructure = (originalBeat?.structure || []);\n\n      // Determine if there are any changes in the children\n      if (!allStringsInBothArrays(beat.brainstorm, originalBrainstorm)\n        || !allStringsInBothArrays(beat.structure, originalStructure)) {\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalBrainstorm\n        );\n        BeatsService.removeIdFromParents(\n          beatMap,\n          beat.id,\n          originalStructure\n        );\n\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.brainstorm\n        );\n        BeatsService.addParentToChildren(\n          beatMap,\n          beat.id,\n          beat.structure\n        );\n      }\n\n      const mapView = BeatsService.getInitialMapVersion(beat);\n      mapView.parentBeats = beatMap.get(beat.id)?.parentBeats || [];\n\n      beatMap.set(beat.id, mapView);\n      await this.setBeatMap(beatMap);\n    }\n\n    await this.storageService.set(\n      BeatsService.getBeatKey(beat.id),\n      Beat.encode(beat).finish(),\n      true\n    );\n  }\n\n  async getBeat(uuid: string): Promise<Beat|null> {\n    const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find beat: ' + uuid);\n      return null;\n    }\n\n    return Beat.decode(\n      fetchedData\n    );\n  }\n\n  async getAllBeats(): Promise<Beat[]> {\n    const beatMap = await this.getBeatMap();\n\n    const allBeats: Beat[] = [];\n\n    for (const uuid of beatMap.keys()) {\n      const fetchedBeat = await this.getBeat(uuid);\n      if (fetchedBeat != null) {\n        allBeats.push(\n          fetchedBeat\n        );\n      }\n    }\n\n    return allBeats;\n  }\n\n  private async setBeatMap(beatMap: Map<string, BeatMapView>): Promise<void> {\n    await this.storageService.set(ALL_BEAT_MAP_KEY, beatMap, true);\n  }\n\n  private generateBeatMap(beats: IBeat[]): Map<string, BeatMapView> {\n    const beatMap = new Map<string, BeatMapView>();\n\n    beats.forEach((beat: IBeat) => {\n      beatMap.set(\n        beat.id as string,\n        BeatsService.getInitialMapVersion(beat)\n      );\n    });\n\n    // Set parent references\n    beats.forEach((beat: IBeat) => {\n      const id = beat.id as string;\n\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.brainstorm || [])\n      );\n      BeatsService.addParentToChildren(\n        beatMap,\n        id,\n        (beat.structure || [])\n      );\n    });\n\n    return beatMap;\n  }\n\n  async getBeatMap(): Promise<Map<string, BeatMapView>> {\n    return (await this.storageService.get(ALL_BEAT_MAP_KEY) || new Map()) as Map<string, BeatMapView>;\n  }\n\n  subscribeToBeatMapView(handler: (newBeatMapView: Map<string, BeatMapView>) => void): string {\n    return this.storageService.generateSubscription(ALL_BEAT_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, BeatMapView>());\n    });\n  }\n\n  subscribeToBeat(beatId: string, handler: (newBeat: Beat|null) => void): string {\n    return this.storageService.generateSubscription(\n      BeatsService.getBeatKey(beatId),\n      (fetchedValue) => {\n        if (!fetchedValue) {\n          // Beat no longer found, this could occur from being deleted in\n          // another tab or component\n          return handler(null);\n        }\n\n        handler(\n          Beat.decode(\n            fetchedValue as Uint8Array\n          )\n        );\n      }\n    );\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async fetchTimelineView(beatId: string): Promise<TimelineBlock[]> {\n    const timelineView: TimelineBlock[] = [];\n\n    await this.appendTimelineView(beatId, timelineView, 0, 0);\n\n    return timelineView.sort((a, b) => {\n      return a.depth - b.depth;\n    });\n  }\n\n  async appendTimelineView(\n    beatId: string,\n    currentTimelineView: TimelineBlock[],\n    currentDepth: number,\n    currentStartSec: number): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatTimelineView = {\n      id: beat.id,\n      depth: currentDepth,\n      row: 'Depth ' + currentDepth,\n      label: beat.synopsis,\n      startSec: currentStartSec,\n      endSec: currentStartSec + (beat.intendedDurationMs / 1000),\n      completeness: beat.completeness\n    } as TimelineBlock;\n\n    currentTimelineView.push(beatTimelineView);\n\n    let offsetSec = 0;\n    for (const childBeatId of beat.structure) {\n      const childBeat = await this.getBeat(childBeatId) as Beat;\n      await this.appendTimelineView(childBeatId, currentTimelineView, currentDepth + 1, offsetSec);\n      offsetSec += childBeat.intendedDurationMs / 1000;\n    }\n  }\n\n  async fetchReadView(beatId: string): Promise<BeatReadView[]> {\n    const readView: BeatReadView[] = [];\n\n    await this.appendReadView(beatId, readView);\n\n    return readView;\n  }\n\n  async appendReadView(beatId: string, currentReadView: BeatReadView[]): Promise<void> {\n    const beat = await this.getBeat(beatId) as Beat;\n\n    if (!beat) {\n      return;\n    }\n\n    const beatReadView = {\n      id: beat.id,\n      name: beat.synopsis,\n      prose: beat.prose,\n      showExpanded: (beat.structure.length === 0),\n      completeness: beat.completeness\n    } as BeatReadView;\n\n    currentReadView.push(beatReadView);\n\n    // Recurse through child beats\n    for (const childBeat of beat.structure) {\n      await this.appendReadView(childBeat, currentReadView);\n    }\n  }\n\n  private static removeIdFromParents(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats = childBeat.parentBeats.filter(parentId => parentId !== id);\n    });\n  }\n\n  private static addParentToChildren(beatMap: Map<string, BeatMapView>, id: string, children: string[]): void {\n    children.forEach(childId => {\n      const childBeat = beatMap.get(childId) as BeatMapView;\n      childBeat.parentBeats.push(id);\n    });\n  }\n}\n\nfunction allStringsInBothArrays(array1: string[], array2: string[]): boolean {\n  if (array1.length !== array2.length) {\n    return false;\n  }\n\n  return array1.every((value) => {\n    return array2.indexOf(value) >= 0;\n  });\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1022,7 +1206,7 @@
                         "type": "StorageService"
                     }
                 ],
-                "line": 30,
+                "line": 31,
                 "jsdoctags": [
                     {
                         "name": "storageService",
@@ -5727,7 +5911,7 @@
         },
         {
             "name": "ReadPageComponent",
-            "id": "component-ReadPageComponent-b456963dbb6ae62c666e2164abc01f76",
+            "id": "component-ReadPageComponent-1539a21edeb04b424f1485da276bd1cd",
             "file": "src/app/read-page/read-page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -5752,7 +5936,7 @@
                     "type": "BeatReadView[]",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 14
                 },
                 {
                     "name": "selectedBeatId",
@@ -5760,7 +5944,15 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 13
+                },
+                {
+                    "name": "timelineView",
+                    "defaultValue": "[]",
+                    "type": "TimelineBlock[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
                 }
             ],
             "methodsClass": [
@@ -5770,7 +5962,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 21
+                    "line": 23
                 },
                 {
                     "name": "selectBeat",
@@ -5783,7 +5975,32 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 32,
+                    "line": 34,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "selectedId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "timelineSelectBeat",
+                    "args": [
+                        {
+                            "name": "selectedId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 42,
                     "modifierKind": [
                         120
                     ],
@@ -5803,7 +6020,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatReadView, BeatsService} from '../beats.service';\n\n@Component({\n  selector: 'app-read-page',\n  templateUrl: './read-page.component.html',\n  styleUrls: ['./read-page.component.scss']\n})\nexport class ReadPageComponent implements OnInit {\n\n  selectedBeatId = '';\n  readView: BeatReadView[] = [];\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private route: ActivatedRoute,\n    private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n  }\n\n  async selectBeat(selectedId: string): Promise<void> {\n    this.readView = await this.beatsService.fetchReadView(selectedId);\n\n    this.selectedBeatId = selectedId;\n    this.ref.markForCheck();\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatReadView, BeatsService} from '../beats.service';\nimport {TimelineBlock} from '../timeline-chart/timeline-chart.component';\n\n@Component({\n  selector: 'app-read-page',\n  templateUrl: './read-page.component.html',\n  styleUrls: ['./read-page.component.scss']\n})\nexport class ReadPageComponent implements OnInit {\n\n  selectedBeatId = '';\n  readView: BeatReadView[] = [];\n  timelineView: TimelineBlock[] = [];\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private route: ActivatedRoute,\n    private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n  }\n\n  async selectBeat(selectedId: string): Promise<void> {\n    this.readView = await this.beatsService.fetchReadView(selectedId);\n    this.timelineView = await this.beatsService.fetchTimelineView(selectedId);\n\n    this.selectedBeatId = selectedId;\n    this.ref.markForCheck();\n  }\n\n  async timelineSelectBeat(selectedId: string): Promise<void> {\n    await this.router.navigate(['/beats', { id: selectedId }]);\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -5833,7 +6050,7 @@
                         "type": "Router"
                     }
                 ],
-                "line": 13,
+                "line": 15,
                 "jsdoctags": [
                     {
                         "name": "beatsService",
@@ -5868,7 +6085,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<app-read-page-beat *ngFor=\"let beat of readView\" [beat]=\"beat\">\n</app-read-page-beat>\n"
+            "templateData": "<app-timeline-chart\n  [timelineBlocks]=\"timelineView\"\n  (selectBeat)=\"timelineSelectBeat($event)\"></app-timeline-chart>\n<app-read-page-beat *ngFor=\"let beat of readView\" [beat]=\"beat\">\n</app-read-page-beat>\n"
         },
         {
             "name": "ShowSessionHistoryComponent",
@@ -7068,7 +7285,7 @@
         },
         {
             "name": "TimelineChartComponent",
-            "id": "component-TimelineChartComponent-7c645ba28c55952f11a8e71a40e2e907",
+            "id": "component-TimelineChartComponent-16f5883fba9a620099c4a0447e6b73d4",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -7088,7 +7305,7 @@
                 {
                     "name": "timelineBlocks",
                     "defaultValue": "[]",
-                    "line": 16,
+                    "line": 36,
                     "type": "TimelineBlock[]"
                 }
             ],
@@ -7096,19 +7313,122 @@
                 {
                     "name": "selectBeat",
                     "defaultValue": "new EventEmitter<string>()",
-                    "line": 18,
+                    "line": 38,
                     "type": "EventEmitter"
                 }
             ],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "maxTimeSec",
+                    "defaultValue": "0",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 45
+                },
+                {
+                    "name": "minTimeSec",
+                    "defaultValue": "0",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 44
+                },
+                {
+                    "name": "preppedTimelineBlockRows",
+                    "defaultValue": "[]",
+                    "type": "PreppedTimelineBlock[][]",
+                    "optional": false,
+                    "description": "",
+                    "line": 42
+                },
+                {
+                    "name": "preppedTimelineMarkers",
+                    "defaultValue": "[]",
+                    "type": "TimelineMarker[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 43
+                },
+                {
+                    "name": "zoomLevel",
+                    "defaultValue": "100",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 40
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "formatPercentString",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "number"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 137,
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "number",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnChanges",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 53
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 22
+                    "line": 49
+                },
+                {
+                    "name": "rebuildTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 57
+                },
+                {
+                    "name": "rebuildTimelineMarkers",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 114
+                },
+                {
+                    "name": "zoomIn",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 132
+                },
+                {
+                    "name": "zoomOut",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 127
                 }
             ],
             "hostBindings": [],
@@ -7116,11 +7436,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, OnInit, Input, Output} from '@angular/core';\n\nexport interface TimelineBlock {\n  startSec: number;\n  endSec: number;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": ".timeline-wrapper {\n  width: 100%;\n  overflow-x: scroll;\n\n  .timeline-row {\n    position: relative;\n    height: 40px;\n  }\n\n  .timeline-block {\n    cursor: pointer;\n    display: inline-block;\n    position: absolute;\n    height: 100%;\n    -webkit-box-shadow:inset 0px 0px 0px 1px #555;\n    -moz-box-shadow:inset 0px 0px 0px 1px #555;\n    box-shadow:inset 0px 0px 0px 1px #555;\n  }\n\n  .time-marker-row {\n    height: 24px;\n    position: relative;\n\n    .marker {\n      display: inline-block;\n      position: absolute;\n      height: 100%;\n      border-left: 1px solid black;\n      padding-left: 8px;\n    }\n  }\n}\n",
                     "styleUrl": "./timeline-chart.component.scss"
                 }
             ],
@@ -7129,12 +7449,13 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 18
+                "line": 45
             },
             "implements": [
-                "OnInit"
+                "OnInit",
+                "OnChanges"
             ],
-            "templateData": "<p>timeline-chart works!</p>\n"
+            "templateData": "<button mat-button (click)=\"zoomOut()\" [disabled]=\"zoomLevel === 100\">\n  <mat-icon>zoom_out</mat-icon>\n</button>\n<button mat-button (click)=\"zoomIn()\">\n  <mat-icon>zoom_in</mat-icon>\n</button>\n<div class=\"timeline-wrapper\">\n  <div\n    *ngFor=\"let row of preppedTimelineBlockRows\"\n    class=\"timeline-row\"\n    [style.width]=\"formatPercentString(zoomLevel)\">\n    <div *ngFor=\"let block of row\"\n      class=\"timeline-block\"\n         [style.background]=\"block.color\"\n         [style.width]=\"formatPercentString(block.width)\"\n         [style.left]=\"formatPercentString(block.left)\"\n         matTooltip=\"{{block.label}}\"\n         (click)=\"selectBeat.emit(block.id)\"\n    ></div>\n  </div>\n  <div class=\"time-marker-row\" [style.width]=\"formatPercentString(zoomLevel)\">\n\n    <ng-container *ngFor=\"let marker of preppedTimelineMarkers\">\n      <div\n        class=\"marker\"\n        [style.left]=\"formatPercentString(marker.left)\">\n        {{marker.label}}\n      </div>\n    </ng-container>\n\n  </div>\n</div>\n\n{{minTimeSec}} - {{maxTimeSec}}\n"
         }
     ],
     "modules": [
@@ -7396,14 +7717,6 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -7420,6 +7733,14 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -7429,14 +7750,6 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7622,7 +7935,7 @@
                 "subtype": "variable",
                 "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "",
-                "defaultValue": "[\n  {\n    startSec: 0,\n    endSec: 60 * 15\n  },\n  {\n    startSec: 60 * 15,\n    endSec: 60 * 30\n  }\n] as TimelineBlock[]"
+                "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1\n  }\n] as TimelineBlock[]"
             },
             {
                 "name": "FullExample",
@@ -7790,7 +8103,7 @@
                 "subtype": "variable",
                 "file": "src/app/app.module.ts",
                 "type": "[]",
-                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  QuillModule.forRoot(),\n]"
+                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot(),\n]"
             },
             {
                 "name": "mockBeat",
@@ -7907,14 +8220,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
-                "type": "Story<ApplyTagNavComponent>",
-                "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "Story<BeatBrainstormTemplateNavComponent>",
                 "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
@@ -7926,6 +8231,14 @@
                 "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "Story<BeatNavComponent>",
                 "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "Story<ApplyTagNavComponent>",
+                "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8479,20 +8792,12 @@
                     "defaultValue": "Template.bind({})"
                 },
                 {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/timeline-chart/timeline-chart.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
                     "name": "exampleTimelineBlocks",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                     "type": "",
-                    "defaultValue": "[\n  {\n    startSec: 0,\n    endSec: 60 * 15\n  },\n  {\n    startSec: 60 * 15,\n    endSec: 60 * 30\n  }\n] as TimelineBlock[]"
+                    "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1\n  }\n] as TimelineBlock[]"
                 },
                 {
                     "name": "Template",
@@ -9129,7 +9434,7 @@
                     "subtype": "variable",
                     "file": "src/app/app.module.ts",
                     "type": "[]",
-                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  QuillModule.forRoot(),\n]"
+                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot(),\n]"
                 }
             ],
             "src/app/storage.service.ts": [
@@ -9983,7 +10288,7 @@
                 "linktype": "injectable",
                 "name": "BeatsService",
                 "coveragePercent": 0,
-                "coverageCount": "0/20",
+                "coverageCount": "0/22",
                 "status": "low"
             },
             {
@@ -10357,7 +10662,7 @@
                 "linktype": "component",
                 "name": "ReadPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/6",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
@@ -10786,7 +11091,16 @@
                 "linktype": "component",
                 "name": "TimelineChartComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/5",
+                "coverageCount": "0/16",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "PreppedTimelineBlock",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
                 "status": "low"
             },
             {
@@ -10794,6 +11108,15 @@
                 "type": "interface",
                 "linktype": "interface",
                 "name": "TimelineBlock",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/timeline-chart/timeline-chart.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "TimelineMarker",
                 "coveragePercent": 0,
                 "coverageCount": "0/3",
                 "status": "low"
@@ -10804,16 +11127,6 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "BasicExample",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/timeline-chart/timeline-chart.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "EmptyExample",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

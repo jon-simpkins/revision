@@ -1,15 +1,34 @@
-<button mat-button (click)="zoomOut()" [disabled]="chartWidth === currentWidth">
+<button mat-button (click)="zoomOut()" [disabled]="zoomLevel === 100">
   <mat-icon>zoom_out</mat-icon>
 </button>
 <button mat-button (click)="zoomIn()">
   <mat-icon>zoom_in</mat-icon>
 </button>
-<div style="overflow: scroll; border: 1px solid grey;"
-     [style.width.px]="chartWidth"
->
-  <div id="{{chartId}}"
-       [style.width.px]="currentWidth"
-       [style.height.px]="chartHeight"
-       style="cursor: pointer;"
-  ></div>
+<div class="timeline-wrapper">
+  <div
+    *ngFor="let row of preppedTimelineBlockRows"
+    class="timeline-row"
+    [style.width]="formatPercentString(zoomLevel)">
+    <div *ngFor="let block of row"
+      class="timeline-block"
+         [style.background]="block.color"
+         [style.width]="formatPercentString(block.width)"
+         [style.left]="formatPercentString(block.left)"
+         matTooltip="{{block.label}}"
+         (click)="selectBeat.emit(block.id)"
+    ></div>
+  </div>
+  <div class="time-marker-row" [style.width]="formatPercentString(zoomLevel)">
+
+    <ng-container *ngFor="let marker of preppedTimelineMarkers">
+      <div
+        class="marker"
+        [style.left]="formatPercentString(marker.left)">
+        {{marker.label}}
+      </div>
+    </ng-container>
+
+  </div>
 </div>
+
+{{minTimeSec}} - {{maxTimeSec}}

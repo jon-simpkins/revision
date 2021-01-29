@@ -1,6 +1,4 @@
 <app-timeline-chart
-  [chartHeight]="300"
-  [chartWidth]="800"
   [timelineBlocks]="timelineView"
   (selectBeat)="timelineSelectBeat($event)"></app-timeline-chart>
 <app-read-page-beat *ngFor="let beat of readView" [beat]="beat">

@@ -1,12 +1,28 @@
-import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit} from '@angular/core';
+import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';
+import {getDurationStr} from '../duration-helpers';
+import {Beat} from '../../protos';
+import Completeness = Beat.Completeness;
 
 export interface TimelineBlock {
   id: string;
   startSec: number;
   endSec: number;
-  row: string;
   label: string;
   depth: number;
+  completeness: Completeness;
+}
+
+interface PreppedTimelineBlock {
+  id: string;
+  width: number;
+  left: number;
+  color: string;
+  label: string;
+}
+
+interface TimelineMarker {
+  left: number;
+  label: string;
 }
 
 @Component({
@@ -14,122 +30,118 @@ export interface TimelineBlock {
   templateUrl: './timeline-chart.component.html',
   styleUrls: ['./timeline-chart.component.scss']
 })
-export class TimelineChartComponent implements OnInit, AfterViewInit {
-
-  @Input()
-  chartHeight = 400;
-
-  @Input()
-  chartWidth = 600;
+export class TimelineChartComponent implements OnInit, OnChanges {
 
   @Input()
   timelineBlocks: TimelineBlock[] = [];
 
   @Output() selectBeat = new EventEmitter<string>();
 
-  currentWidth = 600;
-  chartId = '1234';
+  zoomLevel = 100;
 
-  visualization: any;
-  chart: any;
-  dataTable: any;
+  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];
+  preppedTimelineMarkers: TimelineMarker[] = [];
+  minTimeSec = 0;
+  maxTimeSec = 0;
 
   constructor() {}
 
   ngOnInit(): void {
-    this.currentWidth = this.chartWidth;
+    this.rebuildTimeline();
   }
 
-  ngAfterViewInit(): void {
-    // @ts-ignore
-    if (window.google && window.google.visualization) {
-      this.initApi(); // Already loaded script
+  ngOnChanges(): void {
+    this.rebuildTimeline();
+  }
+
+  rebuildTimeline(): void {
+    if (!this.timelineBlocks.length) {
       return;
     }
 
-    const body = document.getElementsByTagName('body')[0];
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.onload = () => {
-      // @ts-ignore
-      window.google.charts.load('current', {packages: ['timeline']});
-      // @ts-ignore
-      window.google.charts.setOnLoadCallback(() => {
-        this.initApi();
-      });
-    };
-    script.src = 'https://www.gstatic.com/charts/loader.js';
-    body.appendChild(script);
-  }
+    this.minTimeSec = this.timelineBlocks[0].startSec;
+    this.maxTimeSec = this.timelineBlocks[0].endSec;
 
-  initApi(): void {
-    // @ts-ignore
-    this.visualization = window.google.visualization;
-
-    const container = document.getElementById(this.chartId);
-    this.dataTable = new this.visualization.DataTable();
-    this.dataTable.addColumn({ type: 'string', id: 'Position' });
-    this.dataTable.addColumn({ type: 'string', id: 'label placeholder'});
-    this.dataTable.addColumn({ type: 'string', role: 'tooltip' });
-    this.dataTable.addColumn({ type: 'date', id: 'Start' });
-    this.dataTable.addColumn({ type: 'date', id: 'End' });
-
-    this.dataTable.addRows(
-      this.timelineBlocks.map(block => {
-
-        const startHrs = Math.floor(block.startSec / 3600);
-        const startMinutes = Math.floor((block.startSec) / 60) - (60 * startHrs);
-        const startSecs = block.startSec - (3600 * startHrs) - (60 * startMinutes);
-
-        const endHrs = Math.floor(block.endSec / 3600);
-        const endMinutes = Math.floor((block.endSec) / 60) - (60 * endHrs);
-        const endSecs = block.endSec - (3600 * endHrs) - (60 * endMinutes);
-
-        return [
-          block.row,
-          null,
-          block.label,
-          new Date(0, 0, 0, startHrs, startMinutes, startSecs),
-          new Date(0, 0, 0, endHrs, endMinutes, endSecs)
-        ];
-      })
-    );
-
-    this.chart = new this.visualization.Timeline(container);
-    this.visualization.events.addListener(this.chart, 'select', () => {
-      let selectedRow = -1;
-      try {
-        selectedRow = this.chart.getSelection()[0].row;
-      } catch (e) {
-        // Nothing
-      }
-
-      if (selectedRow > -1) {
-        this.selectBeat.emit(this.timelineBlocks[selectedRow].id);
-      }
+    this.timelineBlocks.forEach((block) => {
+      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);
+      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);
     });
 
-    this.redraw(0);
+    const depthMap = new Map<number, PreppedTimelineBlock[]>();
+
+    this.timelineBlocks.forEach((block) => {
+      if (!depthMap.has(block.depth)) {
+        depthMap.set(block.depth, []);
+      }
+
+      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;
+      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;
+
+      let color = '#ccc';
+      switch (block.completeness) {
+        case Beat.Completeness.FINAL:
+          color = 'rgb(0, 128, 0)';
+          break;
+        case Beat.Completeness.POLISHED:
+          color = 'rgb(173, 255, 47)';
+          break;
+        case Beat.Completeness.INITIAL_DRAFT:
+          color = 'rgb(255, 255, 0)';
+          break;
+        case Beat.Completeness.BRAINSTORM:
+          color = 'rgb(255, 128, 0)';
+          break;
+        case Beat.Completeness.NOT_STARTED:
+          color = 'rgb(255, 0, 0)';
+          break;
+      }
+
+      depthMap.get(block.depth)?.push({
+        id: block.id,
+        width,
+        left,
+        color,
+        label: block.label
+      } as PreppedTimelineBlock);
+    });
+
+    const newRows: PreppedTimelineBlock[][] = [];
+
+    const allDepths = Array.from(depthMap.keys()).sort();
+    allDepths.forEach((depth) => {
+      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);
+    });
+
+    this.preppedTimelineBlockRows = newRows;
+
+    this.rebuildTimelineMarkers();
   }
 
-  redraw(timeout: number): void {
-    setTimeout(() => {
-      this.chart.draw(this.dataTable, {
-        /*tooltip: {
-          trigger: 'none'
-        }*/
-      });
-    }, timeout);
+  rebuildTimelineMarkers(): void {
+    const numMarkers = Math.round(this.zoomLevel / 25);
+    this.preppedTimelineMarkers = [];
+    for (let i = 0; i < numMarkers; i++) {
+      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;
+      const left = 100 * (i / numMarkers);
+      this.preppedTimelineMarkers.push({
+        left,
+        label: getDurationStr(time * 1000),
+      } as TimelineMarker);
+    }
   }
 
   zoomOut(): void {
-    this.currentWidth = Math.max(0.5 * this.currentWidth, this.chartWidth);
-    this.redraw(100);
+    this.zoomLevel = Math.max(100, this.zoomLevel / 2);
+    this.rebuildTimelineMarkers();
   }
 
   zoomIn(): void {
-    this.currentWidth = 2.0 * this.currentWidth;
-    this.redraw(100);
+    this.zoomLevel = 2.0 * this.zoomLevel;
+    this.rebuildTimelineMarkers();
+  }
+
+  formatPercentString(value: number): string {
+    return '' + value + '%';
   }
 
 }
