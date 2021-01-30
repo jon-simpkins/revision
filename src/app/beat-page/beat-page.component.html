@@ -1,10 +1,12 @@
 <div class="content-wrapper">
   <app-beat-nav
+    [collapsed]="beatNavCollapsed"
     [selectedBeatId]="selectedBeatId"
     [beatListView]="beatListView"
     (newBeat)="newBeat()"
     (selectBeat)="selectBeat($event)"
-    (deleteBeat)="deleteBeat()"></app-beat-nav>
+    (deleteBeat)="deleteBeat()"
+    (toggleCollapsed)="toggleBeatNavCollapsed($event)"></app-beat-nav>
 
   <div class="story-prose">
     <div class="button-row">
@@ -30,47 +32,6 @@
   </div>
 
   <ng-container *ngIf="!!selectedBeat">
-    <mat-tab-group
-      animationDuration="0ms"
-      [selectedIndex]="selectedTabIndex"
-      (selectedIndexChange)="tabChange($event)">
-      <mat-tab label="Structure / Brainstorm">
-        <app-beat-related-beat-nav
-          class="beat-nav"
-          [selectedBeatId]="selectedChildBeatId"
-          [brainstormListView]="brainstormListView"
-          [structureListView]="structureListView"
-          (newBeat)="newChildBeat($event)"
-          (selectBeat)="selectChildBeat($event)"
-          (moveBeat)="moveChildBeat($event)"
-          (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
-      </mat-tab>
-      <mat-tab label="New Structure">
-        <app-apply-structure-nav
-          [selectedTemplateId]="selectedTemplateUuid"
-          [structureTemplateListView]="structureTemplateListView"
-          [rescaledSelectedTemplate]="rescaledStructureTemplate"
-          (selectTemplate)="selectStructureTemplate($event)"
-          (applyTemplate)="applyStructureTemplate()"
-        ></app-apply-structure-nav>
-      </mat-tab>
-      <mat-tab label="Brainstorm">
-        <app-beat-brainstorm-template-nav
-          [selectedTemplateId]="selectedBrainstormTemplateUuid"
-          [selectedBrainstormTemplate]="selectedBrainstormTemplate"
-          [brainstormTemplateListView]="brainstormTemplateListView"
-          (selectTemplate)="selectBrainstormTemplate($event)"
-          (applyTemplate)="applyBrainstormTemplate()"
-        ></app-beat-brainstorm-template-nav>
-      </mat-tab>
-      <mat-tab label="Tag">
-        <app-apply-tag-nav
-        [tagMap]="tagMap"
-        [tagReferences]="selectedBeat?.tagReferences || []"
-        (updateTagUses)="updateTagUses($event)"></app-apply-tag-nav>
-      </mat-tab>
-    </mat-tab-group>
-
     <div
       *ngIf="!!selectedChildBeatId"
       class="story-prose">
@@ -85,6 +46,42 @@
         [beat]="selectedChildBeat"
         (onBeatUpdated)="onBeatUpdated($event)"></app-beat-prose-edit>
     </div>
+
+    <app-beat-action-nav
+      [selectedTabIndex]="selectedTabIndex"
+      (tabIndexChange)="tabChange($event)">
+      <app-beat-related-beat-nav
+        *ngIf="selectedTabIndex == 0"
+        class="beat-nav"
+        [selectedBeatId]="selectedChildBeatId"
+        [brainstormListView]="brainstormListView"
+        [structureListView]="structureListView"
+        (newBeat)="newChildBeat($event)"
+        (selectBeat)="selectChildBeat($event)"
+        (moveBeat)="moveChildBeat($event)"
+        (deleteBeat)="deleteChildBeat()"></app-beat-related-beat-nav>
+      <app-apply-structure-nav
+        *ngIf="selectedTabIndex == 1"
+        [selectedTemplateId]="selectedTemplateUuid"
+        [structureTemplateListView]="structureTemplateListView"
+        [rescaledSelectedTemplate]="rescaledStructureTemplate"
+        (selectTemplate)="selectStructureTemplate($event)"
+        (applyTemplate)="applyStructureTemplate()"
+      ></app-apply-structure-nav>
+      <app-beat-brainstorm-template-nav
+        *ngIf="selectedTabIndex == 2"
+        [selectedTemplateId]="selectedBrainstormTemplateUuid"
+        [selectedBrainstormTemplate]="selectedBrainstormTemplate"
+        [brainstormTemplateListView]="brainstormTemplateListView"
+        (selectTemplate)="selectBrainstormTemplate($event)"
+        (applyTemplate)="applyBrainstormTemplate()"
+      ></app-beat-brainstorm-template-nav>
+      <app-apply-tag-nav
+        *ngIf="selectedTabIndex == 3"
+        [tagMap]="tagMap"
+        [tagReferences]="selectedBeat?.tagReferences || []"
+        (updateTagUses)="updateTagUses($event)"></app-apply-tag-nav>
+    </app-beat-action-nav>
   </ng-container>
 
 </div>

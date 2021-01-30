@@ -1,0 +1,15 @@
+.action-row {
+  display: flex;
+
+  mat-select {
+    flex: 1;
+    margin: auto;
+  }
+  button {
+    margin: auto;
+  }
+}
+
+.action-wrapper {
+  width: 350px;
+}

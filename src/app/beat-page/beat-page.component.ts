@@ -22,6 +22,8 @@ export class BeatPageComponent implements OnInit, OnDestroy {
   beatListView: BeatMapView[] = [];
   beatMapViewSubscription = '';
 
+  beatNavCollapsed = false;
+
   selectedBeatId = '';
 
   parentListView: BeatMapView[] = [];
@@ -156,6 +158,9 @@ export class BeatPageComponent implements OnInit, OnDestroy {
         this.ref.markForCheck();
       });
       this.selectedBeat = await this.beatsService.getBeat(newUuid);
+      this.beatNavCollapsed = true;
+    } else {
+      this.beatNavCollapsed = false;
     }
 
     await this.router.navigate(['/beats', { id: newUuid }]);
@@ -401,5 +406,9 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     parentBeat.tagReferences = tagReferences;
 
     await this.beatsService.setBeat(parentBeat);
+  }
+
+  toggleBeatNavCollapsed(newValue: boolean): void {
+    this.beatNavCollapsed = newValue;
   }
 }

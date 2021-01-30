@@ -1,6 +1,6 @@
 <div class="left-rail" [class.collapsed]="collapsed">
   <div class="button-row">
-    <button mat-icon-button (click)="toggleCollapsed()">
+    <button mat-icon-button (click)="onToggleCollapsed()">
       <mat-icon>{{toggleIcon()}}</mat-icon>
     </button>
     <ng-container *ngIf="!collapsed">

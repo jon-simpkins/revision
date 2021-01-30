@@ -42,6 +42,7 @@ import { BeatBrainstormTemplateNavComponent } from './beat-brainstorm-template-n
 import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { BeatActionNavComponent } from './beat-action-nav/beat-action-nav.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -84,6 +85,7 @@ export const MaterialModules = [
     BeatBrainstormTemplateNavComponent,
     ApplyTagNavComponent,
     TimelineChartComponent,
+    BeatActionNavComponent,
   ],
   imports: [
     BrowserModule,

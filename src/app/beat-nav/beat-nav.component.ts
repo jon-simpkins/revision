@@ -16,13 +16,16 @@ export class BeatNavComponent implements OnInit {
   @Input()
   beatListView: BeatMapView[] = [];
 
+  @Input()
+  collapsed = false;
+
   @Output() newBeat = new EventEmitter<void>();
 
   @Output() selectBeat = new EventEmitter<string>();
 
   @Output() deleteBeat = new EventEmitter<void>();
 
-  collapsed = false;
+  @Output() toggleCollapsed = new EventEmitter<boolean>();
 
   constructor() { }
 
@@ -37,8 +40,8 @@ export class BeatNavComponent implements OnInit {
     return getDurationStr(value);
   }
 
-  toggleCollapsed(): void {
-    this.collapsed = !this.collapsed;
+  onToggleCollapsed(): void {
+    this.toggleCollapsed.emit(!this.collapsed);
   }
 
   toggleIcon(): string {

@@ -1,0 +1,15 @@
+<div class="action-row">
+  <mat-select *ngIf="!collapsed" [value]="selectedTabIndex" (valueChange)="onInputChange($event)">
+    <mat-option [value]="0">Beats</mat-option>
+    <mat-option [value]="1">New Structure</mat-option>
+    <mat-option [value]="2">New Brainstorm</mat-option>
+    <mat-option [value]="3">Tags</mat-option>
+  </mat-select>
+  <button mat-icon-button (click)="collapsed = !collapsed">
+    <mat-icon>{{collapsed ? 'chevron_left' : 'chevron_right'}}</mat-icon>
+  </button>
+</div>
+
+<div *ngIf="!collapsed" class="action-wrapper">
+  <ng-content></ng-content>
+</div>
