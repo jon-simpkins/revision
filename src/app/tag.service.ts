@@ -161,7 +161,7 @@ export class TagService {
       id: uuid,
       name: 'My new tag',
       description: 'Description goes here',
-      hasNumericValue: true,
+      hasNumericValue: false,
     });
 
     await this.setTag(newTag);
