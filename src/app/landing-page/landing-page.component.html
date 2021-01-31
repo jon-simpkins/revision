@@ -31,6 +31,20 @@
     <a routerLink="beats">Beats</a>
   </div>
 
+  <div class="story-list">
+    <button mat-stroked-button (click)="newStory()">
+      New Story
+    </button>
+    <button *ngIf="!!storyListView.length" mat-stroked-button (click)="randomStory()">
+      Random Story
+    </button>
+    <div *ngFor="let story of storyListView"
+         class="story"
+       (click)="navigateToStory(story.id)">
+      {{story.name}}
+    </div>
+  </div>
+
   <app-show-session-history></app-show-session-history>
 </div>
 

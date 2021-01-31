@@ -1,3 +1,15 @@
 .link-list a {
   display: block;
 }
+
+.story-list {
+  margin: 16px;
+  border: 1px solid #ccc;
+  padding: 16px;
+
+  .story {
+    margin-top: 8px;
+    color: blue;
+    cursor: pointer;
+  }
+}

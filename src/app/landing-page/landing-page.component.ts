@@ -1,5 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {MonolithicDataService} from '../monolithic-data.service';
+import {BeatMapView, BeatsService} from '../beats.service';
+import {Router} from '@angular/router';
 
 // Static landing page component.
 @Component({
@@ -12,6 +14,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   workspaceName = '';
   workspaceNameSubscription = '';
 
+  storyListView: BeatMapView[] = [];
+
   scriptLength = 110;
   pagesPerSprint = 0.25;
   splitFactor = 3.5;
@@ -20,7 +24,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private monolithicDataService: MonolithicDataService,
-    private ref: ChangeDetectorRef
+    private beatsService: BeatsService,
+    private ref: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -28,6 +34,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       this.workspaceName = workspaceName;
       this.ref.markForCheck();
     });
+
+    const beatMap = await this.beatsService.getBeatMap();
+    this.storyListView = Array.from(beatMap.values())
+      .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats
+      .sort((a, b) => {
+        return b.lastUpdated - a.lastUpdated;
+      });
+
+    this.ref.markForCheck();
   }
 
   ngOnDestroy(): void {
@@ -77,5 +92,19 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     cost += Math.pow(splitFactor, treeDepth);
 
     return cost;
+  }
+
+  async newStory(): Promise<void> {
+    const newId = await this.beatsService.createNewBeat();
+    await this.navigateToStory(newId);
+  }
+
+  async randomStory(): Promise<void> {
+    const randomId = Math.floor(Math.random() * this.storyListView.length);
+    await this.navigateToStory(this.storyListView[randomId].id);
+  }
+
+  async navigateToStory(beatId: string): Promise<void> {
+    await this.router.navigate(['/read', { id: beatId }]);
   }
 }
