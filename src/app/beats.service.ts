@@ -4,6 +4,7 @@ import {Beat, IBeat} from '../protos';
 import {epochMsToTimestamp, timestampToEpochMs} from './timestamp-helpers';
 import {v4 as uuidv4} from 'uuid';
 import {TimelineBlock} from './timeline-chart/timeline-chart.component';
+import TagReference = Beat.TagReference;
 
 export interface BeatMapView {
   id: string;
@@ -286,7 +287,8 @@ export class BeatsService {
       label: beat.synopsis,
       startSec: currentStartSec,
       endSec: currentStartSec + (beat.intendedDurationMs / 1000),
-      completeness: beat.completeness
+      completeness: beat.completeness,
+      tagReferences: beat.tagReferences as TagReference[]
     } as TimelineBlock;
 
     currentTimelineView.push(beatTimelineView);

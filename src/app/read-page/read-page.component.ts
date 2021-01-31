@@ -2,6 +2,8 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BeatReadView, BeatsService} from '../beats.service';
 import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
+import {Tag} from '../../protos';
+import {TagService} from '../tag.service';
 
 @Component({
   selector: 'app-read-page',
@@ -13,9 +15,11 @@ export class ReadPageComponent implements OnInit {
   selectedBeatId = '';
   readView: BeatReadView[] = [];
   timelineView: TimelineBlock[] = [];
+  relevantTags: Tag[] = [];
 
   constructor(
     private beatsService: BeatsService,
+    private tagService: TagService,
     private ref: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router) { }
@@ -34,6 +38,15 @@ export class ReadPageComponent implements OnInit {
   async selectBeat(selectedId: string): Promise<void> {
     this.readView = await this.beatsService.fetchReadView(selectedId);
     this.timelineView = await this.beatsService.fetchTimelineView(selectedId);
+
+    const allReferencedTagIds = new Set<string>();
+    this.timelineView.forEach((block) => {
+      block.tagReferences.forEach((reference) => {
+        allReferencedTagIds.add(reference.tagId);
+      });
+    });
+
+    this.relevantTags = await this.tagService.getSpecificTags(Array.from(allReferencedTagIds.keys()));
 
     this.selectedBeatId = selectedId;
     this.ref.markForCheck();

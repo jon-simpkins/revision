@@ -71,7 +71,7 @@ export class ApplyTagNavComponent implements OnInit, OnChanges {
 
         return {
           label: value.label,
-          value: index
+          value: index + 1 // 0 is reserved for "undecided"
         } as EnumOption;
       }).filter(value => !!value.label);
 

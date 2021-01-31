@@ -30,3 +30,11 @@
     }
   }
 }
+
+.timeline-controls {
+  display: flex;
+  mat-select {
+    flex: 1;
+    margin: auto;
+  }
+}

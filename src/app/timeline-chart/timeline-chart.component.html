@@ -1,9 +1,17 @@
-<button mat-button (click)="zoomOut()" [disabled]="zoomLevel === 100">
-  <mat-icon>zoom_out</mat-icon>
-</button>
-<button mat-button (click)="zoomIn()">
-  <mat-icon>zoom_in</mat-icon>
-</button>
+<div class="timeline-controls">
+  <button mat-button (click)="zoomOut()" [disabled]="zoomLevel === 100">
+    <mat-icon>zoom_out</mat-icon>
+  </button>
+  <button mat-button (click)="zoomIn()">
+    <mat-icon>zoom_in</mat-icon>
+  </button>
+  <mat-select [value]="'none'" (valueChange)="tagSelectionChange($event)">
+    <mat-option [value]="'none'">No tag</mat-option>
+    <mat-option *ngFor="let tagOption of relevantTags" [value]="tagOption.id">
+      {{tagOption.name}}
+    </mat-option>
+  </mat-select>
+</div>
 <div class="timeline-wrapper">
   <div
     *ngFor="let row of preppedTimelineBlockRows"

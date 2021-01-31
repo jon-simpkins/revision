@@ -37,6 +37,19 @@ export class TagService {
     return allTags;
   }
 
+  async getSpecificTags(tagIds: string[]): Promise<Tag[]> {
+    const tags: Tag[] = [];
+
+    for (const tagId of tagIds) {
+      const fetchedTag = await this.getTag(tagId);
+
+      if (!!fetchedTag) {
+        tags.push(fetchedTag);
+      }
+    }
+    return tags;
+  }
+
   async getTagMap(): Promise<Map<string, Tag>> {
     return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();
   }

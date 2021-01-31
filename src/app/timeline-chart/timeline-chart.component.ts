@@ -1,7 +1,8 @@
 import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';
 import {getDurationStr} from '../duration-helpers';
-import {Beat} from '../../protos';
+import {Beat, Tag} from '../../protos';
 import Completeness = Beat.Completeness;
+import TagReference = Beat.TagReference;
 
 export interface TimelineBlock {
   id: string;
@@ -10,6 +11,7 @@ export interface TimelineBlock {
   label: string;
   depth: number;
   completeness: Completeness;
+  tagReferences: TagReference[];
 }
 
 interface PreppedTimelineBlock {
@@ -35,6 +37,9 @@ export class TimelineChartComponent implements OnInit, OnChanges {
   @Input()
   timelineBlocks: TimelineBlock[] = [];
 
+  @Input()
+  relevantTags: Tag[] = [];
+
   @Output() selectBeat = new EventEmitter<string>();
 
   zoomLevel = 100;
@@ -43,6 +48,9 @@ export class TimelineChartComponent implements OnInit, OnChanges {
   preppedTimelineMarkers: TimelineMarker[] = [];
   minTimeSec = 0;
   maxTimeSec = 0;
+
+  selectedTagId = '';
+  selectedTag: Tag|null = null;
 
   constructor() {}
 
@@ -77,31 +85,51 @@ export class TimelineChartComponent implements OnInit, OnChanges {
       const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;
       const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;
 
+      const relevantTagRef = block.tagReferences
+        .filter((reference) => reference.tagId === this.selectedTagId)[0] || null;
+
       let color = '#ccc';
-      switch (block.completeness) {
-        case Beat.Completeness.FINAL:
-          color = 'rgb(0, 128, 0)';
-          break;
-        case Beat.Completeness.POLISHED:
-          color = 'rgb(173, 255, 47)';
-          break;
-        case Beat.Completeness.INITIAL_DRAFT:
-          color = 'rgb(255, 255, 0)';
-          break;
-        case Beat.Completeness.BRAINSTORM:
-          color = 'rgb(255, 128, 0)';
-          break;
-        case Beat.Completeness.NOT_STARTED:
-          color = 'rgb(255, 0, 0)';
-          break;
+      if (!this.selectedTag) {
+        switch (block.completeness) {
+          case Beat.Completeness.FINAL:
+            color = 'rgb(0, 128, 0)';
+            break;
+          case Beat.Completeness.POLISHED:
+            color = 'rgb(173, 255, 47)';
+            break;
+          case Beat.Completeness.INITIAL_DRAFT:
+            color = 'rgb(255, 255, 0)';
+            break;
+          case Beat.Completeness.BRAINSTORM:
+            color = 'rgb(255, 128, 0)';
+            break;
+          case Beat.Completeness.NOT_STARTED:
+            color = 'rgb(255, 0, 0)';
+            break;
+        }
+      } else {
+        if (!!relevantTagRef) {
+          color = '#ff0000';
+        }
       }
+
+      let label = block.label;
+      if (!!relevantTagRef && (relevantTagRef.numericValue || relevantTagRef?.enumValue)) {
+        if (relevantTagRef.numericValue) {
+          label += ' (' + relevantTagRef.numericValue + ')';
+        }
+        if (relevantTagRef.enumValue) {
+          label += ' (' + (this.selectedTag as Tag).enumValues[relevantTagRef.enumValue - 1].label + ')';
+        }
+      }
+
 
       depthMap.get(block.depth)?.push({
         id: block.id,
         width,
         left,
         color,
-        label: block.label
+        label
       } as PreppedTimelineBlock);
     });
 
@@ -144,4 +172,9 @@ export class TimelineChartComponent implements OnInit, OnChanges {
     return '' + value + '%';
   }
 
+  tagSelectionChange(value: string): void {
+    this.selectedTagId = value;
+    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;
+    this.rebuildTimeline();
+  }
 }
