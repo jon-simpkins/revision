@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BeatReadView, BeatsService} from '../beats.service';
 import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
-import {Tag} from '../../protos';
+import {Beat, Tag} from '../../protos';
 import {TagService} from '../tag.service';
 
 @Component({
@@ -56,4 +56,48 @@ export class ReadPageComponent implements OnInit {
     await this.router.navigate(['/beats', { id: selectedId }]);
   }
 
+  async selectRandomBeat(): Promise<void> {
+    let sumScore = 0;
+    this.timelineView.forEach((block) => {
+      sumScore += this.getBlockScore(block);
+    });
+
+    const cutoff = Math.random() * sumScore;
+    console.log([sumScore, cutoff]);
+
+    let rollingSum = 0;
+    for (const block of this.timelineView) {
+      rollingSum += this.getBlockScore(block);
+      if (rollingSum >= cutoff) {
+        await this.timelineSelectBeat(block.id);
+        return;
+      }
+    }
+  }
+
+  getBlockScore(block: TimelineBlock): number {
+    const durationScore = Math.ceil((block.endSec - block.startSec) / 60);
+    let completenessScore = 0;
+    switch (block.completeness) {
+      case Beat.Completeness.NOT_STARTED:
+        completenessScore = 1e3;
+        break;
+      case Beat.Completeness.BRAINSTORM:
+        completenessScore = 1e2;
+        break;
+      case Beat.Completeness.INITIAL_DRAFT:
+        completenessScore = 1e1;
+        break;
+      case Beat.Completeness.POLISHED:
+        completenessScore = 1;
+        break;
+      case Beat.Completeness.FINAL:
+        completenessScore = 0;
+        break;
+    }
+
+    console.log(durationScore * completenessScore);
+
+    return durationScore * completenessScore;
+  }
 }
