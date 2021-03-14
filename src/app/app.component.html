@@ -1,17 +1,25 @@
-<div class="header">
-  <h1>
-    <a routerLink="/" routerLinkActive="active">
-      Revision
+<nb-layout>
+
+  <nb-layout-header fixed>
+    <h1>
+      <a routerLink="/" routerLinkActive="active">
+        Revision
+      </a>
+    </h1>
+
+    <app-header-timer class="timer"></app-header-timer>
+
+    <a routerLink="/data" routerLinkActive="active">
+      Data
     </a>
-  </h1>
+  </nb-layout-header>
 
-  <app-header-timer class="timer"></app-header-timer>
+  <nb-layout-column>
+    <router-outlet></router-outlet>
+  </nb-layout-column>
 
-  <a routerLink="/data" routerLinkActive="active">
-    Data
-  </a>
-</div>
+  <nb-layout-footer fixed>
+  <!-- Insert footer here -->
+  </nb-layout-footer>
 
-<div class="body">
-  <router-outlet></router-outlet>
-</div>
+</nb-layout>

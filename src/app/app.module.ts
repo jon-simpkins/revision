@@ -43,6 +43,8 @@ import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { BeatActionNavComponent } from './beat-action-nav/beat-action-nav.component';
+import { NbThemeModule, NbLayoutModule } from '@nebular/theme';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -93,6 +95,10 @@ export const MaterialModules = [
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
     ...MaterialModules,
     FormsModule,
+    BrowserAnimationsModule,
+    NbThemeModule.forRoot({ name: 'corporate' }),
+    NbLayoutModule,
+    NbEvaIconsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
