@@ -288,10 +288,10 @@
         },
         {
             "name": "EnumOption",
-            "id": "interface-EnumOption-caafa6495653958e9a33f798b053a27d",
+            "id": "interface-EnumOption-d739302a6c077eb55ce6a1768f5d7877",
             "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index + 1 // 0 is reserved for \"undecided\"\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
             "properties": [
                 {
                     "name": "label",
@@ -314,45 +314,45 @@
         },
         {
             "name": "PreppedTimelineBlock",
-            "id": "interface-PreppedTimelineBlock-96a46af6462c98e972baf5d01d66d3ae",
+            "id": "interface-PreppedTimelineBlock-daa40ad4ca0be3da7b515584801d85b0",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport {TagListView} from '../tag.service';\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: TagListView[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n        case Beat.Completeness.BRAINSTORM:\n          color = 'rgb(255, 128, 0)';\n          break;\n        case Beat.Completeness.NOT_STARTED:\n          color = 'rgb(255, 0, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat, Tag} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: Tag[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  selectedTagId = '';\n  selectedTag: Tag|null = null;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      const relevantTagRef = block.tagReferences\n        .filter((reference) => reference.tagId === this.selectedTagId)[0] || null;\n\n      let color = '#ccc';\n      if (!this.selectedTag) {\n        switch (block.completeness) {\n          case Beat.Completeness.FINAL:\n            color = 'rgb(0, 128, 0)';\n            break;\n          case Beat.Completeness.POLISHED:\n            color = 'rgb(173, 255, 47)';\n            break;\n          case Beat.Completeness.INITIAL_DRAFT:\n            color = 'rgb(255, 255, 0)';\n            break;\n          case Beat.Completeness.BRAINSTORM:\n            color = 'rgb(255, 128, 0)';\n            break;\n          case Beat.Completeness.NOT_STARTED:\n            color = 'rgb(255, 0, 0)';\n            break;\n        }\n      } else {\n        if (!!relevantTagRef) {\n          color = '#ff0000';\n        }\n      }\n\n      let label = block.label;\n      if (!!relevantTagRef && (relevantTagRef.numericValue || relevantTagRef?.enumValue)) {\n        if (relevantTagRef.numericValue) {\n          label += ' (' + relevantTagRef.numericValue + ')';\n        }\n        if (relevantTagRef.enumValue) {\n          label += ' (' + (this.selectedTag as Tag).enumValues[relevantTagRef.enumValue - 1].label + ')';\n        }\n      }\n\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n  tagSelectionChange(value: string): void {\n    this.selectedTagId = value;\n    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;\n    this.rebuildTimeline();\n  }\n}\n",
             "properties": [
                 {
                     "name": "color",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 22
+                    "line": 21
                 },
                 {
                     "name": "id",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 18
                 },
                 {
                     "name": "label",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 23
+                    "line": 22
                 },
                 {
                     "name": "left",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 21
+                    "line": 20
                 },
                 {
                     "name": "width",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 20
+                    "line": 19
                 }
             ],
             "indexSignatures": [],
@@ -453,10 +453,10 @@
         },
         {
             "name": "TagListView",
-            "id": "interface-TagListView-b66607b5a58af8ae2cec62e5cb7664c2",
+            "id": "interface-TagListView-4118a57a39630aa9877d8643e2f7b73e",
             "file": "src/app/tag.service.ts",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: false,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getSpecificTags(tagIds: string[]): Promise<Tag[]> {\n    const tags: Tag[] = [];\n\n    for (const tagId of tagIds) {\n      const fetchedTag = await this.getTag(tagId);\n\n      if (!!fetchedTag) {\n        tags.push(fetchedTag);\n      }\n    }\n    return tags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: false,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "properties": [
                 {
                     "name": "id",
@@ -505,59 +505,59 @@
         },
         {
             "name": "TimelineBlock",
-            "id": "interface-TimelineBlock-96a46af6462c98e972baf5d01d66d3ae",
+            "id": "interface-TimelineBlock-daa40ad4ca0be3da7b515584801d85b0",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport {TagListView} from '../tag.service';\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: TagListView[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n        case Beat.Completeness.BRAINSTORM:\n          color = 'rgb(255, 128, 0)';\n          break;\n        case Beat.Completeness.NOT_STARTED:\n          color = 'rgb(255, 0, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat, Tag} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: Tag[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  selectedTagId = '';\n  selectedTag: Tag|null = null;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      const relevantTagRef = block.tagReferences\n        .filter((reference) => reference.tagId === this.selectedTagId)[0] || null;\n\n      let color = '#ccc';\n      if (!this.selectedTag) {\n        switch (block.completeness) {\n          case Beat.Completeness.FINAL:\n            color = 'rgb(0, 128, 0)';\n            break;\n          case Beat.Completeness.POLISHED:\n            color = 'rgb(173, 255, 47)';\n            break;\n          case Beat.Completeness.INITIAL_DRAFT:\n            color = 'rgb(255, 255, 0)';\n            break;\n          case Beat.Completeness.BRAINSTORM:\n            color = 'rgb(255, 128, 0)';\n            break;\n          case Beat.Completeness.NOT_STARTED:\n            color = 'rgb(255, 0, 0)';\n            break;\n        }\n      } else {\n        if (!!relevantTagRef) {\n          color = '#ff0000';\n        }\n      }\n\n      let label = block.label;\n      if (!!relevantTagRef && (relevantTagRef.numericValue || relevantTagRef?.enumValue)) {\n        if (relevantTagRef.numericValue) {\n          label += ' (' + relevantTagRef.numericValue + ')';\n        }\n        if (relevantTagRef.enumValue) {\n          label += ' (' + (this.selectedTag as Tag).enumValues[relevantTagRef.enumValue - 1].label + ')';\n        }\n      }\n\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n  tagSelectionChange(value: string): void {\n    this.selectedTagId = value;\n    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;\n    this.rebuildTimeline();\n  }\n}\n",
             "properties": [
                 {
                     "name": "completeness",
                     "type": "Completeness",
                     "optional": false,
                     "description": "",
-                    "line": 14
+                    "line": 13
                 },
                 {
                     "name": "depth",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 12
                 },
                 {
                     "name": "endSec",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 11
+                    "line": 10
                 },
                 {
                     "name": "id",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 9
+                    "line": 8
                 },
                 {
                     "name": "label",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 11
                 },
                 {
                     "name": "startSec",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 10
+                    "line": 9
                 },
                 {
                     "name": "tagReferences",
                     "type": "TagReference[]",
                     "optional": false,
                     "description": "",
-                    "line": 15
+                    "line": 14
                 }
             ],
             "indexSignatures": [],
@@ -566,24 +566,24 @@
         },
         {
             "name": "TimelineMarker",
-            "id": "interface-TimelineMarker-96a46af6462c98e972baf5d01d66d3ae",
+            "id": "interface-TimelineMarker-daa40ad4ca0be3da7b515584801d85b0",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport {TagListView} from '../tag.service';\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: TagListView[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n        case Beat.Completeness.BRAINSTORM:\n          color = 'rgb(255, 128, 0)';\n          break;\n        case Beat.Completeness.NOT_STARTED:\n          color = 'rgb(255, 0, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat, Tag} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: Tag[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  selectedTagId = '';\n  selectedTag: Tag|null = null;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      const relevantTagRef = block.tagReferences\n        .filter((reference) => reference.tagId === this.selectedTagId)[0] || null;\n\n      let color = '#ccc';\n      if (!this.selectedTag) {\n        switch (block.completeness) {\n          case Beat.Completeness.FINAL:\n            color = 'rgb(0, 128, 0)';\n            break;\n          case Beat.Completeness.POLISHED:\n            color = 'rgb(173, 255, 47)';\n            break;\n          case Beat.Completeness.INITIAL_DRAFT:\n            color = 'rgb(255, 255, 0)';\n            break;\n          case Beat.Completeness.BRAINSTORM:\n            color = 'rgb(255, 128, 0)';\n            break;\n          case Beat.Completeness.NOT_STARTED:\n            color = 'rgb(255, 0, 0)';\n            break;\n        }\n      } else {\n        if (!!relevantTagRef) {\n          color = '#ff0000';\n        }\n      }\n\n      let label = block.label;\n      if (!!relevantTagRef && (relevantTagRef.numericValue || relevantTagRef?.enumValue)) {\n        if (relevantTagRef.numericValue) {\n          label += ' (' + relevantTagRef.numericValue + ')';\n        }\n        if (relevantTagRef.enumValue) {\n          label += ' (' + (this.selectedTag as Tag).enumValues[relevantTagRef.enumValue - 1].label + ')';\n        }\n      }\n\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n  tagSelectionChange(value: string): void {\n    this.selectedTagId = value;\n    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;\n    this.rebuildTimeline();\n  }\n}\n",
             "properties": [
                 {
                     "name": "label",
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 28
+                    "line": 27
                 },
                 {
                     "name": "left",
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 27
+                    "line": 26
                 }
             ],
             "indexSignatures": [],
@@ -2430,7 +2430,7 @@
         },
         {
             "name": "TagService",
-            "id": "injectable-TagService-b66607b5a58af8ae2cec62e5cb7664c2",
+            "id": "injectable-TagService-4118a57a39630aa9877d8643e2f7b73e",
             "file": "src/app/tag.service.ts",
             "properties": [],
             "methods": [
@@ -2445,7 +2445,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 122,
                     "jsdoctags": [
                         {
                             "name": "subscription",
@@ -2462,7 +2462,7 @@
                     "optional": false,
                     "returnType": "Promise<string>",
                     "typeParameters": [],
-                    "line": 157,
+                    "line": 170,
                     "modifierKind": [
                         120
                     ]
@@ -2478,7 +2478,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 91,
+                    "line": 104,
                     "modifierKind": [
                         120
                     ],
@@ -2509,9 +2509,34 @@
                     "optional": false,
                     "returnType": "Promise<TagListView[]>",
                     "typeParameters": [],
-                    "line": 48,
+                    "line": 61,
                     "modifierKind": [
                         120
+                    ]
+                },
+                {
+                    "name": "getSpecificTags",
+                    "args": [
+                        {
+                            "name": "tagIds",
+                            "type": "string[]"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<Tag[]>",
+                    "typeParameters": [],
+                    "line": 40,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "tagIds",
+                            "type": "string[]",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
                     ]
                 },
                 {
@@ -2525,7 +2550,7 @@
                     "optional": false,
                     "returnType": "Promise<Tag | null>",
                     "typeParameters": [],
-                    "line": 56,
+                    "line": 69,
                     "modifierKind": [
                         120
                     ],
@@ -2550,7 +2575,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 52,
+                    "line": 65,
                     "jsdoctags": [
                         {
                             "name": "uuid",
@@ -2567,7 +2592,7 @@
                     "optional": false,
                     "returnType": "Promise<Map<string, Tag>>",
                     "typeParameters": [],
-                    "line": 40,
+                    "line": 53,
                     "modifierKind": [
                         120
                     ]
@@ -2578,7 +2603,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 124,
+                    "line": 137,
                     "modifierKind": [
                         120
                     ]
@@ -2594,7 +2619,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 132,
+                    "line": 145,
                     "modifierKind": [
                         120
                     ],
@@ -2619,7 +2644,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 113,
+                    "line": 126,
                     "modifierKind": [
                         120
                     ],
@@ -2649,7 +2674,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 140,
+                    "line": 153,
                     "modifierKind": [
                         120
                     ],
@@ -2682,7 +2707,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 44,
+                    "line": 57,
                     "modifierKind": [
                         120
                     ],
@@ -2717,7 +2742,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 81,
+                    "line": 94,
                     "jsdoctags": [
                         {
                             "name": "tagId",
@@ -2758,7 +2783,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 69,
+                    "line": 82,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -2792,7 +2817,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 75,
+                    "line": 88,
                     "jsdoctags": [
                         {
                             "name": "handler",
@@ -2811,7 +2836,7 @@
                 }
             ],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: false,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { v4 as uuidv4 } from 'uuid';\nimport {StorageService} from './storage.service';\nimport {ITag, Tag} from '../protos';\n\n// Minimal details about a template to show in list view\nexport interface TagListView {\n  id: string;\n  name: string;\n}\n\nconst ALL_TAG_LIST_KEY = 'allTagList';\nconst ALL_TAG_MAP_KEY = 'allTagMap';\nconst TAG_KEY_PREFIX = 'tag-';\n\n@Injectable({\n  providedIn: 'root'\n})\nexport class TagService {\n\n  constructor(private storageService: StorageService) { }\n\n  async getAllTags(): Promise<Tag[]> {\n    const allEntries = await this.getAllTagsListView();\n\n    const allTags: Tag[] = [];\n\n    for (const entry of allEntries) {\n      const fetchedTag = await this.getTag(entry.id);\n      if (fetchedTag != null) {\n        allTags.push(\n          fetchedTag\n        );\n      }\n    }\n\n    return allTags;\n  }\n\n  async getSpecificTags(tagIds: string[]): Promise<Tag[]> {\n    const tags: Tag[] = [];\n\n    for (const tagId of tagIds) {\n      const fetchedTag = await this.getTag(tagId);\n\n      if (!!fetchedTag) {\n        tags.push(fetchedTag);\n      }\n    }\n    return tags;\n  }\n\n  async getTagMap(): Promise<Map<string, Tag>> {\n    return (await this.storageService.get(ALL_TAG_MAP_KEY) as Map<string, Tag>) || new Map<string, Tag>();\n  }\n\n  async setTagMap(tagMap: Map<string, Tag>): Promise<void> {\n    return await this.storageService.set(ALL_TAG_MAP_KEY, tagMap, true);\n  }\n\n  async getAllTagsListView(): Promise<TagListView[]> {\n    return (await this.storageService.get(ALL_TAG_LIST_KEY) || []) as TagListView[];\n  }\n\n  getTagKey(uuid: string): string {\n    return TAG_KEY_PREFIX + uuid;\n  }\n\n  async getTag(uuid: string): Promise<Tag|null> {\n    const fetchedData = (await this.storageService.get(this.getTagKey(uuid))) as Uint8Array;\n\n    if (!fetchedData) {\n      console.error('Could not find structure template: ' + uuid);\n      return null;\n    }\n\n    return Tag.decode(\n      fetchedData\n    );\n  }\n\n  subscribeToTagListView(handler: (newTagListView: TagListView[]) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_LIST_KEY, (fetchedValue) => {\n      handler((fetchedValue || []) as TagListView[]);\n    });\n  }\n\n  subscribeToTagMapView(handler: (newTagMapView: Map<string, Tag>) => void): string {\n    return this.storageService.generateSubscription(ALL_TAG_MAP_KEY, (fetchedValue) => {\n      handler(fetchedValue || new Map<string, Tag>());\n    });\n  }\n\n  subscribeToTag(tagId: string, handler: (newTag: Tag|null) => void): string {\n    return this.storageService.generateSubscription(this.getTagKey(tagId), (fetchedValue) => {\n      handler(\n        Tag.decode(\n          fetchedValue as Uint8Array\n        )\n      );\n    });\n  }\n\n  async deleteTag(tagId: string): Promise<void> {\n    await this.storageService.delete(\n      this.getTagKey(tagId),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.delete(tagId);\n    await this.setTagMap(tagMap);\n\n    const listViewEligible = (await this.getAllTagsListView())\n      .filter((tagListView) => {\n        return tagListView.id !== tagId;\n      });\n\n    await this.setAllTagsListView(listViewEligible);\n  }\n\n  cancelSubscription(subscription: string): void {\n    this.storageService.cancelSubscription(subscription);\n  }\n\n  async setAllTagsListView(tags: ITag[]): Promise<void> {\n    const listView = tags.map((tag: ITag) => {\n      return {\n        id: tag.id,\n        name: tag.name,\n      } as TagListView;\n    });\n\n    await this.storageService.set(ALL_TAG_LIST_KEY, listView, true);\n  }\n\n  async refreshAllTagsListView(): Promise<void> {\n    const allTags = await this.getAllTags();\n\n    await this.setAllTagsListView(\n      allTags\n    );\n  }\n\n  async setAllTags(tags: ITag[]): Promise<void> {\n    await this.setAllTagsListView(tags);\n\n    for (const tag of tags) {\n      await this.setTag(tag as Tag);\n    }\n  }\n\n  async setTag(tag: Tag, affectsListView: boolean = false): Promise<void> {\n    await this.storageService.set(\n      this.getTagKey(tag.id),\n      Tag.encode(tag).finish(),\n      true\n    );\n\n    const tagMap = await this.getTagMap();\n    tagMap.set(tag.id, tag);\n    await this.setTagMap(tagMap);\n\n    if (affectsListView) {\n      await this.refreshAllTagsListView();\n    }\n  }\n\n  // Creates a new structure template, and returns the uuid of the new entry\n  async createNewTag(): Promise<string> {\n    const uuid = uuidv4();\n\n    const newTag = Tag.create({\n      id: uuid,\n      name: 'My new tag',\n      description: 'Description goes here',\n      hasNumericValue: false,\n    });\n\n    await this.setTag(newTag);\n\n    const allTags = await this.getAllTags();\n    allTags.push(newTag);\n\n    await this.setAllTagsListView(allTags);\n\n    return uuid;\n  }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -3094,12 +3119,12 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "\n:host {\n  display: flex;\n  flex-flow: column;\n  height: 100%;\n}\n\n.header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  .timer {\n    flex: 1;\n    margin: auto;\n  }\n\n  a {\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n  flex: 1;\n}\n",
+                    "data": "\n:host {\n  display: flex;\n  flex-flow: column;\n  height: 100%;\n}\n\nnb-layout-header {\n  border-bottom: 1px solid black;\n  display: flex;\n  padding: 0 8px;\n  vertical-align: middle;\n\n  h1 {\n    flex: 1;\n    margin: 8px 0;\n  }\n\n  .timer {\n    flex: 1;\n    margin: auto;\n  }\n\n  a {\n    margin: auto;\n    padding: 0 8px;\n  }\n}\n\n.body {\n  margin: 8px 32px;\n  flex: 1;\n}\n\nnb-layout-column {\n  padding: 0 !important;\n}\n",
                     "styleUrl": "./app.component.scss"
                 }
             ],
             "stylesData": "",
-            "templateData": "<div class=\"header\">\n  <h1>\n    <a routerLink=\"/\" routerLinkActive=\"active\">\n      Revision\n    </a>\n  </h1>\n\n  <app-header-timer class=\"timer\"></app-header-timer>\n\n  <a routerLink=\"/data\" routerLinkActive=\"active\">\n    Data\n  </a>\n</div>\n\n<div class=\"body\">\n  <router-outlet></router-outlet>\n</div>\n"
+            "templateData": "<nb-layout>\n\n  <nb-layout-header fixed>\n    <h1>\n      <a routerLink=\"/\" routerLinkActive=\"active\">\n        Revision\n      </a>\n    </h1>\n\n    <app-header-timer class=\"timer\"></app-header-timer>\n\n    <a routerLink=\"/data\" routerLinkActive=\"active\">\n      Data\n    </a>\n  </nb-layout-header>\n\n  <nb-layout-column>\n    <router-outlet></router-outlet>\n  </nb-layout-column>\n</nb-layout>\n"
         },
         {
             "name": "ApplyStructureNavComponent",
@@ -3220,7 +3245,7 @@
         },
         {
             "name": "ApplyTagNavComponent",
-            "id": "component-ApplyTagNavComponent-caafa6495653958e9a33f798b053a27d",
+            "id": "component-ApplyTagNavComponent-d739302a6c077eb55ce6a1768f5d7877",
             "file": "src/app/apply-tag-nav/apply-tag-nav.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -3513,7 +3538,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges} from '@angular/core';\nimport {Beat, Tag} from '../../protos';\nimport TagReference = Beat.TagReference;\nimport EnumValue = Tag.EnumValue;\nimport ITagReference = Beat.ITagReference;\n\nimport {debounce} from 'debounce';\n\ninterface EnumOption {\n  value: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-apply-tag-nav',\n  templateUrl: './apply-tag-nav.component.html',\n  styleUrls: ['./apply-tag-nav.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class ApplyTagNavComponent implements OnInit, OnChanges {\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  @Input()\n  tagMap: Map<string, Tag>|null = null;\n\n  @Input()\n  tagReferences: ITagReference[] = [];\n\n  @Output() updateTagUses = new EventEmitter<ITagReference[]>();\n\n  remainingTagOptions: Tag[] = [];\n  alreadyReferencedTagIds: Set<string> = new Set<string>();\n  enumOptionsMap: Map<string, EnumOption[]> = new Map<string, EnumOption[]>();\n\n  selectedOptionId = '';\n\n  numericChange = debounce((tagId: string|undefined|null, inputEvent: any) => {\n    const newValue = inputEvent.target.value as number;\n\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.numericValue = newValue;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }, 250);\n\n  ngOnInit(): void {\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildRemainingTagOptions();\n\n    this.enumOptionsMap = new Map<string, EnumOption[]>();\n\n    this.tagMap?.forEach((tag) => {\n      const enumValues = tag?.enumValues as EnumValue[] || [];\n\n      const enumOptions = enumValues.map((value, index) => {\n        if (value.isDeprecated) {\n          return {} as EnumOption;\n        }\n\n        return {\n          label: value.label,\n          value: index + 1 // 0 is reserved for \"undecided\"\n        } as EnumOption;\n      }).filter(value => !!value.label);\n\n      this.enumOptionsMap.set(tag.id, enumOptions);\n    });\n\n    this.ref.markForCheck();\n  }\n\n  rebuildRemainingTagOptions(): void {\n    this.alreadyReferencedTagIds = new Set<string>();\n    this.tagReferences.forEach((reference) => {\n      this.alreadyReferencedTagIds.add(reference.tagId as string);\n    });\n\n    this.remainingTagOptions = [];\n    this.tagMap?.forEach((tag) => {\n      if (!this.alreadyReferencedTagIds.has(tag.id)) {\n        this.remainingTagOptions.push(tag);\n      }\n    });\n  }\n\n  selectOption(newId: string): void {\n    this.selectedOptionId = newId;\n  }\n\n  addTag(): void {\n    this.tagReferences.push({\n      tagId: this.selectedOptionId,\n    } as TagReference);\n\n    this.selectOption('');\n    this.rebuildRemainingTagOptions();\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  getTagName(tagId: string|undefined|null): string {\n    const tag = this.tagMap?.get(tagId as string) as Tag;\n\n    return tag.name;\n  }\n\n  dereferenceTag(tagId: string|undefined|null): void {\n    this.tagReferences = this.tagReferences.filter((reference) => {\n      return reference.tagId !== tagId;\n    });\n\n    this.rebuildRemainingTagOptions();\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n\n  emitReferenceUpdate(): void {\n    this.updateTagUses.emit(this.tagReferences);\n  }\n\n  showNumericInput(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.hasNumericValue;\n  }\n\n  showEnumSelect(tagId: string|undefined|null): boolean {\n    const tag = this.tagMap?.get(tagId as string);\n    return !!tag?.enumValues?.length;\n  }\n\n  getEnumOptions(tagId: string|undefined|null): EnumOption[] {\n    return this.enumOptionsMap.get(tagId as string) || [];\n  }\n\n  enumChange(tagId: string|undefined|null, changeEvent: any): void {\n    this.tagReferences.forEach((tagReference) => {\n      if (tagReference.tagId !== tagId) {\n        return;\n      }\n\n      tagReference.enumValue = changeEvent as number;\n    });\n\n    this.ref.markForCheck();\n\n    this.emitReferenceUpdate();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -5700,7 +5725,7 @@
         },
         {
             "name": "LandingPageComponent",
-            "id": "component-LandingPageComponent-f28d9e6c961c1f941df2387d846486f1",
+            "id": "component-LandingPageComponent-168e6fd56bb667551086f76012bb9439",
             "file": "src/app/landing-page/landing-page.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -5726,7 +5751,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 18
+                    "line": 22
                 },
                 {
                     "name": "pagesPerSprint",
@@ -5734,7 +5759,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 16
+                    "line": 20
                 },
                 {
                     "name": "scriptLength",
@@ -5742,7 +5767,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 15
+                    "line": 19
                 },
                 {
                     "name": "sessionsPerDay",
@@ -5750,12 +5775,20 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 19
+                    "line": 23
                 },
                 {
                     "name": "splitFactor",
                     "defaultValue": "3.5",
                     "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "storyListView",
+                    "defaultValue": "[]",
+                    "type": "BeatMapView[]",
                     "optional": false,
                     "description": "",
                     "line": 17
@@ -5766,7 +5799,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 12
+                    "line": 14
                 },
                 {
                     "name": "workspaceNameSubscription",
@@ -5774,7 +5807,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 15
                 }
             ],
             "methodsClass": [
@@ -5784,7 +5817,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 64
+                    "line": 79
                 },
                 {
                     "name": "calculateSessionsRequired",
@@ -5792,7 +5825,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 54
+                    "line": 69
                 },
                 {
                     "name": "changeParameters",
@@ -5800,7 +5833,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 37
+                    "line": 52
                 },
                 {
                     "name": "cost",
@@ -5817,7 +5850,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 71,
+                    "line": 86,
                     "jsdoctags": [
                         {
                             "name": "treeDepth",
@@ -5841,7 +5874,43 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 50
+                    "line": 65
+                },
+                {
+                    "name": "navigateToStory",
+                    "args": [
+                        {
+                            "name": "beatId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 107,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "newStory",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 97,
+                    "modifierKind": [
+                        120
+                    ]
                 },
                 {
                     "name": "ngOnDestroy",
@@ -5849,7 +5918,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 33
+                    "line": 48
                 },
                 {
                     "name": "ngOnInit",
@@ -5857,7 +5926,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 26,
+                    "line": 32,
                     "modifierKind": [
                         120
                     ]
@@ -5873,7 +5942,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 45,
+                    "line": 60,
                     "jsdoctags": [
                         {
                             "name": "options",
@@ -5883,6 +5952,17 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "randomStory",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 102,
+                    "modifierKind": [
+                        120
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -5890,11 +5970,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  scriptLength = 110;\n  pagesPerSprint = 0.25;\n  splitFactor = 3.5;\n  missesPerHit = 3;\n  sessionsPerDay = 4;\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private ref: ChangeDetectorRef\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n\n  changeParameters(): void {\n    this.scriptLength = this.pickRandomFromList([30, 60, 90, 110, 120]);\n    this.pagesPerSprint = this.pickRandomFromList([0.125, 0.25, 0.5, 1]);\n    this.splitFactor = this.pickRandomFromList([2, 3, 3.5, 4, 5]);\n    this.missesPerHit = this.pickRandomFromList([1, 2, 3, 4, 5]);\n    this.sessionsPerDay = this.pickRandomFromList([0.5, 1, 2, 4, 6, 8]);\n  }\n\n  pickRandomFromList(options: number[]): number {\n    const randomIndex = Math.floor(Math.random() * options.length);\n    return options[randomIndex];\n  }\n\n  giveUpRate(): number {\n    return 100 * this.missesPerHit / (this.missesPerHit + 1);\n  }\n\n  calculateSessionsRequired(): number {\n    const treeDepth = Math.log(this.scriptLength / this.pagesPerSprint) / Math.log(this.splitFactor);\n\n    const halfCost = this.cost(treeDepth / 2, this.splitFactor);\n    const fullCost = this.cost(treeDepth, this.splitFactor);\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n\n  }\n\n  calculateFlatAlternativeSessions(): number {\n    const halfCost = 0.5 * this.scriptLength / this.pagesPerSprint;\n    const fullCost = this.scriptLength / this.pagesPerSprint;\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n  }\n\n  cost(treeDepth: number, splitFactor: number): number {\n    let cost = 0;\n    for (let i = 0; i < treeDepth; i++) {\n      cost += Math.pow(splitFactor, i);\n    }\n\n    cost += Math.pow(splitFactor, treeDepth);\n\n    return cost;\n  }\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';\nimport {MonolithicDataService} from '../monolithic-data.service';\nimport {BeatMapView, BeatsService} from '../beats.service';\nimport {Router} from '@angular/router';\n\n// Static landing page component.\n@Component({\n  selector: 'app-landing-page',\n  templateUrl: './landing-page.component.html',\n  styleUrls: ['./landing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class LandingPageComponent implements OnInit, OnDestroy {\n  workspaceName = '';\n  workspaceNameSubscription = '';\n\n  storyListView: BeatMapView[] = [];\n\n  scriptLength = 110;\n  pagesPerSprint = 0.25;\n  splitFactor = 3.5;\n  missesPerHit = 3;\n  sessionsPerDay = 4;\n\n  constructor(\n    private monolithicDataService: MonolithicDataService,\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private router: Router\n  ) { }\n\n  async ngOnInit(): Promise<void> {\n    this.workspaceNameSubscription = this.monolithicDataService.subscribeToWorkspaceName((workspaceName) => {\n      this.workspaceName = workspaceName;\n      this.ref.markForCheck();\n    });\n\n    const beatMap = await this.beatsService.getBeatMap();\n    this.storyListView = Array.from(beatMap.values())\n      .filter(entry => entry.parentBeats.length === 0) // Only retain top-level beats\n      .sort((a, b) => {\n        return b.lastUpdated - a.lastUpdated;\n      });\n\n    this.ref.markForCheck();\n  }\n\n  ngOnDestroy(): void {\n    this.monolithicDataService.cancelSubscriptionToWorkspaceName(this.workspaceNameSubscription);\n  }\n\n  changeParameters(): void {\n    this.scriptLength = this.pickRandomFromList([30, 60, 90, 110, 120]);\n    this.pagesPerSprint = this.pickRandomFromList([0.125, 0.25, 0.5, 1]);\n    this.splitFactor = this.pickRandomFromList([2, 3, 3.5, 4, 5]);\n    this.missesPerHit = this.pickRandomFromList([1, 2, 3, 4, 5]);\n    this.sessionsPerDay = this.pickRandomFromList([0.5, 1, 2, 4, 6, 8]);\n  }\n\n  pickRandomFromList(options: number[]): number {\n    const randomIndex = Math.floor(Math.random() * options.length);\n    return options[randomIndex];\n  }\n\n  giveUpRate(): number {\n    return 100 * this.missesPerHit / (this.missesPerHit + 1);\n  }\n\n  calculateSessionsRequired(): number {\n    const treeDepth = Math.log(this.scriptLength / this.pagesPerSprint) / Math.log(this.splitFactor);\n\n    const halfCost = this.cost(treeDepth / 2, this.splitFactor);\n    const fullCost = this.cost(treeDepth, this.splitFactor);\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n\n  }\n\n  calculateFlatAlternativeSessions(): number {\n    const halfCost = 0.5 * this.scriptLength / this.pagesPerSprint;\n    const fullCost = this.scriptLength / this.pagesPerSprint;\n\n    return (halfCost * this.missesPerHit) + (fullCost);\n  }\n\n  cost(treeDepth: number, splitFactor: number): number {\n    let cost = 0;\n    for (let i = 0; i < treeDepth; i++) {\n      cost += Math.pow(splitFactor, i);\n    }\n\n    cost += Math.pow(splitFactor, treeDepth);\n\n    return cost;\n  }\n\n  async newStory(): Promise<void> {\n    const newId = await this.beatsService.createNewBeat();\n    await this.navigateToStory(newId);\n  }\n\n  async randomStory(): Promise<void> {\n    const randomId = Math.floor(Math.random() * this.storyListView.length);\n    await this.navigateToStory(this.storyListView[randomId].id);\n  }\n\n  async navigateToStory(beatId: string): Promise<void> {\n    await this.router.navigate(['/read', { id: beatId }]);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".link-list a {\n  display: block;\n}\n",
+                    "data": ".link-list a {\n  display: block;\n}\n\n.story-list {\n  margin: 16px;\n  border: 1px solid #ccc;\n  padding: 16px;\n\n  .story {\n    margin-top: 8px;\n    color: blue;\n    cursor: pointer;\n  }\n}\n",
                     "styleUrl": "./landing-page.component.scss"
                 }
             ],
@@ -5908,15 +5988,30 @@
                         "type": "MonolithicDataService"
                     },
                     {
+                        "name": "beatsService",
+                        "type": "BeatsService"
+                    },
+                    {
                         "name": "ref",
                         "type": "ChangeDetectorRef"
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router"
                     }
                 ],
-                "line": 19,
+                "line": 23,
                 "jsdoctags": [
                     {
                         "name": "monolithicDataService",
                         "type": "MonolithicDataService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService",
                         "tagName": {
                             "text": "param"
                         }
@@ -5927,6 +6022,13 @@
                         "tagName": {
                             "text": "param"
                         }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "tagName": {
+                            "text": "param"
+                        }
                     }
                 ]
             },
@@ -5934,7 +6036,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<pre>\n  If you want to write a {{scriptLength}} page script,\n  you write a page in {{1 / pagesPerSprint}} \"sprints\",\n  each layer of the script splits on average into {{splitFactor}} pieces,\n  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you\n  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)\n  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day\n  ({{sessionsPerDay}} 15-minute sessions).\n\n  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions\n  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).\n\n  <button mat-stroked-button (click)=\"changeParameters()\">\n    Change Parameters\n  </button>\n</pre>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<pre>\n  If you want to write a {{scriptLength}} page script,\n  you write a page in {{1 / pagesPerSprint}} \"sprints\",\n  each layer of the script splits on average into {{splitFactor}} pieces,\n  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you\n  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)\n  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day\n  ({{sessionsPerDay}} 15-minute sessions).\n\n  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions\n  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).\n\n  <button mat-stroked-button (click)=\"changeParameters()\">\n    Change Parameters\n  </button>\n</pre>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <div class=\"story-list\">\n    <button mat-stroked-button (click)=\"newStory()\">\n      New Story\n    </button>\n    <button *ngIf=\"!!storyListView.length\" mat-stroked-button (click)=\"randomStory()\">\n      Random Story\n    </button>\n    <div *ngFor=\"let story of storyListView\"\n         class=\"story\"\n       (click)=\"navigateToStory(story.id)\">\n      {{story.name}}\n    </div>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ReadPageBeatComponent",
@@ -6050,7 +6152,7 @@
         },
         {
             "name": "ReadPageComponent",
-            "id": "component-ReadPageComponent-1539a21edeb04b424f1485da276bd1cd",
+            "id": "component-ReadPageComponent-8438a2235bf6e3745a4d535be1c47517",
             "file": "src/app/read-page/read-page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -6075,7 +6177,15 @@
                     "type": "BeatReadView[]",
                     "optional": false,
                     "description": "",
-                    "line": 14
+                    "line": 16
+                },
+                {
+                    "name": "relevantTags",
+                    "defaultValue": "[]",
+                    "type": "Tag[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
                 },
                 {
                     "name": "selectedBeatId",
@@ -6083,7 +6193,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 13
+                    "line": 15
                 },
                 {
                     "name": "timelineView",
@@ -6091,17 +6201,39 @@
                     "type": "TimelineBlock[]",
                     "optional": false,
                     "description": "",
-                    "line": 15
+                    "line": 17
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "getBlockScore",
+                    "args": [
+                        {
+                            "name": "block",
+                            "type": "TimelineBlock"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 78,
+                    "jsdoctags": [
+                        {
+                            "name": "block",
+                            "type": "TimelineBlock",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 23
+                    "line": 27
                 },
                 {
                     "name": "selectBeat",
@@ -6114,7 +6246,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 38,
                     "modifierKind": [
                         120
                     ],
@@ -6129,6 +6261,17 @@
                     ]
                 },
                 {
+                    "name": "selectRandomBeat",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 59,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
                     "name": "timelineSelectBeat",
                     "args": [
                         {
@@ -6139,7 +6282,7 @@
                     "optional": false,
                     "returnType": "Promise<void>",
                     "typeParameters": [],
-                    "line": 42,
+                    "line": 55,
                     "modifierKind": [
                         120
                     ],
@@ -6159,7 +6302,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatReadView, BeatsService} from '../beats.service';\nimport {TimelineBlock} from '../timeline-chart/timeline-chart.component';\n\n@Component({\n  selector: 'app-read-page',\n  templateUrl: './read-page.component.html',\n  styleUrls: ['./read-page.component.scss']\n})\nexport class ReadPageComponent implements OnInit {\n\n  selectedBeatId = '';\n  readView: BeatReadView[] = [];\n  timelineView: TimelineBlock[] = [];\n\n  constructor(\n    private beatsService: BeatsService,\n    private ref: ChangeDetectorRef,\n    private route: ActivatedRoute,\n    private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n  }\n\n  async selectBeat(selectedId: string): Promise<void> {\n    this.readView = await this.beatsService.fetchReadView(selectedId);\n    this.timelineView = await this.beatsService.fetchTimelineView(selectedId);\n\n    this.selectedBeatId = selectedId;\n    this.ref.markForCheck();\n  }\n\n  async timelineSelectBeat(selectedId: string): Promise<void> {\n    await this.router.navigate(['/beats', { id: selectedId }]);\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatReadView, BeatsService} from '../beats.service';\nimport {TimelineBlock} from '../timeline-chart/timeline-chart.component';\nimport {Beat, Tag} from '../../protos';\nimport {TagService} from '../tag.service';\n\n@Component({\n  selector: 'app-read-page',\n  templateUrl: './read-page.component.html',\n  styleUrls: ['./read-page.component.scss']\n})\nexport class ReadPageComponent implements OnInit {\n\n  selectedBeatId = '';\n  readView: BeatReadView[] = [];\n  timelineView: TimelineBlock[] = [];\n  relevantTags: Tag[] = [];\n\n  constructor(\n    private beatsService: BeatsService,\n    private tagService: TagService,\n    private ref: ChangeDetectorRef,\n    private route: ActivatedRoute,\n    private router: Router) { }\n\n  ngOnInit(): void {\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n\n  }\n\n  async selectBeat(selectedId: string): Promise<void> {\n    this.readView = await this.beatsService.fetchReadView(selectedId);\n    this.timelineView = await this.beatsService.fetchTimelineView(selectedId);\n\n    const allReferencedTagIds = new Set<string>();\n    this.timelineView.forEach((block) => {\n      block.tagReferences.forEach((reference) => {\n        allReferencedTagIds.add(reference.tagId);\n      });\n    });\n\n    this.relevantTags = await this.tagService.getSpecificTags(Array.from(allReferencedTagIds.keys()));\n\n    this.selectedBeatId = selectedId;\n    this.ref.markForCheck();\n  }\n\n  async timelineSelectBeat(selectedId: string): Promise<void> {\n    await this.router.navigate(['/beats', { id: selectedId }]);\n  }\n\n  async selectRandomBeat(): Promise<void> {\n    let sumScore = 0;\n    this.timelineView.forEach((block) => {\n      sumScore += this.getBlockScore(block);\n    });\n\n    const cutoff = Math.random() * sumScore;\n    console.log([sumScore, cutoff]);\n\n    let rollingSum = 0;\n    for (const block of this.timelineView) {\n      rollingSum += this.getBlockScore(block);\n      if (rollingSum >= cutoff) {\n        await this.timelineSelectBeat(block.id);\n        return;\n      }\n    }\n  }\n\n  getBlockScore(block: TimelineBlock): number {\n    const durationScore = Math.ceil((block.endSec - block.startSec) / 60);\n    let completenessScore = 0;\n    switch (block.completeness) {\n      case Beat.Completeness.NOT_STARTED:\n        completenessScore = 1e3;\n        break;\n      case Beat.Completeness.BRAINSTORM:\n        completenessScore = 1e2;\n        break;\n      case Beat.Completeness.INITIAL_DRAFT:\n        completenessScore = 1e1;\n        break;\n      case Beat.Completeness.POLISHED:\n        completenessScore = 1;\n        break;\n      case Beat.Completeness.FINAL:\n        completenessScore = 0;\n        break;\n    }\n\n    console.log(durationScore * completenessScore);\n\n    return durationScore * completenessScore;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -6177,6 +6320,10 @@
                         "type": "BeatsService"
                     },
                     {
+                        "name": "tagService",
+                        "type": "TagService"
+                    },
+                    {
                         "name": "ref",
                         "type": "ChangeDetectorRef"
                     },
@@ -6189,11 +6336,18 @@
                         "type": "Router"
                     }
                 ],
-                "line": 15,
+                "line": 18,
                 "jsdoctags": [
                     {
                         "name": "beatsService",
                         "type": "BeatsService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService",
                         "tagName": {
                             "text": "param"
                         }
@@ -6224,7 +6378,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<app-timeline-chart\n  [timelineBlocks]=\"timelineView\"\n  (selectBeat)=\"timelineSelectBeat($event)\"></app-timeline-chart>\n<app-read-page-beat *ngFor=\"let beat of readView\" [beat]=\"beat\">\n</app-read-page-beat>\n"
+            "templateData": "<button mat-stroked-button (click)=\"selectRandomBeat()\">Choose random beat to work on</button>\n<app-timeline-chart\n  [timelineBlocks]=\"timelineView\"\n  [relevantTags]=\"relevantTags\"\n  (selectBeat)=\"timelineSelectBeat($event)\"></app-timeline-chart>\n<app-read-page-beat *ngFor=\"let beat of readView\" [beat]=\"beat\">\n</app-read-page-beat>\n"
         },
         {
             "name": "ShowSessionHistoryComponent",
@@ -7424,7 +7578,7 @@
         },
         {
             "name": "TimelineChartComponent",
-            "id": "component-TimelineChartComponent-96a46af6462c98e972baf5d01d66d3ae",
+            "id": "component-TimelineChartComponent-daa40ad4ca0be3da7b515584801d85b0",
             "file": "src/app/timeline-chart/timeline-chart.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -7444,13 +7598,13 @@
                 {
                     "name": "relevantTags",
                     "defaultValue": "[]",
-                    "line": 42,
-                    "type": "TagListView[]"
+                    "line": 41,
+                    "type": "Tag[]"
                 },
                 {
                     "name": "timelineBlocks",
                     "defaultValue": "[]",
-                    "line": 39,
+                    "line": 38,
                     "type": "TimelineBlock[]"
                 }
             ],
@@ -7458,7 +7612,7 @@
                 {
                     "name": "selectBeat",
                     "defaultValue": "new EventEmitter<string>()",
-                    "line": 44,
+                    "line": 43,
                     "type": "EventEmitter"
                 }
             ],
@@ -7469,7 +7623,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 51
+                    "line": 50
                 },
                 {
                     "name": "minTimeSec",
@@ -7477,7 +7631,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 50
+                    "line": 49
                 },
                 {
                     "name": "preppedTimelineBlockRows",
@@ -7485,7 +7639,7 @@
                     "type": "PreppedTimelineBlock[][]",
                     "optional": false,
                     "description": "",
-                    "line": 48
+                    "line": 47
                 },
                 {
                     "name": "preppedTimelineMarkers",
@@ -7493,7 +7647,23 @@
                     "type": "TimelineMarker[]",
                     "optional": false,
                     "description": "",
-                    "line": 49
+                    "line": 48
+                },
+                {
+                    "name": "selectedTag",
+                    "defaultValue": "null",
+                    "type": "Tag | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 53
+                },
+                {
+                    "name": "selectedTagId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 52
                 },
                 {
                     "name": "zoomLevel",
@@ -7501,7 +7671,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 46
+                    "line": 45
                 }
             ],
             "methodsClass": [
@@ -7516,7 +7686,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 149,
+                    "line": 171,
                     "jsdoctags": [
                         {
                             "name": "value",
@@ -7533,7 +7703,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 59
+                    "line": 61
                 },
                 {
                     "name": "ngOnInit",
@@ -7541,7 +7711,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 55
+                    "line": 57
                 },
                 {
                     "name": "rebuildTimeline",
@@ -7549,7 +7719,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 63
+                    "line": 65
                 },
                 {
                     "name": "rebuildTimelineMarkers",
@@ -7557,7 +7727,29 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 126
+                    "line": 148
+                },
+                {
+                    "name": "tagSelectionChange",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 175,
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "zoomIn",
@@ -7565,7 +7757,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 144
+                    "line": 166
                 },
                 {
                     "name": "zoomOut",
@@ -7573,7 +7765,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 139
+                    "line": 161
                 }
             ],
             "hostBindings": [],
@@ -7581,11 +7773,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport {TagListView} from '../tag.service';\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: TagListView[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      let color = '#ccc';\n      switch (block.completeness) {\n        case Beat.Completeness.FINAL:\n          color = 'rgb(0, 128, 0)';\n          break;\n        case Beat.Completeness.POLISHED:\n          color = 'rgb(173, 255, 47)';\n          break;\n        case Beat.Completeness.INITIAL_DRAFT:\n          color = 'rgb(255, 255, 0)';\n          break;\n        case Beat.Completeness.BRAINSTORM:\n          color = 'rgb(255, 128, 0)';\n          break;\n        case Beat.Completeness.NOT_STARTED:\n          color = 'rgb(255, 0, 0)';\n          break;\n      }\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label: block.label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n}\n",
+            "sourceCode": "import {Component, EventEmitter, AfterViewInit, Input, Output, OnInit, OnChanges} from '@angular/core';\nimport {getDurationStr} from '../duration-helpers';\nimport {Beat, Tag} from '../../protos';\nimport Completeness = Beat.Completeness;\nimport TagReference = Beat.TagReference;\n\nexport interface TimelineBlock {\n  id: string;\n  startSec: number;\n  endSec: number;\n  label: string;\n  depth: number;\n  completeness: Completeness;\n  tagReferences: TagReference[];\n}\n\ninterface PreppedTimelineBlock {\n  id: string;\n  width: number;\n  left: number;\n  color: string;\n  label: string;\n}\n\ninterface TimelineMarker {\n  left: number;\n  label: string;\n}\n\n@Component({\n  selector: 'app-timeline-chart',\n  templateUrl: './timeline-chart.component.html',\n  styleUrls: ['./timeline-chart.component.scss']\n})\nexport class TimelineChartComponent implements OnInit, OnChanges {\n\n  @Input()\n  timelineBlocks: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: Tag[] = [];\n\n  @Output() selectBeat = new EventEmitter<string>();\n\n  zoomLevel = 100;\n\n  preppedTimelineBlockRows: PreppedTimelineBlock[][] = [];\n  preppedTimelineMarkers: TimelineMarker[] = [];\n  minTimeSec = 0;\n  maxTimeSec = 0;\n\n  selectedTagId = '';\n  selectedTag: Tag|null = null;\n\n  constructor() {}\n\n  ngOnInit(): void {\n    this.rebuildTimeline();\n  }\n\n  ngOnChanges(): void {\n    this.rebuildTimeline();\n  }\n\n  rebuildTimeline(): void {\n    if (!this.timelineBlocks.length) {\n      return;\n    }\n\n    this.minTimeSec = this.timelineBlocks[0].startSec;\n    this.maxTimeSec = this.timelineBlocks[0].endSec;\n\n    this.timelineBlocks.forEach((block) => {\n      this.minTimeSec = Math.min(block.startSec, this.minTimeSec);\n      this.maxTimeSec = Math.max(block.endSec, this.maxTimeSec);\n    });\n\n    const depthMap = new Map<number, PreppedTimelineBlock[]>();\n\n    this.timelineBlocks.forEach((block) => {\n      if (!depthMap.has(block.depth)) {\n        depthMap.set(block.depth, []);\n      }\n\n      const width = (block.endSec - block.startSec) / (this.maxTimeSec - this.minTimeSec) * 100;\n      const left = (block.startSec - this.minTimeSec)  / (this.maxTimeSec - this.minTimeSec) * 100;\n\n      const relevantTagRef = block.tagReferences\n        .filter((reference) => reference.tagId === this.selectedTagId)[0] || null;\n\n      let color = '#ccc';\n      if (!this.selectedTag) {\n        switch (block.completeness) {\n          case Beat.Completeness.FINAL:\n            color = 'rgb(0, 128, 0)';\n            break;\n          case Beat.Completeness.POLISHED:\n            color = 'rgb(173, 255, 47)';\n            break;\n          case Beat.Completeness.INITIAL_DRAFT:\n            color = 'rgb(255, 255, 0)';\n            break;\n          case Beat.Completeness.BRAINSTORM:\n            color = 'rgb(255, 128, 0)';\n            break;\n          case Beat.Completeness.NOT_STARTED:\n            color = 'rgb(255, 0, 0)';\n            break;\n        }\n      } else {\n        if (!!relevantTagRef) {\n          color = '#ff0000';\n        }\n      }\n\n      let label = block.label;\n      if (!!relevantTagRef && (relevantTagRef.numericValue || relevantTagRef?.enumValue)) {\n        if (relevantTagRef.numericValue) {\n          label += ' (' + relevantTagRef.numericValue + ')';\n        }\n        if (relevantTagRef.enumValue) {\n          label += ' (' + (this.selectedTag as Tag).enumValues[relevantTagRef.enumValue - 1].label + ')';\n        }\n      }\n\n\n      depthMap.get(block.depth)?.push({\n        id: block.id,\n        width,\n        left,\n        color,\n        label\n      } as PreppedTimelineBlock);\n    });\n\n    const newRows: PreppedTimelineBlock[][] = [];\n\n    const allDepths = Array.from(depthMap.keys()).sort();\n    allDepths.forEach((depth) => {\n      newRows.push(depthMap.get(depth) as PreppedTimelineBlock[]);\n    });\n\n    this.preppedTimelineBlockRows = newRows;\n\n    this.rebuildTimelineMarkers();\n  }\n\n  rebuildTimelineMarkers(): void {\n    const numMarkers = Math.round(this.zoomLevel / 25);\n    this.preppedTimelineMarkers = [];\n    for (let i = 0; i < numMarkers; i++) {\n      const time = (i / numMarkers) * 0.9 * (this.maxTimeSec - this.minTimeSec) + this.minTimeSec;\n      const left = 100 * (i / numMarkers);\n      this.preppedTimelineMarkers.push({\n        left,\n        label: getDurationStr(time * 1000),\n      } as TimelineMarker);\n    }\n  }\n\n  zoomOut(): void {\n    this.zoomLevel = Math.max(100, this.zoomLevel / 2);\n    this.rebuildTimelineMarkers();\n  }\n\n  zoomIn(): void {\n    this.zoomLevel = 2.0 * this.zoomLevel;\n    this.rebuildTimelineMarkers();\n  }\n\n  formatPercentString(value: number): string {\n    return '' + value + '%';\n  }\n\n  tagSelectionChange(value: string): void {\n    this.selectedTagId = value;\n    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;\n    this.rebuildTimeline();\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ".timeline-wrapper {\n  width: 100%;\n  overflow-x: scroll;\n\n  .timeline-row {\n    position: relative;\n    height: 40px;\n  }\n\n  .timeline-block {\n    cursor: pointer;\n    display: inline-block;\n    position: absolute;\n    height: 100%;\n    -webkit-box-shadow:inset 0px 0px 0px 1px #555;\n    -moz-box-shadow:inset 0px 0px 0px 1px #555;\n    box-shadow:inset 0px 0px 0px 1px #555;\n  }\n\n  .time-marker-row {\n    height: 24px;\n    position: relative;\n\n    .marker {\n      display: inline-block;\n      position: absolute;\n      height: 100%;\n      border-left: 1px solid black;\n      padding-left: 8px;\n    }\n  }\n}\n",
+                    "data": ".timeline-wrapper {\n  width: 100%;\n  overflow-x: scroll;\n\n  .timeline-row {\n    position: relative;\n    height: 40px;\n  }\n\n  .timeline-block {\n    cursor: pointer;\n    display: inline-block;\n    position: absolute;\n    height: 100%;\n    -webkit-box-shadow:inset 0px 0px 0px 1px #555;\n    -moz-box-shadow:inset 0px 0px 0px 1px #555;\n    box-shadow:inset 0px 0px 0px 1px #555;\n  }\n\n  .time-marker-row {\n    height: 24px;\n    position: relative;\n\n    .marker {\n      display: inline-block;\n      position: absolute;\n      height: 100%;\n      border-left: 1px solid black;\n      padding-left: 8px;\n    }\n  }\n}\n\n.timeline-controls {\n  display: flex;\n  mat-select {\n    flex: 1;\n    margin: auto;\n  }\n}\n",
                     "styleUrl": "./timeline-chart.component.scss"
                 }
             ],
@@ -7594,13 +7786,111 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 51
+                "line": 53
             },
             "implements": [
                 "OnInit",
                 "OnChanges"
             ],
-            "templateData": "<button mat-button (click)=\"zoomOut()\" [disabled]=\"zoomLevel === 100\">\n  <mat-icon>zoom_out</mat-icon>\n</button>\n<button mat-button (click)=\"zoomIn()\">\n  <mat-icon>zoom_in</mat-icon>\n</button>\n<div class=\"timeline-wrapper\">\n  <div\n    *ngFor=\"let row of preppedTimelineBlockRows\"\n    class=\"timeline-row\"\n    [style.width]=\"formatPercentString(zoomLevel)\">\n    <div *ngFor=\"let block of row\"\n      class=\"timeline-block\"\n         [style.background]=\"block.color\"\n         [style.width]=\"formatPercentString(block.width)\"\n         [style.left]=\"formatPercentString(block.left)\"\n         matTooltip=\"{{block.label}}\"\n         (click)=\"selectBeat.emit(block.id)\"\n    ></div>\n  </div>\n  <div class=\"time-marker-row\" [style.width]=\"formatPercentString(zoomLevel)\">\n\n    <ng-container *ngFor=\"let marker of preppedTimelineMarkers\">\n      <div\n        class=\"marker\"\n        [style.left]=\"formatPercentString(marker.left)\">\n        {{marker.label}}\n      </div>\n    </ng-container>\n\n  </div>\n</div>\n\n{{minTimeSec}} - {{maxTimeSec}}\n"
+            "templateData": "<div class=\"timeline-controls\">\n  <button mat-button (click)=\"zoomOut()\" [disabled]=\"zoomLevel === 100\">\n    <mat-icon>zoom_out</mat-icon>\n  </button>\n  <button mat-button (click)=\"zoomIn()\">\n    <mat-icon>zoom_in</mat-icon>\n  </button>\n  <mat-select [value]=\"'none'\" (valueChange)=\"tagSelectionChange($event)\">\n    <mat-option [value]=\"'none'\">No tag</mat-option>\n    <mat-option *ngFor=\"let tagOption of relevantTags\" [value]=\"tagOption.id\">\n      {{tagOption.name}}\n    </mat-option>\n  </mat-select>\n</div>\n<div class=\"timeline-wrapper\">\n  <div\n    *ngFor=\"let row of preppedTimelineBlockRows\"\n    class=\"timeline-row\"\n    [style.width]=\"formatPercentString(zoomLevel)\">\n    <div *ngFor=\"let block of row\"\n      class=\"timeline-block\"\n         [style.background]=\"block.color\"\n         [style.width]=\"formatPercentString(block.width)\"\n         [style.left]=\"formatPercentString(block.left)\"\n         matTooltip=\"{{block.label}}\"\n         (click)=\"selectBeat.emit(block.id)\"\n    ></div>\n  </div>\n  <div class=\"time-marker-row\" [style.width]=\"formatPercentString(zoomLevel)\">\n\n    <ng-container *ngFor=\"let marker of preppedTimelineMarkers\">\n      <div\n        class=\"marker\"\n        [style.left]=\"formatPercentString(marker.left)\">\n        {{marker.label}}\n      </div>\n    </ng-container>\n\n  </div>\n</div>\n\n{{minTimeSec}} - {{maxTimeSec}}\n"
+        },
+        {
+            "name": "WritingPageComponent",
+            "id": "component-WritingPageComponent-d4fe63be5d40ed33dea2af03e7b32937",
+            "file": "src/app/writing-page/writing-page.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-writing-page",
+            "styleUrls": [
+                "./writing-page.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./writing-page.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 12
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-writing-page',\n  templateUrl: './writing-page.component.html',\n  styleUrls: ['./writing-page.component.scss']\n})\nexport class WritingPageComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "\n\n\n.sub-header {\n  height: 50px;\n  background: lightyellow;\n}\n\n:host {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n}\n\n.bottom-content {\n  flex: 1;\n\n  display: flex;\n\n  .writing-content {\n    flex: 1;\n    background: fuchsia;\n  }\n\n  .sidebar {\n    width: 200px;\n\n    background: orange;\n  }\n}\n",
+                    "styleUrl": "./writing-page.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 8
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"sub-header\">\n  Sub-header content\n</div>\n<div class=\"bottom-content\">\n  <div class=\"writing-content\">\n    Writing content\n  </div>\n  <div class=\"sidebar\">\n    Sidebar content\n  </div>\n</div>\n"
+        },
+        {
+            "name": "WritingPageStoryComponent",
+            "id": "component-WritingPageStoryComponent-b44f09ebc6d5848adb6a9d68c7c90881",
+            "file": "src/app/writing-page/writing-page.stories.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "writing-page-story",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<h1>hi</h1>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 12,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {moduleMetadata} from '@storybook/angular';\nimport {CommonModule} from '@angular/common';\n// also exported from '@storybook/angular' if you can deal with breaking changes in 6.1\nimport {Meta, Story} from '@storybook/angular/types-6-0';\n\nimport {NebularModules} from '../app.module';\nimport {AppRoutingModule} from '../app-routing.module';\nimport {WritingPageComponent} from './writing-page.component';\nimport {Component} from '@angular/core';\n\n@Component({\n  // tslint:disable-next-line:component-selector\n  selector: 'writing-page-story',\n  template: '<h1>hi</h1>',\n  providers: [],\n})\nclass WritingPageStoryComponent extends WritingPageComponent {\n\n}\n\nexport default {\n  title: 'Writing Page',\n  argTypes: {},\n  component: WritingPageStoryComponent,\n  decorators: [\n    moduleMetadata({\n      declarations: [],\n      imports: [CommonModule, ...NebularModules, AppRoutingModule],\n    }),\n  ],\n} as Meta;\n\nconst Template: Story<WritingPageStoryComponent> = (args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n});\n\nexport const EmptyExample = Template.bind({});\n\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": "WritingPageComponent"
         }
     ],
     "modules": [
@@ -7688,6 +7978,9 @@
                         },
                         {
                             "name": "TimelineChartComponent"
+                        },
+                        {
+                            "name": "WritingPageComponent"
                         }
                     ]
                 },
@@ -7857,14 +8150,6 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -7873,15 +8158,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7897,7 +8174,31 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "EmptyExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-page.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7921,7 +8222,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -7929,7 +8230,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8059,7 +8360,7 @@
                 "subtype": "variable",
                 "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "",
-                "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag'\n  }\n] as TagListView[]"
+                "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[]"
             },
             {
                 "name": "exampleTagListView",
@@ -8091,7 +8392,7 @@
                 "subtype": "variable",
                 "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "",
-                "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
+                "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
             },
             {
                 "name": "FullExample",
@@ -8137,7 +8438,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8145,7 +8446,7 @@
                 "name": "FullExampleNothingSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8193,7 +8494,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8201,7 +8502,7 @@
                 "name": "FullExampleSecondSelected",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8310,6 +8611,14 @@
                 "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
             },
             {
+                "name": "NebularModules",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/app.module.ts",
+                "type": "[]",
+                "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n]"
+            },
+            {
                 "name": "NoAvailableTagExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -8368,14 +8677,6 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
-                "type": "Story<ApplyStructureNavComponent>",
-                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                 "type": "Story<ApplyTagNavComponent>",
                 "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
@@ -8384,9 +8685,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
-                "type": "Story<BeatBrainstormTemplateNavComponent>",
-                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "Story<ApplyStructureNavComponent>",
+                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/beat-nav/beat-nav.stories.ts",
+                "type": "Story<BeatNavComponent>",
+                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8400,9 +8709,9 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-nav/beat-nav.stories.ts",
-                "type": "Story<BeatNavComponent>",
-                "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts",
+                "type": "Story<BeatBrainstormTemplateNavComponent>",
+                "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8448,6 +8757,14 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "src/app/writing-page/writing-page.stories.ts",
+                "type": "Story<WritingPageStoryComponent>",
+                "defaultValue": "(args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts",
                 "type": "Story<BrainstormTemplateNavComponent>",
                 "defaultValue": "(args: BrainstormTemplateNavComponent) => ({\n  component: BrainstormTemplateNavComponent,\n  props: args,\n})"
@@ -8464,17 +8781,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                "type": "Story<StructureTemplateDetailsComponent>",
-                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
+                "type": "Story<StructureTemplateNavComponent>",
+                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
-                "type": "Story<StructureTemplateNavComponent>",
-                "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                "type": "Story<StructureTemplateDetailsComponent>",
+                "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8953,7 +9270,7 @@
                     "subtype": "variable",
                     "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                     "type": "",
-                    "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag'\n  }\n] as TagListView[]"
+                    "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[]"
                 },
                 {
                     "name": "exampleTimelineBlocks",
@@ -8961,7 +9278,7 @@
                     "subtype": "variable",
                     "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                     "type": "",
-                    "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
+                    "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
                 },
                 {
                     "name": "Template",
@@ -9125,6 +9442,82 @@
                     "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/beat-nav/beat-nav.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "exampleBeatListView",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
+                },
+                {
+                    "name": "FullExampleNothingSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExampleSecondSelected",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-nav/beat-nav.stories.ts",
+                    "type": "Story<BeatNavComponent>",
+                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockBeat",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/beat-brainstorm-template-nav/beat-brainstorm-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -9175,82 +9568,6 @@
                     "defaultValue": "(args: BeatBrainstormTemplateNavComponent) => ({\n  component: BeatBrainstormTemplateNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockBeat",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "Story<BeatProseEditComponent>",
-                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/beat-nav/beat-nav.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "exampleBeatListView",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "[]",
-                    "defaultValue": "[\n  {\n    id: 'abc-123',\n    name: 'My first beat',\n    lastUpdated: Date.now(),\n  } as BeatMapView,\n  {\n    id: 'def-456',\n    name: 'My second beat',\n    lastUpdated: Date.now() - (1000 * 3400)\n  } as BeatMapView\n]"
-                },
-                {
-                    "name": "FullExampleNothingSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExampleSecondSelected",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-nav/beat-nav.stories.ts",
-                    "type": "Story<BeatNavComponent>",
-                    "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -9299,6 +9616,24 @@
                     "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                     "type": "Story<BeatRelatedBeatNavComponent>",
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/writing-page/writing-page.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-page.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-page.stories.ts",
+                    "type": "Story<WritingPageStoryComponent>",
+                    "defaultValue": "(args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.stories.ts": [
@@ -9377,40 +9712,6 @@
                     "defaultValue": "(args: BrainstormTemplateDetailsComponent) => ({\n  component: BrainstormTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
-            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockTemplate",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "",
-                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
-                    "type": "Story<StructureTemplateDetailsComponent>",
-                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
-                }
-            ],
             "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -9451,6 +9752,40 @@
                     "file": "src/app/structure-template-page/structure-template-nav/structure-template-nav.stories.ts",
                     "type": "Story<StructureTemplateNavComponent>",
                     "defaultValue": "(args: StructureTemplateNavComponent) => ({\n  component: StructureTemplateNavComponent,\n  props: args,\n})"
+                }
+            ],
+            "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockTemplate",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "",
+                    "defaultValue": "StructureTemplate.create({\n  id: 'abc-123',\n  name: 'My Template',\n  description: 'Like a 3-act structure, but turned up to 4'\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/structure-template-page/structure-template-details/structure-template-details.stories.ts",
+                    "type": "Story<StructureTemplateDetailsComponent>",
+                    "defaultValue": "(args: StructureTemplateDetailsComponent) => ({\n  component: StructureTemplateDetailsComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/tag-page/tag-details/tag-details.stories.ts": [
@@ -9599,6 +9934,14 @@
                     "file": "src/app/app.module.ts",
                     "type": "[]",
                     "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot(),\n]"
+                },
+                {
+                    "name": "NebularModules",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/app.module.ts",
+                    "type": "[]",
+                    "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n]"
                 }
             ],
             "src/app/storage.service.ts": [
@@ -9970,6 +10313,10 @@
                     {
                         "path": "brainstorm-templates",
                         "component": "BrainstormTemplatePageComponent"
+                    },
+                    {
+                        "path": "writing",
+                        "component": "WritingPageComponent"
                     }
                 ],
                 "kind": "module"
@@ -10004,6 +10351,16 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "MaterialModules",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app.module.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "NebularModules",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -10728,7 +11085,7 @@
                 "linktype": "component",
                 "name": "LandingPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/17",
+                "coverageCount": "0/21",
                 "status": "low"
             },
             {
@@ -10835,7 +11192,7 @@
                 "linktype": "component",
                 "name": "ReadPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/11",
                 "status": "low"
             },
             {
@@ -11216,7 +11573,7 @@
                 "linktype": "injectable",
                 "name": "TagService",
                 "coveragePercent": 0,
-                "coverageCount": "0/18",
+                "coverageCount": "0/19",
                 "status": "low"
             },
             {
@@ -11264,7 +11621,7 @@
                 "linktype": "component",
                 "name": "TimelineChartComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/17",
+                "coverageCount": "0/20",
                 "status": "low"
             },
             {
@@ -11444,6 +11801,44 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "WRITING_WORKSPACE_METADATA_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "WritingPageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "WritingPageStoryComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

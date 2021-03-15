@@ -43,8 +43,9 @@ import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { BeatActionNavComponent } from './beat-action-nav/beat-action-nav.component';
-import { NbThemeModule, NbLayoutModule } from '@nebular/theme';
+import {NbThemeModule, NbLayoutModule, NbSidebarModule} from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { WritingPageComponent } from './writing-page/writing-page.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -59,6 +60,13 @@ export const MaterialModules = [
   MatSelectModule,
   MatTooltipModule,
   QuillModule.forRoot(),
+];
+
+export const NebularModules = [
+  BrowserAnimationsModule,
+  NbThemeModule.forRoot({ name: 'corporate' }),
+  NbLayoutModule,
+  NbEvaIconsModule,
 ];
 
 @NgModule({
@@ -88,6 +96,7 @@ export const MaterialModules = [
     ApplyTagNavComponent,
     TimelineChartComponent,
     BeatActionNavComponent,
+    WritingPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -95,10 +104,7 @@ export const MaterialModules = [
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
     ...MaterialModules,
     FormsModule,
-    BrowserAnimationsModule,
-    NbThemeModule.forRoot({ name: 'corporate' }),
-    NbLayoutModule,
-    NbEvaIconsModule,
+    ...NebularModules,
   ],
   providers: [],
   bootstrap: [AppComponent]

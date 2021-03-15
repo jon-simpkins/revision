@@ -1,0 +1,31 @@
+
+
+
+.sub-header {
+  height: 50px;
+  background: lightyellow;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.bottom-content {
+  flex: 1;
+
+  display: flex;
+
+  .writing-content {
+    flex: 1;
+    background: fuchsia;
+  }
+
+  .sidebar {
+    width: 200px;
+
+    background: orange;
+  }
+}

@@ -9,7 +9,6 @@ import {TimelineBlock, TimelineChartComponent} from './timeline-chart.component'
 import {Beat, Tag} from '../../protos';
 import Completeness = Beat.Completeness;
 import TagReference = Beat.TagReference;
-import {TagListView} from '../tag.service';
 
 export default {
   title: 'Timeline Chart',
