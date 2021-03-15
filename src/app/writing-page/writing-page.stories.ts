@@ -7,6 +7,9 @@ import {NebularModules} from '../app.module';
 import {AppRoutingModule} from '../app-routing.module';
 import {WritingPageComponent} from './writing-page.component';
 import {Component} from '@angular/core';
+import {WritingSubheaderComponent} from './writing-subheader/writing-subheader.component';
+import {WritingContentComponent} from './writing-content/writing-content.component';
+import {WritingSidebarComponent} from './writing-sidebar/writing-sidebar.component';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -26,6 +29,9 @@ export default {
     moduleMetadata({
       declarations: [
         WritingPageComponent,
+        WritingSubheaderComponent,
+        WritingContentComponent,
+        WritingSidebarComponent,
       ],
       imports: [CommonModule, ...NebularModules, AppRoutingModule],
     }),

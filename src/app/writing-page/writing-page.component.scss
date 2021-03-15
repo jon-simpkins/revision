@@ -1,11 +1,4 @@
 
-
-
-.sub-header {
-  height: 50px;
-  background: lightyellow;
-}
-
 :host {
   display: flex;
   flex-direction: column;
@@ -15,17 +8,9 @@
 
 .bottom-content {
   flex: 1;
-
   display: flex;
 
-  .writing-content {
+  app-writing-content {
     flex: 1;
-    background: fuchsia;
-  }
-
-  .sidebar {
-    width: 200px;
-
-    background: orange;
   }
 }
