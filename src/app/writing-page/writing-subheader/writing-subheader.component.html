@@ -1,1 +1,16 @@
-<div>writing-subheader works!</div>
+<div>
+  <div>
+    <button
+      (click)="selectMetadata()"
+      nbButton ghost
+      [status]="metadataStatus">
+        <nb-icon [icon]="metadataIcon"></nb-icon>
+    </button>
+    <button
+      (click)="selectTimeline()"
+      nbButton ghost
+      [status]="timelineStatus">
+      <nb-icon [icon]="timelineIcon"></nb-icon>
+    </button>
+  </div>
+</div>
