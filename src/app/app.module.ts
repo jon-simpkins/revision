@@ -43,9 +43,10 @@ import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { BeatActionNavComponent } from './beat-action-nav/beat-action-nav.component';
-import {NbThemeModule, NbLayoutModule, NbSidebarModule} from '@nebular/theme';
+import {NbThemeModule, NbLayoutModule} from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { WritingPageComponent } from './writing-page/writing-page.component';
+import { WritingPageMirageComponent } from './writing-page/writing-page-mirage.component';
 import { WritingSubheaderComponent } from './writing-page/writing-subheader/writing-subheader.component';
 import { WritingSidebarComponent } from './writing-page/writing-sidebar/writing-sidebar.component';
 import { WritingContentComponent } from './writing-page/writing-content/writing-content.component';
@@ -103,6 +104,7 @@ export const NebularModules = [
     WritingSubheaderComponent,
     WritingSidebarComponent,
     WritingContentComponent,
+    WritingPageMirageComponent,
   ],
   imports: [
     BrowserModule,

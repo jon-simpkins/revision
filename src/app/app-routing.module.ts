@@ -8,6 +8,7 @@ import {BeatPageComponent} from './beat-page/beat-page.component';
 import {ReadPageComponent} from './read-page/read-page.component';
 import {BrainstormTemplatePageComponent} from './brainstorm-template-page/brainstorm-template-page.component';
 import {WritingPageComponent} from './writing-page/writing-page.component';
+import {WritingPageMirageComponent} from './writing-page/writing-page-mirage.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent},
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'read', component: ReadPageComponent},
   { path: 'brainstorm-templates', component: BrainstormTemplatePageComponent},
   { path: 'writing', component: WritingPageComponent},
+  { path: 'mirage/writing', component: WritingPageMirageComponent},
 ];
 
 @NgModule({
