@@ -1,4 +1,6 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {TimelineBlock} from '../../timeline-chart/timeline-chart.component';
+import {Tag} from '../../../protos';
 
 const metadataMode = 'metadataMode';
 const timelineMode = 'timelineMode';
@@ -17,6 +19,12 @@ export class WritingSubheaderComponent implements OnInit {
   metadataIcon = '';
   timelineStatus = '';
   timelineIcon = '';
+
+  @Input()
+  timelineView: TimelineBlock[] = [];
+
+  @Input()
+  relevantTags: Tag[] = [];
 
   constructor(private ref: ChangeDetectorRef) { }
 
@@ -46,8 +54,13 @@ export class WritingSubheaderComponent implements OnInit {
     this.updateButtons();
   }
 
-  selectTimeline(): void {
+  async selectTimeline(): Promise<void> {
     this.currentMode = timelineMode;
     this.updateButtons();
   }
+
+  selectBeat(selectedBeatId: string): void {
+    console.log('user selected ' + selectedBeatId);
+  }
+
 }

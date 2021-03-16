@@ -17,8 +17,10 @@
     <div *ngIf="isMetadata()">
       Metadata mode
     </div>
-    <div *ngIf="isTimeline()">
-      Timeline mode
-    </div>
+    <app-timeline-chart
+      *ngIf="isTimeline()"
+      [timelineBlocks]="timelineView"
+      [relevantTags]="relevantTags"
+      (selectBeat)="selectBeat($event)"></app-timeline-chart>
   </div>
 </div>
