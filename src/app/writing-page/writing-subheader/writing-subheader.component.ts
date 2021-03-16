@@ -25,15 +25,20 @@ export class WritingSubheaderComponent implements OnInit {
   }
 
   updateButtons(): void {
-    console.log(this.currentMode);
-    console.log(this.metadataStatus);
-
-    this.metadataStatus = (this.currentMode === metadataMode) ? 'info' : '';
-    this.metadataIcon = (this.currentMode === metadataMode) ? 'file-text' : 'file-text-outline';
-    this.timelineStatus = (this.currentMode === timelineMode) ? 'info' : '';
-    this.timelineIcon = (this.currentMode === timelineMode) ? 'map' : 'map-outline';
+    this.metadataStatus = this.isMetadata() ? 'info' : '';
+    this.metadataIcon = this.isMetadata() ? 'file-text' : 'file-text-outline';
+    this.timelineStatus = this.isTimeline() ? 'info' : '';
+    this.timelineIcon = this.isTimeline() ? 'map' : 'map-outline';
 
     this.ref.markForCheck();
+  }
+
+  isMetadata(): boolean {
+    return this.currentMode === metadataMode;
+  }
+
+  isTimeline(): boolean {
+    return this.currentMode === timelineMode;
   }
 
   selectMetadata(): void {
