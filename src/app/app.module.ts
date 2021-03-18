@@ -50,6 +50,7 @@ import { WritingPageMirageComponent } from './writing-page/writing-page-mirage.c
 import { WritingSubheaderComponent } from './writing-page/writing-subheader/writing-subheader.component';
 import { WritingSidebarComponent } from './writing-page/writing-sidebar/writing-sidebar.component';
 import { WritingContentComponent } from './writing-page/writing-content/writing-content.component';
+import { WritingInputComponent } from './writing-page/writing-input/writing-input.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -108,6 +109,7 @@ export const NebularModules = [
     WritingSidebarComponent,
     WritingContentComponent,
     WritingPageMirageComponent,
+    WritingInputComponent,
   ],
   imports: [
     BrowserModule,
