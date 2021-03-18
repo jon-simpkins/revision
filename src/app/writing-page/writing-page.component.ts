@@ -17,6 +17,8 @@ export class WritingPageComponent implements OnInit {
   timelineView: TimelineBlock[] = [];
   relevantTags: Tag[] = [];
 
+  shouldShowPreview = false;
+
   constructor(
     protected beatsService: BeatsService,
     protected tagService: TagService,
@@ -56,6 +58,17 @@ export class WritingPageComponent implements OnInit {
 
     this.relevantTags = await this.tagService.getSpecificTags(Array.from(allReferencedTagIds.keys()));
 
+  }
+
+  showPreview(newId: string): void {
+    console.log('want to preview:' + newId);
+    this.shouldShowPreview = true;
+    this.ref.markForCheck();
+  }
+
+  hidePreview(): void {
+    this.shouldShowPreview = false;
+    this.ref.markForCheck();
   }
 
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'app-writing-content',
@@ -7,9 +7,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class WritingContentComponent implements OnInit {
 
+  @Input()
+  showCard = true;
+
+  @Output() hideCard = new EventEmitter<void>();
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  dismissCard(): void {
+    this.hideCard.emit();
+  }
 }

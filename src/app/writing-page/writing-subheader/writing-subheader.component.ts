@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {TimelineBlock} from '../../timeline-chart/timeline-chart.component';
 import {Tag} from '../../../protos';
 
@@ -25,6 +25,9 @@ export class WritingSubheaderComponent implements OnInit {
 
   @Input()
   relevantTags: Tag[] = [];
+
+  @Output() showPreview = new EventEmitter<string>();
+
 
   constructor(private ref: ChangeDetectorRef) { }
 
@@ -60,7 +63,7 @@ export class WritingSubheaderComponent implements OnInit {
   }
 
   selectBeat(selectedBeatId: string): void {
-    console.log('user selected ' + selectedBeatId);
+    this.showPreview.emit(selectedBeatId);
   }
 
 }

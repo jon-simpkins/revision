@@ -1,7 +1,11 @@
 <app-writing-subheader
   [timelineView]="timelineView"
-  [relevantTags]="relevantTags"></app-writing-subheader>
+  [relevantTags]="relevantTags"
+  (showPreview)="showPreview($event)"></app-writing-subheader>
 <div class="bottom-content">
-  <app-writing-content></app-writing-content>
+  <app-writing-content
+    [showCard]="shouldShowPreview"
+    (hideCard)="hidePreview()"
+  ></app-writing-content>
   <app-writing-sidebar></app-writing-sidebar>
 </div>
