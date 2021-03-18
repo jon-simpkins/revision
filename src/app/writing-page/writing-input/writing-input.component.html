@@ -1,1 +1,13 @@
-<p>writing-input works!</p>
+<div class="editor-space">
+  <quill-editor
+    [ngModel]="initialEditorText"
+    format="text"
+    scrollingContainer=".editor-space"
+    [formats]="[]"
+    (onContentChanged)="onProseChanged($event)"
+    (onSelectionChanged)="onSelectionChanged($event)"
+  >
+
+  </quill-editor>
+</div>
+

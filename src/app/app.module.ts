@@ -64,7 +64,11 @@ export const MaterialModules = [
   MatTabsModule,
   MatSelectModule,
   MatTooltipModule,
-  QuillModule.forRoot(),
+  QuillModule.forRoot({
+    modules: {
+      toolbar: false
+    }
+  }),
 ];
 
 export const NebularModules = [

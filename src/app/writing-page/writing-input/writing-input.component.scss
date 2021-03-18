@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-space {
+  display: block;
+  flex: 1;
+  height: 1px;
+}
+

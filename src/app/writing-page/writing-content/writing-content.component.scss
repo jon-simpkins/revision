@@ -1,5 +1,11 @@
 
 
 :host {
-  background: fuchsia;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+app-writing-input {
+  flex: 1;
 }
