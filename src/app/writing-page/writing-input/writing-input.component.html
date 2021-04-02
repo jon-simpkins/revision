@@ -1,13 +1,15 @@
 <div class="editor-space">
-  <quill-editor
-    [ngModel]="initialEditorText"
-    format="text"
-    scrollingContainer=".editor-space"
-    [formats]="[]"
-    (onContentChanged)="onProseChanged($event)"
-    (onSelectionChanged)="onSelectionChanged($event)"
+  <textarea
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="true"
+    placeholder="Write here!"
+    (input)="onProseChanged($event)"
+    (keydown)="onKeyDown($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
   >
-
-  </quill-editor>
+    {{currentEditorText}}
+  </textarea>
 </div>
 

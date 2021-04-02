@@ -15,24 +15,37 @@ export class WritingInputComponent implements OnInit {
 
   currentEditorText = '';
 
+  isFocused = false;
+
   emitProseChange = debounce((newText: string) => {
     console.log('would have emitted');
     console.log(newText);
   }, 200);
 
   ngOnInit(): void {
+    this.currentEditorText = this.initialEditorText;
   }
 
   onProseChanged(event: any): void {
-    this.currentEditorText = event.text as string;
+    this.currentEditorText = event.target.value as string;
     this.emitProseChange(this.currentEditorText);
   }
 
-  onSelectionChanged(event: any): void {
-    const wasBlur = event.range === null;
-
-    if (wasBlur) {
-      this.emitProseChange(this.currentEditorText);
+  onKeyDown(event: KeyboardEvent): boolean {
+    if (event.key === 'Tab') {
+      document.execCommand('insertText', false, '\t');
+      return false;
     }
+
+    return true;
+  }
+
+  onFocus(): void {
+    this.isFocused = true;
+  }
+
+  onBlur(): void {
+    this.isFocused = false;
+    this.emitProseChange(this.currentEditorText);
   }
 }
