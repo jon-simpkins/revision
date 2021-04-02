@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnInit} from '@angular/core';
 
 import {debounce} from 'debounce';
 
@@ -11,20 +11,18 @@ export class WritingInputComponent implements OnInit {
 
   constructor() { }
 
-  initialEditorText = 'this is some\n\n\nstuff!';
-
+  @Input()
   currentEditorText = '';
+
+  @Output() editorTextChanged = new EventEmitter<string>();
 
   isFocused = false;
 
   emitProseChange = debounce((newText: string) => {
-    console.log('would have emitted');
-    console.log(newText);
+    this.editorTextChanged.emit(newText);
   }, 200);
 
-  ngOnInit(): void {
-    this.currentEditorText = this.initialEditorText;
-  }
+  ngOnInit(): void {}
 
   onProseChanged(event: any): void {
     this.currentEditorText = event.target.value as string;

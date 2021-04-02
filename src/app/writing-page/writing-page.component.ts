@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
-import {Tag} from '../../protos';
+import {Beat, Tag} from '../../protos';
 import {ActivatedRoute} from '@angular/router';
 import {BeatsService} from '../beats.service';
 import {TagService} from '../tag.service';
@@ -14,6 +14,8 @@ import {TagService} from '../tag.service';
 export class WritingPageComponent implements OnInit {
 
   selectedBeatId = '';
+  selectedBeat: Beat = new Beat();
+
   timelineView: TimelineBlock[] = [];
   relevantTags: Tag[] = [];
 
@@ -38,9 +40,17 @@ export class WritingPageComponent implements OnInit {
   async selectBeat(selectedId: string): Promise<void> {
     this.selectedBeatId = selectedId;
     console.log('selected: ' + selectedId);
+
+    await this.fetchBeatAndSetSubscriptions();
+
     await this.updateTimeline();
     await this.updateRelevantTags();
     this.ref.markForCheck();
+  }
+
+  // Separate function to allow mocking in Mirage variation
+  async fetchBeatAndSetSubscriptions(): Promise<void> {
+    this.selectedBeat = await this.beatsService.getBeat(this.selectedBeatId) as Beat;
   }
 
   async updateTimeline(): Promise<void> {
@@ -69,6 +79,17 @@ export class WritingPageComponent implements OnInit {
   hidePreview(): void {
     this.shouldShowPreview = false;
     this.ref.markForCheck();
+  }
+
+  async editorTextChanged(newText: string): Promise<void> {
+    this.selectedBeat.prose = newText;
+    await this.setBeatUpdate(this.selectedBeat, false, true);
+    this.ref.markForCheck();
+  }
+
+  // Separate function to allow mocking in Mirage variation
+  async setBeatUpdate(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean): Promise<void> {
+    await this.beatsService.setBeat(beat, affectsMapView, affectsLastUpdated);
   }
 
 }

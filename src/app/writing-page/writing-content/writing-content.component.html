@@ -1,4 +1,7 @@
-<app-writing-input></app-writing-input>
+<app-writing-input
+  [currentEditorText]="editorText"
+  (editorTextChanged)="editorTextChange($event)"
+></app-writing-input>
 <div
   *ngIf="showCard"
   class="overlay"

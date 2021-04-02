@@ -10,7 +10,12 @@ export class WritingContentComponent implements OnInit {
   @Input()
   showCard = true;
 
+  @Input()
+  editorText = '';
+
   @Output() hideCard = new EventEmitter<void>();
+
+  @Output() editorTextChanged = new EventEmitter<string>();
 
   constructor() { }
 
@@ -19,5 +24,9 @@ export class WritingContentComponent implements OnInit {
 
   dismissCard(): void {
     this.hideCard.emit();
+  }
+
+  editorTextChange(newText: string): void {
+    this.editorTextChanged.emit(newText);
   }
 }

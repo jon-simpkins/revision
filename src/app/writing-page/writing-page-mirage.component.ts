@@ -94,7 +94,11 @@ const exampleTagList = [
   },
 ] as Tag[];
 
-
+const exampleBeatMap = new Map<string, Beat>();
+exampleBeatMap.set('1234', {
+    id: '1234',
+    prose: 'This is\n\n\tsome stuff!'
+  } as Beat);
 
 
 
@@ -119,11 +123,22 @@ export class WritingPageMirageComponent extends WritingPageComponent {
       ref, route);
   }
 
+  async fetchBeatAndSetSubscriptions(): Promise<void> {
+    this.selectedBeat = exampleBeatMap.get(this.selectedBeatId) as Beat;
+  }
+
   async updateTimeline(): Promise<void> {
     this.timelineView = exampleTimelineBlocks;
   }
 
   async updateRelevantTags(): Promise<void> {
     this.relevantTags = exampleTagList;
+  }
+
+  async setBeatUpdate(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean): Promise<void> {
+    console.log('Updated beat:');
+    console.log(beat);
+    console.log(`affectsMapView: ${affectsMapView}, affectsLastUpdated: ${affectsLastUpdated}`);
+    exampleBeatMap.set(beat.id, beat);
   }
 }

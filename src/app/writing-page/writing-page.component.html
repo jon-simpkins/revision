@@ -5,7 +5,9 @@
 <div class="bottom-content">
   <app-writing-content
     [showCard]="shouldShowPreview"
+    [editorText]="selectedBeat.prose"
     (hideCard)="hidePreview()"
+    (editorTextChanged)="editorTextChanged($event)"
   ></app-writing-content>
   <app-writing-sidebar></app-writing-sidebar>
 </div>
