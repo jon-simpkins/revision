@@ -1,4 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Beat} from '../../../protos';
 
 @Component({
   selector: 'app-writing-content',
@@ -8,7 +9,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 export class WritingContentComponent implements OnInit {
 
   @Input()
-  showCard = true;
+  referenceBeat: Beat|null = null;
 
   @Input()
   editorText = '';
@@ -17,9 +18,15 @@ export class WritingContentComponent implements OnInit {
 
   @Output() editorTextChanged = new EventEmitter<string>();
 
+  @Output() goToReference = new EventEmitter<void>();
+
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  showCard(): boolean {
+    return this.referenceBeat != null;
   }
 
   dismissCard(): void {
@@ -28,5 +35,13 @@ export class WritingContentComponent implements OnInit {
 
   editorTextChange(newText: string): void {
     this.editorTextChanged.emit(newText);
+  }
+
+  referenceSynopsis(): string {
+    return this.referenceBeat?.synopsis || '';
+  }
+
+  referenceProse(): string {
+    return this.referenceBeat?.prose || '';
   }
 }

@@ -4,10 +4,11 @@
   (showPreview)="showPreview($event)"></app-writing-subheader>
 <div class="bottom-content">
   <app-writing-content
-    [showCard]="shouldShowPreview"
+    [referenceBeat]="referenceBeat"
     [editorText]="selectedBeat.prose"
     (hideCard)="hidePreview()"
     (editorTextChanged)="editorTextChanged($event)"
+    (goToReference)="navigateToPreview()"
   ></app-writing-content>
   <app-writing-sidebar></app-writing-sidebar>
 </div>

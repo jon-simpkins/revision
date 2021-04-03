@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
 import {Beat, Tag} from '../../protos';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BeatsService} from '../beats.service';
 import {TagService} from '../tag.service';
 
@@ -16,6 +16,9 @@ export class WritingPageComponent implements OnInit {
   selectedBeatId = '';
   selectedBeat: Beat = new Beat();
 
+  referenceBeatId = '';
+  referenceBeat: Beat|null = null;
+
   timelineView: TimelineBlock[] = [];
   relevantTags: Tag[] = [];
 
@@ -24,7 +27,9 @@ export class WritingPageComponent implements OnInit {
   constructor(
     protected beatsService: BeatsService,
     protected tagService: TagService,
-    protected ref: ChangeDetectorRef, protected route: ActivatedRoute) { }
+    protected ref: ChangeDetectorRef,
+    protected route: ActivatedRoute,
+    protected router: Router) { }
 
   ngOnInit(): void {
 
@@ -70,15 +75,27 @@ export class WritingPageComponent implements OnInit {
 
   }
 
-  showPreview(newId: string): void {
-    console.log('want to preview:' + newId);
-    this.shouldShowPreview = true;
+  async showPreview(newId: string): Promise<void> {
+    this.referenceBeatId = newId;
+    await this.fetchReferenceBeatAndSetSubscriptions();
     this.ref.markForCheck();
   }
 
+  // Separate function to allow mocking in Mirage variation
+  async fetchReferenceBeatAndSetSubscriptions(): Promise<void> {
+    this.referenceBeat = await this.beatsService.getBeat(this.referenceBeatId) as Beat;
+  }
+
   hidePreview(): void {
-    this.shouldShowPreview = false;
+    this.referenceBeatId = '';
+    this.referenceBeat = null;
     this.ref.markForCheck();
+  }
+
+  async navigateToPreview(): Promise<void> {
+    const beatToNavigateTo = this.referenceBeatId;
+    this.hidePreview();
+    await this.router.navigate(['/writing', { id: beatToNavigateTo }]);
   }
 
   async editorTextChanged(newText: string): Promise<void> {

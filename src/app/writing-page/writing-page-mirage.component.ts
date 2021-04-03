@@ -5,7 +5,7 @@ import {Beat, Tag} from '../../protos';
 
 import Completeness = Beat.Completeness;
 import TagReference = Beat.TagReference;
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BeatsService} from '../beats.service';
 import {TagService} from '../tag.service';
 
@@ -116,11 +116,13 @@ export class WritingPageMirageComponent extends WritingPageComponent {
   constructor(
     protected beatsService: BeatsService,
     protected tagService: TagService,
-    protected ref: ChangeDetectorRef, protected route: ActivatedRoute) {
+    protected ref: ChangeDetectorRef,
+    protected route: ActivatedRoute,
+    protected router: Router) {
     super(
       beatsService,
       tagService,
-      ref, route);
+      ref, route, router);
   }
 
   async fetchBeatAndSetSubscriptions(): Promise<void> {

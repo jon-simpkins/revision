@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnInit, OnChanges} from '@angular/core';
 
 import {debounce} from 'debounce';
 

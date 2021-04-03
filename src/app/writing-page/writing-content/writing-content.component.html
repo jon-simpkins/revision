@@ -3,8 +3,12 @@
   (editorTextChanged)="editorTextChange($event)"
 ></app-writing-input>
 <div
-  *ngIf="showCard"
+  *ngIf="showCard()"
   class="overlay"
   (click)="dismissCard()">
-  <div class="fake-card"></div>
+  <div class="fake-card">
+    <h2>{{referenceSynopsis()}}</h2>
+    <p>{{referenceProse()}}</p>
+    <button (click)="goToReference.emit()">Goto</button>
+  </div>
 </div>

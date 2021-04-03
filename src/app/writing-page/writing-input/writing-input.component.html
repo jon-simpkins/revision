@@ -4,10 +4,11 @@
     autocorrect="off"
     spellcheck="true"
     placeholder="Write here!"
+    [value]="currentEditorText"
     (input)="onProseChanged($event)"
     (keydown)="onKeyDown($event)"
     (focus)="onFocus()"
     (blur)="onBlur()"
-  >{{currentEditorText}}</textarea>
+  ></textarea>
 </div>
 
