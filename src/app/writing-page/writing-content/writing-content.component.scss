@@ -26,6 +26,19 @@ app-writing-input {
     border-radius: 8px;
     border: 1px solid black;
     margin: auto;
+    display: flex;
+    padding: 16px;
+    font-family: CourierPrime, monospace;
+    flex-direction: column;
+
+    textarea {
+      flex: 1;
+      overflow-y: scroll;
+      resize: none;
+      padding: 32px;
+      font-family: CourierPrime, Courier New, monospace;
+      border: none;
+    }
   }
 }
 

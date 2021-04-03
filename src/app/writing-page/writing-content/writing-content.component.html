@@ -8,7 +8,7 @@
   (click)="dismissCard()">
   <div class="fake-card">
     <h2>{{referenceSynopsis()}}</h2>
-    <p>{{referenceProse()}}</p>
+    <textarea readonly>{{referenceProse()}}</textarea>
     <button (click)="goToReference.emit()">Goto</button>
   </div>
 </div>
