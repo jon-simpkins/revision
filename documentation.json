@@ -136,6 +136,32 @@
             "methods": []
         },
         {
+            "name": "BeatMetadataUpdate",
+            "id": "interface-BeatMetadataUpdate-01ce81890785070b1aa8607f47673ad2",
+            "file": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
+            "type": "interface",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n}\n",
+            "properties": [
+                {
+                    "name": "modifiesListView",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 6
+                },
+                {
+                    "name": "updatedBeat",
+                    "type": "Beat",
+                    "optional": false,
+                    "description": "",
+                    "line": 5
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 150,
+            "methods": []
+        },
+        {
             "name": "BeatReadView",
             "id": "interface-BeatReadView-d063eed01fb059eb4dd1ea15b2e98f47",
             "file": "src/app/beats.service.ts",
@@ -6036,7 +6062,7 @@
                 "OnInit",
                 "OnDestroy"
             ],
-            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<pre>\n  If you want to write a {{scriptLength}} page script,\n  you write a page in {{1 / pagesPerSprint}} \"sprints\",\n  each layer of the script splits on average into {{splitFactor}} pieces,\n  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you\n  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)\n  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day\n  ({{sessionsPerDay}} 15-minute sessions).\n\n  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions\n  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).\n\n  <button mat-stroked-button (click)=\"changeParameters()\">\n    Change Parameters\n  </button>\n</pre>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n  </div>\n\n  <div class=\"story-list\">\n    <button mat-stroked-button (click)=\"newStory()\">\n      New Story\n    </button>\n    <button *ngIf=\"!!storyListView.length\" mat-stroked-button (click)=\"randomStory()\">\n      Random Story\n    </button>\n    <div *ngFor=\"let story of storyListView\"\n         class=\"story\"\n       (click)=\"navigateToStory(story.id)\">\n      {{story.name}}\n    </div>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
+            "templateData": "<div>\n  <a href=\"https://github.com/jon-simpkins/revision\" target=\"_blank\">\n    Source Code\n  </a>\n</div>\n\n<pre>\n  If you want to write a {{scriptLength}} page script,\n  you write a page in {{1 / pagesPerSprint}} \"sprints\",\n  each layer of the script splits on average into {{splitFactor}} pieces,\n  you give up on {{giveUpRate()}}% of stories after you get to half depth, it will take you\n  {{calculateSessionsRequired() | number}} sessions ({{calculateSessionsRequired() / sessionsPerDay | number}} days)\n  to complete your script, given {{sessionsPerDay / 4}} hrs of writing per day\n  ({{sessionsPerDay}} 15-minute sessions).\n\n  In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions\n  ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).\n\n  <button mat-stroked-button (click)=\"changeParameters()\">\n    Change Parameters\n  </button>\n</pre>\n\n<div *ngIf=\"workspaceName.length > 0\">\n  <h3>Workspace: {{workspaceName}}</h3>\n\n  <div class=\"link-list\">\n    <a routerLink=\"structure-templates\">Structure Templates</a>\n    <a routerLink=\"brainstorm-templates\">Brainstorm Templates</a>\n    <a routerLink=\"tags\">Tags</a>\n    <a routerLink=\"beats\">Beats</a>\n    <a href=\"#/mirage/writing;id=1234\">Writing Example</a>\n  </div>\n\n  <div class=\"story-list\">\n    <button mat-stroked-button (click)=\"newStory()\">\n      New Story\n    </button>\n    <button *ngIf=\"!!storyListView.length\" mat-stroked-button (click)=\"randomStory()\">\n      Random Story\n    </button>\n    <div *ngFor=\"let story of storyListView\"\n         class=\"story\"\n       (click)=\"navigateToStory(story.id)\">\n      {{story.name}}\n    </div>\n  </div>\n\n  <app-show-session-history></app-show-session-history>\n</div>\n\n<ng-container *ngIf=\"workspaceName.length == 0\">\n  <h3>No current workspace!</h3>\n\n  <p>Go to the <a routerLink=\"data\">data page</a> to load from file.</p>\n</ng-container>\n\n\n\n"
         },
         {
             "name": "ReadPageBeatComponent",
@@ -7796,7 +7822,7 @@
         },
         {
             "name": "WritingContentComponent",
-            "id": "component-WritingContentComponent-8ef7ab8ff02d4af61aaa36b19e7db91a",
+            "id": "component-WritingContentComponent-d093a15a73de275315a00b3d16697b71",
             "file": "src/app/writing-page/writing-content/writing-content.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -7812,17 +7838,102 @@
                 "./writing-content.component.html"
             ],
             "viewProviders": [],
-            "inputsClass": [],
-            "outputsClass": [],
+            "inputsClass": [
+                {
+                    "name": "editorText",
+                    "defaultValue": "''",
+                    "line": 15
+                },
+                {
+                    "name": "referenceBeat",
+                    "defaultValue": "null",
+                    "line": 12,
+                    "type": "Beat | null"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "editorTextChanged",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 19,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "goToReference",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 21,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "hideCard",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "line": 17,
+                    "type": "EventEmitter"
+                }
+            ],
             "propertiesClass": [],
             "methodsClass": [
+                {
+                    "name": "dismissCard",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 32
+                },
+                {
+                    "name": "editorTextChange",
+                    "args": [
+                        {
+                            "name": "newText",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 36,
+                    "jsdoctags": [
+                        {
+                            "name": "newText",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 12
+                    "line": 25
+                },
+                {
+                    "name": "referenceProse",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 44
+                },
+                {
+                    "name": "referenceSynopsis",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 40
+                },
+                {
+                    "name": "showCard",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 28
                 }
             ],
             "hostBindings": [],
@@ -7830,11 +7941,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-writing-content',\n  templateUrl: './writing-content.component.html',\n  styleUrls: ['./writing-content.component.scss']\n})\nexport class WritingContentComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';\nimport {Beat} from '../../../protos';\n\n@Component({\n  selector: 'app-writing-content',\n  templateUrl: './writing-content.component.html',\n  styleUrls: ['./writing-content.component.scss']\n})\nexport class WritingContentComponent implements OnInit {\n\n  @Input()\n  referenceBeat: Beat|null = null;\n\n  @Input()\n  editorText = '';\n\n  @Output() hideCard = new EventEmitter<void>();\n\n  @Output() editorTextChanged = new EventEmitter<string>();\n\n  @Output() goToReference = new EventEmitter<void>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  showCard(): boolean {\n    return this.referenceBeat != null;\n  }\n\n  dismissCard(): void {\n    this.hideCard.emit();\n  }\n\n  editorTextChange(newText: string): void {\n    this.editorTextChanged.emit(newText);\n  }\n\n  referenceSynopsis(): string {\n    return this.referenceBeat?.synopsis || '';\n  }\n\n  referenceProse(): string {\n    return this.referenceBeat?.prose || '';\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": "\n\n:host {\n  background: white;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n}\n\napp-writing-input {\n  flex: 1;\n}\n\n.overlay {\n  position: absolute;\n  display: flex;\n  width: 100%;\n  height: 100%;\n  z-index: 1000;\n  background: rgba(0,0,0, 0.25);\n\n  .fake-card {\n    background: white;\n    width: 80%;\n    height: 80%;\n    border-radius: 8px;\n    border: 1px solid black;\n    margin: auto;\n    display: flex;\n    padding: 16px;\n    font-family: CourierPrime, monospace;\n    flex-direction: column;\n\n    textarea {\n      flex: 1;\n      overflow-y: scroll;\n      resize: none;\n      padding: 32px;\n      font-family: CourierPrime, Courier New, monospace;\n      border: none;\n    }\n  }\n}\n\n",
                     "styleUrl": "./writing-content.component.scss"
                 }
             ],
@@ -7843,17 +7954,256 @@
                 "name": "constructor",
                 "description": "",
                 "args": [],
-                "line": 8
+                "line": 21
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<p>writing-content works!</p>\n"
+            "templateData": "<app-writing-input\n  [currentEditorText]=\"editorText\"\n  (editorTextChanged)=\"editorTextChange($event)\"\n></app-writing-input>\n<div\n  *ngIf=\"showCard()\"\n  class=\"overlay\"\n  (click)=\"dismissCard()\">\n  <div class=\"fake-card\">\n    <h2>{{referenceSynopsis()}}</h2>\n    <textarea readonly>{{referenceProse()}}</textarea>\n    <button (click)=\"goToReference.emit()\">Goto</button>\n  </div>\n</div>\n"
+        },
+        {
+            "name": "WritingInputComponent",
+            "id": "component-WritingInputComponent-a56b5f7836f678cb9bebb380809c327d",
+            "file": "src/app/writing-page/writing-input/writing-input.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-writing-input",
+            "styleUrls": [
+                "./writing-input.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./writing-input.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "currentEditorText",
+                    "defaultValue": "''",
+                    "line": 15
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "editorTextChanged",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 17,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "emitProseChange",
+                    "defaultValue": "debounce((newText: string) => {\n    this.editorTextChanged.emit(newText);\n  }, 200)",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "isFocused",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25
+                },
+                {
+                    "name": "onBlur",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 45
+                },
+                {
+                    "name": "onFocus",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 41
+                },
+                {
+                    "name": "onKeyDown",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 32,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "onProseChanged",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, Output, OnInit, OnChanges} from '@angular/core';\n\nimport {debounce} from 'debounce';\n\n@Component({\n  selector: 'app-writing-input',\n  templateUrl: './writing-input.component.html',\n  styleUrls: ['./writing-input.component.scss']\n})\nexport class WritingInputComponent implements OnInit {\n\n  constructor() { }\n\n  @Input()\n  currentEditorText = '';\n\n  @Output() editorTextChanged = new EventEmitter<string>();\n\n  isFocused = false;\n\n  emitProseChange = debounce((newText: string) => {\n    this.editorTextChanged.emit(newText);\n  }, 200);\n\n  ngOnInit(): void {}\n\n  onProseChanged(event: any): void {\n    this.currentEditorText = event.target.value as string;\n    this.emitProseChange(this.currentEditorText);\n  }\n\n  onKeyDown(event: KeyboardEvent): boolean {\n    if (event.key === 'Tab') {\n      document.execCommand('insertText', false, '\\t');\n      return false;\n    }\n\n    return true;\n  }\n\n  onFocus(): void {\n    this.isFocused = true;\n  }\n\n  onBlur(): void {\n    this.isFocused = false;\n    this.emitProseChange(this.currentEditorText);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: flex;\n  flex-direction: column;\n}\n\n.editor-space {\n  display: block;\n  flex: 1;\n  height: 1px;\n\n  textarea {\n    resize: none;\n    padding: 32px;\n    display: block;\n    width: 100%;\n    height: 100%;\n    overflow-y: scroll;\n\n    font-family: CourierPrime, Courier New, monospace;\n    border: none;\n  }\n}\n\n",
+                    "styleUrl": "./writing-input.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 10
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<div class=\"editor-space\">\n  <textarea\n    autocomplete=\"off\"\n    autocorrect=\"off\"\n    spellcheck=\"true\"\n    placeholder=\"Write here!\"\n    [value]=\"currentEditorText\"\n    (input)=\"onProseChanged($event)\"\n    (keydown)=\"onKeyDown($event)\"\n    (focus)=\"onFocus()\"\n    (blur)=\"onBlur()\"\n  ></textarea>\n</div>\n\n"
+        },
+        {
+            "name": "WritingMetadataComponent",
+            "id": "component-WritingMetadataComponent-01ce81890785070b1aa8607f47673ad2",
+            "file": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-writing-metadata",
+            "styleUrls": [
+                "./writing-metadata.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./writing-metadata.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "editingBeat",
+                    "defaultValue": "new Beat()",
+                    "line": 17,
+                    "type": "Beat"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "beatMeatadataUpdates",
+                    "defaultValue": "new EventEmitter<BeatMetadataUpdate>()",
+                    "line": 19,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 23
+                },
+                {
+                    "name": "onSynopsisChange",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 26,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "",
+            "type": "component",
+            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./writing-metadata.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [],
+                "line": 19
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<label>Synopsis\n  <input type=\"text\" [value]=\"editingBeat.synopsis\" (input)=\"onSynopsisChange($event)\">\n</label>\n"
         },
         {
             "name": "WritingPageComponent",
-            "id": "component-WritingPageComponent-d4fe63be5d40ed33dea2af03e7b32937",
+            "id": "component-WritingPageComponent-bbde6c0173614a049766c419612a18a5",
             "file": "src/app/writing-page/writing-page.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -7870,15 +8220,284 @@
             "viewProviders": [],
             "inputsClass": [],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "referenceBeat",
+                    "defaultValue": "null",
+                    "type": "Beat | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "referenceBeatId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
+                },
+                {
+                    "name": "relevantTags",
+                    "defaultValue": "[]",
+                    "type": "Tag[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 24
+                },
+                {
+                    "name": "selectedBeat",
+                    "defaultValue": "new Beat()",
+                    "type": "Beat",
+                    "optional": false,
+                    "description": "",
+                    "line": 18
+                },
+                {
+                    "name": "selectedBeatId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                },
+                {
+                    "name": "shouldShowPreview",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 26
+                },
+                {
+                    "name": "timelineView",
+                    "defaultValue": "[]",
+                    "type": "TimelineBlock[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 23
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "editorTextChanged",
+                    "args": [
+                        {
+                            "name": "newText",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 102,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newText",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "fetchBeatAndSetSubscriptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 58,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "fetchReferenceBeatAndSetSubscriptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 86,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "hidePreview",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 90
+                },
+                {
+                    "name": "navigateToPreview",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 96,
+                    "modifierKind": [
+                        120
+                    ]
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 12
+                    "line": 35
+                },
+                {
+                    "name": "selectBeat",
+                    "args": [
+                        {
+                            "name": "selectedId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 46,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "selectedId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setBeatUpdate",
+                    "args": [
+                        {
+                            "name": "beat",
+                            "type": "Beat"
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 109,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beat",
+                            "type": "Beat",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "showPreview",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 79,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "updateBeatMetadata",
+                    "args": [
+                        {
+                            "name": "update",
+                            "type": "BeatMetadataUpdate"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 113,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "update",
+                            "type": "BeatMetadataUpdate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "updateRelevantTags",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 67,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "updateTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 62,
+                    "modifierKind": [
+                        120
+                    ]
                 }
             ],
             "hostBindings": [],
@@ -7886,11 +8505,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-writing-page',\n  templateUrl: './writing-page.component.html',\n  styleUrls: ['./writing-page.component.scss']\n})\nexport class WritingPageComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';\nimport {TimelineBlock} from '../timeline-chart/timeline-chart.component';\nimport {Beat, Tag} from '../../protos';\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatsService} from '../beats.service';\nimport {TagService} from '../tag.service';\nimport {BeatMetadataUpdate} from './writing-metadata/writing-metadata.component';\n\n@Component({\n  selector: 'app-writing-page',\n  templateUrl: './writing-page.component.html',\n  styleUrls: ['./writing-page.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class WritingPageComponent implements OnInit {\n\n  selectedBeatId = '';\n  selectedBeat: Beat = new Beat();\n\n  referenceBeatId = '';\n  referenceBeat: Beat|null = null;\n\n  timelineView: TimelineBlock[] = [];\n  relevantTags: Tag[] = [];\n\n  shouldShowPreview = false;\n\n  constructor(\n    protected beatsService: BeatsService,\n    protected tagService: TagService,\n    protected ref: ChangeDetectorRef,\n    protected route: ActivatedRoute,\n    protected router: Router) { }\n\n  ngOnInit(): void {\n\n    // Read the selected beat ID from the route\n    this.route.params.subscribe(async (value) => {\n      const selectedId = value.id as string;\n      if (this.selectedBeatId !== selectedId && !!selectedId) {\n        await this.selectBeat(selectedId);\n      }\n    });\n  }\n\n  async selectBeat(selectedId: string): Promise<void> {\n    this.selectedBeatId = selectedId;\n    console.log('selected: ' + selectedId);\n\n    await this.fetchBeatAndSetSubscriptions();\n\n    await this.updateTimeline();\n    await this.updateRelevantTags();\n    this.ref.markForCheck();\n  }\n\n  // Separate function to allow mocking in Mirage variation\n  async fetchBeatAndSetSubscriptions(): Promise<void> {\n    this.selectedBeat = await this.beatsService.getBeat(this.selectedBeatId) as Beat;\n  }\n\n  async updateTimeline(): Promise<void> {\n    this.timelineView = await this.beatsService.fetchTimelineView(\n      this.selectedBeatId);\n  }\n\n  async updateRelevantTags(): Promise<void> {\n    const allReferencedTagIds = new Set<string>();\n    this.timelineView.forEach((block) => {\n      block.tagReferences.forEach((reference) => {\n        allReferencedTagIds.add(reference.tagId);\n      });\n    });\n\n    this.relevantTags = await this.tagService.getSpecificTags(Array.from(allReferencedTagIds.keys()));\n\n  }\n\n  async showPreview(newId: string): Promise<void> {\n    this.referenceBeatId = newId;\n    await this.fetchReferenceBeatAndSetSubscriptions();\n    this.ref.markForCheck();\n  }\n\n  // Separate function to allow mocking in Mirage variation\n  async fetchReferenceBeatAndSetSubscriptions(): Promise<void> {\n    this.referenceBeat = await this.beatsService.getBeat(this.referenceBeatId) as Beat;\n  }\n\n  hidePreview(): void {\n    this.referenceBeatId = '';\n    this.referenceBeat = null;\n    this.ref.markForCheck();\n  }\n\n  async navigateToPreview(): Promise<void> {\n    const beatToNavigateTo = this.referenceBeatId;\n    this.hidePreview();\n    await this.router.navigate(['/writing', { id: beatToNavigateTo }]);\n  }\n\n  async editorTextChanged(newText: string): Promise<void> {\n    this.selectedBeat.prose = newText;\n    await this.setBeatUpdate(this.selectedBeat, false, true);\n    this.ref.markForCheck();\n  }\n\n  // Separate function to allow mocking in Mirage variation\n  async setBeatUpdate(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean): Promise<void> {\n    await this.beatsService.setBeat(beat, affectsMapView, affectsLastUpdated);\n  }\n\n  async updateBeatMetadata(update: BeatMetadataUpdate): Promise<void> {\n    this.selectedBeat = update.updatedBeat;\n    await this.setBeatUpdate(update.updatedBeat, update.modifiesListView, false);\n    this.ref.markForCheck();\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "\n\n:host {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n}\n\n.bottom-content {\n  flex: 1;\n\n  display: flex;\n\n  .writing-content {\n    flex: 1;\n    background: fuchsia;\n  }\n}\n",
+                    "data": "\n:host {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n}\n\n.bottom-content {\n  flex: 1;\n  display: flex;\n\n  app-writing-content {\n    flex: 1;\n  }\n}\n",
                     "styleUrl": "./writing-page.component.scss"
                 }
             ],
@@ -7898,40 +8517,507 @@
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 8
+                "args": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService"
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute"
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router"
+                    }
+                ],
+                "line": 26,
+                "jsdoctags": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<app-writing-subheader></app-writing-subheader>\n<div class=\"bottom-content\">\n  <div class=\"writing-content\">\n    Writing content\n  </div>\n  <app-writing-sidebar></app-writing-sidebar>\n</div>\n"
+            "templateData": "<app-writing-subheader\n  [editingBeat]=\"selectedBeat\"\n  [timelineView]=\"timelineView\"\n  [relevantTags]=\"relevantTags\"\n  (showPreview)=\"showPreview($event)\"\n  (beatMeatadataUpdates)=\"updateBeatMetadata($event)\"></app-writing-subheader>\n<div class=\"bottom-content\">\n  <app-writing-content\n    [referenceBeat]=\"referenceBeat\"\n    [editorText]=\"selectedBeat.prose\"\n    (hideCard)=\"hidePreview()\"\n    (editorTextChanged)=\"editorTextChanged($event)\"\n    (goToReference)=\"navigateToPreview()\"\n  ></app-writing-content>\n  <app-writing-sidebar></app-writing-sidebar>\n</div>\n"
         },
         {
-            "name": "WritingPageStoryComponent",
-            "id": "component-WritingPageStoryComponent-4098e24f4f21850929f27df8ae422f83",
-            "file": "src/app/writing-page/writing-page.stories.ts",
+            "name": "WritingPageMirageComponent",
+            "id": "component-WritingPageMirageComponent-4412d642fad240fbe840268c0c660744",
+            "file": "src/app/writing-page/writing-page-mirage.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
             "outputs": [],
             "providers": [],
-            "selector": "writing-page-story",
-            "styleUrls": [],
+            "selector": "writing-page-mirage",
+            "styleUrls": [
+                "./writing-page.component.scss"
+            ],
             "styles": [],
-            "template": "<app-writing-page style=\"min-height: 800px;\">hello</app-writing-page>",
-            "templateUrl": [],
+            "templateUrl": [
+                "./writing-page.component.html"
+            ],
             "viewProviders": [],
             "inputsClass": [],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "referenceBeat",
+                    "defaultValue": "null",
+                    "type": "Beat | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "referenceBeatId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "relevantTags",
+                    "defaultValue": "[]",
+                    "type": "Tag[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 24,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "selectedBeat",
+                    "defaultValue": "new Beat()",
+                    "type": "Beat",
+                    "optional": false,
+                    "description": "",
+                    "line": 18,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "selectedBeatId",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "shouldShowPreview",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 26,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "timelineView",
+                    "defaultValue": "[]",
+                    "type": "TimelineBlock[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 23,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "fetchBeatAndSetSubscriptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 128,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "setBeatUpdate",
+                    "args": [
+                        {
+                            "name": "beat",
+                            "type": "Beat"
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 140,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beat",
+                            "type": "Beat",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "updateRelevantTags",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 136,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "updateTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 132,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "editorTextChanged",
+                    "args": [
+                        {
+                            "name": "newText",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 102,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newText",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "fetchBeatAndSetSubscriptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 58,
+                    "modifierKind": [
+                        120
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "fetchReferenceBeatAndSetSubscriptions",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 86,
+                    "modifierKind": [
+                        120
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "hidePreview",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 90,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "navigateToPreview",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 96,
+                    "modifierKind": [
+                        120
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 12,
+                    "line": 35,
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "selectBeat",
+                    "args": [
+                        {
+                            "name": "selectedId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 46,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "selectedId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "setBeatUpdate",
+                    "args": [
+                        {
+                            "name": "beat",
+                            "type": "Beat"
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false"
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 109,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "beat",
+                            "type": "Beat",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsMapView",
+                            "type": "boolean",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "affectsLastUpdated",
+                            "type": "boolean",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "showPreview",
+                    "args": [
+                        {
+                            "name": "newId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 79,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "newId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "updateBeatMetadata",
+                    "args": [
+                        {
+                            "name": "update",
+                            "type": "BeatMetadataUpdate"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 113,
+                    "modifierKind": [
+                        120
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "update",
+                            "type": "BeatMetadataUpdate",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "updateRelevantTags",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 67,
+                    "modifierKind": [
+                        120
+                    ],
+                    "inheritance": {
+                        "file": "WritingPageComponent"
+                    }
+                },
+                {
+                    "name": "updateTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 62,
+                    "modifierKind": [
+                        120
+                    ],
                     "inheritance": {
                         "file": "WritingPageComponent"
                     }
@@ -7942,11 +9028,81 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {moduleMetadata} from '@storybook/angular';\nimport {CommonModule} from '@angular/common';\n// also exported from '@storybook/angular' if you can deal with breaking changes in 6.1\nimport {Meta, Story} from '@storybook/angular/types-6-0';\n\nimport {NebularModules} from '../app.module';\nimport {AppRoutingModule} from '../app-routing.module';\nimport {WritingPageComponent} from './writing-page.component';\nimport {Component} from '@angular/core';\nimport {WritingSubheaderComponent} from './writing-subheader/writing-subheader.component';\nimport {WritingContentComponent} from './writing-content/writing-content.component';\nimport {WritingSidebarComponent} from './writing-sidebar/writing-sidebar.component';\n\n@Component({\n  // tslint:disable-next-line:component-selector\n  selector: 'writing-page-story',\n  template: '<app-writing-page style=\"min-height: 800px;\">hello</app-writing-page>',\n  providers: [],\n})\nclass WritingPageStoryComponent extends WritingPageComponent {\n\n}\n\nexport default {\n  title: 'Writing Page',\n  argTypes: {},\n  component: WritingPageStoryComponent,\n  decorators: [\n    moduleMetadata({\n      declarations: [\n        WritingPageComponent,\n        WritingSubheaderComponent,\n        WritingContentComponent,\n        WritingSidebarComponent,\n      ],\n      imports: [CommonModule, ...NebularModules, AppRoutingModule],\n    }),\n  ],\n} as Meta;\n\nconst Template: Story<WritingPageStoryComponent> = (args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n});\n\nexport const EmptyExample = Template.bind({});\n\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';\nimport {WritingPageComponent} from './writing-page.component';\nimport {TimelineBlock} from '../timeline-chart/timeline-chart.component';\nimport {Beat, Tag} from '../../protos';\n\nimport Completeness = Beat.Completeness;\nimport TagReference = Beat.TagReference;\nimport {ActivatedRoute, Router} from '@angular/router';\nimport {BeatsService} from '../beats.service';\nimport {TagService} from '../tag.service';\n\nconst exampleTimelineBlocks = [\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[];\n\nconst exampleTagList = [\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[];\n\nconst exampleBeatMap = new Map<string, Beat>();\nexampleBeatMap.set('1234', {\n    id: '1234',\n    prose: 'This is\\n\\n\\tsome stuff!'\n  } as Beat);\n\n\n\n\n@Component({\n  // tslint:disable-next-line:component-selector\n  selector: 'writing-page-mirage',\n  templateUrl: './writing-page.component.html',\n  styleUrls: ['./writing-page.component.scss'],\n  providers: [],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class WritingPageMirageComponent extends WritingPageComponent {\n\n  constructor(\n    protected beatsService: BeatsService,\n    protected tagService: TagService,\n    protected ref: ChangeDetectorRef,\n    protected route: ActivatedRoute,\n    protected router: Router) {\n    super(\n      beatsService,\n      tagService,\n      ref, route, router);\n  }\n\n  async fetchBeatAndSetSubscriptions(): Promise<void> {\n    this.selectedBeat = exampleBeatMap.get(this.selectedBeatId) as Beat;\n  }\n\n  async updateTimeline(): Promise<void> {\n    this.timelineView = exampleTimelineBlocks;\n  }\n\n  async updateRelevantTags(): Promise<void> {\n    this.relevantTags = exampleTagList;\n  }\n\n  async setBeatUpdate(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean): Promise<void> {\n    console.log('Updated beat:');\n    console.log(beat);\n    console.log(`affectsMapView: ${affectsMapView}, affectsLastUpdated: ${affectsLastUpdated}`);\n    exampleBeatMap.set(beat.id, beat);\n  }\n}\n",
             "assetsDirs": [],
-            "styleUrlsData": "",
+            "styleUrlsData": [
+                {
+                    "data": "\n:host {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  height: 100%;\n}\n\n.bottom-content {\n  flex: 1;\n  display: flex;\n\n  app-writing-content {\n    flex: 1;\n  }\n}\n",
+                    "styleUrl": "./writing-page.component.scss"
+                }
+            ],
             "stylesData": "",
-            "extends": "WritingPageComponent"
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "args": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService"
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService"
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute"
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router"
+                    }
+                ],
+                "line": 114,
+                "jsdoctags": [
+                    {
+                        "name": "beatsService",
+                        "type": "BeatsService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "tagService",
+                        "type": "TagService",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": "WritingPageComponent",
+            "templateData": "<app-writing-subheader\n  [editingBeat]=\"selectedBeat\"\n  [timelineView]=\"timelineView\"\n  [relevantTags]=\"relevantTags\"\n  (showPreview)=\"showPreview($event)\"\n  (beatMeatadataUpdates)=\"updateBeatMetadata($event)\"></app-writing-subheader>\n<div class=\"bottom-content\">\n  <app-writing-content\n    [referenceBeat]=\"referenceBeat\"\n    [editorText]=\"selectedBeat.prose\"\n    (hideCard)=\"hidePreview()\"\n    (editorTextChanged)=\"editorTextChanged($event)\"\n    (goToReference)=\"navigateToPreview()\"\n  ></app-writing-content>\n  <app-writing-sidebar></app-writing-sidebar>\n</div>\n"
         },
         {
             "name": "WritingSidebarComponent",
@@ -8006,8 +9162,9 @@
         },
         {
             "name": "WritingSubheaderComponent",
-            "id": "component-WritingSubheaderComponent-fb65e3e47291930875c79303584ae714",
+            "id": "component-WritingSubheaderComponent-d7af5017b91c09035d01122624f208d4",
             "file": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -8022,17 +9179,155 @@
                 "./writing-subheader.component.html"
             ],
             "viewProviders": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [],
+            "inputsClass": [
+                {
+                    "name": "editingBeat",
+                    "defaultValue": "new Beat()",
+                    "line": 25,
+                    "type": "Beat"
+                },
+                {
+                    "name": "relevantTags",
+                    "defaultValue": "[]",
+                    "line": 31,
+                    "type": "Tag[]"
+                },
+                {
+                    "name": "timelineView",
+                    "defaultValue": "[]",
+                    "line": 28,
+                    "type": "TimelineBlock[]"
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "beatMeatadataUpdates",
+                    "defaultValue": "new EventEmitter<BeatMetadataUpdate>()",
+                    "line": 35,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "showPreview",
+                    "defaultValue": "new EventEmitter<string>()",
+                    "line": 33,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "currentMode",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                },
+                {
+                    "name": "metadataIcon",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
+                },
+                {
+                    "name": "metadataSelected",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                },
+                {
+                    "name": "timelineIcon",
+                    "defaultValue": "''",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 22
+                },
+                {
+                    "name": "timelineSelected",
+                    "defaultValue": "false",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                }
+            ],
             "methodsClass": [
+                {
+                    "name": "isMetadata",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 52
+                },
+                {
+                    "name": "isTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 56
+                },
                 {
                     "name": "ngOnInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 12
+                    "line": 39
+                },
+                {
+                    "name": "selectBeat",
+                    "args": [
+                        {
+                            "name": "selectedBeatId",
+                            "type": "string"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 70,
+                    "jsdoctags": [
+                        {
+                            "name": "selectedBeatId",
+                            "type": "string",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selectMetadata",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 60
+                },
+                {
+                    "name": "selectTimeline",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Promise<void>",
+                    "typeParameters": [],
+                    "line": 65,
+                    "modifierKind": [
+                        120
+                    ]
+                },
+                {
+                    "name": "updateButtons",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 43
                 }
             ],
             "hostBindings": [],
@@ -8040,11 +9335,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\n\n@Component({\n  selector: 'app-writing-subheader',\n  templateUrl: './writing-subheader.component.html',\n  styleUrls: ['./writing-subheader.component.scss']\n})\nexport class WritingSubheaderComponent implements OnInit {\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {TimelineBlock} from '../../timeline-chart/timeline-chart.component';\nimport {Beat, Tag} from '../../../protos';\nimport {BeatMetadataUpdate} from '../writing-metadata/writing-metadata.component';\n\nconst metadataMode = 'metadataMode';\nconst timelineMode = 'timelineMode';\n\n@Component({\n  selector: 'app-writing-subheader',\n  templateUrl: './writing-subheader.component.html',\n  styleUrls: ['./writing-subheader.component.scss'],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class WritingSubheaderComponent implements OnInit {\n\n  currentMode = '';\n\n  metadataSelected = false;\n  metadataIcon = '';\n  timelineSelected = false;\n  timelineIcon = '';\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Input()\n  timelineView: TimelineBlock[] = [];\n\n  @Input()\n  relevantTags: Tag[] = [];\n\n  @Output() showPreview = new EventEmitter<string>();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n    this.selectMetadata();\n  }\n\n  updateButtons(): void {\n    this.metadataSelected = this.isMetadata();\n    this.metadataIcon = this.isMetadata() ? 'file-text' : 'file-text-outline';\n    this.timelineSelected = this.isTimeline();\n    this.timelineIcon = this.isTimeline() ? 'map' : 'map-outline';\n\n    this.ref.markForCheck();\n  }\n\n  isMetadata(): boolean {\n    return this.currentMode === metadataMode;\n  }\n\n  isTimeline(): boolean {\n    return this.currentMode === timelineMode;\n  }\n\n  selectMetadata(): void {\n    this.currentMode = metadataMode;\n    this.updateButtons();\n  }\n\n  async selectTimeline(): Promise<void> {\n    this.currentMode = timelineMode;\n    this.updateButtons();\n  }\n\n  selectBeat(selectedBeatId: string): void {\n    this.showPreview.emit(selectedBeatId);\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ":host {\n  height: 75px;\n  background: lightyellow;\n}\n",
+                    "data": "\n.wrapper {\n  display: flex;\n\n\n  .mode-buttons {\n    display: flex;\n    flex-direction: column;\n    margin-right: 16px;\n    border-right: 1px solid black;\n    font-family: CourierPrime, monospace;\n  }\n\n  .content {\n    flex: 1;\n  }\n}\n\n\n",
                     "styleUrl": "./writing-subheader.component.scss"
                 }
             ],
@@ -8052,13 +9347,27 @@
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 8
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 35,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<div>writing-subheader works!</div>\n"
+            "templateData": "<div class=\"wrapper\">\n  <div class=\"mode-buttons\">\n    <button\n      title=\"Metadata\"\n      (click)=\"selectMetadata()\"\n      [class.isSelected]=\"metadataSelected\">\n        M\n    </button>\n    <button\n      title=\"Timeline\"\n      (click)=\"selectTimeline()\"\n      [class.isSelected]=\"timelineSelected\">\n      T\n    </button>\n  </div>\n  <div class=\"content\">\n    <app-writing-metadata\n      *ngIf=\"isMetadata()\"\n      [editingBeat]=\"editingBeat\"\n      (beatMeatadataUpdates)=\"beatMeatadataUpdates.emit($event)\"></app-writing-metadata>\n    <app-timeline-chart\n      *ngIf=\"isTimeline()\"\n      [timelineBlocks]=\"timelineView\"\n      [relevantTags]=\"relevantTags\"\n      (selectBeat)=\"selectBeat($event)\"></app-timeline-chart>\n  </div>\n</div>\n"
         }
     ],
     "modules": [
@@ -8151,7 +9460,16 @@
                             "name": "WritingContentComponent"
                         },
                         {
+                            "name": "WritingInputComponent"
+                        },
+                        {
+                            "name": "WritingMetadataComponent"
+                        },
+                        {
                             "name": "WritingPageComponent"
+                        },
+                        {
+                            "name": "WritingPageMirageComponent"
                         },
                         {
                             "name": "WritingSidebarComponent"
@@ -8276,6 +9594,14 @@
                 "defaultValue": "Template.bind({})"
             },
             {
+                "name": "BasicExample",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
                 "name": "BEAT_KEY_PREFIX",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -8327,7 +9653,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8335,7 +9661,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8359,14 +9685,6 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
-                "type": "",
-                "defaultValue": "Template.bind({})"
-            },
-            {
-                "name": "EmptyExample",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
@@ -8375,7 +9693,7 @@
                 "name": "EmptyExample",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/writing-page/writing-page.stories.ts",
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "",
                 "defaultValue": "Template.bind({})"
             },
@@ -8431,17 +9749,17 @@
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.ts",
+                "file": "src/environments/environment.prod.ts",
                 "type": "object",
-                "defaultValue": "{\n  production: false\n}"
+                "defaultValue": "{\n  production: true\n}"
             },
             {
                 "name": "environment",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/environments/environment.prod.ts",
+                "file": "src/environments/environment.ts",
                 "type": "object",
-                "defaultValue": "{\n  production: true\n}"
+                "defaultValue": "{\n  production: false\n}"
             },
             {
                 "name": "Example1",
@@ -8482,6 +9800,14 @@
                 "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                 "type": "[]",
                 "defaultValue": "[\n  {\n    id: 'ghi-789',\n    name: 'My third beat',\n    lastUpdated: Date.now() - (1000 * 12),\n  } as BeatMapView,\n  {\n    id: 'jkl-012',\n    name: 'My 4th beat with a really long title that will wrap at some point perhaps',\n    lastUpdated: Date.now() - (1000 * 9)\n  } as BeatMapView\n]"
+            },
+            {
+                "name": "exampleBeatMap",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "",
+                "defaultValue": "new Map<string, Beat>()"
             },
             {
                 "name": "exampleBrainstormTemplate",
@@ -8540,6 +9866,14 @@
                 "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[]"
             },
             {
+                "name": "exampleTagList",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "",
+                "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[]"
+            },
+            {
                 "name": "exampleTagListView",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -8568,6 +9902,14 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "src/app/timeline-chart/timeline-chart.stories.ts",
+                "type": "",
+                "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
+            },
+            {
+                "name": "exampleTimelineBlocks",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-page-mirage.component.ts",
                 "type": "",
                 "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
             },
@@ -8737,7 +10079,15 @@
                 "subtype": "variable",
                 "file": "src/app/app.module.ts",
                 "type": "[]",
-                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot(),\n]"
+                "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot({\n    modules: {\n      toolbar: false\n    }\n  }),\n]"
+            },
+            {
+                "name": "metadataMode",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                "type": "string",
+                "defaultValue": "'metadataMode'"
             },
             {
                 "name": "mockBeat",
@@ -8793,7 +10143,7 @@
                 "subtype": "variable",
                 "file": "src/app/app.module.ts",
                 "type": "[]",
-                "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n]"
+                "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n  NbButtonModule,\n  NbIconModule,\n  NbButtonGroupModule,\n]"
             },
             {
                 "name": "NoAvailableTagExample",
@@ -8854,17 +10204,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
-                "type": "Story<ApplyTagNavComponent>",
-                "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
+                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
+                "type": "Story<ApplyStructureNavComponent>",
+                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/apply-structure-nav/apply-structure-nav.stories.ts",
-                "type": "Story<ApplyStructureNavComponent>",
-                "defaultValue": "(args: ApplyStructureNavComponent) => ({\n  component: ApplyStructureNavComponent,\n  props: args,\n})"
+                "file": "src/app/apply-tag-nav/apply-tag-nav.stories.ts",
+                "type": "Story<ApplyTagNavComponent>",
+                "defaultValue": "(args: ApplyTagNavComponent) => ({\n  component: ApplyTagNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8886,17 +10236,17 @@
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
-                "type": "Story<BeatRelatedBeatNavComponent>",
-                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
+                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                "type": "Story<BeatProseEditComponent>",
+                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                "type": "Story<BeatProseEditComponent>",
-                "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
+                "type": "Story<BeatRelatedBeatNavComponent>",
+                "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8929,14 +10279,6 @@
                 "file": "src/app/timeline-chart/timeline-chart.stories.ts",
                 "type": "Story<TimelineChartComponent>",
                 "defaultValue": "(args: TimelineChartComponent) => ({\n  component: TimelineChartComponent,\n  props: args,\n})"
-            },
-            {
-                "name": "Template",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/writing-page/writing-page.stories.ts",
-                "type": "Story<WritingPageStoryComponent>",
-                "defaultValue": "(args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n})"
             },
             {
                 "name": "Template",
@@ -8985,6 +10327,22 @@
                 "file": "src/app/tag-page/tag-nav/tag-nav.stories.ts",
                 "type": "Story<TagNavComponent>",
                 "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                "type": "Story<WritingMetadataComponent>",
+                "defaultValue": "(args: WritingMetadataComponent) => ({\n  component: WritingMetadataComponent,\n  props: args,\n})"
+            },
+            {
+                "name": "timelineMode",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                "type": "string",
+                "defaultValue": "'timelineMode'"
             },
             {
                 "name": "WORKSPACE_NAME_KEY",
@@ -9466,6 +10824,24 @@
                     "defaultValue": "(args: TimelineChartComponent) => ({\n  component: TimelineChartComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/writing-page/writing-metadata/writing-metadata.stories.ts": [
+                {
+                    "name": "BasicExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                    "type": "Story<WritingMetadataComponent>",
+                    "defaultValue": "(args: WritingMetadataComponent) => ({\n  component: WritingMetadataComponent,\n  props: args,\n})"
+                }
+            ],
             "src/test.ts": [
                 {
                     "name": "context",
@@ -9711,6 +11087,40 @@
                     "defaultValue": "(args: BeatNavComponent) => ({\n  component: BeatNavComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
+                {
+                    "name": "EmptyExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "FullExample",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "mockBeat",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "",
+                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
+                    "type": "Story<BeatProseEditComponent>",
+                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
+                }
+            ],
             "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts": [
                 {
                     "name": "EmptyExample",
@@ -9759,58 +11169,6 @@
                     "file": "src/app/beat-related-beat-nav/beat-related-beat-nav.stories.ts",
                     "type": "Story<BeatRelatedBeatNavComponent>",
                     "defaultValue": "(args: BeatRelatedBeatNavComponent) => ({\n  component: BeatRelatedBeatNavComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/beat-prose-edit/beat-prose-edit.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "FullExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "mockBeat",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "",
-                    "defaultValue": "Beat.create({\n  id: 'abc-123',\n  synopsis: 'My Synopsis',\n})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/beat-prose-edit/beat-prose-edit.stories.ts",
-                    "type": "Story<BeatProseEditComponent>",
-                    "defaultValue": "(args: BeatProseEditComponent) => ({\n  component: BeatProseEditComponent,\n  props: args,\n})"
-                }
-            ],
-            "src/app/writing-page/writing-page.stories.ts": [
-                {
-                    "name": "EmptyExample",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/writing-page/writing-page.stories.ts",
-                    "type": "",
-                    "defaultValue": "Template.bind({})"
-                },
-                {
-                    "name": "Template",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/writing-page/writing-page.stories.ts",
-                    "type": "Story<WritingPageStoryComponent>",
-                    "defaultValue": "(args: WritingPageStoryComponent) => ({\n  component: WritingPageStoryComponent,\n  props: args,\n})"
                 }
             ],
             "src/app/brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.stories.ts": [
@@ -10041,16 +11399,6 @@
                     "defaultValue": "(args: TagNavComponent) => ({\n  component: TagNavComponent,\n  props: args,\n})"
                 }
             ],
-            "src/environments/environment.ts": [
-                {
-                    "name": "environment",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/environments/environment.ts",
-                    "type": "object",
-                    "defaultValue": "{\n  production: false\n}"
-                }
-            ],
             "src/environments/environment.prod.ts": [
                 {
                     "name": "environment",
@@ -10059,6 +11407,16 @@
                     "file": "src/environments/environment.prod.ts",
                     "type": "object",
                     "defaultValue": "{\n  production: true\n}"
+                }
+            ],
+            "src/environments/environment.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.ts",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false\n}"
                 }
             ],
             "src/app/read-page-beat/read-page-beat.stories.ts": [
@@ -10103,6 +11461,32 @@
                     "defaultValue": "(args: ReadPageBeatComponent) => ({\n  component: ReadPageBeatComponent,\n  props: args,\n})"
                 }
             ],
+            "src/app/writing-page/writing-page-mirage.component.ts": [
+                {
+                    "name": "exampleBeatMap",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-page-mirage.component.ts",
+                    "type": "",
+                    "defaultValue": "new Map<string, Beat>()"
+                },
+                {
+                    "name": "exampleTagList",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-page-mirage.component.ts",
+                    "type": "",
+                    "defaultValue": "[\n  {\n    id: 'tag1',\n    name: 'Boolean tag',\n    hasNumericValue: false,\n    enumValues: []\n  },\n  {\n    id: 'tag2',\n    name: 'Enum tag',\n    hasNumericValue: false,\n    enumValues: [\n      {\n        label: 'First Value'\n      },\n      {\n        label: 'Second Value'\n      }\n    ]\n  },\n  {\n    id: 'tag3',\n    name: 'Numeric tag',\n    hasNumericValue: true,\n    enumValues: []\n  },\n] as Tag[]"
+                },
+                {
+                    "name": "exampleTimelineBlocks",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-page-mirage.component.ts",
+                    "type": "",
+                    "defaultValue": "[\n  {\n    id: 'abc123',\n    startSec: 0,\n    endSec: 60 * 15,\n    label: 'First Act',\n    depth: 0,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'def456',\n    startSec: 60 * 15,\n    endSec: 60 * 30,\n    label: 'Second Act, oh wow is this a cool act, just the bestest',\n    depth: 0,\n    completeness: Completeness.FINAL,\n    tagReferences: [] as TagReference[]\n  },\n  {\n    id: 'ghi789',\n    startSec: 60 * 5,\n    endSec: 60 * 20,\n    label: 'More involved stuff',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      }\n    ] as TagReference[]\n  },\n  {\n    id: 'abc091',\n    startSec: 3600 + 60 * 5,\n    endSec: 3600 + 60 * 20,\n    label: 'One for the road',\n    depth: 1,\n    tagReferences: [\n      {\n        tagId: 'tag1',\n      },\n      {\n        tagId: 'tag2',\n        enumValue: 1\n      },\n      {\n        tagId: 'tag3',\n        enumValue: 0,\n        numericValue: 14.5\n      }\n    ] as TagReference[]\n  }\n] as TimelineBlock[]"
+                }
+            ],
             "src/app/app.module.ts": [
                 {
                     "name": "MaterialModules",
@@ -10110,7 +11494,7 @@
                     "subtype": "variable",
                     "file": "src/app/app.module.ts",
                     "type": "[]",
-                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot(),\n]"
+                    "defaultValue": "[\n  MatButtonModule,\n  MatListModule,\n  MatFormFieldModule,\n  MatInputModule,\n  MatIconModule,\n  BrowserAnimationsModule,\n  MatCheckboxModule,\n  DragDropModule,\n  MatTabsModule,\n  MatSelectModule,\n  MatTooltipModule,\n  QuillModule.forRoot({\n    modules: {\n      toolbar: false\n    }\n  }),\n]"
                 },
                 {
                     "name": "NebularModules",
@@ -10118,7 +11502,25 @@
                     "subtype": "variable",
                     "file": "src/app/app.module.ts",
                     "type": "[]",
-                    "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n]"
+                    "defaultValue": "[\n  BrowserAnimationsModule,\n  NbThemeModule.forRoot({ name: 'corporate' }),\n  NbLayoutModule,\n  NbEvaIconsModule,\n  NbButtonModule,\n  NbIconModule,\n  NbButtonGroupModule,\n]"
+                }
+            ],
+            "src/app/writing-page/writing-subheader/writing-subheader.component.ts": [
+                {
+                    "name": "metadataMode",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                    "type": "string",
+                    "defaultValue": "'metadataMode'"
+                },
+                {
+                    "name": "timelineMode",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                    "type": "string",
+                    "defaultValue": "'timelineMode'"
                 }
             ],
             "src/app/storage.service.ts": [
@@ -10494,6 +11896,10 @@
                     {
                         "path": "writing",
                         "component": "WritingPageComponent"
+                    },
+                    {
+                        "path": "mirage/writing",
+                        "component": "WritingPageMirageComponent"
                     }
                 ],
                 "kind": "module"
@@ -11988,7 +13394,93 @@
                 "linktype": "component",
                 "name": "WritingContentComponent",
                 "coveragePercent": 0,
+                "coverageCount": "0/13",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-input/writing-input.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "WritingInputComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/11",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "WritingMetadataComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "BeatMetadataUpdate",
+                "coveragePercent": 0,
                 "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "BasicExample",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-metadata/writing-metadata.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "WritingPageMirageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/25",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleBeatMap",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTagList",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-page-mirage.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "exampleTimelineBlocks",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
@@ -11997,36 +13489,7 @@
                 "linktype": "component",
                 "name": "WritingPageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/writing-page/writing-page.stories.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "WritingPageStoryComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/2",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/writing-page/writing-page.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "EmptyExample",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/writing-page/writing-page.stories.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "Template",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
+                "coverageCount": "0/21",
                 "status": "low"
             },
             {
@@ -12044,7 +13507,27 @@
                 "linktype": "component",
                 "name": "WritingSubheaderComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/3",
+                "coverageCount": "0/19",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "metadataMode",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/writing-page/writing-subheader/writing-subheader.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "timelineMode",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

@@ -4,6 +4,7 @@ import {Beat, Tag} from '../../protos';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BeatsService} from '../beats.service';
 import {TagService} from '../tag.service';
+import {BeatMetadataUpdate} from './writing-metadata/writing-metadata.component';
 
 @Component({
   selector: 'app-writing-page',
@@ -107,6 +108,12 @@ export class WritingPageComponent implements OnInit {
   // Separate function to allow mocking in Mirage variation
   async setBeatUpdate(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean): Promise<void> {
     await this.beatsService.setBeat(beat, affectsMapView, affectsLastUpdated);
+  }
+
+  async updateBeatMetadata(update: BeatMetadataUpdate): Promise<void> {
+    this.selectedBeat = update.updatedBeat;
+    await this.setBeatUpdate(update.updatedBeat, update.modifiesListView, false);
+    this.ref.markForCheck();
   }
 
 }

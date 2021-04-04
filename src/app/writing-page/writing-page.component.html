@@ -1,7 +1,9 @@
 <app-writing-subheader
+  [editingBeat]="selectedBeat"
   [timelineView]="timelineView"
   [relevantTags]="relevantTags"
-  (showPreview)="showPreview($event)"></app-writing-subheader>
+  (showPreview)="showPreview($event)"
+  (beatMeatadataUpdates)="updateBeatMetadata($event)"></app-writing-subheader>
 <div class="bottom-content">
   <app-writing-content
     [referenceBeat]="referenceBeat"

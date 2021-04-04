@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {TimelineBlock} from '../../timeline-chart/timeline-chart.component';
-import {Tag} from '../../../protos';
+import {Beat, Tag} from '../../../protos';
+import {BeatMetadataUpdate} from '../writing-metadata/writing-metadata.component';
 
 const metadataMode = 'metadataMode';
 const timelineMode = 'timelineMode';
@@ -15,10 +16,13 @@ export class WritingSubheaderComponent implements OnInit {
 
   currentMode = '';
 
-  metadataStatus = '';
+  metadataSelected = false;
   metadataIcon = '';
-  timelineStatus = '';
+  timelineSelected = false;
   timelineIcon = '';
+
+  @Input()
+  editingBeat: Beat = new Beat();
 
   @Input()
   timelineView: TimelineBlock[] = [];
@@ -28,6 +32,7 @@ export class WritingSubheaderComponent implements OnInit {
 
   @Output() showPreview = new EventEmitter<string>();
 
+  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();
 
   constructor(private ref: ChangeDetectorRef) { }
 
@@ -36,9 +41,9 @@ export class WritingSubheaderComponent implements OnInit {
   }
 
   updateButtons(): void {
-    this.metadataStatus = this.isMetadata() ? 'info' : '';
+    this.metadataSelected = this.isMetadata();
     this.metadataIcon = this.isMetadata() ? 'file-text' : 'file-text-outline';
-    this.timelineStatus = this.isTimeline() ? 'info' : '';
+    this.timelineSelected = this.isTimeline();
     this.timelineIcon = this.isTimeline() ? 'map' : 'map-outline';
 
     this.ref.markForCheck();

@@ -1,22 +1,23 @@
 <div class="wrapper">
   <div class="mode-buttons">
     <button
+      title="Metadata"
       (click)="selectMetadata()"
-      nbButton ghost
-      [status]="metadataStatus">
-        <nb-icon [icon]="metadataIcon"></nb-icon>
+      [class.isSelected]="metadataSelected">
+        M
     </button>
     <button
+      title="Timeline"
       (click)="selectTimeline()"
-      nbButton ghost
-      [status]="timelineStatus">
-      <nb-icon [icon]="timelineIcon"></nb-icon>
+      [class.isSelected]="timelineSelected">
+      T
     </button>
   </div>
   <div class="content">
-    <div *ngIf="isMetadata()">
-      Metadata mode
-    </div>
+    <app-writing-metadata
+      *ngIf="isMetadata()"
+      [editingBeat]="editingBeat"
+      (beatMeatadataUpdates)="beatMeatadataUpdates.emit($event)"></app-writing-metadata>
     <app-timeline-chart
       *ngIf="isTimeline()"
       [timelineBlocks]="timelineView"
