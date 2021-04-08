@@ -137,10 +137,10 @@
         },
         {
             "name": "BeatMetadataUpdate",
-            "id": "interface-BeatMetadataUpdate-01ce81890785070b1aa8607f47673ad2",
+            "id": "interface-BeatMetadataUpdate-66cdcf2639eb8123549c66aceab86dd7",
             "file": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
             "type": "interface",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  duratationStrErrorStage = true;\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n  onDurationChange(event: any): void {\n    const newDurationStr = event.target.value;\n    console.log(newDurationStr);\n\n    this.duratationStrErrorStage = !this.duratationStrErrorStage;\n\n    this.ref.markForCheck();\n  }\n\n}\n",
             "properties": [
                 {
                     "name": "modifiesListView",
@@ -8109,7 +8109,7 @@
         },
         {
             "name": "WritingMetadataComponent",
-            "id": "component-WritingMetadataComponent-01ce81890785070b1aa8607f47673ad2",
+            "id": "component-WritingMetadataComponent-66cdcf2639eb8123549c66aceab86dd7",
             "file": "src/app/writing-page/writing-metadata/writing-metadata.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -8141,7 +8141,16 @@
                     "type": "EventEmitter"
                 }
             ],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "duratationStrErrorStage",
+                    "defaultValue": "true",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                }
+            ],
             "methodsClass": [
                 {
                     "name": "ngOnInit",
@@ -8149,7 +8158,29 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 23
+                    "line": 25
+                },
+                {
+                    "name": "onDurationChange",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "any"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 40,
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "any",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "onSynopsisChange",
@@ -8162,7 +8193,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 26,
+                    "line": 28,
                     "jsdoctags": [
                         {
                             "name": "event",
@@ -8179,11 +8210,11 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  constructor() { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n}\n",
+            "sourceCode": "import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';\nimport {Beat} from '../../../protos';\n\nexport interface BeatMetadataUpdate {\n  updatedBeat: Beat;\n  modifiesListView: boolean;\n}\n\n@Component({\n  selector: 'app-writing-metadata',\n  templateUrl: './writing-metadata.component.html',\n  styleUrls: ['./writing-metadata.component.scss']\n})\nexport class WritingMetadataComponent implements OnInit {\n\n  @Input()\n  editingBeat: Beat = new Beat();\n\n  @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();\n\n  duratationStrErrorStage = true;\n\n  constructor(private ref: ChangeDetectorRef) { }\n\n  ngOnInit(): void {\n  }\n\n  onSynopsisChange(event: any): void {\n    const newSynopsis = event.target.value;\n\n    const updatedBeat = this.editingBeat;\n    updatedBeat.synopsis = newSynopsis;\n\n    this.beatMeatadataUpdates.emit({\n      updatedBeat,\n      modifiesListView: true,\n    } as BeatMetadataUpdate);\n  }\n\n  onDurationChange(event: any): void {\n    const newDurationStr = event.target.value;\n    console.log(newDurationStr);\n\n    this.duratationStrErrorStage = !this.duratationStrErrorStage;\n\n    this.ref.markForCheck();\n  }\n\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "",
+                    "data": "label {\n  width: 100%;\n  display: flex;\n  input {\n    margin-left: 24px;\n    flex: 1;\n  }\n}\n\n.error-msg {\n  color: red;\n}\n",
                     "styleUrl": "./writing-metadata.component.scss"
                 }
             ],
@@ -8191,13 +8222,27 @@
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
-                "args": [],
-                "line": 19
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef"
+                    }
+                ],
+                "line": 21,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ChangeDetectorRef",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
             },
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<label>Synopsis\n  <input type=\"text\" [value]=\"editingBeat.synopsis\" (input)=\"onSynopsisChange($event)\">\n</label>\n"
+            "templateData": "<label>Synopsis\n  <input type=\"text\" [value]=\"editingBeat.synopsis\" (input)=\"onSynopsisChange($event)\">\n</label>\n<label\n  [class.error-msg]=\"duratationStrErrorStage\">Duration\n  <input type=\"text\" [value]=\"'1:29:30'\" (input)=\"onDurationChange($event)\">\n</label>\n"
         },
         {
             "name": "WritingPageComponent",
@@ -13412,7 +13457,7 @@
                 "linktype": "component",
                 "name": "WritingMetadataComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/6",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {

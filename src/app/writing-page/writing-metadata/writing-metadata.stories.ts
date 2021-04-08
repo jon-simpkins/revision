@@ -30,6 +30,7 @@ const Template: Story<WritingMetadataComponent> = (args: WritingMetadataComponen
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   editingBeat: {
-    synopsis: 'My example synopsis'
+    synopsis: 'My example synopsis',
+    intendedDurationMs: (1000 * 3600 * 1.05)
   } as Beat
 };

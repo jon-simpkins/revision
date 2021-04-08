@@ -1,3 +1,11 @@
 <label>Synopsis
   <input type="text" [value]="editingBeat.synopsis" (input)="onSynopsisChange($event)">
 </label>
+<label
+  [class.error-msg]="duratationStrErrorStage">Duration (mm:ss)
+  <input
+    type="text"
+    [value]="durationStr"
+    (blur)="onDurationBlur()"
+    (input)="onDurationChange($event)">
+</label>

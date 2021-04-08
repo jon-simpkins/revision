@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {Beat} from '../../../protos';
+import {getDurationStr} from '../../duration-helpers';
 
 export interface BeatMetadataUpdate {
   updatedBeat: Beat;
@@ -11,16 +12,28 @@ export interface BeatMetadataUpdate {
   templateUrl: './writing-metadata.component.html',
   styleUrls: ['./writing-metadata.component.scss']
 })
-export class WritingMetadataComponent implements OnInit {
+export class WritingMetadataComponent implements OnInit, OnChanges {
 
   @Input()
   editingBeat: Beat = new Beat();
 
   @Output() beatMeatadataUpdates = new EventEmitter<BeatMetadataUpdate>();
 
-  constructor() { }
+  duratationStrErrorStage = true;
+  durationStr = '';
+
+  constructor(private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(): void {
+    const currentParsedDurationMs = this.determineDurationValue(this.durationStr);
+    if (this.editingBeat.intendedDurationMs !== currentParsedDurationMs) {
+      this.durationStr = this.getBeatDurationStr();
+      this.duratationStrErrorStage = false;
+      this.ref.markForCheck();
+    }
   }
 
   onSynopsisChange(event: any): void {
@@ -33,6 +46,57 @@ export class WritingMetadataComponent implements OnInit {
       updatedBeat,
       modifiesListView: true,
     } as BeatMetadataUpdate);
+  }
+
+  onDurationChange(event: any): void {
+    const durationStr = event.target.value as string;
+
+    const newDurationMs = this.determineDurationValue(durationStr);
+
+    if (isNaN(newDurationMs)) {
+      this.duratationStrErrorStage = true;
+      this.ref.markForCheck();
+      return;
+    } else {
+      this.duratationStrErrorStage = false;
+    }
+
+    const updatedBeat = this.editingBeat;
+    updatedBeat.intendedDurationMs = newDurationMs;
+
+    this.beatMeatadataUpdates.emit({
+      updatedBeat,
+      modifiesListView: true,
+    } as BeatMetadataUpdate);
+
+    this.ref.markForCheck();
+  }
+
+  determineDurationValue(durationStr: string): number {
+    let parseDurationSec;
+
+    const splitDurationStr = durationStr.split(':');
+    if (splitDurationStr.length === 1) {
+      parseDurationSec = parseInt(splitDurationStr[0], 10) * 60;
+    } else {
+      parseDurationSec = parseFloat(splitDurationStr[1]) + 60 * parseInt(splitDurationStr[0], 10);
+    }
+
+    if (isNaN(parseDurationSec) || splitDurationStr.length > 2) {
+      return NaN;
+    }
+
+    return 1000 * parseDurationSec;
+  }
+
+  onDurationBlur(): void {
+    this.durationStr = this.getBeatDurationStr();
+    this.duratationStrErrorStage = false;
+    this.ref.markForCheck();
+  }
+
+  getBeatDurationStr(): string {
+    return getDurationStr(this.editingBeat.intendedDurationMs);
   }
 
 }
