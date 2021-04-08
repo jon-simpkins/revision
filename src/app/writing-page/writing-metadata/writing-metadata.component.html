@@ -9,3 +9,9 @@
     (blur)="onDurationBlur()"
     (input)="onDurationChange($event)">
 </label>
+<label>Completeness
+  <select [ngModel]="editingBeat.completeness" (input)="onCompletenessChange($event)">
+    <option *ngFor="let option of completenessOptions"
+            [value]="option.value">{{option.label}}</option>
+  </select>
+</label>

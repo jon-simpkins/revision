@@ -1,6 +1,12 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {Beat} from '../../../protos';
 import {getDurationStr} from '../../duration-helpers';
+import Completeness = Beat.Completeness;
+
+interface CompletenessOption {
+  value: number;
+  label: string;
+}
 
 export interface BeatMetadataUpdate {
   updatedBeat: Beat;
@@ -21,6 +27,29 @@ export class WritingMetadataComponent implements OnInit, OnChanges {
 
   duratationStrErrorStage = true;
   durationStr = '';
+
+  completenessOptions: CompletenessOption[] = [
+    {
+      value: Completeness.NOT_STARTED,
+      label: 'Not Started'
+    },
+    {
+      value: Completeness.BRAINSTORM,
+      label: 'Brainstorm'
+    },
+    {
+      value: Completeness.INITIAL_DRAFT,
+      label: 'Initial Draft'
+    },
+    {
+      value: Completeness.POLISHED,
+      label: 'Polished'
+    },
+    {
+      value: Completeness.FINAL,
+      label: 'Final'
+    }
+  ] as CompletenessOption[];
 
   constructor(private ref: ChangeDetectorRef) { }
 
@@ -99,4 +128,15 @@ export class WritingMetadataComponent implements OnInit, OnChanges {
     return getDurationStr(this.editingBeat.intendedDurationMs);
   }
 
+  onCompletenessChange(event: any): void {
+    const updatedBeat = this.editingBeat;
+    updatedBeat.completeness = event.target.value;
+
+    this.beatMeatadataUpdates.emit({
+      updatedBeat,
+      modifiesListView: true,
+    } as BeatMetadataUpdate);
+
+    this.ref.markForCheck();
+  }
 }
