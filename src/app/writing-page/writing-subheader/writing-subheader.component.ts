@@ -3,6 +3,7 @@ import {TimelineBlock} from '../../timeline-chart/timeline-chart.component';
 import {Beat, Tag} from '../../../protos';
 import {BeatMetadataUpdate} from '../writing-metadata/writing-metadata.component';
 
+const collapsedMode = 'collapsedMode';
 const metadataMode = 'metadataMode';
 const timelineMode = 'timelineMode';
 
@@ -16,10 +17,9 @@ export class WritingSubheaderComponent implements OnInit {
 
   currentMode = '';
 
+  isCollapsed = false;
   metadataSelected = false;
-  metadataIcon = '';
   timelineSelected = false;
-  timelineIcon = '';
 
   @Input()
   editingBeat: Beat = new Beat();
@@ -42,9 +42,7 @@ export class WritingSubheaderComponent implements OnInit {
 
   updateButtons(): void {
     this.metadataSelected = this.isMetadata();
-    this.metadataIcon = this.isMetadata() ? 'file-text' : 'file-text-outline';
     this.timelineSelected = this.isTimeline();
-    this.timelineIcon = this.isTimeline() ? 'map' : 'map-outline';
 
     this.ref.markForCheck();
   }
@@ -57,12 +55,16 @@ export class WritingSubheaderComponent implements OnInit {
     return this.currentMode === timelineMode;
   }
 
+  toggleCollapse(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
   selectMetadata(): void {
     this.currentMode = metadataMode;
     this.updateButtons();
   }
 
-  async selectTimeline(): Promise<void> {
+  selectTimeline(): void {
     this.currentMode = timelineMode;
     this.updateButtons();
   }

@@ -1,27 +1,40 @@
 <div class="wrapper">
   <div class="mode-buttons">
     <button
-      title="Metadata"
-      (click)="selectMetadata()"
-      [class.isSelected]="metadataSelected">
+      title="Collapse / Expand"
+      (click)="toggleCollapse()">
+      <ng-container *ngIf="isCollapsed">&#9660;</ng-container>
+      <ng-container *ngIf="!isCollapsed">&#9650;</ng-container>
+    </button>
+    <ng-container *ngIf="!isCollapsed">
+      <button
+        title="Metadata"
+        (click)="selectMetadata()"
+        [class.is-selected]="metadataSelected">
         M
-    </button>
-    <button
-      title="Timeline"
-      (click)="selectTimeline()"
-      [class.isSelected]="timelineSelected">
-      T
-    </button>
+      </button>
+      <button
+        title="Timeline"
+        (click)="selectTimeline()"
+        [class.is-selected]="timelineSelected">
+        T
+      </button>
+    </ng-container>
   </div>
   <div class="content">
-    <app-writing-metadata
-      *ngIf="isMetadata()"
-      [editingBeat]="editingBeat"
-      (beatMeatadataUpdates)="beatMeatadataUpdates.emit($event)"></app-writing-metadata>
-    <app-timeline-chart
-      *ngIf="isTimeline()"
-      [timelineBlocks]="timelineView"
-      [relevantTags]="relevantTags"
-      (selectBeat)="selectBeat($event)"></app-timeline-chart>
+    <div *ngIf="isCollapsed">
+      {{editingBeat.synopsis}}
+    </div>
+    <ng-container *ngIf="!isCollapsed">
+      <app-writing-metadata
+        *ngIf="isMetadata()"
+        [editingBeat]="editingBeat"
+        (beatMeatadataUpdates)="beatMeatadataUpdates.emit($event)"></app-writing-metadata>
+      <app-timeline-chart
+        *ngIf="isTimeline()"
+        [timelineBlocks]="timelineView"
+        [relevantTags]="relevantTags"
+        (selectBeat)="selectBeat($event)"></app-timeline-chart>
+    </ng-container>
   </div>
 </div>
