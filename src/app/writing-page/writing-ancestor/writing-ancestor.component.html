@@ -1,0 +1,8 @@
+<div *ngFor="let view of ancestorView">
+  <ng-container *ngFor="let ancestor of view; let i = index">
+    <span *ngIf="i + 1 < view.length"
+          class="ancestor-link"
+          (click)="select(ancestor.id)">{{ancestor.name}} ></span>
+    <span *ngIf="i + 1 === view.length">{{ancestor.name}}</span>
+  </ng-container>
+</div>

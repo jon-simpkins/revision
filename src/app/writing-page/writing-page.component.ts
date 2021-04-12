@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@an
 import {TimelineBlock} from '../timeline-chart/timeline-chart.component';
 import {Beat, Tag} from '../../protos';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BeatsService} from '../beats.service';
+import {BeatMapView, BeatsService} from '../beats.service';
 import {TagService} from '../tag.service';
 import {BeatMetadataUpdate} from './writing-metadata/writing-metadata.component';
 
@@ -22,6 +22,7 @@ export class WritingPageComponent implements OnInit {
 
   timelineView: TimelineBlock[] = [];
   relevantTags: Tag[] = [];
+  ancestorView: BeatMapView[][] = [];
 
   shouldShowPreview = false;
 
@@ -51,6 +52,7 @@ export class WritingPageComponent implements OnInit {
 
     await this.updateTimeline();
     await this.updateRelevantTags();
+    await this.updateAncestorView();
     this.ref.markForCheck();
   }
 
@@ -73,7 +75,10 @@ export class WritingPageComponent implements OnInit {
     });
 
     this.relevantTags = await this.tagService.getSpecificTags(Array.from(allReferencedTagIds.keys()));
+  }
 
+  async updateAncestorView(): Promise<void> {
+    this.ancestorView = await this.beatsService.fetchAncestorView(this.selectedBeatId);
   }
 
   async showPreview(newId: string): Promise<void> {

@@ -2,10 +2,11 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inp
 import {TimelineBlock} from '../../timeline-chart/timeline-chart.component';
 import {Beat, Tag} from '../../../protos';
 import {BeatMetadataUpdate} from '../writing-metadata/writing-metadata.component';
+import {BeatMapView} from '../../beats.service';
 
-const collapsedMode = 'collapsedMode';
 const metadataMode = 'metadataMode';
 const timelineMode = 'timelineMode';
+const ancestorViewMode = 'ancestorViewMode';
 
 @Component({
   selector: 'app-writing-subheader',
@@ -20,6 +21,7 @@ export class WritingSubheaderComponent implements OnInit {
   isCollapsed = false;
   metadataSelected = false;
   timelineSelected = false;
+  ancestorViewSelected = false;
 
   @Input()
   editingBeat: Beat = new Beat();
@@ -29,6 +31,9 @@ export class WritingSubheaderComponent implements OnInit {
 
   @Input()
   relevantTags: Tag[] = [];
+
+  @Input()
+  ancestorView: BeatMapView[][] = [];
 
   @Output() showPreview = new EventEmitter<string>();
 
@@ -43,6 +48,7 @@ export class WritingSubheaderComponent implements OnInit {
   updateButtons(): void {
     this.metadataSelected = this.isMetadata();
     this.timelineSelected = this.isTimeline();
+    this.ancestorViewSelected = this.isAncestorView();
 
     this.ref.markForCheck();
   }
@@ -53,6 +59,10 @@ export class WritingSubheaderComponent implements OnInit {
 
   isTimeline(): boolean {
     return this.currentMode === timelineMode;
+  }
+
+  isAncestorView(): boolean {
+    return this.currentMode === ancestorViewMode;
   }
 
   toggleCollapse(): void {
@@ -66,6 +76,11 @@ export class WritingSubheaderComponent implements OnInit {
 
   selectTimeline(): void {
     this.currentMode = timelineMode;
+    this.updateButtons();
+  }
+
+  selectAncestorView(): void {
+    this.currentMode = ancestorViewMode;
     this.updateButtons();
   }
 

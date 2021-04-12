@@ -259,6 +259,45 @@ export class BeatsService {
     this.storageService.cancelSubscription(subscription);
   }
 
+  async fetchAncestorView(beatId: string): Promise<BeatMapView[][]> {
+    const mapView = await this.getBeatMap();
+
+    const ancestorViews = [[mapView.get(beatId) as BeatMapView]];
+
+    let updateRequired = true;
+    while (updateRequired) {
+      updateRequired = false;
+
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < ancestorViews.length; i++) {
+        const lastLink = ancestorViews[i][ancestorViews[i].length - 1];
+        if (lastLink.parentBeats.length === 0) {
+          continue;
+        }
+        updateRequired = true;
+
+        if (lastLink.parentBeats.length === 1) {
+          ancestorViews[i].push(mapView.get(lastLink.parentBeats[0]) as BeatMapView);
+        } else {
+          // Multiple parents, let's split
+          const currentChainStr = JSON.stringify(ancestorViews[i]);
+          ancestorViews[i].push(mapView.get(lastLink.parentBeats[0]) as BeatMapView);
+          for (let j = 1; j < lastLink.parentBeats.length; j++) {
+            const newChain = JSON.parse(currentChainStr) as BeatMapView[];
+            newChain.push(mapView.get(lastLink.parentBeats[j]) as BeatMapView);
+            ancestorViews.push(newChain);
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < ancestorViews.length; i++) {
+      ancestorViews[i] = ancestorViews[i].reverse();
+    }
+
+    return ancestorViews;
+  }
+
   async fetchTimelineView(beatId: string): Promise<TimelineBlock[]> {
     const timelineView: TimelineBlock[] = [];
 

@@ -19,6 +19,12 @@
         [class.is-selected]="timelineSelected">
         T
       </button>
+      <button
+        title="Ancestors"
+        (click)="selectAncestorView()"
+        [class.is-selected]="ancestorViewSelected">
+        A
+      </button>
     </ng-container>
   </div>
   <div class="content">
@@ -35,6 +41,10 @@
         [timelineBlocks]="timelineView"
         [relevantTags]="relevantTags"
         (selectBeat)="selectBeat($event)"></app-timeline-chart>
+      <app-writing-ancestor
+        *ngIf="isAncestorView()"
+        [ancestorView]="ancestorView"
+        (showPreview)="selectBeat($event)"></app-writing-ancestor>
     </ng-container>
   </div>
 </div>
