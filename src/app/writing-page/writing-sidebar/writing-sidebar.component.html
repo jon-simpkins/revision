@@ -1,1 +1,20 @@
-<div>writing-sidebar works!</div>
+<div class="mode-buttons">
+  <button
+    title="Collapse / Expand"
+    (click)="toggleCollapse()">
+    <ng-container *ngIf="isCollapsed">&#8701;</ng-container>
+    <ng-container *ngIf="!isCollapsed">&#8702;</ng-container>
+  </button>
+  <ng-container *ngIf="!isCollapsed">
+    <button title="Structure"
+      [class.is-selected]="structureSelected"
+      (click)="selectStructure()">S</button>
+    <button title="Tags"
+      [class.is-selected]="tagSelected"
+      (click)="selectTag()">T</button>
+  </ng-container>
+</div>
+<div *ngIf="!isCollapsed" class="content">
+  <app-writing-structure *ngIf="structureSelected"></app-writing-structure>
+  <app-writing-tag-assignment *ngIf="tagSelected"></app-writing-tag-assignment>
+</div>

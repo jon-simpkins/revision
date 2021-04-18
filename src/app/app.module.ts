@@ -53,6 +53,8 @@ import { WritingContentComponent } from './writing-page/writing-content/writing-
 import { WritingInputComponent } from './writing-page/writing-input/writing-input.component';
 import { WritingMetadataComponent } from './writing-page/writing-metadata/writing-metadata.component';
 import { WritingAncestorComponent } from './writing-page/writing-ancestor/writing-ancestor.component';
+import { WritingStructureComponent } from './writing-page/writing-sidebar/writing-structure/writing-structure.component';
+import { WritingTagAssignmentComponent } from './writing-page/writing-sidebar/writing-tag-assignment/writing-tag-assignment.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -118,6 +120,8 @@ export const NebularModules = [
     WritingInputComponent,
     WritingMetadataComponent,
     WritingAncestorComponent,
+    WritingStructureComponent,
+    WritingTagAssignmentComponent,
   ],
   imports: [
     BrowserModule,

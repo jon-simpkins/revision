@@ -1,4 +1,21 @@
 :host {
-  width: 200px;
-  background: orange;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.mode-buttons {
+  display: flex;
+
+  border-bottom: 1px solid black;
+  font-family: CourierPrime, monospace;
+
+  button.is-selected {
+    background: blue;
+    color: white;
+  }
+}
+
+.content {
+  flex: 1;
 }
