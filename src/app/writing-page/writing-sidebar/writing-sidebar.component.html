@@ -15,6 +15,11 @@
   </ng-container>
 </div>
 <div *ngIf="!isCollapsed" class="content">
-  <app-writing-structure *ngIf="structureSelected"></app-writing-structure>
+  <app-writing-structure
+    *ngIf="structureSelected"
+    [editingBeatId]="editingBeatId"
+    [previewBeatId]="previewBeatId"
+    (showPreview)="selectBeat($event)"
+  ></app-writing-structure>
   <app-writing-tag-assignment *ngIf="tagSelected"></app-writing-tag-assignment>
 </div>

@@ -1,1 +1,38 @@
-<p>writing-structure works!</p>
+<div cdkDropListGroup>
+  <div class="list-header">
+    <h2>Structure</h2>
+  </div>
+  <div cdkDropList id="structure"
+       [cdkDropListData]="structureListView"
+       class="beat-list"
+       (cdkDropListDropped)="drop($event)">
+    <div *ngIf="structureListView.length == 0" class="empty-message">No items</div>
+    <div *ngFor="let beat of structureListView"
+      class="beat-item" cdkDrag
+         [class.selected]="beat.id == previewBeatId"
+         (click)="selectBeat(beat.id)">
+      <div>{{beat.name}}</div>
+      <div class="beat-details">
+        ({{formatDurationMs(beat.intendedDurationMs)}}) {{formatCompleteness(beat.completeness)}}
+      </div>
+    </div>
+  </div>
+  <div class="list-header">
+    <h2>Brainstorm</h2>
+  </div>
+  <div cdkDropList id="brainstorm"
+       [cdkDropListData]="brainstormListView"
+       class="beat-list"
+       (cdkDropListDropped)="drop($event)">
+    <div *ngIf="brainstormListView.length == 0" class="empty-message">No items</div>
+    <div *ngFor="let beat of brainstormListView"
+         class="beat-item" cdkDrag
+         [class.selected]="beat.id == previewBeatId"
+         (click)="selectBeat(beat.id)">
+      <div>{{beat.name}}</div>
+      <div class="beat-details">
+        ({{formatDurationMs(beat.intendedDurationMs)}}) {{formatCompleteness(beat.completeness)}}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,5 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {BeatMapView} from '../../beats.service';
 
 const structureMode = 'structureMode';
 const tagMode = 'tagMode';
@@ -9,6 +10,14 @@ const tagMode = 'tagMode';
   styleUrls: ['./writing-sidebar.component.scss']
 })
 export class WritingSidebarComponent implements OnInit {
+
+  @Input()
+  editingBeatId = '';
+
+  @Input()
+  previewBeatId = '';
+
+  @Output() showPreview = new EventEmitter<string>();
 
   currentMode = '';
 
@@ -50,5 +59,9 @@ export class WritingSidebarComponent implements OnInit {
 
   toggleCollapse(): void {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  selectBeat(id: string): void {
+    this.showPreview.emit(id);
   }
 }

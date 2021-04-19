@@ -17,12 +17,10 @@ export class WritingAncestorComponent implements OnInit, OnChanges {
   constructor(private ref: ChangeDetectorRef,) { }
 
   ngOnInit(): void {
-    console.log(this.ancestorView);
     this.ref.markForCheck();
   }
 
   ngOnChanges(): void {
-    console.log(this.ancestorView);
     this.ref.markForCheck();
   }
 

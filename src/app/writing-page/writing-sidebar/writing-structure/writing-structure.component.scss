@@ -1,0 +1,73 @@
+
+
+.beat-list {
+  border: 1px solid black;
+  background: #fff;
+  border-radius: 4px;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.empty-message {
+  padding: 16px 8px;
+  font-style: italic;
+}
+
+.beat-item {
+  padding: 16px 8px;
+  border-bottom: 1px solid #777;
+  background: #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  .beat-details {
+    font-style: italic;
+    margin-left: 24px;
+  }
+}
+
+.beat-item.selected {
+  border-left: 4px solid blue;
+  padding-left: 4px;
+}
+
+.beat-item:last-child {
+  border-bottom: none;
+}
+
+
+.list-header {
+  display: flex;
+
+  h2 {
+    flex: 1;
+    margin: auto;
+  }
+
+  button {
+    margin: auto;
+  }
+}
+
+.cdk-drag-preview {
+  padding: 16px 8px;
+  background: white;
+  box-sizing: border-box;
+  border: 1px solid #777;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.beat-list.cdk-drop-list-dragging .beat-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

@@ -11,7 +11,9 @@
     [editorText]="selectedBeat.prose"
     (hideCard)="hidePreview()"
     (editorTextChanged)="editorTextChanged($event)"
-    (goToReference)="navigateToPreview()"
-  ></app-writing-content>
-  <app-writing-sidebar></app-writing-sidebar>
+    (goToReference)="navigateToPreview()"></app-writing-content>
+  <app-writing-sidebar
+    [editingBeatId]="selectedBeatId"
+    [previewBeatId]="referenceBeatId"
+    (showPreview)="showPreview($event)"></app-writing-sidebar>
 </div>
