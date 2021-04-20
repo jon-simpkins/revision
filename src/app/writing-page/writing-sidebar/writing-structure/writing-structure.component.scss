@@ -1,11 +1,13 @@
 
-
 .beat-list {
   border: 1px solid black;
   background: #fff;
   border-radius: 4px;
   display: block;
   margin-bottom: 24px;
+
+  max-height: 25vh;
+  overflow-y: auto;
 }
 
 .empty-message {

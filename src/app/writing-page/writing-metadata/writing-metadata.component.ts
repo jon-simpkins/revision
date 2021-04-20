@@ -130,7 +130,7 @@ export class WritingMetadataComponent implements OnInit, OnChanges {
 
   onCompletenessChange(event: any): void {
     const updatedBeat = this.editingBeat;
-    updatedBeat.completeness = event.target.value;
+    updatedBeat.completeness = parseInt(event.target.value, 10);
 
     this.beatMeatadataUpdates.emit({
       updatedBeat,
