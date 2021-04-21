@@ -26,6 +26,9 @@ export class WritingStructureComponent implements OnInit, OnChanges {
   brainstormListView: BeatMapView[] = [];
   structureListView: BeatMapView[] = [];
 
+  brainstormAddView = false;
+  structureAddView = false;
+
   constructor(private beatsService: BeatsService,
               private ref: ChangeDetectorRef) { }
 
@@ -130,7 +133,7 @@ export class WritingStructureComponent implements OnInit, OnChanges {
     } else if (targetList === 'brainstorm') {
       selectedBeat.brainstorm.splice(targetIndex, 0, uuidToMove);
     } else {
-      throw Error(`Unknown target list ${sourceList}`);
+      throw Error(`Unknown target list ${targetList}`);
     }
 
     await this.beatsService.setBeat(
@@ -164,4 +167,40 @@ export class WritingStructureComponent implements OnInit, OnChanges {
     }
   }
 
+  toggleStructureAddView(): void {
+    this.structureAddView = !this.structureAddView;
+  }
+
+  toggleBrainstormAddView(): void {
+    this.brainstormAddView = !this.brainstormAddView;
+  }
+
+  async addNewBeatToList(targetList: string): Promise<void> {
+
+    const newBeatId = await this.beatsService.createNewBeat();
+
+    const selectedBeat = await this.beatsService.getBeat(this.editingBeatId);
+
+    if (!selectedBeat) {
+      throw Error(`Beat ${this.editingBeatId} was not found`);
+    }
+
+    if (targetList === 'structure') {
+      selectedBeat.structure.push(newBeatId);
+      this.toggleStructureAddView();
+    } else if (targetList === 'brainstorm') {
+      selectedBeat.brainstorm.push(newBeatId);
+      this.toggleBrainstormAddView();
+    } else {
+      throw Error(`Unknown target list ${targetList}`);
+    }
+
+    await this.beatsService.setBeat(
+      selectedBeat,
+      true,
+      true
+    );
+
+    this.ref.markForCheck();
+  }
 }

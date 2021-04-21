@@ -1,8 +1,14 @@
 <div cdkDropListGroup>
   <div class="list-header">
     <h2>Structure</h2>
+    <button (click)="toggleStructureAddView()">
+      <ng-container *ngIf="structureAddView">X</ng-container>
+      <ng-container *ngIf="!structureAddView">+</ng-container>
+    </button>
   </div>
-  <div cdkDropList id="structure"
+  <div
+    *ngIf="!structureAddView"
+    cdkDropList id="structure"
        [cdkDropListData]="structureListView"
        class="beat-list"
        (cdkDropListDropped)="drop($event)">
@@ -21,10 +27,19 @@
       </div>
     </div>
   </div>
+  <div *ngIf="structureAddView">
+    <button (click)="addNewBeatToList('structure')">Add new (blank)</button>
+  </div>
   <div class="list-header">
     <h2>Brainstorm</h2>
+    <button (click)="toggleBrainstormAddView()">
+      <ng-container *ngIf="brainstormAddView">X</ng-container>
+      <ng-container *ngIf="!brainstormAddView">+</ng-container>
+    </button>
   </div>
-  <div cdkDropList id="brainstorm"
+  <div
+    *ngIf="!brainstormAddView"
+    cdkDropList id="brainstorm"
        [cdkDropListData]="brainstormListView"
        class="beat-list"
        (cdkDropListDropped)="drop($event)">
@@ -42,5 +57,8 @@
         <button (click)="deleteBeat(beat.id)">Delete</button>
       </div>
     </div>
+  </div>
+  <div *ngIf="brainstormAddView">
+    <button (click)="addNewBeatToList('brainstorm')">Add new (blank)</button>
   </div>
 </div>
