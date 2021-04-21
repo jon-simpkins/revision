@@ -15,6 +15,10 @@
       <div class="beat-details">
         ({{formatDurationMs(beat.intendedDurationMs)}}) {{formatCompleteness(beat.completeness)}}
       </div>
+      <div *ngIf="beat.id == previewBeatId" class="delete-actions">
+        <button (click)="removeBeat(beat.id, 'structure')">Remove</button>
+        <button (click)="deleteBeat(beat.id)">Delete</button>
+      </div>
     </div>
   </div>
   <div class="list-header">
@@ -32,6 +36,10 @@
       <div>{{beat.name}}</div>
       <div class="beat-details">
         ({{formatDurationMs(beat.intendedDurationMs)}}) {{formatCompleteness(beat.completeness)}}
+      </div>
+      <div *ngIf="beat.id == previewBeatId" class="delete-actions">
+        <button (click)="removeBeat(beat.id, 'brainstorm')">Remove</button>
+        <button (click)="deleteBeat(beat.id)">Delete</button>
       </div>
     </div>
   </div>

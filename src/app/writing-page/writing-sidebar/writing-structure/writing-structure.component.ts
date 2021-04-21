@@ -27,7 +27,7 @@ export class WritingStructureComponent implements OnInit, OnChanges {
   structureListView: BeatMapView[] = [];
 
   constructor(private beatsService: BeatsService,
-              private ref: ChangeDetectorRef,) { }
+              private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.beatMapViewSubscription = this.beatsService.subscribeToBeatMapView(async (newValue) => {
@@ -67,6 +67,40 @@ export class WritingStructureComponent implements OnInit, OnChanges {
 
   selectBeat(id: string): void {
     this.showPreview.emit(id);
+  }
+
+  async removeBeat(id: string, list: string): Promise<void> {
+    const selectedBeat = await this.beatsService.getBeat(this.editingBeatId);
+
+    if (!selectedBeat) {
+      throw Error(`Unable to find beat ${selectedBeat}`);
+    }
+
+    if (list === 'brainstorm') {
+      selectedBeat.brainstorm = selectedBeat.brainstorm.filter((brainstormId) => brainstormId !== id);
+    } else if (list === 'structure') {
+      selectedBeat.structure = selectedBeat.structure.filter((structureId) => structureId !== id);
+    } else {
+      throw Error(`Unknown list type: ${list}`);
+    }
+
+    await this.beatsService.setBeat(
+      selectedBeat,
+      true,
+      true
+    );
+
+    this.selectBeat('');
+
+    this.ref.markForCheck();
+  }
+
+  async deleteBeat(id: string): Promise<void> {
+    await this.beatsService.deleteBeat(id);
+
+    this.selectBeat('');
+
+    this.ref.markForCheck();
   }
 
   async drop(event: CdkDragDrop<BeatMapView[]>): Promise<void> {

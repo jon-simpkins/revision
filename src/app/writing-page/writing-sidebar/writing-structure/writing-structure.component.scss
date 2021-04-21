@@ -26,6 +26,22 @@
     font-style: italic;
     margin-left: 24px;
   }
+
+  .delete-actions {
+    margin-top: 8px;
+    padding: 16px;
+    background: red;
+    display: flex;
+
+    button {
+      flex: 1;
+      margin-right: 16px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
 }
 
 .beat-item.selected {
