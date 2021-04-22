@@ -89,3 +89,37 @@
 .beat-list.cdk-drop-list-dragging .beat-item:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+.structure-add-header {
+  button, a {
+    display: block;
+    margin-bottom: 16px;
+  }
+}
+
+.structure-template-option {
+  padding: 8px;
+  border: 1px solid;
+  border-radius: 4px;
+  background: white;
+  max-width: 250px;
+  margin-bottom: 16px;
+
+  &.selected {
+    padding-left: 4px;
+    border-left: 4px solid blue;
+  }
+
+  .template-details {
+    margin-top: 16px;
+    margin-left: 16px;
+  }
+
+  .template-name {
+    font-weight: bold;
+  }
+
+  button {
+    margin-top: 16px;
+  }
+}

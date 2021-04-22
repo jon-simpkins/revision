@@ -70,7 +70,7 @@ export class BeatsService {
       brainstorm: [],
     });
 
-    await this.setBeat(newBeat, true, true);
+    await this.setBeat(newBeat, true, true, true);
 
     return uuid;
   }
@@ -111,13 +111,13 @@ export class BeatsService {
     );
   }
 
-  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true): Promise<void> {
+  async setBeat(beat: Beat, affectsMapView: boolean = false, affectsLastUpdated: boolean = true, isNew: boolean = false): Promise<void> {
     if (affectsLastUpdated) {
       beat.lastUpdated = epochMsToTimestamp(Date.now());
     }
 
     if (affectsMapView) {
-      const originalBeat = await this.getBeat(beat.id) as Beat;
+      const originalBeat = isNew ? new Beat() : await this.getBeat(beat.id) as Beat;
       const beatMap = await this.getBeatMap();
 
       const originalBrainstorm = (originalBeat?.brainstorm || []);
@@ -163,12 +163,11 @@ export class BeatsService {
     );
   }
 
-  async getBeat(uuid: string): Promise<Beat|null> {
+  async getBeat(uuid: string): Promise<Beat> {
     const fetchedData = (await this.storageService.get(BeatsService.getBeatKey(uuid))) as Uint8Array;
 
     if (!fetchedData) {
-      console.error('Could not find beat: ' + uuid);
-      return null;
+      throw Error('Could not find beat: ' + uuid);
     }
 
     return Beat.decode(

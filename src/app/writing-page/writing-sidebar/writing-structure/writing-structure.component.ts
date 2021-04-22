@@ -1,9 +1,11 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {BeatMapView, BeatsService} from '../../../beats.service';
 import {getDurationStr} from '../../../duration-helpers';
-import {Beat} from '../../../../protos';
+import {Beat, StructureTemplate} from '../../../../protos';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {BeatSubList} from '../../../beat-related-beat-nav/beat-related-beat-nav.component';
+import {StructureTemplateListView, StructureTemplateService} from '../../../structure-template.service';
+import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
 @Component({
   selector: 'app-writing-structure',
@@ -29,7 +31,13 @@ export class WritingStructureComponent implements OnInit, OnChanges {
   brainstormAddView = false;
   structureAddView = false;
 
+  structureTemplateListView: StructureTemplateListView[] = [];
+  structureTemplateListViewSubscription = '';
+  currentlySelectedStructureTemplate = '';
+  rescaledSelectedStructureTemplate: StructureTemplate|null = null;
+
   constructor(private beatsService: BeatsService,
+              private structureTemplateService: StructureTemplateService,
               private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
@@ -38,6 +46,11 @@ export class WritingStructureComponent implements OnInit, OnChanges {
 
       await this.buildRelatedListViews();
 
+      this.ref.markForCheck();
+    });
+
+    this.structureTemplateListViewSubscription = this.structureTemplateService.subscribeToTemplateListView((newValue) => {
+      this.structureTemplateListView = newValue;
       this.ref.markForCheck();
     });
   }
@@ -202,5 +215,77 @@ export class WritingStructureComponent implements OnInit, OnChanges {
     );
 
     this.ref.markForCheck();
+  }
+
+  async selectStructureTemplate(newId: string): Promise<void> {
+    if (newId === this.currentlySelectedStructureTemplate || newId === '') {
+      // Deselect
+      this.currentlySelectedStructureTemplate = '';
+      this.rescaledSelectedStructureTemplate = null;
+    } else {
+      this.currentlySelectedStructureTemplate = newId;
+
+      this.rescaledSelectedStructureTemplate = await this.getRescaledStructureTemplate();
+    }
+
+    this.ref.markForCheck();
+  }
+
+  async applyStructureTemplate(event: Event): Promise<void> {
+    event.stopPropagation();
+
+    const editingBeat = await this.beatsService.getBeat(this.editingBeatId);
+
+    const rescaledTemplate = await this.getRescaledStructureTemplate();
+
+    // Move everything from structure -> brainstorm
+    editingBeat.brainstorm = editingBeat.brainstorm.concat(editingBeat.structure);
+    editingBeat.structure = [];
+
+    // Create all relevant beats
+    const templateBeats = rescaledTemplate?.beats as StructureTemplateBeat[];
+    for (const templateBeat of templateBeats) {
+      const newUuid = await this.beatsService.createNewBeat();
+
+      editingBeat.structure.push(newUuid);
+
+      const childBeat = await this.beatsService.getBeat(newUuid) as Beat;
+      childBeat.synopsis = templateBeat.description;
+      childBeat.intendedDurationMs = templateBeat.intendedDurationMs;
+
+      await this.beatsService.setBeat(childBeat, true);
+    }
+
+    await this.beatsService.setBeat(editingBeat, true);
+
+    await this.selectStructureTemplate('');
+
+    this.toggleStructureAddView();
+  }
+
+  async getRescaledStructureTemplate(): Promise<StructureTemplate> {
+    const template = await this.structureTemplateService.getStructureTemplate(this.currentlySelectedStructureTemplate);
+
+    const editingBeat = await this.beatsService.getBeat(this.editingBeatId);
+
+    const currentIntendedDuration = editingBeat.intendedDurationMs;
+    let templateSumDuration = 0;
+    (template?.beats || []).forEach(beat => {
+      templateSumDuration += (beat.intendedDurationMs as number);
+    });
+
+    if (!templateSumDuration || !currentIntendedDuration) {
+      return template;
+    }
+
+    const scale = currentIntendedDuration / templateSumDuration;
+    (template?.beats || []).forEach(beat => {
+      if (!!beat) {
+        const originalDuration = beat?.intendedDurationMs as number;
+        beat.intendedDurationMs = Math.floor(originalDuration * scale);
+      }
+    });
+
+    return template;
   }
 }

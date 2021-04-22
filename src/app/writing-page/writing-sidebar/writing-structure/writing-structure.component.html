@@ -28,7 +28,27 @@
     </div>
   </div>
   <div *ngIf="structureAddView">
-    <button (click)="addNewBeatToList('structure')">Add new (blank)</button>
+    <div class="structure-add-header">
+      <button (click)="addNewBeatToList('structure')">Add new (blank)</button>
+      <a routerLink="/structure-templates">Structure Templates</a>
+    </div>
+    <div *ngFor="let template of structureTemplateListView"
+         class="structure-template-option"
+         [class.selected]="rescaledSelectedStructureTemplate?.id == template.id"
+         (click)="selectStructureTemplate(template.id)">
+      <div class="template-name">{{template.name}}</div>
+      <div *ngIf="rescaledSelectedStructureTemplate?.id == template.id" class="template-details">
+        <p>
+          {{rescaledSelectedStructureTemplate?.description}}
+        </p>
+        <ul>
+          <li *ngFor="let templateBeat of (rescaledSelectedStructureTemplate?.beats || [])">
+            {{templateBeat.description}} ({{formatDurationMs(templateBeat.intendedDurationMs || 0)}})
+          </li>
+        </ul>
+        <button (click)="applyStructureTemplate($event)">Apply Template</button>
+      </div>
+    </div>
   </div>
   <div class="list-header">
     <h2>Brainstorm</h2>

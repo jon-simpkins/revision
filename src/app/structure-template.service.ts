@@ -65,12 +65,11 @@ export class StructureTemplateService {
     return STRUCTURE_TEMPLATE_KEY_PREFIX + uuid;
   }
 
-  async getStructureTemplate(uuid: string): Promise<StructureTemplate|null> {
+  async getStructureTemplate(uuid: string): Promise<StructureTemplate> {
     const fetchedData = (await this.storageService.get(this.getTemplateKey(uuid))) as Uint8Array;
 
     if (!fetchedData) {
-      console.error('Could not find structure template: ' + uuid);
-      return null;
+      throw Error('Could not find structure template: ' + uuid);
     }
 
     return StructureTemplate.decode(
