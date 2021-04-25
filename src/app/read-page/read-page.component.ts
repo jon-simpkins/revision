@@ -53,7 +53,7 @@ export class ReadPageComponent implements OnInit {
   }
 
   async timelineSelectBeat(selectedId: string): Promise<void> {
-    await this.router.navigate(['/beats', { id: selectedId }]);
+    await this.router.navigate(['/writing', { id: selectedId }]);
   }
 
   async selectRandomBeat(): Promise<void> {

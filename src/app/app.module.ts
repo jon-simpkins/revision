@@ -25,28 +25,19 @@ import { TagPageComponent } from './tag-page/tag-page.component';
 import { TagNavComponent } from './tag-page/tag-nav/tag-nav.component';
 import { TagDetailsComponent } from './tag-page/tag-details/tag-details.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import { BeatPageComponent } from './beat-page/beat-page.component';
-import { BeatNavComponent } from './beat-nav/beat-nav.component';
-import { BeatProseEditComponent } from './beat-prose-edit/beat-prose-edit.component';
-import { BeatRelatedBeatNavComponent } from './beat-related-beat-nav/beat-related-beat-nav.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatTabsModule} from '@angular/material/tabs';
-import { ApplyStructureNavComponent } from './apply-structure-nav/apply-structure-nav.component';
 import {MatSelectModule} from '@angular/material/select';
 import { ReadPageComponent } from './read-page/read-page.component';
 import { ReadPageBeatComponent } from './read-page-beat/read-page-beat.component';
 import { BrainstormTemplatePageComponent } from './brainstorm-template-page/brainstorm-template-page.component';
 import { BrainstormTemplateNavComponent } from './brainstorm-template-page/brainstorm-template-nav/brainstorm-template-nav.component';
 import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component';
-import { BeatBrainstormTemplateNavComponent } from './beat-brainstorm-template-nav/beat-brainstorm-template-nav.component';
-import { ApplyTagNavComponent } from './apply-tag-nav/apply-tag-nav.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import { BeatActionNavComponent } from './beat-action-nav/beat-action-nav.component';
 import {NbThemeModule, NbLayoutModule, NbButtonModule, NbIconModule, NbButtonGroupModule} from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { WritingPageComponent } from './writing-page/writing-page.component';
-import { WritingPageMirageComponent } from './writing-page/writing-page-mirage.component';
 import { WritingSubheaderComponent } from './writing-page/writing-subheader/writing-subheader.component';
 import { WritingSidebarComponent } from './writing-page/writing-sidebar/writing-sidebar.component';
 import { WritingContentComponent } from './writing-page/writing-content/writing-content.component';
@@ -55,6 +46,7 @@ import { WritingMetadataComponent } from './writing-page/writing-metadata/writin
 import { WritingAncestorComponent } from './writing-page/writing-ancestor/writing-ancestor.component';
 import { WritingStructureComponent } from './writing-page/writing-sidebar/writing-structure/writing-structure.component';
 import { WritingTagAssignmentComponent } from './writing-page/writing-sidebar/writing-tag-assignment/writing-tag-assignment.component';
+import {BeatRelatedBeatNavComponent} from './beat-related-beat-nav/beat-related-beat-nav.component';
 
 export const MaterialModules = [
   MatButtonModule,
@@ -98,25 +90,17 @@ export const NebularModules = [
     TagPageComponent,
     TagNavComponent,
     TagDetailsComponent,
-    BeatPageComponent,
-    BeatNavComponent,
-    BeatProseEditComponent,
     BeatRelatedBeatNavComponent,
-    ApplyStructureNavComponent,
     ReadPageComponent,
     ReadPageBeatComponent,
     BrainstormTemplatePageComponent,
     BrainstormTemplateNavComponent,
     BrainstormTemplateDetailsComponent,
-    BeatBrainstormTemplateNavComponent,
-    ApplyTagNavComponent,
     TimelineChartComponent,
-    BeatActionNavComponent,
     WritingPageComponent,
     WritingSubheaderComponent,
     WritingSidebarComponent,
     WritingContentComponent,
-    WritingPageMirageComponent,
     WritingInputComponent,
     WritingMetadataComponent,
     WritingAncestorComponent,

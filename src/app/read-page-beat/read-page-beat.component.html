@@ -3,7 +3,7 @@
     <span class="header-text" (click)="toggleExpansion()">
       {{beat?.name}}
     </span>
-    <a [routerLink]="['/beats', {id: beat?.id}]" >Edit</a>
+    <a [routerLink]="['/writing', {id: beat?.id}]" >Edit</a>
   </header>
   <p *ngIf="isExpanded" class="details">{{getProse()}}</p>
 </div>
