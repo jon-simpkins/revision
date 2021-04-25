@@ -108,7 +108,7 @@ export class BeatPageComponent implements OnInit, OnDestroy {
     this.tagMapSubscription = this.tagService.subscribeToTagMapView((newValue) => {
       this.tagMap = newValue;
       this.ref.markForCheck();
-    })
+    });
   }
 
   ngOnDestroy(): void {

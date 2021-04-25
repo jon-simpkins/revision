@@ -21,5 +21,8 @@
     [previewBeatId]="previewBeatId"
     (showPreview)="selectBeat($event)"
   ></app-writing-structure>
-  <app-writing-tag-assignment *ngIf="tagSelected"></app-writing-tag-assignment>
+  <app-writing-tag-assignment
+    *ngIf="tagSelected"
+    [editingBeatId]="editingBeatId"
+  ></app-writing-tag-assignment>
 </div>
