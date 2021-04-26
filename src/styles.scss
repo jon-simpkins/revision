@@ -1,10 +1,4 @@
-@import 'themes';
 
-@import '~@nebular/theme/styles/globals';
-
-@include nb-install() {
-  @include nb-theme-global();
-};
 @import '~quill/dist/quill.core.css';
 @import '~quill/dist/quill.snow.css';
 

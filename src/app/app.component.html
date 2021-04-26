@@ -1,6 +1,4 @@
-<nb-layout>
-
-  <nb-layout-header fixed>
+<div class="header">
     <h1>
       <a routerLink="/" routerLinkActive="active">
         Revision
@@ -12,9 +10,7 @@
     <a routerLink="/data" routerLinkActive="active">
       Data
     </a>
-  </nb-layout-header>
-
-  <nb-layout-column>
-    <router-outlet></router-outlet>
-  </nb-layout-column>
-</nb-layout>
+</div>
+<div class="body">
+  <router-outlet></router-outlet>
+</div>

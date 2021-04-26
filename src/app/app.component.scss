@@ -5,7 +5,7 @@
   height: 100%;
 }
 
-nb-layout-header {
+.header {
   border-bottom: 1px solid black;
   display: flex;
   padding: 0 8px;
@@ -30,8 +30,4 @@ nb-layout-header {
 .body {
   margin: 8px 32px;
   flex: 1;
-}
-
-nb-layout-column {
-  padding: 0 !important;
 }

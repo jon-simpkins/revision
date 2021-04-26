@@ -35,8 +35,6 @@ import { BrainstormTemplateNavComponent } from './brainstorm-template-page/brain
 import { BrainstormTemplateDetailsComponent } from './brainstorm-template-page/brainstorm-template-details/brainstorm-template-details.component';
 import { TimelineChartComponent } from './timeline-chart/timeline-chart.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {NbThemeModule, NbLayoutModule, NbButtonModule, NbIconModule, NbButtonGroupModule} from '@nebular/theme';
-import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { WritingPageComponent } from './writing-page/writing-page.component';
 import { WritingSubheaderComponent } from './writing-page/writing-subheader/writing-subheader.component';
 import { WritingSidebarComponent } from './writing-page/writing-sidebar/writing-sidebar.component';
@@ -65,16 +63,6 @@ export const MaterialModules = [
       toolbar: false
     }
   }),
-];
-
-export const NebularModules = [
-  BrowserAnimationsModule,
-  NbThemeModule.forRoot({ name: 'corporate' }),
-  NbLayoutModule,
-  NbEvaIconsModule,
-  NbButtonModule,
-  NbIconModule,
-  NbButtonGroupModule,
 ];
 
 @NgModule({
@@ -113,7 +101,6 @@ export const NebularModules = [
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
     ...MaterialModules,
     FormsModule,
-    ...NebularModules,
   ],
   providers: [],
   bootstrap: [AppComponent]
