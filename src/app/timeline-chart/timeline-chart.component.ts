@@ -172,9 +172,9 @@ export class TimelineChartComponent implements OnInit, OnChanges {
     return '' + value + '%';
   }
 
-  tagSelectionChange(value: string): void {
-    this.selectedTagId = value;
-    this.selectedTag = this.relevantTags.filter((tag) => tag.id === value)[0] || null;
+  tagSelectionChange(event: any): void {
+    this.selectedTagId = event.target.value;
+    this.selectedTag = this.relevantTags.filter((tag) => tag.id === this.selectedTagId)[0] || null;
     this.rebuildTimeline();
   }
 }

@@ -33,7 +33,12 @@
 
 .timeline-controls {
   display: flex;
-  mat-select {
+
+  button:last-of-type {
+    margin-right: 16px;
+  }
+
+  select {
     flex: 1;
     margin: auto;
   }

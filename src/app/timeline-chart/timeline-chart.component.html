@@ -1,16 +1,19 @@
 <div class="timeline-controls">
-  <button mat-button (click)="zoomOut()" [disabled]="zoomLevel === 100">
-    <mat-icon>zoom_out</mat-icon>
+  <button title="Zoom Out" (click)="zoomOut()" [disabled]="zoomLevel === 100">
+    -
   </button>
-  <button mat-button (click)="zoomIn()">
-    <mat-icon>zoom_in</mat-icon>
+  <button title="Zoom In" (click)="zoomIn()">
+    +
   </button>
-  <mat-select [value]="'none'" (valueChange)="tagSelectionChange($event)">
-    <mat-option [value]="'none'">No tag</mat-option>
-    <mat-option *ngFor="let tagOption of relevantTags" [value]="tagOption.id">
+  <label>Tag
+
+  </label>
+  <select [value]="'none'" (input)="tagSelectionChange($event)">
+    <option [value]="'none'">No tag</option>
+    <option *ngFor="let tagOption of relevantTags" [value]="tagOption.id">
       {{tagOption.name}}
-    </mat-option>
-  </mat-select>
+    </option>
+  </select>
 </div>
 <div class="timeline-wrapper">
   <div
@@ -22,7 +25,7 @@
          [style.background]="block.color"
          [style.width]="formatPercentString(block.width)"
          [style.left]="formatPercentString(block.left)"
-         matTooltip="{{block.label}}"
+         title="{{block.label}}"
          (click)="selectBeat.emit(block.id)"
     ></div>
   </div>
@@ -38,5 +41,3 @@
 
   </div>
 </div>
-
-{{minTimeSec}} - {{maxTimeSec}}
