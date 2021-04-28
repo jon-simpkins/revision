@@ -16,7 +16,7 @@
   In a flat writing approach, it would take {{calculateFlatAlternativeSessions()}} sessions
   ({{(calculateFlatAlternativeSessions() - calculateSessionsRequired()) / sessionsPerDay}} days longer).
 
-  <button mat-stroked-button (click)="changeParameters()">
+  <button (click)="changeParameters()">
     Change Parameters
   </button>
 </pre>
@@ -32,10 +32,10 @@
   </div>
 
   <div class="story-list">
-    <button mat-stroked-button (click)="newStory()">
+    <button (click)="newStory()">
       New Story
     </button>
-    <button *ngIf="!!storyListView.length" mat-stroked-button (click)="randomStory()">
+    <button *ngIf="!!storyListView.length" (click)="randomStory()">
       Random Story
     </button>
     <div *ngFor="let story of storyListView"
