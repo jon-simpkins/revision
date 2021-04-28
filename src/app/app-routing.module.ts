@@ -7,6 +7,7 @@ import {TagPageComponent} from './tag-page/tag-page.component';
 import {ReadPageComponent} from './read-page/read-page.component';
 import {BrainstormTemplatePageComponent} from './brainstorm-template-page/brainstorm-template-page.component';
 import {WritingPageComponent} from './writing-page/writing-page.component';
+import {ShowSessionHistoryComponent} from './show-session-history/show-session-history.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent},
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'read', component: ReadPageComponent},
   { path: 'brainstorm-templates', component: BrainstormTemplatePageComponent},
   { path: 'writing', component: WritingPageComponent},
+  { path: 'session-history', component: ShowSessionHistoryComponent},
 ];
 
 @NgModule({

@@ -28,6 +28,7 @@
     <a routerLink="structure-templates">Structure Templates</a>
     <a routerLink="brainstorm-templates">Brainstorm Templates</a>
     <a routerLink="tags">Tags</a>
+    <a routerLink="session-history">Session History</a>
   </div>
 
   <div class="story-list">
@@ -43,8 +44,6 @@
       {{story.name}}
     </div>
   </div>
-
-  <app-show-session-history></app-show-session-history>
 </div>
 
 <ng-container *ngIf="workspaceName.length == 0">
