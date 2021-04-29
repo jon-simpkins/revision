@@ -1,7 +1,3 @@
-<button mat-stroked-button (click)="selectRandomBeat()">Choose random beat to work on</button>
-<app-timeline-chart
-  [timelineBlocks]="timelineView"
-  [relevantTags]="relevantTags"
-  (selectBeat)="timelineSelectBeat($event)"></app-timeline-chart>
+<button (click)="selectRandomBeat()">Choose random beat to work on</button>
 <app-read-page-beat *ngFor="let beat of readView" [beat]="beat">
 </app-read-page-beat>
