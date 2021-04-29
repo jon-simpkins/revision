@@ -2,25 +2,22 @@
 
 <ng-container *ngIf="!isEmpty()">
   <div class="row">
-    <mat-form-field class="full-width">
-      <mat-label>Label</mat-label>
+    <label>
+      Label
       <input
-        matInput
         placeholder="Template label"
         [value]="brainstormTemplate?.label"
         (input)="onLabelInput($event)"/>
-    </mat-form-field>
+    </label>
   </div>
 
   <div class="row">
-    <mat-form-field class="full-width">
-      <mat-label>Template</mat-label>
+      <label for="template-content">Template</label>
       <textarea
-        matInput
+        id="template-content"
         placeholder="Template"
         [rows]="5"
         [value]="brainstormTemplate?.template"
         (input)="onTemplateInput($event)"></textarea>
-    </mat-form-field>
   </div>
 </ng-container>
