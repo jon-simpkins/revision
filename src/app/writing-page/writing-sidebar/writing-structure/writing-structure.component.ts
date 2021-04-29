@@ -2,8 +2,6 @@ import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Ou
 import {BeatMapView, BeatsService} from '../../../beats.service';
 import {getDurationStr} from '../../../duration-helpers';
 import {Beat, StructureTemplate} from '../../../../protos';
-import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {BeatSubList} from '../../../beat-related-beat-nav/beat-related-beat-nav.component';
 import {StructureTemplateListView, StructureTemplateService} from '../../../structure-template.service';
 import StructureTemplateBeat = StructureTemplate.StructureTemplateBeat;
 
@@ -119,7 +117,8 @@ export class WritingStructureComponent implements OnInit, OnChanges {
     this.ref.markForCheck();
   }
 
-  async drop(event: CdkDragDrop<BeatMapView[]>): Promise<void> {
+  // TODO: make this not dead code
+  async drop(event: any): Promise<void> {
     const targetList = event.container.id;
     const sourceList = event.previousContainer.id;
 

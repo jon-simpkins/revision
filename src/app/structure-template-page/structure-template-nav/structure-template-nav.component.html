@@ -1,29 +1,23 @@
 <div class="left-rail">
   <div class="button-row">
-    <button mat-icon-button (click)="createNewTemplate()">
-      <mat-icon>add_circle</mat-icon>
+    <button (click)="createNewTemplate()">
+      +
     </button>
     <button
-      mat-icon-button
       (click)="deleteTemplate.emit()"
       [disabled]="!canDelete()">
-      <mat-icon>delete</mat-icon>
+      -
     </button>
-    <button mat-icon-button (click)="generateStandardTemplates.emit()">
-      <mat-icon>gesture</mat-icon>
+    <button title="Create" (click)="generateStandardTemplates.emit()">
+      C
     </button>
   </div>
-  <mat-action-list dense>
-    <button
+  <ul>
+    <li
       *ngFor="let structureTemplate of structureTemplateListView"
-      mat-list-item
+      [class.selected]="structureTemplate.id === selectedTemplateId"
       (click)="selectTemplate.emit(structureTemplate.id)">
-      <mat-icon
-        *ngIf="structureTemplate.id === selectedTemplateId"
-        matListIcon>
-        arrow_right
-      </mat-icon>
       {{structureTemplate.name}}
-    </button>
-  </mat-action-list>
+    </li>
+  </ul>
 </div>

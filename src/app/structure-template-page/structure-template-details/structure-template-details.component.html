@@ -1,25 +1,11 @@
 <h3 *ngIf="isEmpty()">no structure template selected</h3>
 
-<quill-editor
-  *ngIf="!isEmpty()"
-  [ngModel]="quillContent"
-  format="object"
-  (onContentChanged)="onContentChanged($event)"
->
-  <div quill-editor-toolbar>
-    <button
-            class="toolbar-button"
-            (click)="addBeat()">
-      <mat-icon>note_add</mat-icon>
-    </button>
-    <button
-      class="toolbar-button"
-      (click)="repair()">
-      <mat-icon>restore</mat-icon>
-    </button>
-    <span class="toolbar-msg">
-      {{errorMessage}}
-      &nbsp;
-    </span>
-  </div>
-</quill-editor>
+
+<div>
+  <button
+          class="toolbar-button"
+          (click)="addBeat()">
+    +
+  </button>
+  <p>This does not currently work, Jon should fix it</p>
+</div>

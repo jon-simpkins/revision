@@ -1,4 +1,4 @@
-<div cdkDropListGroup>
+<div>
   <div class="list-header">
     <h2>Structure</h2>
     <button (click)="toggleStructureAddView()">
@@ -8,10 +8,7 @@
   </div>
   <div
     *ngIf="!structureAddView"
-    cdkDropList id="structure"
-       [cdkDropListData]="structureListView"
-       class="beat-list"
-       (cdkDropListDropped)="drop($event)">
+     class="beat-list">
     <div *ngIf="structureListView.length == 0" class="empty-message">No items</div>
     <div *ngFor="let beat of structureListView"
       class="beat-item" cdkDrag
@@ -59,10 +56,7 @@
   </div>
   <div
     *ngIf="!brainstormAddView"
-    cdkDropList id="brainstorm"
-       [cdkDropListData]="brainstormListView"
-       class="beat-list"
-       (cdkDropListDropped)="drop($event)">
+     class="beat-list">
     <div *ngIf="brainstormListView.length == 0" class="empty-message">No items</div>
     <div *ngFor="let beat of brainstormListView"
          class="beat-item" cdkDrag
