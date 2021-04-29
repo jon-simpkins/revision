@@ -2,52 +2,60 @@
 
 <ng-container *ngIf="!isEmpty()">
   <div class="row">
-    <mat-form-field class="full-width">
-      <mat-label>Name</mat-label>
+    <label>
+      Name
       <input
-        matInput
         placeholder="Tag name"
         [value]="tag?.name"
         (input)="onNameInput($event)"/>
-    </mat-form-field>
-
-    <mat-checkbox
-      [checked]="hasNumericValue()"
-      (change)="onHasNumericValueCheckbox($event)"
-    >Has numeric value</mat-checkbox>
+    </label>
   </div>
 
   <div class="row">
-    <mat-form-field class="full-width">
-      <mat-label>Description</mat-label>
-      <textarea
-        matInput
-        placeholder="Tag description"
-        [rows]="5"
-        [value]="tag?.description"
-        (input)="onDescriptionInput($event)"></textarea>
-    </mat-form-field>
+    <label>
+      Has numeric value
+      <input type="checkbox"
+             [checked]="hasNumericValue()"
+             (change)="onHasNumericValueCheckbox($event)"
+      />
+    </label>
+  </div>
+
+  <div class="row">
+    <label for="description-input">
+      Description
+    </label>
+  </div>
+  <div class="row">
+    <textarea
+      id="description-input"
+      placeholder="Tag description"
+      [rows]="5"
+      [value]="tag?.description"
+      (input)="onDescriptionInput($event)"></textarea>
   </div>
 
   <div>
     <h4>Enum values</h4>
-    <button mat-stroked-button (click)="addEnumValue()">
-      Add
+    <button (click)="addEnumValue()">
+      +
     </button>
 
     <div *ngFor="let enumValue of tag?.enumValues; let i = index">
-      <mat-form-field class="full-width">
-        <mat-label>Label</mat-label>
+      <label>
+        Label
         <input
-          matInput
           placeholder="Option label"
           [value]="enumValue.label"
           (input)="setEnumLabel(i, $event)"/>
-      </mat-form-field>
-      <mat-checkbox
-        [checked]="!enumValue.isDeprecated"
-        (change)="setDeprecatedEnum(i, $event)"
-      >Enabled</mat-checkbox>
+      </label>
+      <label>
+        Enabled
+        <input type="checkbox"
+               [checked]="!enumValue.isDeprecated"
+               (change)="setDeprecatedEnum(i, $event)"
+        />
+      </label>
     </div>
   </div>
 </ng-container>

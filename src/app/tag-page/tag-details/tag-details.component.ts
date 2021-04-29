@@ -64,10 +64,10 @@ export class TagDetailsComponent implements OnInit {
     return this.tag?.hasNumericValue ?? false;
   }
 
-  onHasNumericValueCheckbox(event: MatCheckboxChange): void {
+  onHasNumericValueCheckbox(event: any): void {
     const tag = this.tag as Tag;
 
-    tag.hasNumericValue = event.checked;
+    tag.hasNumericValue = event.target.checked;
 
     this.tagUpdated.emit({
       tag,
@@ -79,8 +79,8 @@ export class TagDetailsComponent implements OnInit {
     return this.tag == null;
   }
 
-  setDeprecatedEnum(index: number, event: MatCheckboxChange): void {
-    const isDeprecated = !event.checked;
+  setDeprecatedEnum(index: number, event: any): void {
+    const isDeprecated = !event.target.checked;
 
     const tag = this.tag as Tag;
 

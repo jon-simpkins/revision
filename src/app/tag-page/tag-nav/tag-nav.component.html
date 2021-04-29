@@ -1,26 +1,20 @@
 <div class="left-rail">
   <div class="button-row">
-    <button mat-icon-button (click)="createNewTemplate()">
-      <mat-icon>add_circle</mat-icon>
+    <button (click)="createNewTemplate()">
+      +
     </button>
     <button
-      mat-icon-button
       (click)="deleteTag.emit()"
       [disabled]="!canDelete()">
-      <mat-icon>delete</mat-icon>
+      -
     </button>
   </div>
-  <mat-action-list dense>
-    <button
+  <ul class="option-list">
+    <li
       *ngFor="let tag of tagListView"
-      mat-list-item
+      [class.selected]="tag.id === selectedTagId"
       (click)="selectTag.emit(tag.id)">
-      <mat-icon
-        *ngIf="tag.id === selectedTagId"
-        matListIcon>
-        arrow_right
-      </mat-icon>
       {{tag.name}}
-    </button>
-  </mat-action-list>
+    </li>
+  </ul>
 </div>

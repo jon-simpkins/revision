@@ -185,13 +185,15 @@ export class WritingTagAssignmentComponent implements OnInit, OnChanges {
     return this.enumOptionsMap.get(tagId as string) || [];
   }
 
-  async enumChange(tagId: string|undefined|null, changeEvent: any): Promise<void> {
+  async enumChange(tagId: string|undefined|null, event: any): Promise<void> {
+    debugger;
+
     this.editingBeat?.tagReferences.forEach((tagReference) => {
       if (tagReference.tagId !== tagId) {
         return;
       }
 
-      tagReference.enumValue = changeEvent as number;
+      tagReference.enumValue = event.target.value as number;
     });
 
     this.ref.markForCheck();
