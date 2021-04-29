@@ -5,10 +5,10 @@
 </p>
 
 <div class="upload-download">
-  <button mat-button (click)="onDownloadClick()">
+  <button (click)="onDownloadClick()">
     Download
   </button>
-  <button mat-button (click)="uploadFile.click()">
+  <button (click)="uploadFile.click()">
     Upload
   </button>
   <input
@@ -17,7 +17,7 @@
     #uploadFile
     accept=".write"
     (change)="onUpload($event)">
-  <button mat-button (click)="newWorkspace()">New Workspace</button>
+  <button (click)="newWorkspace()">New Workspace</button>
 </div>
 
 
