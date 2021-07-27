@@ -1,13 +1,14 @@
 <div class="timeline-controls">
-  <button title="Zoom Out" (click)="zoomOut()" [disabled]="zoomLevel === 100">
-    -
-  </button>
-  <button title="Zoom In" (click)="zoomIn()">
-    +
-  </button>
-  <label>Tag
-
-  </label>
+  <icon-button
+    icon="zoom_out"
+    title="Zoom Out"
+    (click)="zoomOut()"
+    [disabled]="zoomLevel === 100"></icon-button>
+  <icon-button
+    icon="zoom_in"
+    title="Zoom In"
+    (click)="zoomIn()"></icon-button>
+  <label>Tag</label>
   <select [value]="'none'" (input)="tagSelectionChange($event)">
     <option [value]="'none'">No tag</option>
     <option *ngFor="let tagOption of relevantTags" [value]="tagOption.id">

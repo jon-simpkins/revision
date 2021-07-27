@@ -66,7 +66,12 @@ export class WritingSubheaderComponent implements OnInit {
   }
 
   toggleCollapse(): void {
+    console.log('toggle');
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  collapseIcon(): string {
+    return this.isCollapsed ? 'expand_more' : 'expand_less';
   }
 
   selectMetadata(): void {

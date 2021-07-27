@@ -32,6 +32,7 @@ import { WritingMetadataComponent } from './writing-page/writing-metadata/writin
 import { WritingAncestorComponent } from './writing-page/writing-ancestor/writing-ancestor.component';
 import { WritingStructureComponent } from './writing-page/writing-sidebar/writing-structure/writing-structure.component';
 import { WritingTagAssignmentComponent } from './writing-page/writing-sidebar/writing-tag-assignment/writing-tag-assignment.component';
+import { IconButtonComponent } from './icon-button/icon-button.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { WritingTagAssignmentComponent } from './writing-page/writing-sidebar/wr
     WritingAncestorComponent,
     WritingStructureComponent,
     WritingTagAssignmentComponent,
+    IconButtonComponent,
   ],
   imports: [
     BrowserModule,

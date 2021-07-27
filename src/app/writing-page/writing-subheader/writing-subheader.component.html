@@ -1,30 +1,26 @@
 <div class="wrapper">
   <div class="mode-buttons">
-    <button
+    <icon-button
       title="Collapse / Expand"
-      (click)="toggleCollapse()">
-      <ng-container *ngIf="isCollapsed">&#9660;</ng-container>
-      <ng-container *ngIf="!isCollapsed">&#9650;</ng-container>
-    </button>
+      [icon]="collapseIcon()"
+      (click)="toggleCollapse()"></icon-button>
     <ng-container *ngIf="!isCollapsed">
-      <button
+      <icon-button
         title="Metadata"
+        icon="tune"
         (click)="selectMetadata()"
-        [class.is-selected]="metadataSelected">
-        M
-      </button>
-      <button
+        [selected]="metadataSelected"></icon-button>
+      <icon-button
         title="Timeline"
+        icon="burst_mode"
         (click)="selectTimeline()"
-        [class.is-selected]="timelineSelected">
-        T
-      </button>
-      <button
+        [selected]="timelineSelected"></icon-button>
+      <icon-button
         title="Ancestors"
+        icon="switch_account"
         (click)="selectAncestorView()"
-        [class.is-selected]="ancestorViewSelected">
-        A
-      </button>
+        [selected]="ancestorViewSelected">
+      </icon-button>
     </ng-container>
   </div>
   <div class="content">
