@@ -1,5 +1,5 @@
 #!/bin/bash
 
-ng test --codeCoverage=true --watch=false
+npm run test -- --coverage --watchAll=false
 
-open ./coverage/revision/index.html
+open coverage/lcov-report/index.html

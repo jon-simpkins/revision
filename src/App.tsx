@@ -1,19 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
 import { Button, Icon, Label } from 'semantic-ui-react'
 import './App.css';
+import RevisionHeader from './features/revision-header/RevisionHeader';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </header>
+      <RevisionHeader />
       <div className="Semantic-example">
         <Button as='div' labelPosition='right'>
           <Button icon>

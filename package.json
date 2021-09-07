@@ -77,5 +77,9 @@
     "@storybook/node-logger": "^6.3.8",
     "@storybook/preset-create-react-app": "^3.2.0",
     "@storybook/react": "^6.3.8"
+  },
+  "jest": {
+    "coverageReporters": ["lcov"],
+    "coveragePathIgnorePatterns": [".stories.tsx", "protos.js", "stories/"]
   }
 }
