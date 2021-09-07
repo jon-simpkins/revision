@@ -1,8 +1,6 @@
 import workspaceMetadataReducer, {
-  MetadataState,
   addSession,
 } from './workspaceMetadataSlice';
-import counterReducer, {CounterState} from '../counter/counterSlice';
 import {IWritingWorkspaceMetadata, WritingSession} from '../../protos';
 
 describe('counter reducer', () => {
