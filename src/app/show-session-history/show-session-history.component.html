@@ -1,7 +1,0 @@
-<h4>Writing History ({{fetchHistoryLength()}} sessions)</h4>
-
-<ng-container *ngFor="let entry of fetchRecentHistory()">
-  <div>
-    {{entry.duration?.seconds}} seconds ({{entry.activeDuration?.seconds}} active seconds)
-  </div>
-</ng-container>

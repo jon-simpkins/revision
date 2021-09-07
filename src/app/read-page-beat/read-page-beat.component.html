@@ -1,9 +1,0 @@
- <div *ngIf="hasBeat()" class="beat {{getCompletionClass()}}">
-  <header class="header">
-    <span class="header-text" (click)="toggleExpansion()">
-      {{beat?.name}}
-    </span>
-    <a [routerLink]="['/writing', {id: beat?.id}]" >Edit</a>
-  </header>
-  <p *ngIf="isExpanded" class="details">{{getProse()}}</p>
-</div>
