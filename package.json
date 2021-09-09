@@ -86,7 +86,7 @@
     ],
     "coveragePathIgnorePatterns": [
       ".stories.tsx",
-      "protos.js",
+      "protos.",
       "stories/"
     ]
   }

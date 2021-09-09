@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+// Poor substitute for https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/timestamp.proto
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// Poor substitute for https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/duration.proto
+message Duration {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// A top-level entrypoint for writing
+message Story {
+  // unique identifier
+  string id = 1;
+
+  // Human-readable-name
+  string name = 2;
+
+  // Intended length
+  Duration duration = 3;
+
+  // Any related stories
+  repeated string related_story_ids = 4;
+}
+
+// The entire workspace for writing,
+// this is the thing serialized to a single *.write file.
+message WritingWorkspace {
+  // All stories
+  repeated Story stories = 1;
+}
