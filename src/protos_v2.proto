@@ -20,6 +20,9 @@ message Story {
   // Human-readable-name
   string name = 2;
 
+  // Brief description
+  string description = 5;
+
   // Intended length
   Duration duration = 3;
 
