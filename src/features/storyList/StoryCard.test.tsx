@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import {createMemoryHistory} from 'history'
 import StoryCard from './StoryCard';
-import {exampleStory} from './StoryCard.stories';
+import {exampleStory} from './exampleStoryData';
 
 describe('StoryCard', () => {
   test('renders story card', () => {

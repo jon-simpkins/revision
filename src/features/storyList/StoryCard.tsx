@@ -17,7 +17,7 @@ export default class StoryCard extends Component<StoryCardProps> {
   render() {
     return (
       <Link to={this.getCardUrl()}>
-        <Card>
+        <Card style={{margin: '8px'}}>
           <Card.Content header={this.props.story.name} />
           <Card.Content>
             {/* For each line of the description, print it in a paragraph */}

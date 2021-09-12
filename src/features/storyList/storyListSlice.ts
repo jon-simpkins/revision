@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import {Story} from '../../protos_v2';
 
-interface StoryMap {
+export interface StoryMap {
   [key: string]: Story;
 }
 
@@ -27,7 +27,7 @@ const storyListSlice = createSlice({
 });
 
 // Selector for fetching full map of stories
-export const storyMap = (state: RootState) => state.storyList.storyMap;
+export const selectStoryMap = (state: RootState) => state.storyList.storyMap;
 
 export const { updateStory, removeStory, clearAllStories } = storyListSlice.actions;
 export default storyListSlice.reducer;

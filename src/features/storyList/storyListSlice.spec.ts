@@ -1,4 +1,4 @@
-import storySliceReducer, {updateStory, removeStory, clearAllStories, storyMap} from './storyListSlice';
+import storySliceReducer, {updateStory, removeStory, clearAllStories, selectStoryMap} from './storyListSlice';
 import {Story} from '../../protos_v2';
 import {RootState} from '../../app/store';
 
@@ -72,7 +72,7 @@ describe('storyList reducer', () => {
       }
     } as unknown as RootState;
 
-    const selected = storyMap(state);
+    const selected = selectStoryMap(state);
 
     expect(selected['a'].id).toEqual('a');
   });

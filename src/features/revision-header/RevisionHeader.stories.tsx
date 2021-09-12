@@ -1,4 +1,7 @@
 import React from 'react';
+import {
+  MemoryRouter as Router,
+} from 'react-router-dom';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import RevisionHeader from './RevisionHeader';
