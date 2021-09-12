@@ -1,16 +1,16 @@
-import {Story} from '../../protos_v2';
 import StoryCard from '../../features/storyList/StoryCard';
 import {Button, Header, Icon, Segment} from 'semantic-ui-react';
 
-import {selectStoryMap, StoryMap, updateStory} from '../../features/storyList/storyListSlice';
+import {createStory, selectStoryMap, StoryMap} from '../../features/storyList/storyListSlice';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-
+import {Story} from '../../protos_v2';
+import { v4 as uuid } from 'uuid';
 
 function createNewStory(): Story {
   return Story.create({
-    id: 'a'+Date.now(),
-    name: 'Story: ' + Date.now(),
-    description: 'a story about things'
+    id: uuid(),
+    name: 'New Story',
+    description: 'A story about something'
   });
 }
 
@@ -24,9 +24,9 @@ function getStorySection(storyMap: StoryMap): JSX.Element {
   }
 
   return <Segment style={{display: 'flex', flexWrap: 'wrap'}}>
-    {storyList.map((story) => {
+    {storyList.map((story, idx) => {
       return (
-          <StoryCard story={story} />
+          <StoryCard key={idx} story={story} />
       );
     })}
   </Segment>
@@ -48,7 +48,7 @@ export default function Homepage() {
             <div style={{flex: 1, textAlign: 'right'}}>
               <Button icon color='green'
                 onClick={() => {
-                  dispatch(updateStory(createNewStory()))}}
+                  dispatch(createStory(createNewStory()))}}
               >
                 <Icon name='add' />
               </Button>
