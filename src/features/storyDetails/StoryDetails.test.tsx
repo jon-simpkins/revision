@@ -5,7 +5,7 @@ import StoryDetails from './StoryDetails';
 describe('StoryDetails', () => {
   test('renders "whoops" message on unfound story', () => {
     render(
-        <StoryDetails story={null} onStoryChange={() => {}}/>
+        <StoryDetails story={null} onStoryChange={() => {}} onStoryDelete={() => {}}/>
     );
     expect(screen.getByText(/Whoops/)).toBeVisible();
   });

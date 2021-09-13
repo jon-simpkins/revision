@@ -1,6 +1,6 @@
 import StoryCard from '../../features/storyList/StoryCard';
 import {Button, Header, Icon, Segment} from 'semantic-ui-react';
-
+import { useHistory } from 'react-router-dom';
 import {createStory, selectStoryMap, StoryMap} from '../../features/storyList/storyListSlice';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {IStory, Story} from '../../protos_v2';
@@ -35,6 +35,7 @@ function getStorySection(storyMap: StoryMap): JSX.Element {
 export default function Homepage() {
   const storyMap = useAppSelector(selectStoryMap);
   const dispatch = useAppDispatch();
+  const history = useHistory();
 
   return (
       <div style={{margin: '24px'}}>
@@ -48,7 +49,10 @@ export default function Homepage() {
             <div style={{flex: 1, textAlign: 'right'}}>
               <Button icon color='green'
                 onClick={() => {
-                  dispatch(createStory(createNewStory()))}}
+                  const newStory = createNewStory();
+                  dispatch(createStory(newStory));
+                  history.push(`/story/${newStory.id}`);
+                }}
               >
                 <Icon name='add' />
               </Button>
