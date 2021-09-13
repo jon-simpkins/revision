@@ -55,14 +55,15 @@ export default class StoryDetails extends Component<StoryCardProps> {
               <Input
                   defaultValue={this.props.story.name}
                   onChange={(e) => this.onNameChange(e.target.value)}
+                  style={{fontFamily: 'CourierPrime'}}
               />
             </Form.Field>
             <Form.Field>
               <label>Story Description</label>
               <TextArea
-                  rows={2}
                   defaultValue={this.props.story.description}
                   onChange={(e) => this.onDescriptionChange(e.target.value)}
+                style={{fontFamily: 'CourierPrime', height: '125px'}}
               />
             </Form.Field>
           </Form>
