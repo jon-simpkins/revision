@@ -1,4 +1,4 @@
-import {Story} from '../../protos_v2';
+import {IStory, Story} from '../../protos_v2';
 import {StoryMapInState} from './storyListSlice';
 
 const allStoryIdsKey = 'story-ids';
@@ -31,15 +31,15 @@ function readStory(id: string): Story {
   return Story.create(JSON.parse(storyString));
 }
 
-export function writeStory(story: Story) {
-  localStorage.setItem(storyKey(story.id), JSON.stringify(story.toJSON()));
+export function writeStory(story: IStory) {
+  localStorage.setItem(storyKey(story.id as string), JSON.stringify(story));
 }
 
-export function addStoryToStorage(story: Story): void {
+export function addStoryToStorage(story: IStory): void {
   writeStory(story);
 
   const allStoryIds = readStoryIds();
-  allStoryIds.push(story.id);
+  allStoryIds.push(story.id as string);
   writeStoryIds(allStoryIds);
 }
 

@@ -3,15 +3,15 @@ import {Button, Header, Icon, Segment} from 'semantic-ui-react';
 
 import {createStory, selectStoryMap, StoryMap} from '../../features/storyList/storyListSlice';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {Story} from '../../protos_v2';
+import {IStory, Story} from '../../protos_v2';
 import { v4 as uuid } from 'uuid';
 
-function createNewStory(): Story {
+function createNewStory(): IStory {
   return Story.create({
     id: uuid(),
     name: 'New Story',
     description: 'A story about something'
-  });
+  }).toJSON();
 }
 
 function getStorySection(storyMap: StoryMap): JSX.Element {

@@ -3,7 +3,7 @@ import {Button, Header, Segment} from 'semantic-ui-react';
 import {selectStoryMap} from '../../features/storyList/storyListSlice';
 
 import fileDownload from 'js-file-download';
-import {Story, WritingWorkspace} from '../../protos_v2';
+import {WritingWorkspace} from '../../protos_v2';
 import {addStoryToStorage, readAllStoriesFromStorage} from '../../features/storyList/storyListPersistence';
 
 function clearWorkspace() {
@@ -43,7 +43,7 @@ export function loadDataToStorage(data: Uint8Array): void {
   localStorage.clear();
 
   workspace.stories.forEach((story) => {
-    addStoryToStorage(Story.create(story));
+    addStoryToStorage(story);
   });
 }
 

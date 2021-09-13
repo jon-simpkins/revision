@@ -1,6 +1,6 @@
 import {createSlice, Middleware, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '../../app/store';
-import {Story} from '../../protos_v2';
+import {IStory, Story} from '../../protos_v2';
 import {addStoryToStorage, clearStoryFromStorage, fetchInitialStateFromStorage, writeStory} from './storyListPersistence';
 
 export interface StoryMap {
@@ -8,7 +8,7 @@ export interface StoryMap {
 }
 
 export interface StoryMapInState {
-  [key: string]: any
+  [key: string]: IStory
 }
 
 interface storyListInState {
@@ -25,11 +25,11 @@ const storyListSlice = createSlice({
   name: actionPrefix,
   initialState,
   reducers: {
-    createStory(state, action: PayloadAction<Story>) {
-      state.storyMap[action.payload.id] = action.payload.toJSON();
+    createStory(state, action: PayloadAction<IStory>) {
+      state.storyMap[action.payload.id as string] = action.payload;
     },
-    updateStory(state, action: PayloadAction<Story>) {
-      state.storyMap[action.payload.id] = action.payload.toJSON();
+    updateStory(state, action: PayloadAction<IStory>) {
+      state.storyMap[action.payload.id as string] = action.payload;
     },
     removeStory(state, action: PayloadAction<string>) {
       delete state.storyMap[action.payload];
@@ -71,6 +71,17 @@ export const selectStoryMap = (state: storyListInState|RootState): StoryMap => {
   }
 
   return compiledStoryMap;
+}
+
+// Creates selector for particular story
+export const selectSpecificStory = (id: string) => (state: storyListInState|RootState): Story|null => {
+  const fetchedStory = state.storyList.storyMap[id];
+
+  if (!fetchedStory) {
+    return null;
+  }
+
+  return Story.create(fetchedStory);
 }
 
 export const { createStory, updateStory, removeStory } = storyListSlice.actions;
