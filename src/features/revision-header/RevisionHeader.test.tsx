@@ -9,5 +9,5 @@ test('renders with h1', () => {
   render(
       <MemoryRouter><RevisionHeader/></MemoryRouter>
   );
-  expect(screen.getByRole('heading')).toHaveTextContent('Revision');
+  expect(screen.getByText(/Revision/)).toBeVisible();
 });

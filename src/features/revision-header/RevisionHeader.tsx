@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {
   Link
 } from 'react-router-dom';
-import { Menu } from 'semantic-ui-react';
+import {Icon, Menu} from 'semantic-ui-react';
 
 export default class RevisionHeader extends Component {
 
@@ -10,7 +10,12 @@ export default class RevisionHeader extends Component {
     return (
         <Menu>
           <Link to={'/'}>
-            <Menu.Item header as='h1'>Revision</Menu.Item>
+            <Menu.Item header>Revision</Menu.Item>
+          </Link>
+          <Link to={'/data'}>
+            <Menu.Item>
+              <Icon name="save" />
+            </Menu.Item>
           </Link>
         </Menu>
     );

@@ -16,6 +16,7 @@
     "@types/react-redux": "^7.1.18",
     "@types/react-router-dom": "^5.1.8",
     "gh-pages": "^3.2.3",
+    "js-file-download": "^0.4.12",
     "long": "^4.0.0",
     "protobufjs": "^6.10.2",
     "react": "^17.0.2",
