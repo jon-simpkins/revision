@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 
 import Homepage from './pages/homepage/Homepage';
-import StoryDetails from './pages/story-details/StoryDetails';
+import StoryDetailsPage from './pages/story-details/StoryDetailsPage';
 import DataManagementPage from './pages/import-export/DataManagementPage';
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
       <RevisionHeader />
       <Switch>
         <Route path="/data" component={DataManagementPage} />
-        <Route path="/story/:id" component={StoryDetails} />
+        <Route path="/story/:id" component={StoryDetailsPage} />
         <Route path="/" component={Homepage} />
       </Switch>
     </Router>
