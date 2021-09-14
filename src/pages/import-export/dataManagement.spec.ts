@@ -1,6 +1,6 @@
 import {loadDataFromStorage, loadDataToStorage} from './DataManagementPage';
 import {addStoryToStorage, readAllStoriesFromStorage} from '../../features/storyList/storyListPersistence';
-import {Story} from '../../protos_v2';
+import {Duration, Story} from '../../protos_v2';
 
 
 describe('importing / exporting', () => {
@@ -22,11 +22,15 @@ describe('importing / exporting', () => {
 
     addStoryToStorage(Story.create({
       id: 'abc123',
-      name: 'My Story'
+      name: 'My Story',
+      description: 'something here'
     }));
     addStoryToStorage(Story.create({
       id: 'def456',
-      name: 'My Story 2'
+      name: 'My Story 2',
+      duration: Duration.create({
+        seconds: 3788
+      })
     }));
 
     const data = loadDataFromStorage();

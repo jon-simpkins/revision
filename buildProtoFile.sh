@@ -12,6 +12,3 @@ mv tmp_protos_file src/protos.d.ts
 pbjs -t static-module -o src/protos_v2.js src/protos_v2.proto
 pbts -o src/protos_v2.d.ts src/protos_v2.js
 
-# Prepend with the necessary import
-echo "import Long = require('long');"|cat - src/protos_v2.d.ts > tmp_protos_v2_file
-mv tmp_protos_v2_file src/protos_v2.d.ts

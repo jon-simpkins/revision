@@ -5,7 +5,7 @@ import {
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import StoryDetails from './StoryDetails';
-import {Story} from '../../protos_v2';
+import {Duration, Story} from '../../protos_v2';
 
 export default {
   title: 'Story/Details',
@@ -31,6 +31,9 @@ Typical_Story.args = {
   story: Story.create({
     id: 'abc123',
     name: 'My Story',
-    description: 'This is a story about stuff'
+    description: 'This is a story about stuff',
+    duration: Duration.create({
+      seconds: 3755
+    })
   })
 }
