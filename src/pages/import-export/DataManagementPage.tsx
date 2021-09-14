@@ -22,9 +22,9 @@ async function uploadWorkspace(files: FileList|null) {
     return;
   }
 
-  const fileData = await files[0].text();
-  const uint8Array = new TextEncoder().encode(fileData);
-  loadDataToStorage(uint8Array);
+  const fileData = await files[0].arrayBuffer();
+  const parsedData = new Uint8Array(fileData);
+  loadDataToStorage(parsedData);
 
   window.location.reload();
 }
