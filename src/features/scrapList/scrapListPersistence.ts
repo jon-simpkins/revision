@@ -1,4 +1,5 @@
 import {IScrap, Scrap} from '../../protos_v2';
+import {ScrapMapInState} from './scrapListSlice';
 
 const allScrapIdsKey = 'scrap-ids';
 
@@ -51,4 +52,15 @@ export function clearScrapFromStorage(idToRemove: string): void {
   }));
 
   localStorage.removeItem(scrapKey(idToRemove));
+}
+
+export function fetchInitialStateFromStorage() {
+  const initialState = {
+    scrapMap: {} as ScrapMapInState
+  };
+  readAllScrapsFromStorage().forEach((scrap) => {
+    initialState.scrapMap[scrap.id] = scrap.toJSON();
+  });
+
+  return initialState;
 }

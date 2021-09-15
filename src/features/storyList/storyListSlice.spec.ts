@@ -1,4 +1,4 @@
-import storySliceReducer, {updateStory, removeStory, selectStoryMap, handleStoryListPersistence, createStory} from './storyListSlice';
+import storySliceReducer, {updateStory, removeStory, selectStoryMap, handleStoryListPersistence, createStory, selectSpecificStory} from './storyListSlice';
 import {Story} from '../../protos_v2';
 import {RootState} from '../../app/store';
 import {addStoryToStorage, clearStoryFromStorage, fetchInitialStateFromStorage, readAllStoriesFromStorage, writeStory} from './storyListPersistence';
@@ -69,6 +69,22 @@ describe('storyList reducer', () => {
     const selected = selectStoryMap(state);
 
     expect(selected['a'].id).toEqual('a');
+  });
+
+  it('should correctly parse specific story', () => {
+    const state = {
+      storyList: {
+        storyMap: {
+          'a': {id: 'a'}
+        }
+      }
+    } as unknown as RootState;
+
+    const selectedPresent = selectSpecificStory('a')(state);
+    const selectedAbsent = selectSpecificStory('b')(state);
+
+    expect(selectedPresent?.id).toEqual('a');
+    expect(selectedAbsent).toBeFalsy();
   });
 });
 

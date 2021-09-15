@@ -1,12 +1,15 @@
 import {configureStore, ThunkAction, Action} from '@reduxjs/toolkit';
 import storyListReducer, {storyListPersistenceMiddleware} from '../features/storyList/storyListSlice';
+import scrapListReducer, {scrapListPersistenceMiddleware} from '../features/scrapList/scrapListSlice';
 
 export const store = configureStore({
   reducer: {
     storyList: storyListReducer,
+    scrapList: scrapListReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
-      storyListPersistenceMiddleware,
+    storyListPersistenceMiddleware,
+    scrapListPersistenceMiddleware,
   ])
 });
 

@@ -48,13 +48,13 @@ export const storyListPersistenceMiddleware: Middleware<{}, storyListInState>
   return result;
 }
 
-export const handleStoryListPersistence = (action: PayloadAction<string|Story>) => {
+export const handleStoryListPersistence = (action: PayloadAction<string|IStory>) => {
   switch (action.type) {
     case `${actionPrefix}/createStory`:
-      addStoryToStorage(action.payload as Story);
+      addStoryToStorage(action.payload as IStory);
       break;
     case `${actionPrefix}/updateStory`:
-      writeStory(action.payload as Story);
+      writeStory(action.payload as IStory);
       break;
     case `${actionPrefix}/removeStory`:
       clearStoryFromStorage(action.payload as string);
