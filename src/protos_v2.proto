@@ -30,9 +30,36 @@ message Story {
   repeated string related_story_ids = 4;
 }
 
+// A building block of a story
+message Scrap {
+  // Unique identifier for this Scrap
+  string id = 1;
+
+  // Intended duration of the Scrap
+  uint32 intended_duration_sec = 2;
+
+  // Short string summarizing "what is this Scrap?"
+  string synopsis = 3;
+
+  // The actual writing content of the Scrap.
+  string prose = 4;
+
+  // The sub-structure of this Scrap, consisting of an ordered list of Scrap ids
+  repeated string structure = 5;
+
+  // Brainstorm entries, consisting of an ordered list of Scrap ids
+  repeated string brainstorm = 7;
+
+  // References (by id) to the set of Story entities which this Scrap is part of
+  repeated string stories = 8;
+}
+
 // The entire workspace for writing,
 // this is the thing serialized to a single *.write file.
 message WritingWorkspace {
   // All stories
   repeated Story stories = 1;
+
+  // All scraps
+  repeated Scrap scraps = 2;
 }

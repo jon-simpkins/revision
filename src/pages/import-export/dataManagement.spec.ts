@@ -1,6 +1,7 @@
 import {loadDataFromStorage, loadDataToStorage} from './DataManagementPage';
 import {addStoryToStorage, readAllStoriesFromStorage} from '../../features/storyList/storyListPersistence';
-import {Duration, Story} from '../../protos_v2';
+import {Duration, Scrap, Story} from '../../protos_v2';
+import {addScrapToStorage, readAllScrapsFromStorage} from '../../features/scrapList/scrapListPersistence';
 
 
 describe('importing / exporting', () => {
@@ -16,6 +17,7 @@ describe('importing / exporting', () => {
     loadDataToStorage(data);
 
     expect(readAllStoriesFromStorage().length).toEqual(0);
+    expect(readAllScrapsFromStorage().length).toEqual(0);
   });
 
   test('works with non-empty workspaces', () => {
@@ -33,6 +35,13 @@ describe('importing / exporting', () => {
       })
     }));
 
+    addScrapToStorage(Scrap.create({
+      id: 'ghi789',
+      intendedDurationSec: 123,
+      synopsis: 'My new scrap',
+      stories: ['abc123', 'def456']
+    }));
+
     const data = loadDataFromStorage();
 
     localStorage.clear();
@@ -41,5 +50,8 @@ describe('importing / exporting', () => {
 
     const allStories = readAllStoriesFromStorage();
     expect(allStories.length).toEqual(2);
+
+    const allScraps = readAllScrapsFromStorage();
+    expect(allScraps.length).toEqual(1);
   });
 });

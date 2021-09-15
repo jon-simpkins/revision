@@ -5,6 +5,7 @@ import {selectStoryMap} from '../../features/storyList/storyListSlice';
 import fileDownload from 'js-file-download';
 import {WritingWorkspace} from '../../protos_v2';
 import {addStoryToStorage, readAllStoriesFromStorage} from '../../features/storyList/storyListPersistence';
+import {addScrapToStorage, readAllScrapsFromStorage} from '../../features/scrapList/scrapListPersistence';
 
 function clearWorkspace() {
   localStorage.clear();
@@ -31,7 +32,8 @@ async function uploadWorkspace(files: FileList|null) {
 
 export function loadDataFromStorage(): Uint8Array {
   const workspace = WritingWorkspace.create({
-    stories: readAllStoriesFromStorage()
+    stories: readAllStoriesFromStorage(),
+    scraps: readAllScrapsFromStorage(),
   });
 
   return WritingWorkspace.encode(workspace).finish();
@@ -44,6 +46,10 @@ export function loadDataToStorage(data: Uint8Array): void {
 
   workspace.stories.forEach((story) => {
     addStoryToStorage(story);
+  });
+
+  workspace.scraps.forEach((scrap) => {
+    addScrapToStorage(scrap);
   });
 }
 

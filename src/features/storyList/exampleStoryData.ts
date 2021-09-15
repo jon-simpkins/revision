@@ -1,7 +1,10 @@
-import {Story} from '../../protos_v2';
+import {Duration, Story} from '../../protos_v2';
 
 export const exampleStory = Story.create({
   id: 'abc123',
   name: 'My Story',
-  description: 'A story about stuff.\nand\nanother thing too'
+  description: 'A story about stuff.\nand\nanother thing too',
+  duration: Duration.create({
+    seconds: 3877
+  })
 });
