@@ -39,10 +39,10 @@ Typical_Story.args = {
   }),
   scraps: Array.from({length: 30}, (skip, idx) => {
     let stories = [];
-    if (idx % 3 == 0) {
+    if (idx % 3 === 0) {
       stories.push('abc123');
     }
-    if (idx % 2 == 0) {
+    if (idx % 2 === 0) {
       stories.push('def456');
     }
 

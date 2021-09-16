@@ -30,6 +30,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
+    "lint": "eslint --fix src/**/*.ts src/**/*.tsx",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "node_modules/.bin/react-scripts start",
