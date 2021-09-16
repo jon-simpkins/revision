@@ -3,14 +3,26 @@ import {Button, Header, Icon, Segment} from 'semantic-ui-react';
 import { useHistory } from 'react-router-dom';
 import {createStory, selectStoryMap, StoryMap} from '../../features/storyList/storyListSlice';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {IStory, Story} from '../../protos_v2';
+import {IScrap, IStory, Scrap, Story} from '../../protos_v2';
 import { v4 as uuid } from 'uuid';
+import {createScrap} from '../../features/scrapList/scrapListSlice';
 
 function createNewStory(): IStory {
   return Story.create({
     id: uuid(),
     name: 'New Story',
     description: 'A story about something'
+  }).toJSON();
+}
+
+function createNewScrap(associatedStoryId: string): IScrap {
+  return Scrap.create({
+    id: uuid(),
+    synopsis: 'Story Content',
+    prose: 'Here is where you can summarize the story, and start to structure / brainstorm\n'
+      + 'Feel free to create new scraps for alternative starting points, or new supporting docs '
+      + 'for this story.',
+    stories: [associatedStoryId]
   }).toJSON();
 }
 
@@ -51,6 +63,9 @@ export default function Homepage() {
                 onClick={() => {
                   const newStory = createNewStory();
                   dispatch(createStory(newStory));
+                  const newScrap = createNewScrap(newStory.id as string);
+                  dispatch(createScrap(newScrap));
+
                   history.push(`/story/${newStory.id}`);
                 }}
               >

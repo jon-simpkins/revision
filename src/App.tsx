@@ -10,6 +10,7 @@ import {
 import Homepage from './pages/homepage/Homepage';
 import StoryDetailsPage from './pages/story-details/StoryDetailsPage';
 import DataManagementPage from './pages/import-export/DataManagementPage';
+import ScrapDetailsPage from './pages/scrap-details/ScrapDetailsPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Switch>
         <Route path="/data" component={DataManagementPage} />
         <Route path="/story/:id" component={StoryDetailsPage} />
+        <Route path="/scrap/:id" component={ScrapDetailsPage} />
         <Route path="/" component={Homepage} />
       </Switch>
     </Router>
