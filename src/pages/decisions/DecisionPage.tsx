@@ -66,22 +66,51 @@ export default class DecisionPage extends Component<any, MyState> {
   }
 
   setupNewComparison(): void {
-    let numCandidates = this.state.candidates.length;
+    let indexAWeights = this.state.candidates.map((ignore, idx) => {
+      return 1 / this.getTotalComparisons(idx);
+    });
 
-    // We could do some cleverness around comparing less sure pairs, but for now just select
-    let indexA = Math.floor(Math.random() * numCandidates);
-    let indexB = indexA;
-    let loopCount = 0;
-    while (indexB === indexA && loopCount < 1000) {
-      loopCount++;
-      indexB = Math.floor(Math.random() * numCandidates);
-    }
+    let indexA = this.randomSelectWeighted(indexAWeights);
+
+    let indexBWeights = indexAWeights.map((ignore, idx) => {
+      if (idx === indexA) {
+        return 0;
+      }
+
+      return 1 / (this.state.winMatrix[idx][indexA] + this.state.winMatrix[indexA][idx]);
+    });
+
+    let indexB = this.randomSelectWeighted(indexBWeights);
 
     this.setState({
       ...this.state,
       candidateIndexA: indexA,
       candidateIndexB: indexB,
     })
+  }
+
+  randomSelectWeighted(weights: number[]): number {
+    let sumWeight = weights.reduce(((previousValue, currentValue) => previousValue + currentValue));
+
+    let randomCutoff = Math.random() * sumWeight;
+    let sum = 0;
+    for (let i = 0; i < weights.length; i++) {
+      sum += weights[i];
+      if (sum >= randomCutoff) {
+        return i;
+      }
+    }
+
+    throw Error('should not get here');
+  }
+
+  getTotalComparisons(index: number): number {
+    let totalComparisons = 0;
+    for (let i = 0; i < this.state.winMatrix.length; i++) {
+      totalComparisons += this.state.winMatrix[index][i] + this.state.winMatrix[i][index];
+    }
+
+    return totalComparisons;
   }
 
   renderComparison(): ReactElement {
