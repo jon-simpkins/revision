@@ -4,6 +4,8 @@ type Candidate = {
   label: string;
   description: string;
   currentScore: number;
+  wins: number;
+  losses: number;
 }
 
 type MyState = {
@@ -36,20 +38,13 @@ export default class DecisionPage extends Component<any, MyState> {
     let newCandidates = [...this.state.candidates, {
       label: this.state.nextCandidateLabel,
       description: this.state.nextCandidateDesc,
-      currentScore: 1
+      currentScore: 1,
+      wins: 0,
+      losses: 0,
     } as Candidate];
 
-    this.setState({
-      ...this.state,
-      candidates: newCandidates,
-      nextCandidateLabel: '',
-      nextCandidateDesc: '',
-    });
-  }
-
-  parseCandidateList(): void {
-    let candidateList = this.state.candidates;
-    let winMatrix = [...Array(candidateList.length)].map(e => Array(candidateList.length).fill(0.1)) as number[][];
+    let defaultValue = 1 / (10 * newCandidates.length);
+    let winMatrix = [...Array(newCandidates.length)].map(e => Array(newCandidates.length).fill(defaultValue)) as number[][];
 
     for (let i = 0; i < winMatrix.length; i++) {
       winMatrix[i][i] = 0;
@@ -57,11 +52,10 @@ export default class DecisionPage extends Component<any, MyState> {
 
     this.setState({
       ...this.state,
-      showListInput: false,
-      candidates: candidateList,
-      winMatrix: winMatrix
-    }, () => {
-      this.setupNewComparison();
+      candidates: newCandidates,
+      winMatrix: winMatrix,
+      nextCandidateLabel: '',
+      nextCandidateDesc: '',
     });
   }
 
@@ -84,6 +78,7 @@ export default class DecisionPage extends Component<any, MyState> {
 
     this.setState({
       ...this.state,
+      showListInput: false,
       candidateIndexA: indexA,
       candidateIndexB: indexB,
     })
@@ -145,6 +140,8 @@ export default class DecisionPage extends Component<any, MyState> {
     winMatrix[winIndex][loseIndex] += 1;
 
     let candidates = this.state.candidates;
+    candidates[winIndex].wins += 1;
+    candidates[loseIndex].losses += 1;
 
     // Update all the scores
     // Based on sloppy implementation of https://stats.stackexchange.com/questions/83005/how-to-calculate-ratings-rankings-from-paired-comparison-pairwise-comparison-o
@@ -208,13 +205,15 @@ export default class DecisionPage extends Component<any, MyState> {
       return (<div></div>);
     }
 
-    let sortedCandidates = this.state.candidates.sort((a, b) => b.currentScore - a.currentScore);
+    let sortedCandidates = this.state.candidates
+        .map((candidate) => candidate) // Cheap sort
+        .sort((a, b) => b.currentScore - a.currentScore);
 
     return (<div>
       <h2>{sortedCandidates.length} Candidates</h2>
-      {sortedCandidates.map(candidate => {
+      {sortedCandidates.map((candidate, idx) => {
         return (<div>
-          <h3>{candidate.label} ({candidate.currentScore})</h3>
+          <h3>{candidate.label} ({candidate.currentScore}, {candidate.wins} wins, {candidate.losses} losses)</h3>
         </div>);
       })}
     </div>);
@@ -260,7 +259,7 @@ export default class DecisionPage extends Component<any, MyState> {
           </div>
 
           <button style={{display: 'block'}} onClick={() => this.addCandidate()}>Add Candidate</button>
-          <button style={{display: 'block'}} onClick={() => this.parseCandidateList()}>Parse and begin</button>
+          <button style={{display: 'block'}} onClick={() => this.setupNewComparison()}>Parse and begin</button>
           {this.renderCandidates()}
         </div>
       );
