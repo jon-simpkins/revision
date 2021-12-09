@@ -15,6 +15,9 @@
     "@types/react-dom": "^16.9.14",
     "@types/react-redux": "^7.1.18",
     "@types/react-router-dom": "^5.1.8",
+    "clipboard-polyfill": "^3.0.3",
+    "debounce": "^1.2.1",
+    "draft-js": "^0.11.7",
     "gh-pages": "^3.2.3",
     "js-file-download": "^0.4.12",
     "long": "^4.0.0",
@@ -82,6 +85,8 @@
     "@storybook/node-logger": "^6.3.8",
     "@storybook/preset-create-react-app": "^3.2.0",
     "@storybook/react": "^6.3.8",
+    "@types/debounce": "^1.2.1",
+    "@types/draft-js": "^0.11.7",
     "@types/uuid": "^8.3.1"
   },
   "jest": {
