@@ -12,8 +12,9 @@ import {Breadcrumb, BreadcrumbSection, Form, Segment} from 'semantic-ui-react';
 import {
   Link
 } from 'react-router-dom';
-
+import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
+import {createChildScrap, ScrapEmbedComponent} from './ScrapEmbedComponent';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -29,24 +30,16 @@ interface ScrapDetailsState {
   scrapId: string;
 }
 
-// Props are:
-// https://github.com/facebook/draft-js/blob/main/src/model/decorators/DraftDecorator.js#L54-L71
-const DummyComponent1 = (props: any) => {
-  return (
-      <span style={{border: '1px solid red', display: 'block', padding: '0 4px 12px 20px'}} data-offset-key={props.offsetKey}>{props.children}</span>
-  );
-}
-
 const compositeDecorator = new CompositeDecorator([
     {
-    strategy: dummyStrategy1,
-    component: DummyComponent1,
+    strategy: scrapEmbeddingStrategy,
+    component: ScrapEmbedComponent,
   },
 
 ]);
 
-function dummyStrategy1(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
-  if (!!contentBlock.getData().get('fountainType')) {
+function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
+  if (!!contentBlock.getData().get('isScrapEmbedding')) {
     callback(0, contentBlock.getText().length);
   }
 }
@@ -62,6 +55,8 @@ function applyStyles(character: CharacterMetadata, styles: Immutable.OrderedSet<
 }
 
 export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDetailsState> {
+  domEditor: any;
+
   constructor(props: ScrapDetailsProps) {
     super(props);
 
@@ -70,6 +65,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       lastEmittedStr: '',
       scrapId: props.scrapId,
     };
+    this.remapEditorContent();
   }
 
   buildInitialEditorState(props: ScrapDetailsProps): EditorState {
@@ -93,6 +89,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       lastEmittedStr: '',
       scrapId: this.props.scrapId
     });
+    this.remapEditorContent();
   }
 
   getBreadcrumbs(thisScrap: Scrap): ReactElement {
@@ -120,13 +117,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     this.props.onScrapUpdate(scrap);
   }
 
-  /*onProseChange(newProse: string) {
-    const scrap = this.props.scrapMap[this.props.scrapId] as Scrap;
-
-    scrap.prose = newProse;
-    this.props.onScrapUpdate(scrap);
-  }*/
-
   getPrimaryForm(thisScrap: Scrap): ReactElement {
     return <Segment>
       <Form>
@@ -142,13 +132,25 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   }
 
   getProseEditor(): ReactElement {
-    return <Editor
+    return <div
+        onClick={() => {this.focus()}}
+        style={{border: '1px solid', padding: '0', minHeight: '300px', fontFamily: 'CourierPrime, Courier, monospace'}}>
+      <Editor
         customStyleMap={styleMap}
         stripPastedStyles={true}
         onCut={(editor, e) => {this.onCut(editor, e, true);}}
         onCopy={(editor, e) => {this.onCut(editor, e, false);}}
         editorState={this.state.editorState}
-        onChange={(newState) => {this.onProseChange(newState); }}/>;
+        ref={(ref) => {this.setDomEditorRef(ref);}}
+        onChange={(newState) => {this.onProseChange(newState); }}/></div>;
+  }
+
+  setDomEditorRef(ref: any) {
+    this.domEditor = ref;
+  }
+
+  focus(): void {
+    this.domEditor.focus();
   }
 
   onProseChange(newState: EditorState): void {
@@ -204,32 +206,32 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
         return contentBlock;
       }
 
-      let shouldBeTrue = false;
+      let blockData: { [index: string]: boolean|string} = {};
+      let applyCharacterStyles = true;
 
-      if (!!key) {
-        const previousBlock = currentContent.getBlockBefore(key);
+      let blockText = contentBlock.getText().trim();
 
-        if (previousBlock?.getText().startsWith('b')) {
-          shouldBeTrue = true;
+      if (blockText.startsWith('{{') && blockText.endsWith('}}')) {
+        applyCharacterStyles = false;
+        blockData['isScrapEmbedding'] = true;
+        blockData['scrapLink'] = blockText.replace('{{', '').replace('}}', '').trim();
+      }
+
+      const updatedBlock = contentBlock.set('data', Immutable.fromJS(blockData)) as ContentBlock;
+
+      const updatedCharacterList = updatedBlock.getCharacterList().map((c, idx) => {
+        if (!c || !applyCharacterStyles) { return c; }
+
+
+        // @ts-ignore
+        if (idx < 5) {
+          return applyStyles(c, Immutable.OrderedSet.of('BOLD', 'GREEN'));
+        } else {
+          return applyStyles(c, Immutable.OrderedSet());
         }
-      }
+      });
 
-      if (contentBlock.getData().get('fountainType') == shouldBeTrue) {
-        const updatedCharacterList = contentBlock.getCharacterList().map((c, idx) => {
-          if (!c) { return c; }
-
-          // @ts-ignore
-          if (idx < 10) {
-            return applyStyles(c, Immutable.OrderedSet.of('BOLD', 'GREEN'));
-          } else {
-            return applyStyles(c, Immutable.OrderedSet());
-          }
-        });
-
-        return contentBlock.set('characterList', updatedCharacterList);
-      }
-
-      return contentBlock?.set('data', Immutable.fromJS({fountainType: shouldBeTrue}));
+      return updatedBlock.set('characterList', updatedCharacterList);
     });
 
     const newContent = currentContent.set('blockMap', newBlockMap) as ContentState;
@@ -242,6 +244,35 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       lastEmittedStr: newStrToEmit,
     });
   }, 200);
+
+  insertExampleText(): void {
+    const editorState = this.state.editorState;
+    const currentSelection = editorState.getSelection();
+
+    const newScrapId = uuid();
+
+    const newScrap = createChildScrap(this.props.scrapId, this.props.scrapMap, newScrapId);
+    this.props.onScrapCreate(newScrap);
+
+    const thingToInsert = '\n{{' + newScrapId + '}}\n';
+
+    const newContentState = currentSelection.isCollapsed() ?
+        Modifier.insertText(
+            editorState.getCurrentContent(),
+            currentSelection,
+            thingToInsert
+        ) : Modifier.replaceText(
+        editorState.getCurrentContent(),
+            currentSelection,
+        thingToInsert
+    );
+
+    this.setState({
+      editorState: EditorState.set(editorState, {currentContent: newContentState})
+    });
+
+    this.remapEditorContent();
+  }
 
   render() {
     let thisScrap = this.props.scrapMap[this.props.scrapId];
@@ -256,6 +287,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
         <div style={{margin: '24px'}}>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
+          <button onClick={() => this.insertExampleText()}>Insert something!</button>
           {this.getProseEditor()}
         </div>
     );
