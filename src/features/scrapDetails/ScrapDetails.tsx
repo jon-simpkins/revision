@@ -284,7 +284,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     }
 
     return (
-        <div style={{margin: '24px'}}>
+        <div style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId}>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
           <button onClick={() => this.insertExampleText()}>Insert something!</button>
