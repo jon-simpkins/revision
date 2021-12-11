@@ -5,6 +5,7 @@ import {
   Link
 } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
+import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 
 interface StoryDetailsProps {
   story: Story|null;
@@ -45,36 +46,15 @@ export default class StoryDetails extends Component<StoryDetailsProps, StoryDeta
   getDurationString(): string {
     let durationSec = (this.props.story?.duration?.seconds || 0) as number;
 
-    let durationStr = '';
-
-    const hours = Math.floor(durationSec / 3600);
-    durationSec -= 3600 * hours;
-    durationStr += hours.toString().padStart(2, '0') + ':';
-
-    const minutes = Math.floor(durationSec / 60);
-    durationSec -= 60 * minutes;
-    durationStr += minutes.toString().padStart(2, '0') + ':';
-
-    durationStr += durationSec.toString().padStart(2, '0');
-
-    return durationStr;
+    return durationSecondsToString(durationSec);
   }
 
   onDurationChange(newDuration: string) {
-    const expectedRegex = new RegExp('^[0-9:]+$');
-    if (!expectedRegex.test(newDuration)) {
+    let durationSec;
+    try {
+      durationSec = durationStringToSeconds(newDuration);
+    } catch {
       return this.setDurationErrorString(true);
-    }
-
-    const splitDurationStr = newDuration.split(':').filter(Boolean);
-
-    if (splitDurationStr.length > 3) {
-      return this.setDurationErrorString(true);
-    }
-
-    let durationSec = 0;
-    for (let i = 0; i < splitDurationStr.length; i++) {
-      durationSec = (60 * durationSec) + parseInt(splitDurationStr[i], 10);
     }
 
     const story = this.props.story as Story;

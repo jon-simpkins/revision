@@ -7,7 +7,7 @@ import {ContentBlock, Editor, EditorState, ContentState, CompositeDecorator, Cha
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
-import {Scrap} from '../../protos_v2';
+import {Duration, Scrap, Story} from '../../protos_v2';
 import {Breadcrumb, BreadcrumbSection, Form, Segment} from 'semantic-ui-react';
 import {
   Link
@@ -15,6 +15,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
 import {createChildScrap, ScrapEmbedComponent} from './ScrapEmbedComponent';
+import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -28,6 +29,7 @@ interface ScrapDetailsState {
   editorState: EditorState;
   lastEmittedStr: string;
   scrapId: string;
+  durationErrorString: string|null;
 }
 
 const compositeDecorator = new CompositeDecorator([
@@ -64,6 +66,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       editorState: this.buildInitialEditorState(props),
       lastEmittedStr: '',
       scrapId: props.scrapId,
+      durationErrorString: null,
     };
     this.remapEditorContent();
   }
@@ -87,7 +90,8 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     this.setState({
       editorState: this.buildInitialEditorState(this.props),
       lastEmittedStr: '',
-      scrapId: this.props.scrapId
+      scrapId: this.props.scrapId,
+      durationErrorString: null,
     });
     this.remapEditorContent();
   }
@@ -126,9 +130,36 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
               defaultValue={thisScrap.synopsis}
               onChange={(e) => this.onSynopsisChange(e.target.value)}
           />
+          <Form.Input
+              label='Intended Duration (HH:MM:SS)'
+              defaultValue={durationSecondsToString(thisScrap.intendedDurationSec)}
+              error={this.state.durationErrorString}
+              onChange={(e) => this.onDurationChange(e.target.value)}
+          />
         </Form.Group>
       </Form>
     </Segment>
+  }
+
+  onDurationChange(newDuration: string) {
+    let durationSec;
+    try {
+      durationSec = durationStringToSeconds(newDuration);
+    } catch {
+      return this.setDurationErrorString(true);
+    }
+
+    const scrap = this.props.scrapMap[this.props.scrapId] as Scrap;
+
+    scrap.intendedDurationSec = durationSec;
+    this.props.onScrapUpdate(scrap);
+    this.setDurationErrorString(false);
+  }
+
+  setDurationErrorString(hasError: boolean) {
+    this.setState({
+      durationErrorString: hasError ? 'Please enter a duration of format HH:MM:SS' : null
+    });
   }
 
   getProseEditor(): ReactElement {

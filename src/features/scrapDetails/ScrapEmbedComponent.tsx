@@ -8,6 +8,8 @@ import {Scrap} from '../../protos_v2';
 import {
   useHistory, useLocation
 } from 'react-router-dom';
+import {durationSecondsToString} from '../utils/durationUtils';
+import {Button, Icon} from 'semantic-ui-react';
 
 
 export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scrapId: string): Scrap {
@@ -96,8 +98,16 @@ export class ScrapEmbedSummary extends Component<ScrapEmbedSummaryProps> {
       </div>);
     }
 
-    return (<div>
-      {scrap.synopsis} <button onClick={() => {this.props.onGotoScrap();}}>More</button>
+    return (<div style={{display: 'flex'}}>
+      <Button icon color='blue'
+              onClick={() => {this.props.onGotoScrap();}}
+      >
+        <Icon name='angle right' />
+      </Button>
+      <div style={{marginLeft: '24px', flex: '1'}}>
+        <div>{scrap.synopsis}</div>
+        <div>{durationSecondsToString(scrap.intendedDurationSec)}</div>
+      </div>
     </div>);
   }
 }
