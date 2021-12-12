@@ -309,7 +309,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     if (!isArrayEqualToImmutableSet(processProgress.childScraps, thisScrap.childScraps)) {
       const newScrap = Scrap.create({
         ...thisScrap,
-        childScraps: [ ... (processProgress.childScraps.toArray()) ]
+        childScraps: [ ...(processProgress.childScraps.toArray()) ]
       });
 
       this.props.onScrapUpdate(newScrap);
