@@ -44,14 +44,14 @@ message Scrap {
   // The actual writing content of the Scrap.
   string prose = 4;
 
-  // The sub-structure of this Scrap, consisting of an ordered list of Scrap ids
-  repeated string structure = 5;
-
-  // Brainstorm entries, consisting of an ordered list of Scrap ids
-  repeated string brainstorm = 7;
-
   // References (by id) to the set of Story entities which this Scrap is part of
   repeated string stories = 8;
+
+  // References (by id) to the set of other Scraps which are included by this
+  // in its prose
+  repeated string child_scraps = 9;
+
+  reserved 5,6,7;
 }
 
 // The entire workspace for writing,

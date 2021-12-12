@@ -3,12 +3,12 @@ import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component, ReactElement} from 'react';
 import * as Immutable from 'immutable';
 import * as clipboard from "clipboard-polyfill/text";
-import {ContentBlock, Editor, EditorState, ContentState, CompositeDecorator, CharacterMetadata, Modifier} from 'draft-js';
+import {ContentBlock, Editor, EditorState, ContentState, CompositeDecorator, Modifier} from 'draft-js';
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
-import {Duration, Scrap, Story} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbSection, Form, Segment} from 'semantic-ui-react';
+import {Scrap, Story} from '../../protos_v2';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Form, Segment} from 'semantic-ui-react';
 import {
   Link
 } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
 import {createChildScrap, ScrapEmbedComponent} from './ScrapEmbedComponent';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
+import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet} from './parseProse';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -30,6 +31,8 @@ interface ScrapDetailsState {
   lastEmittedStr: string;
   scrapId: string;
   durationErrorString: string|null;
+  actualDurationSec: number;
+  parentScrapIds: string[];
 }
 
 const compositeDecorator = new CompositeDecorator([
@@ -52,23 +55,25 @@ const styleMap = {
   },
 }
 
-function applyStyles(character: CharacterMetadata, styles: Immutable.OrderedSet<string>): CharacterMetadata {
-  return (character as any).set('style', styles) as CharacterMetadata;
-}
-
 export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDetailsState> {
   domEditor: any;
 
   constructor(props: ScrapDetailsProps) {
     super(props);
 
-    this.state = {
+    this.state = this.initializeState(props);
+    this.remapEditorContent();
+  }
+
+  initializeState(props: ScrapDetailsProps): ScrapDetailsState {
+    return {
       editorState: this.buildInitialEditorState(props),
       lastEmittedStr: '',
       scrapId: props.scrapId,
       durationErrorString: null,
+      actualDurationSec: 0,
+      parentScrapIds: this.buildParentScrapIds(props),
     };
-    this.remapEditorContent();
   }
 
   buildInitialEditorState(props: ScrapDetailsProps): EditorState {
@@ -87,13 +92,21 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     }
 
     // Need to update
-    this.setState({
-      editorState: this.buildInitialEditorState(this.props),
-      lastEmittedStr: '',
-      scrapId: this.props.scrapId,
-      durationErrorString: null,
-    });
+    this.setState(this.initializeState(this.props));
     this.remapEditorContent();
+  }
+
+  buildParentScrapIds(props: ScrapDetailsProps): string[] {
+    const thisScrap = props.scrapMap[this.props.scrapId];
+    const parentScraps = [];
+    for (let key in props.scrapMap) {
+      const scrap = props.scrapMap[key] as Scrap;
+      if (scrap.childScraps.includes(thisScrap.id)) {
+        parentScraps.push(scrap.id);
+      }
+    }
+
+    return parentScraps;
   }
 
   getBreadcrumbs(thisScrap: Scrap): ReactElement {
@@ -101,16 +114,51 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       return this.props.storyMap[storyId];
     }).filter(Boolean);
 
+    const parentStoryLinks = parentStories.map<React.ReactNode>(((parentStory: Story) => {
+      return (<BreadcrumbSection link>
+        <Link to={'/story/' + parentStory.id}>{parentStory.name}</Link>
+      </BreadcrumbSection>)
+    }));
+
+    let storyContribution;
+    if (parentStories.length) {
+      storyContribution = (<div>Stories:
+        <Breadcrumb>
+          {
+            parentStoryLinks.reduce((prev, curr) => [prev, <BreadcrumbDivider icon='right chevron' />, curr])
+          }
+        </Breadcrumb>
+      </div>);
+    } else {
+      storyContribution = (<div>No parent stories</div>);
+    }
+
+    const parentScraps = this.state.parentScrapIds.map((scrapId) => {
+        return this.props.scrapMap[scrapId];
+      }).filter(Boolean);
+
+    const parentScrapLinks = parentScraps.map<React.ReactNode>(((parentScrap: Scrap) => {
+      return (<BreadcrumbSection link>
+        <Link to={'/scrap/' + parentScrap.id}>{parentScrap.synopsis}</Link>
+      </BreadcrumbSection>)
+    }));
+
+    let scrapContribution;
+    if (parentScraps.length) {
+      scrapContribution = (<div>Scraps:
+        <Breadcrumb>
+          {
+            parentScrapLinks.reduce((prev, curr) => [prev, <BreadcrumbDivider icon='right chevron' />, curr])
+          }
+        </Breadcrumb>
+      </div>);
+    } else {
+      scrapContribution = (<div>No parent scraps</div>);
+    }
+
     return (<div>
-      {
-        parentStories.map((parentStory, idx) => {
-          return (<Breadcrumb>
-            <BreadcrumbSection link>
-              <Link to={'/story/' + parentStory.id}>{parentStory.name}</Link>
-            </BreadcrumbSection>
-          </Breadcrumb>)
-        })
-      }
+      {storyContribution}
+      {scrapContribution}
     </div>);
   }
 
@@ -227,56 +275,54 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
 
     this.persistProse(newStrToEmit);
 
-    const initialTime = Date.now();
+    let processProgress = {
+      processStartEpoch: Date.now(),
+      currentDurationSec: 0,
+      childScraps: Immutable.OrderedSet<string>()
+    } as ProcessProgress;
 
     const currentContent = this.state.editorState.getCurrentContent();
 
-    const currentBlockMap = currentContent.getBlockMap();
-    const newBlockMap = currentBlockMap.map((contentBlock, key) => {
-      if (!contentBlock) {
-        return contentBlock;
-      }
+    let currentBlockMap = currentContent.getBlockMap();
+    // @ts-ignore
+    const blockKeys = [ ...currentBlockMap.keys()];
 
-      let blockData: { [index: string]: boolean|string} = {};
-      let applyCharacterStyles = true;
+    for (let i = 0; i < blockKeys.length; i++) {
+      const nextKey = blockKeys[i];
 
-      let blockText = contentBlock.getText().trim();
+      const update = processProseBlock(currentBlockMap.get(nextKey), processProgress, this.props.scrapMap);
 
-      if (blockText.startsWith('{{') && blockText.endsWith('}}')) {
-        applyCharacterStyles = false;
-        blockData['isScrapEmbedding'] = true;
-        blockData['scrapLink'] = blockText.replace('{{', '').replace('}}', '').trim();
-      }
+      processProgress = update.processProgress;
 
-      const updatedBlock = contentBlock.set('data', Immutable.fromJS(blockData)) as ContentBlock;
+      currentBlockMap = currentBlockMap.set(nextKey, update.contentBlock);
+      // TODO: bail here if we're taking too long to process, or handle this stuff async
+    }
 
-      const updatedCharacterList = updatedBlock.getCharacterList().map((c, idx) => {
-        if (!c || !applyCharacterStyles) { return c; }
+    const newContent = currentContent.set('blockMap', currentBlockMap) as ContentState;
 
+    const durationMs = Date.now() - processProgress.processStartEpoch;
+    console.log('Update took: ' + durationMs);
 
-        // @ts-ignore
-        if (idx < 5) {
-          return applyStyles(c, Immutable.OrderedSet.of('BOLD', 'GREEN'));
-        } else {
-          return applyStyles(c, Immutable.OrderedSet());
-        }
+    // Check to see if we need to update the scrap b/c the references to child scraps changed
+    const thisScrap = this.props.scrapMap[this.props.scrapId];
+
+    if (!isArrayEqualToImmutableSet(processProgress.childScraps, thisScrap.childScraps)) {
+      const newScrap = Scrap.create({
+        ...thisScrap,
+        childScraps: [ ... (processProgress.childScraps.toArray()) ]
       });
 
-      return updatedBlock.set('characterList', updatedCharacterList);
-    });
-
-    const newContent = currentContent.set('blockMap', newBlockMap) as ContentState;
-
-    const durationMs = Date.now() - initialTime;
-    console.log('Update took: ' + durationMs);
+      this.props.onScrapUpdate(newScrap);
+    }
 
     this.setState({
       editorState: EditorState.set(this.state.editorState, {currentContent: newContent}),
       lastEmittedStr: newStrToEmit,
+      actualDurationSec: processProgress.currentDurationSec,
     });
   }, 200);
 
-  insertExampleText(): void {
+  addChildScrap(): void {
     const editorState = this.state.editorState;
     const currentSelection = editorState.getSelection();
 
@@ -318,7 +364,11 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
         <div style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId}>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
-          <button onClick={() => this.insertExampleText()}>Insert something!</button>
+          <div>
+            <span>Actual duration: {durationSecondsToString(this.state.actualDurationSec)}</span>
+            <button onClick={() => this.addChildScrap()}>Add child scrap</button>
+          </div>
+
           {this.getProseEditor()}
         </div>
     );
