@@ -1,6 +1,6 @@
 // Props are:
 // https://github.com/facebook/draft-js/blob/main/src/model/decorators/DraftDecorator.js#L54-L71
-import {ContentState} from 'draft-js';
+import {ContentBlock, ContentState} from 'draft-js';
 import React, {Component} from 'react';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {createScrap, ScrapMap, selectScrapMap} from '../scrapList/scrapListSlice';
@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import {durationSecondsToString} from '../utils/durationUtils';
 import {Button, Icon} from 'semantic-ui-react';
+import {isScrapEmbedding, scrapLink} from './usefulConstants';
 
 
 export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scrapId: string): Scrap {
@@ -27,6 +28,25 @@ export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scra
   });
 }
 
+export function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
+  if (!!contentBlock.getData().get(isScrapEmbedding)) {
+    callback(0, contentBlock.getText().length);
+  }
+}
+
+export function checkIsScrapEmbed(blockText: string): boolean {
+  return blockText.startsWith('{{') && blockText.endsWith('}}');
+}
+
+export function scrapEmbedData(blockText: string): { [index: string]: boolean|string} {
+  const scrapId = blockText.replace('{{', '').replace('}}', '').trim();
+
+  return {
+    scrapLink: scrapId,
+    isScrapEmbedding: true,
+  }
+}
+
 /**
  * Embedded component to show a scrap in a DraftJS editor.
  *
@@ -35,7 +55,7 @@ export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scra
 export const ScrapEmbedComponent = (props: any) => {
   const contentState = props.contentState as ContentState;
   const data = contentState.getBlockMap().get(props.blockKey).getData();
-  const scrapId = data.get('scrapLink');
+  const scrapId = data.get(scrapLink);
 
   const scrapMap = useAppSelector(selectScrapMap);
   const dispatch = useAppDispatch();

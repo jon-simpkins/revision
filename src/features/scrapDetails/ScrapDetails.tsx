@@ -3,7 +3,7 @@ import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component, ReactElement} from 'react';
 import * as Immutable from 'immutable';
 import * as clipboard from "clipboard-polyfill/text";
-import {ContentBlock, Editor, EditorState, ContentState, CompositeDecorator, Modifier} from 'draft-js';
+import {Editor, EditorState, ContentState, CompositeDecorator, Modifier} from 'draft-js';
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
@@ -14,7 +14,7 @@ import {
 } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
-import {createChildScrap, ScrapEmbedComponent} from './ScrapEmbedComponent';
+import {createChildScrap, ScrapEmbedComponent, scrapEmbeddingStrategy} from './ScrapEmbedComponent';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet, preProcessProseBlock} from './parseProse';
 import {FountainHeaderComponent, fountainHeaderStrategy} from './FountainHeaderComponent';
@@ -46,12 +46,6 @@ const compositeDecorator = new CompositeDecorator([
     component: FountainHeaderComponent,
   }
 ]);
-
-function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
-  if (!!contentBlock.getData().get('isScrapEmbedding')) {
-    callback(0, contentBlock.getText().length);
-  }
-}
 
 const styleMap = {
   'GREEN': {

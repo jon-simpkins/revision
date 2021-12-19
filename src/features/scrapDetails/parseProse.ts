@@ -2,9 +2,9 @@ import {CharacterMetadata, ContentBlock} from 'draft-js';
 import Immutable from 'immutable';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {Scrap} from '../../protos_v2';
-
-export const isFountainHeader = 'isFountainHeader';
-export const isBlank = 'isBlank';
+import {isBlank, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
+import {checkIsSceneHeader, sceneHeaderData, sceneHeaderDurationSec} from './FountainHeaderComponent';
+import {checkIsScrapEmbed, scrapEmbedData} from './ScrapEmbedComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -16,9 +16,6 @@ interface ProcessUpdate {
   processProgress: ProcessProgress;
   contentBlock: ContentBlock;
 }
-
-const LINES_PER_PAGE = 55;
-const ONE_LINE_DURATION_SEC = (1 / LINES_PER_PAGE * 60);
 
 
 function applyStyles(character: CharacterMetadata, styles: Immutable.OrderedSet<string>): CharacterMetadata {
@@ -69,8 +66,8 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
 
   let blockText = contentBlock.getText().trim();
 
-  const blankBefore = !!blockBefore ? blockBefore.getData().get(isBlank) : true;
-  const blankAfter = !!blockAfter ? blockAfter.getData().get(isBlank) : true;
+  const blankBefore: boolean = !!blockBefore ? blockBefore.getData().get(isBlank) : true;
+  const blankAfter: boolean = !!blockAfter ? blockAfter.getData().get(isBlank) : true;
 
   if (blockData[isBlank]) {
     if (!blankBefore) { // We only want to count 1 contiguous block of "blank", since we remove redundant whitespace
@@ -78,21 +75,18 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
     }
   } else {
 
-
     /** Scene header */
-    if (blankBefore && blankAfter && ((/^(int|ext\.|est|i\/e)[\s\.]/i).test(blockText) || blockText.startsWith('.'))) {
-      blockData[isFountainHeader] = true;
+    if (checkIsSceneHeader(blankBefore, blankAfter, blockText)) {
+      blockData = mergeDataObject(blockData, sceneHeaderData(blockText));
 
-      processProgress.currentDurationSec += ONE_LINE_DURATION_SEC; // Assume one line per scene heading
+      processProgress.currentDurationSec += sceneHeaderDurationSec(blockText);
     }
 
     /** Scrap link embedded in prose */
-    if (blockText.startsWith('{{') && blockText.endsWith('}}')) {
-      applyCharacterStyles = false;
-      blockData['isScrapEmbedding'] = true;
+    if (checkIsScrapEmbed(blockText)) {
+      blockData = mergeDataObject(blockData, scrapEmbedData(blockText));
 
-      const scrapId = blockText.replace('{{', '').replace('}}', '').trim();
-      blockData['scrapLink'] = scrapId;
+      const scrapId = blockData[scrapLink] as string;
 
       if (!!scrapMap[scrapId]) {
         processProgress.childScraps = processProgress.childScraps.add(scrapId);
