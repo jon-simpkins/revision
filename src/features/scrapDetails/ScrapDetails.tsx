@@ -16,7 +16,8 @@ import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
 import {createChildScrap, ScrapEmbedComponent} from './ScrapEmbedComponent';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
-import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet} from './parseProse';
+import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet, preProcessProseBlock} from './parseProse';
+import {FountainHeaderComponent, fountainHeaderStrategy} from './FountainHeaderComponent';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -36,11 +37,14 @@ interface ScrapDetailsState {
 }
 
 const compositeDecorator = new CompositeDecorator([
-    {
+  {
     strategy: scrapEmbeddingStrategy,
     component: ScrapEmbedComponent,
   },
-
+  {
+    strategy: fountainHeaderStrategy,
+    component: FountainHeaderComponent,
+  }
 ]);
 
 function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
@@ -213,7 +217,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   getProseEditor(): ReactElement {
     return <div
         onClick={() => {this.focus()}}
-        style={{border: '1px solid', padding: '0', minHeight: '300px', fontFamily: 'CourierPrime, Courier, monospace'}}>
+        style={{border: '1px solid', padding: '0', minHeight: '300px', maxHeight: '500px', overflowY: 'scroll', fontFamily: 'CourierPrime, Courier, monospace'}}>
       <Editor
         customStyleMap={styleMap}
         stripPastedStyles={true}
@@ -289,8 +293,15 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
 
     for (let i = 0; i < blockKeys.length; i++) {
       const nextKey = blockKeys[i];
+      currentBlockMap = currentBlockMap.set(nextKey, preProcessProseBlock(currentBlockMap.get(nextKey)));
+    }
 
-      const update = processProseBlock(currentBlockMap.get(nextKey), processProgress, this.props.scrapMap);
+    for (let i = 0; i < blockKeys.length; i++) {
+      const blockBefore = i > 0 ? currentBlockMap.get(blockKeys[i - 1]) : null;
+      const nextKey = blockKeys[i];
+      const blockAfter = i + 1 < blockKeys.length ? currentBlockMap.get(blockKeys[i + 1]) : null;
+
+      const update = processProseBlock(currentBlockMap.get(nextKey), blockBefore, blockAfter, processProgress, this.props.scrapMap);
 
       processProgress = update.processProgress;
 

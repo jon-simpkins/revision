@@ -11,7 +11,7 @@ export function durationSecondsToString(durationSeconds: number): string {
   durationSeconds -= 60 * minutes;
   durationStr += minutes.toString().padStart(2, '0') + ':';
 
-  durationStr += durationSeconds.toString().padStart(2, '0');
+  durationStr += Math.round(durationSeconds).toString().padStart(2, '0');
 
   return durationStr;
 }
