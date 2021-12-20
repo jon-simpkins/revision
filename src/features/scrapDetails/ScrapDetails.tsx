@@ -18,6 +18,8 @@ import {createChildScrap, ScrapEmbedComponent, scrapEmbeddingStrategy} from './S
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet, preProcessProseBlock} from './parseProse';
 import {FountainHeaderComponent, fountainHeaderStrategy} from './FountainHeaderComponent';
+import {FountainTransitionComponent, fountainTransitionStrategy} from './FountainTransitionComponent';
+import {FountainCenteredComponent, fountainCenteredStrategy} from './FountainCenteredComponent';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -44,7 +46,15 @@ const compositeDecorator = new CompositeDecorator([
   {
     strategy: fountainHeaderStrategy,
     component: FountainHeaderComponent,
-  }
+  },
+  {
+    strategy: fountainTransitionStrategy,
+    component: FountainTransitionComponent,
+  },
+  {
+    strategy: fountainCenteredStrategy,
+    component: FountainCenteredComponent,
+  },
 ]);
 
 const styleMap = {

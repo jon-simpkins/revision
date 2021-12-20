@@ -5,6 +5,8 @@ import {Scrap} from '../../protos_v2';
 import {isBlank, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
 import {checkIsSceneHeader, sceneHeaderData, sceneHeaderDurationSec} from './FountainHeaderComponent';
 import {checkIsScrapEmbed, scrapEmbedData} from './ScrapEmbedComponent';
+import {checkIsSceneTransition, sceneTransitionData, sceneTransitionDurationSec} from './FountainTransitionComponent';
+import {checkIsCentered, sceneCenteredData, sceneCenteredDurationSec} from './FountainCenteredComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -75,15 +77,24 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
     }
   } else {
 
-    /** Scene header */
+
     if (checkIsSceneHeader(blankBefore, blankAfter, blockText)) {
+      /** Scene header */
       blockData = mergeDataObject(blockData, sceneHeaderData(blockText));
 
       processProgress.currentDurationSec += sceneHeaderDurationSec(blockText);
-    }
+    } else if (checkIsSceneTransition(blankBefore, blankAfter, blockText)) {
+      /** Scene transition */
+      blockData = mergeDataObject(blockData, sceneTransitionData(blockText));
 
-    /** Scrap link embedded in prose */
-    if (checkIsScrapEmbed(blockText)) {
+      processProgress.currentDurationSec += sceneTransitionDurationSec(blockText);
+    } else if (checkIsCentered(blockText)) {
+      /** Centered action */
+      blockData = mergeDataObject(blockData, sceneCenteredData(blockText));
+
+      processProgress.currentDurationSec += sceneCenteredDurationSec(blockText);
+    }else if (checkIsScrapEmbed(blockText)) {
+      /** Scrap link embedded in prose */
       blockData = mergeDataObject(blockData, scrapEmbedData(blockText));
 
       const scrapId = blockData[scrapLink] as string;

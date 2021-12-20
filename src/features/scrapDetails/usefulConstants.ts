@@ -6,6 +6,8 @@ export const ONE_LINE_DURATION_SEC = 1.0909; // (1 / LINES_PER_PAGE * 60);
 export const isScrapEmbedding = 'isScrapEmbedding';
 export const scrapLink = 'scrapLink';
 export const isFountainHeader = 'isFountainHeader';
+export const isFountainCentered = 'isFountainCentered';
+export const isFountainTransition = 'isFountainTransition';
 export const isBlank = 'isBlank';
 
 export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
