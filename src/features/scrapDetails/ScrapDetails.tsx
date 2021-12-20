@@ -22,6 +22,9 @@ import {FountainTransitionComponent, fountainTransitionStrategy} from './Fountai
 import {FountainCenteredComponent, fountainCenteredStrategy} from './FountainCenteredComponent';
 import {CommentComponent, commentStrategy} from './CommentComponent';
 import {isComment, isCommentEnd, isCommentStart} from './usefulConstants';
+import {FountainCharacterComponent, fountainCharacterStrategy} from './FountainCharacterComponent';
+import {FountainDialogueComponent, fountainDialogueStrategy} from './FountainDialogueComponent';
+import {FountainParentheticalComponent, fountainParentheticalStrategy} from './FountainParentheticalComponent';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -57,6 +60,18 @@ const compositeDecorator = new CompositeDecorator([
   {
     strategy: fountainCenteredStrategy,
     component: FountainCenteredComponent,
+  },
+  {
+    strategy: fountainCharacterStrategy,
+    component: FountainCharacterComponent,
+  },
+  {
+    strategy: fountainDialogueStrategy,
+    component: FountainDialogueComponent,
+  },
+  {
+    strategy: fountainParentheticalStrategy,
+    component: FountainParentheticalComponent,
   },
   {
     strategy: commentStrategy,
@@ -232,7 +247,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   getProseEditor(): ReactElement {
     return <div
         onClick={() => {this.focus()}}
-        style={{border: '1px solid', padding: '0', minHeight: '300px', maxHeight: '500px', overflowY: 'scroll', fontFamily: 'CourierPrime, Courier, monospace'}}>
+        style={{border: '1px solid', padding: '48px', minHeight: '300px', maxHeight: '500px', overflowY: 'scroll', fontSize: '16px', fontFamily: 'CourierPrime, Courier, monospace'}}>
       <Editor
         customStyleMap={styleMap}
         stripPastedStyles={true}

@@ -12,6 +12,10 @@ export const isBlank = 'isBlank';
 export const isComment = 'isComment';
 export const isCommentStart = 'isCommentStart';
 export const isCommentEnd = 'isCommentEnd';
+export const isFountainCharacter = 'isFountainCharacter';
+export const character = 'character';
+export const isFountainDialogue = 'isFountainDialogue';
+export const isFountainParenthetical = 'isFountainParenthetical';
 
 export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
   return {

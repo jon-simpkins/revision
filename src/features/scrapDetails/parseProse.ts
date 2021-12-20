@@ -2,12 +2,15 @@ import {CharacterMetadata, ContentBlock} from 'draft-js';
 import Immutable from 'immutable';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {Scrap} from '../../protos_v2';
-import {isBlank, isComment, isCommentEnd, isCommentStart, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
+import {character, isBlank, isComment, isCommentEnd, isCommentStart, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
 import {checkIsSceneHeader, sceneHeaderData, sceneHeaderDurationSec} from './FountainHeaderComponent';
 import {checkIsScrapEmbed, scrapEmbedData} from './ScrapEmbedComponent';
 import {checkIsSceneTransition, sceneTransitionData, sceneTransitionDurationSec} from './FountainTransitionComponent';
 import {checkIsCentered, sceneCenteredData, sceneCenteredDurationSec} from './FountainCenteredComponent';
 import {checkIsCommentEnd, checkIsCommentStart} from './CommentComponent';
+import {characterData, characterDurationSec, checkIsCharacter} from './FountainCharacterComponent';
+import {checkIsDialogue, dialogueData, dialogueDurationSec} from './FountainDialogueComponent';
+import {checkIsParenthetical, parentheticalData, parentheticalDurationSec} from './FountainParentheticalComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -78,9 +81,10 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
 
   const blankBefore: boolean = !!blockBefore ? blockBefore.getData().get(isBlank) : true;
   const blankAfter: boolean = !!blockAfter ? blockAfter.getData().get(isBlank) : true;
+  const characterBefore: string = !!blockBefore ? (blockBefore.getData().get(character) || '') : '';
 
   if (blockData[isBlank]) {
-    if (!blankBefore) { // We only want to count 1 contiguous block of "blank", since we remove redundant whitespace
+    if (!blankBefore && !blockData[isComment]) { // We only want to count 1 contiguous block of "blank", since we remove redundant whitespace
       processProgress.currentDurationSec += ONE_LINE_DURATION_SEC; // Assume one line of whitespace
     }
   } else {
@@ -100,6 +104,22 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
         blockData = mergeDataObject(blockData, sceneCenteredData(blockText));
 
         processProgress.currentDurationSec += sceneCenteredDurationSec(blockText);
+      } else if (checkIsCharacter(blankBefore, blankAfter, blockText)) {
+        /** Character */
+        blockData = mergeDataObject(blockData, characterData(blockText));
+
+        processProgress.currentDurationSec += characterDurationSec(blockText);
+      } else if (checkIsDialogue(characterBefore, blockText)) {
+        /** Dialogue */
+        blockData = mergeDataObject(blockData, dialogueData(characterBefore, blockText));
+
+        processProgress.currentDurationSec += dialogueDurationSec(blockText);
+      }
+      else if (checkIsParenthetical(characterBefore, blockText)) {
+        /** Parenthetical */
+        blockData = mergeDataObject(blockData, parentheticalData(characterBefore, blockText));
+
+        processProgress.currentDurationSec += parentheticalDurationSec(blockText);
       }
     }
 
