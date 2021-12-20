@@ -257,12 +257,17 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     this.remapEditorContent(); // Restyle, but only after things settle down a bit
   }
 
+  getSelectedText(): string {
+    const editorState = this.state.editorState;
+    const selected = getFragmentFromSelection(editorState);
+    return (selected ? selected.map((x: { getText: () => any; }) => x.getText()).join('\n') : '') as string;
+  }
+
   onCut(editor: Editor, e: any, removeWhenDone: boolean): void {
     e.preventDefault();
 
     const editorState = this.state.editorState;
-    const selected = getFragmentFromSelection(editorState);
-    const selectedText = (selected ? selected.map((x: { getText: () => any; }) => x.getText()).join('\n') : '') as string;
+    const selectedText = this.getSelectedText();
     clipboard.writeText(selectedText).then(() => {
       if (!removeWhenDone) {
         return;
@@ -400,9 +405,15 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     const editorState = this.state.editorState;
     const currentSelection = editorState.getSelection();
 
+    const currentlySelectedText = this.getSelectedText();
+
     const newScrapId = uuid();
 
     const newScrap = createChildScrap(this.props.scrapId, this.props.scrapMap, newScrapId);
+    if (!!currentlySelectedText.trim().length) {
+      newScrap.prose = currentlySelectedText;
+    }
+
     this.props.onScrapCreate(newScrap);
 
     const thingToInsert = '\n{{' + newScrapId + '}}\n';
@@ -424,6 +435,8 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
 
     this.remapEditorContent();
   }
+
+
 
   render() {
     let thisScrap = this.props.scrapMap[this.props.scrapId];
