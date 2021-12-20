@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom';
 import {durationSecondsToString} from '../utils/durationUtils';
 import {Button, Icon} from 'semantic-ui-react';
-import {isScrapEmbedding, scrapLink} from './usefulConstants';
+import {isComment, isScrapEmbedding, scrapLink} from './usefulConstants';
 
 
 export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scrapId: string): Scrap {
@@ -56,6 +56,7 @@ export const ScrapEmbedComponent = (props: any) => {
   const contentState = props.contentState as ContentState;
   const data = contentState.getBlockMap().get(props.blockKey).getData();
   const scrapId = data.get(scrapLink);
+  const inComment = data.get(isComment);
 
   const scrapMap = useAppSelector(selectScrapMap);
   const dispatch = useAppDispatch();
@@ -64,11 +65,14 @@ export const ScrapEmbedComponent = (props: any) => {
 
   const parentScrapId = getScrapIdFromUrl(currentLocation.pathname);
 
+  const backgroundColor = inComment ? '#cfead9' : 'grey';
+  const textColor = inComment ? '#000' : '#fff';
+
   return (
       <div
-          style={{background: 'grey', fontWeight: 'bold', display: 'flex', padding: '8px'}}
+          style={{background: backgroundColor, fontWeight: 'bold', display: 'flex', padding: '8px'}}
       >
-        <div style={{margin: 'auto 24px auto 0', color: 'white'}} >{props.children}</div>
+        <div style={{margin: 'auto 24px auto 0', color: textColor}} >{props.children}</div>
         <div style={{flex: '1', cursor: 'pointer', padding: '8px', border: '1px solid', background: 'white', fontWeight: 'normal'}}>
           <ScrapEmbedSummary
             parentScrapId={parentScrapId}

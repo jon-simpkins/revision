@@ -9,6 +9,9 @@ export const isFountainHeader = 'isFountainHeader';
 export const isFountainCentered = 'isFountainCentered';
 export const isFountainTransition = 'isFountainTransition';
 export const isBlank = 'isBlank';
+export const isComment = 'isComment';
+export const isCommentStart = 'isCommentStart';
+export const isCommentEnd = 'isCommentEnd';
 
 export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
   return {

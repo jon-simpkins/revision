@@ -3,7 +3,7 @@ import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component, ReactElement} from 'react';
 import * as Immutable from 'immutable';
 import * as clipboard from "clipboard-polyfill/text";
-import {Editor, EditorState, ContentState, CompositeDecorator, Modifier} from 'draft-js';
+import {Editor, EditorState, ContentState, CompositeDecorator, Modifier, ContentBlock} from 'draft-js';
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
@@ -20,6 +20,8 @@ import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet, preProce
 import {FountainHeaderComponent, fountainHeaderStrategy} from './FountainHeaderComponent';
 import {FountainTransitionComponent, fountainTransitionStrategy} from './FountainTransitionComponent';
 import {FountainCenteredComponent, fountainCenteredStrategy} from './FountainCenteredComponent';
+import {CommentComponent, commentStrategy} from './CommentComponent';
+import {isComment, isCommentEnd, isCommentStart} from './usefulConstants';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -54,6 +56,10 @@ const compositeDecorator = new CompositeDecorator([
   {
     strategy: fountainCenteredStrategy,
     component: FountainCenteredComponent,
+  },
+  {
+    strategy: commentStrategy,
+    component: CommentComponent,
   },
 ]);
 
@@ -298,6 +304,30 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     for (let i = 0; i < blockKeys.length; i++) {
       const nextKey = blockKeys[i];
       currentBlockMap = currentBlockMap.set(nextKey, preProcessProseBlock(currentBlockMap.get(nextKey)));
+    }
+
+    // Mark all comment blocks as such
+    let currentlyInComment = false;
+    for (let i = 0; i < blockKeys.length; i++) {
+      const nextKey = blockKeys[i];
+      const blockData = currentBlockMap.get(nextKey).getData().toJS();
+      if (blockData[isCommentStart]) {
+        currentlyInComment = true;
+      }
+
+      if (currentlyInComment) {
+        const currentBlock = currentBlockMap.get(nextKey);
+
+        blockData[isComment] = true;
+        const updatedData = Immutable.fromJS(blockData);
+
+        const updatedBlock = currentBlock.set('data', updatedData) as ContentBlock;
+        currentBlockMap = currentBlockMap.set(nextKey, updatedBlock);
+      }
+
+      if (blockData[isCommentEnd]) {
+        currentlyInComment = false;
+      }
     }
 
     for (let i = 0; i < blockKeys.length; i++) {
