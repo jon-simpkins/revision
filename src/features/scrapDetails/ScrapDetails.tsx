@@ -36,6 +36,7 @@ interface ScrapDetailsState {
   lastEmittedStr: string;
   scrapId: string;
   durationErrorString: string|null;
+  parseErrorState: boolean;
   actualDurationSec: number;
   parentScrapIds: string[];
 }
@@ -69,6 +70,9 @@ const styleMap = {
   },
 }
 
+const warnParsingThreshold = 50; // The point where there's a noticeable lag
+const errorParsingThreshold = 500;
+
 export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDetailsState> {
   domEditor: any;
 
@@ -87,6 +91,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       durationErrorString: null,
       actualDurationSec: 0,
       parentScrapIds: this.buildParentScrapIds(props),
+      parseErrorState: false,
     };
   }
 
@@ -289,6 +294,8 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
 
     this.persistProse(newStrToEmit);
 
+    let newParseErrorState = false;
+
     let processProgress = {
       processStartEpoch: Date.now(),
       currentDurationSec: 0,
@@ -304,6 +311,14 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     for (let i = 0; i < blockKeys.length; i++) {
       const nextKey = blockKeys[i];
       currentBlockMap = currentBlockMap.set(nextKey, preProcessProseBlock(currentBlockMap.get(nextKey)));
+
+      const timeSoFar = Date.now() - processProgress.processStartEpoch;
+      if (timeSoFar > warnParsingThreshold) {
+        newParseErrorState = true;
+      }
+      if (timeSoFar > errorParsingThreshold) {
+        break;
+      }
     }
 
     // Mark all comment blocks as such
@@ -328,6 +343,13 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       if (blockData[isCommentEnd]) {
         currentlyInComment = false;
       }
+      const timeSoFar = Date.now() - processProgress.processStartEpoch;
+      if (timeSoFar > warnParsingThreshold) {
+        newParseErrorState = true;
+      }
+      if (timeSoFar > errorParsingThreshold) {
+        break;
+      }
     }
 
     for (let i = 0; i < blockKeys.length; i++) {
@@ -340,7 +362,13 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       processProgress = update.processProgress;
 
       currentBlockMap = currentBlockMap.set(nextKey, update.contentBlock);
-      // TODO: bail here if we're taking too long to process, or handle this stuff async
+      const timeSoFar = Date.now() - processProgress.processStartEpoch;
+      if (timeSoFar > warnParsingThreshold) {
+        newParseErrorState = true;
+      }
+      if (timeSoFar > errorParsingThreshold) {
+        break;
+      }
     }
 
     const newContent = currentContent.set('blockMap', currentBlockMap) as ContentState;
@@ -364,6 +392,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       editorState: EditorState.set(this.state.editorState, {currentContent: newContent}),
       lastEmittedStr: newStrToEmit,
       actualDurationSec: processProgress.currentDurationSec,
+      parseErrorState: newParseErrorState,
     });
   }, 200);
 
@@ -405,6 +434,9 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       );
     }
 
+    const parseWarning = this.state.parseErrorState ?
+        (<div style={{color: 'red'}}>Parsing took too long, please break into smaller chunks</div>) : null;
+
     return (
         <div style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId}>
           {this.getBreadcrumbs(thisScrap)}
@@ -413,6 +445,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
             <span>Actual duration: {durationSecondsToString(this.state.actualDurationSec)}</span>
             <button onClick={() => this.addChildScrap()}>Add child scrap</button>
           </div>
+          {parseWarning}
 
           {this.getProseEditor()}
         </div>

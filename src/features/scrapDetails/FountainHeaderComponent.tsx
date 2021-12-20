@@ -9,7 +9,7 @@ export function fountainHeaderStrategy(contentBlock: ContentBlock, callback: (st
 }
 
 export function checkIsSceneHeader(blankBefore: boolean, blankAfter: boolean, blockText: string): boolean {
-  return blankBefore && blankAfter && ((/^(int|ext|est|i\/e)[\s.]/i).test(blockText) || blockText.startsWith('.'));
+  return blankBefore && blankAfter && ((/^(int|ext|est|i\/e)[\s.]/i).test(blockText) || (blockText.startsWith('.') && !blockText.startsWith('..')));
 }
 
 export function sceneHeaderDurationSec(blockText: string): number {

@@ -11,6 +11,7 @@ describe('Fountain Scene Header', () => {
     expect(checkIsSceneHeader(true, true, 'ext. space - night')).toBeTruthy();
     expect(checkIsSceneHeader(true, true, 'I/E COURTYARD - CONTINUOUS')).toBeTruthy();
     expect(checkIsSceneHeader(true, true, '.POV - something')).toBeTruthy();
+    expect(checkIsSceneHeader(true, true, '... something happened')).toBeFalsy();
   });
 
   it('should parse duration correctly', () => {
