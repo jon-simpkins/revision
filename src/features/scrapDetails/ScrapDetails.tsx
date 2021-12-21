@@ -1,30 +1,22 @@
 import {StoryMap} from '../storyList/storyListSlice';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component, ReactElement} from 'react';
-import * as Immutable from 'immutable';
 import * as clipboard from "clipboard-polyfill/text";
-import {Editor, EditorState, ContentState, CompositeDecorator, Modifier, ContentBlock} from 'draft-js';
+import {Editor, EditorState, ContentState, Modifier} from 'draft-js';
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
 import {Scrap, Story} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Form, Segment} from 'semantic-ui-react';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment} from 'semantic-ui-react';
 import {
   Link
 } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import debounce from 'debounce';
-import {createChildScrap, ScrapEmbedComponent, scrapEmbeddingStrategy} from './ScrapEmbedComponent';
+import {createChildScrap} from './ScrapEmbedComponent';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
-import {processProseBlock, ProcessProgress, isArrayEqualToImmutableSet, preProcessProseBlock} from './parseProse';
-import {FountainHeaderComponent, fountainHeaderStrategy} from './FountainHeaderComponent';
-import {FountainTransitionComponent, fountainTransitionStrategy} from './FountainTransitionComponent';
-import {FountainCenteredComponent, fountainCenteredStrategy} from './FountainCenteredComponent';
-import {CommentComponent, commentStrategy} from './CommentComponent';
-import {isComment, isCommentEnd, isCommentStart} from './usefulConstants';
-import {FountainCharacterComponent, fountainCharacterStrategy} from './FountainCharacterComponent';
-import {FountainDialogueComponent, fountainDialogueStrategy} from './FountainDialogueComponent';
-import {FountainParentheticalComponent, fountainParentheticalStrategy} from './FountainParentheticalComponent';
+import {isArrayEqualToImmutableSet, parseAllProse} from './parseProse';
+import {editorDecorator} from './foutainDecorators';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -42,51 +34,16 @@ interface ScrapDetailsState {
   parseErrorState: boolean;
   actualDurationSec: number;
   parentScrapIds: string[];
+  durationInputKey: string;
 }
 
-const compositeDecorator = new CompositeDecorator([
-  {
-    strategy: scrapEmbeddingStrategy,
-    component: ScrapEmbedComponent,
-  },
-  {
-    strategy: fountainHeaderStrategy,
-    component: FountainHeaderComponent,
-  },
-  {
-    strategy: fountainTransitionStrategy,
-    component: FountainTransitionComponent,
-  },
-  {
-    strategy: fountainCenteredStrategy,
-    component: FountainCenteredComponent,
-  },
-  {
-    strategy: fountainCharacterStrategy,
-    component: FountainCharacterComponent,
-  },
-  {
-    strategy: fountainDialogueStrategy,
-    component: FountainDialogueComponent,
-  },
-  {
-    strategy: fountainParentheticalStrategy,
-    component: FountainParentheticalComponent,
-  },
-  {
-    strategy: commentStrategy,
-    component: CommentComponent,
-  },
-]);
+
 
 const styleMap = {
   'GREEN': {
     color: 'green'
   },
 }
-
-const warnParsingThreshold = 50; // The point where there's a noticeable lag
-const errorParsingThreshold = 500;
 
 export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDetailsState> {
   domEditor: any;
@@ -107,6 +64,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       actualDurationSec: 0,
       parentScrapIds: this.buildParentScrapIds(props),
       parseErrorState: false,
+      durationInputKey: 'duration-key-' + Date.now()
     };
   }
 
@@ -117,11 +75,11 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       return EditorState.createEmpty();
     }
 
-    return EditorState.createWithContent(ContentState.createFromText(thisScrap.prose), compositeDecorator)
+    return EditorState.createWithContent(ContentState.createFromText(thisScrap.prose), editorDecorator)
   }
 
   componentDidUpdate(prevProps: Readonly<ScrapDetailsProps>, prevState: Readonly<ScrapDetailsState>, snapshot?: any) {
-    if (this.state.scrapId == this.props.scrapId) {
+    if (this.state.scrapId === this.props.scrapId) {
       return;
     }
 
@@ -206,19 +164,39 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   getPrimaryForm(thisScrap: Scrap): ReactElement {
     return <Segment>
       <Form>
-        <Form.Group widths='equal'>
-          <Form.Input
-              label='Synopsis'
-              defaultValue={thisScrap.synopsis}
-              onChange={(e) => this.onSynopsisChange(e.target.value)}
-          />
-          <Form.Input
-              label='Intended Duration (HH:MM:SS)'
-              defaultValue={durationSecondsToString(thisScrap.intendedDurationSec)}
-              error={this.state.durationErrorString}
-              onChange={(e) => this.onDurationChange(e.target.value)}
-          />
-        </Form.Group>
+        <div style={{display: 'flex'}}>
+          <div style={{flex: 1, margin: '16px 0'}}>
+            <Form.Input
+                label='Synopsis'
+                defaultValue={thisScrap.synopsis}
+                onChange={(e) => this.onSynopsisChange(e.target.value)}
+            />
+          </div>
+          <div style={{flex: 1, margin: '16px'}}>
+            <Form.Input
+                key={this.state.durationInputKey}
+                style={{flex: 1}}
+                label='Intended Duration (HH:MM:SS)'
+                defaultValue={durationSecondsToString(thisScrap.intendedDurationSec)}
+                error={this.state.durationErrorString}
+                onChange={(e) => this.onDurationChange(e.target.value)}
+            />
+          </div>
+          <div style={{flex: 1, margin: 'auto'}}>
+            <Form.Field>
+              <label>
+                Current Actual Duration: {durationSecondsToString(this.state.actualDurationSec)}
+              </label>
+              <Button
+                  onClick={() => this.updateExpectedDurationSec()}
+                  disabled={this.state.actualDurationSec === thisScrap.intendedDurationSec}
+              >
+                Update expected duration
+              </Button>
+            </Form.Field>
+          </div>
+
+        </div>
       </Form>
     </Segment>
   }
@@ -242,6 +220,17 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     this.setState({
       durationErrorString: hasError ? 'Please enter a duration of format HH:MM:SS' : null
     });
+  }
+
+  updateExpectedDurationSec(): void {
+    const scrap = this.props.scrapMap[this.props.scrapId] as Scrap;
+
+    scrap.intendedDurationSec = this.state.actualDurationSec;
+    this.props.onScrapUpdate(scrap);
+    this.setState({
+      durationInputKey: 'duration-key-' + Date.now()
+    });
+    this.setDurationErrorString(false);
   }
 
   getProseEditor(): ReactElement {
@@ -308,111 +297,31 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   remapEditorContent = debounce(() => {
     const newStrToEmit = this.state.editorState.getCurrentContent().getPlainText();
 
-    if (newStrToEmit == this.state.lastEmittedStr) {
+    if (newStrToEmit === this.state.lastEmittedStr) {
       return; // No need to update
     }
 
     this.persistProse(newStrToEmit);
 
-    let newParseErrorState = false;
-
-    let processProgress = {
-      processStartEpoch: Date.now(),
-      currentDurationSec: 0,
-      childScraps: Immutable.OrderedSet<string>()
-    } as ProcessProgress;
-
-    const currentContent = this.state.editorState.getCurrentContent();
-
-    let currentBlockMap = currentContent.getBlockMap();
-    // @ts-ignore
-    const blockKeys = [ ...currentBlockMap.keys()];
-
-    for (let i = 0; i < blockKeys.length; i++) {
-      const nextKey = blockKeys[i];
-      currentBlockMap = currentBlockMap.set(nextKey, preProcessProseBlock(currentBlockMap.get(nextKey)));
-
-      const timeSoFar = Date.now() - processProgress.processStartEpoch;
-      if (timeSoFar > warnParsingThreshold) {
-        newParseErrorState = true;
-      }
-      if (timeSoFar > errorParsingThreshold) {
-        break;
-      }
-    }
-
-    // Mark all comment blocks as such
-    let currentlyInComment = false;
-    for (let i = 0; i < blockKeys.length; i++) {
-      const nextKey = blockKeys[i];
-      const blockData = currentBlockMap.get(nextKey).getData().toJS();
-      if (blockData[isCommentStart]) {
-        currentlyInComment = true;
-      }
-
-      if (currentlyInComment) {
-        const currentBlock = currentBlockMap.get(nextKey);
-
-        blockData[isComment] = true;
-        const updatedData = Immutable.fromJS(blockData);
-
-        const updatedBlock = currentBlock.set('data', updatedData) as ContentBlock;
-        currentBlockMap = currentBlockMap.set(nextKey, updatedBlock);
-      }
-
-      if (blockData[isCommentEnd]) {
-        currentlyInComment = false;
-      }
-      const timeSoFar = Date.now() - processProgress.processStartEpoch;
-      if (timeSoFar > warnParsingThreshold) {
-        newParseErrorState = true;
-      }
-      if (timeSoFar > errorParsingThreshold) {
-        break;
-      }
-    }
-
-    for (let i = 0; i < blockKeys.length; i++) {
-      const blockBefore = i > 0 ? currentBlockMap.get(blockKeys[i - 1]) : null;
-      const nextKey = blockKeys[i];
-      const blockAfter = i + 1 < blockKeys.length ? currentBlockMap.get(blockKeys[i + 1]) : null;
-
-      const update = processProseBlock(currentBlockMap.get(nextKey), blockBefore, blockAfter, processProgress, this.props.scrapMap);
-
-      processProgress = update.processProgress;
-
-      currentBlockMap = currentBlockMap.set(nextKey, update.contentBlock);
-      const timeSoFar = Date.now() - processProgress.processStartEpoch;
-      if (timeSoFar > warnParsingThreshold) {
-        newParseErrorState = true;
-      }
-      if (timeSoFar > errorParsingThreshold) {
-        break;
-      }
-    }
-
-    const newContent = currentContent.set('blockMap', currentBlockMap) as ContentState;
-
-    const durationMs = Date.now() - processProgress.processStartEpoch;
-    console.log('Update took: ' + durationMs);
+    const parseResult = parseAllProse(this.state.editorState.getCurrentContent(), this.props.scrapMap,50, 500);
 
     // Check to see if we need to update the scrap b/c the references to child scraps changed
     const thisScrap = this.props.scrapMap[this.props.scrapId];
 
-    if (!isArrayEqualToImmutableSet(processProgress.childScraps, thisScrap.childScraps)) {
+    if (!isArrayEqualToImmutableSet(parseResult.childScraps, thisScrap.childScraps)) {
       const newScrap = Scrap.create({
         ...thisScrap,
-        childScraps: [ ...(processProgress.childScraps.toArray()) ]
+        childScraps: [ ...(parseResult.childScraps.toArray()) ]
       });
 
       this.props.onScrapUpdate(newScrap);
     }
 
     this.setState({
-      editorState: EditorState.set(this.state.editorState, {currentContent: newContent}),
+      editorState: EditorState.set(this.state.editorState, {currentContent: parseResult.contentState}),
       lastEmittedStr: newStrToEmit,
-      actualDurationSec: processProgress.currentDurationSec,
-      parseErrorState: newParseErrorState,
+      actualDurationSec: Math.round(parseResult.totalDurationSec),
+      parseErrorState: parseResult.showTimeoutWarning,
     });
   }, 200);
 
@@ -470,7 +379,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
           <div>
-            <span>Actual duration: {durationSecondsToString(this.state.actualDurationSec)}</span>
             <button onClick={() => this.addChildScrap()}>Add child scrap</button>
           </div>
           {parseWarning}

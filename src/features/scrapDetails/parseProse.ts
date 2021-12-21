@@ -1,4 +1,4 @@
-import {CharacterMetadata, ContentBlock} from 'draft-js';
+import {CharacterMetadata, ContentBlock, ContentState} from 'draft-js';
 import Immutable from 'immutable';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {Scrap} from '../../protos_v2';
@@ -163,4 +163,101 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
     contentBlock: finalBlockUpdate,
     processProgress: processProgress,
   }
+}
+
+interface ParsedProseResult {
+  contentState: ContentState;
+  totalDurationSec: number;
+  childScraps: Immutable.OrderedSet<string>;
+  showTimeoutWarning: boolean;
+}
+
+export function parseAllProse(contentState: ContentState, scrapMap: ScrapMap, warnParsingThreshold: number, errorParsingThreshold: number): ParsedProseResult {
+
+  let newParseErrorState = false;
+
+  let processProgress = {
+    processStartEpoch: Date.now(),
+    currentDurationSec: 0,
+    childScraps: Immutable.OrderedSet<string>()
+  } as ProcessProgress;
+
+  let currentBlockMap = contentState.getBlockMap();
+  // @ts-ignore
+  const blockKeys = [ ...currentBlockMap.keys()];
+
+  for (let i = 0; i < blockKeys.length; i++) {
+    const nextKey = blockKeys[i];
+    currentBlockMap = currentBlockMap.set(nextKey, preProcessProseBlock(currentBlockMap.get(nextKey)));
+
+    const timeSoFar = Date.now() - processProgress.processStartEpoch;
+    if (timeSoFar > warnParsingThreshold) {
+      newParseErrorState = true;
+    }
+    if (timeSoFar > errorParsingThreshold) {
+      break;
+    }
+  }
+
+  // Mark all comment blocks as such
+  let currentlyInComment = false;
+  for (let i = 0; i < blockKeys.length; i++) {
+    const nextKey = blockKeys[i];
+    const blockData = currentBlockMap.get(nextKey).getData().toJS();
+    if (blockData[isCommentStart]) {
+      currentlyInComment = true;
+    }
+
+    if (currentlyInComment) {
+      const currentBlock = currentBlockMap.get(nextKey);
+
+      blockData[isComment] = true;
+      const updatedData = Immutable.fromJS(blockData);
+
+      const updatedBlock = currentBlock.set('data', updatedData) as ContentBlock;
+      currentBlockMap = currentBlockMap.set(nextKey, updatedBlock);
+    }
+
+    if (blockData[isCommentEnd]) {
+      currentlyInComment = false;
+    }
+    const timeSoFar = Date.now() - processProgress.processStartEpoch;
+    if (timeSoFar > warnParsingThreshold) {
+      newParseErrorState = true;
+    }
+    if (timeSoFar > errorParsingThreshold) {
+      break;
+    }
+  }
+
+  for (let i = 0; i < blockKeys.length; i++) {
+    const blockBefore = i > 0 ? currentBlockMap.get(blockKeys[i - 1]) : null;
+    const nextKey = blockKeys[i];
+    const blockAfter = i + 1 < blockKeys.length ? currentBlockMap.get(blockKeys[i + 1]) : null;
+
+    const update = processProseBlock(currentBlockMap.get(nextKey), blockBefore, blockAfter, processProgress, scrapMap);
+
+    processProgress = update.processProgress;
+
+    currentBlockMap = currentBlockMap.set(nextKey, update.contentBlock);
+    const timeSoFar = Date.now() - processProgress.processStartEpoch;
+    if (timeSoFar > warnParsingThreshold) {
+      newParseErrorState = true;
+    }
+    if (timeSoFar > errorParsingThreshold) {
+      break;
+    }
+  }
+
+  const newContent = contentState.set('blockMap', currentBlockMap) as ContentState;
+
+  const durationMs = Date.now() - processProgress.processStartEpoch;
+  console.log('Update took: ' + durationMs);
+
+  return {
+    contentState: newContent,
+    totalDurationSec: processProgress.currentDurationSec,
+    childScraps: processProgress.childScraps,
+    showTimeoutWarning: newParseErrorState
+  };
 }
