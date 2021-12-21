@@ -14,6 +14,11 @@ interface ReadOnlyViewerState {
   editorState: EditorState;
 }
 
+interface RecursiveProseUpdate {
+  prose: string;
+  newAncestors: string[];
+}
+
 export class ReadOnlyViewer extends Component<ReadOnlyViewerProps, ReadOnlyViewerState> {
 
   constructor(props: ReadOnlyViewerProps) {
@@ -45,11 +50,54 @@ export class ReadOnlyViewer extends Component<ReadOnlyViewerProps, ReadOnlyViewe
       return EditorState.createEmpty();
     }
 
-    const initialState = EditorState.createWithContent(ContentState.createFromText(thisScrap.prose), editorDecorator)
+    const filteredProse = this.normalizeProse(
+        this.fetchProseForScrap(props.scrapId, [], props.scrapMap).prose
+    );
+
+    const initialState = EditorState.createWithContent(ContentState.createFromText(filteredProse), editorDecorator)
 
     const parseResult = parseAllProse(initialState.getCurrentContent(), this.props.scrapMap,500, 5000);
 
     return EditorState.set(initialState, {currentContent: parseResult.contentState});
+  }
+
+  fetchProseForScrap(scrapId: string, scrapAncestors: string[], scrapMap: ScrapMap): RecursiveProseUpdate {
+    let prose = scrapMap[scrapId]?.prose || '';
+
+    let newAncestors = [...scrapAncestors, scrapId];
+
+    const scrapEmbedRegex = /{{[^}]+}}/g;
+
+    const allEmbeddedScraps = [
+        // @ts-ignore
+        ...prose.matchAll(scrapEmbedRegex)
+    ];
+
+    allEmbeddedScraps.forEach((embeddedScrap) => {
+      const embeddedScrapId = embeddedScrap[0]
+          .replace('{{', '')
+          .replace('}}', '').trim();
+
+      if (newAncestors.includes(embeddedScrapId)) {
+        prose = prose.replaceAll(embeddedScrap[0], '{{ could not replace ' + embeddedScrapId + '}}');
+      } else {
+        const replacementContent = this.fetchProseForScrap(embeddedScrapId, newAncestors, scrapMap);
+
+        prose = prose.replaceAll(embeddedScrap[0], embeddedScrap[0] + '\n' + replacementContent.prose);
+
+        // @ts-ignore
+        newAncestors = [...new Set([...newAncestors, embeddedScrapId, replacementContent.newAncestors])];
+      }
+    });
+
+    return {
+      newAncestors: newAncestors,
+      prose: prose,
+    };
+  }
+
+  normalizeProse(prose: string): string {
+    return prose; // TODO: actually normalize things, remove comments, normalize whitespace
   }
 
   render(): ReactElement {
