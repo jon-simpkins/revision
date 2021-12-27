@@ -1,6 +1,7 @@
 import React from 'react';
 import {ContentBlock, ContentState} from 'draft-js';
 import {isFountainHeader, ONE_LINE_DURATION_SEC} from './usefulConstants';
+import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
 export function fountainHeaderStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
   if (!!contentBlock.getData().get(isFountainHeader)) {
@@ -28,6 +29,16 @@ export function sceneHeaderData(blockText: string): { [index: string]: boolean|s
  */
 export const FountainHeaderComponent = (props: any) => {
   return (
-      <div style={{fontWeight: 'bold'}} >{props.children}</div>
+      <div style={{fontWeight: 'bold', flex: '1'}} >{props.children}</div>
   );
+}
+
+export class FountainHeaderReadOnlyComponent extends BaseReadOnlyComponent {
+  constructor(props: any) {
+    super(props);
+  }
+
+  renderSpecific(): JSX.Element {
+    return FountainHeaderComponent(this.props);
+  }
 }

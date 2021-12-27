@@ -1,6 +1,8 @@
 import {ContentBlock, ContentState} from 'draft-js';
 import {isFountainParenthetical, ONE_LINE_DURATION_SEC} from './usefulConstants';
 import React from 'react';
+import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
+import {FountainDialogueComponent} from './FountainDialogueComponent';
 
 export function fountainParentheticalStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
   if (!!contentBlock.getData().get(isFountainParenthetical)) {
@@ -29,6 +31,16 @@ export function parentheticalData(characterBefore: string, blockText: string): {
  */
 export const FountainParentheticalComponent = (props: any) => {
   return (
-      <div style={{marginLeft: '350px', width: '200px'}} >{props.children}</div>
+      <div style={{marginLeft: '350px', flex: '1', width: '200px'}} >{props.children}</div>
   );
+}
+
+export class FountainParentheticalReadOnlyComponent extends BaseReadOnlyComponent {
+  constructor(props: any) {
+    super(props);
+  }
+
+  renderSpecific(): JSX.Element {
+    return FountainParentheticalComponent(this.props);
+  }
 }

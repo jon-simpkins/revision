@@ -1,6 +1,8 @@
 import {ContentBlock, ContentState} from 'draft-js';
 import {isFountainCharacter, ONE_LINE_DURATION_SEC} from './usefulConstants';
 import React from 'react';
+import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
+import {FountainDialogueComponent} from './FountainDialogueComponent';
 
 export function fountainCharacterStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
   if (!!contentBlock.getData().get(isFountainCharacter)) {
@@ -32,6 +34,17 @@ export function characterData(blockText: string): { [index: string]: boolean|str
  */
 export const FountainCharacterComponent = (props: any) => {
   return (
-      <div style={{fontWeight: 'bold', marginLeft: '400px'}} >{props.children}</div>
+      <div style={{fontWeight: 'bold', flex: '1', marginLeft: '400px'}} >{props.children}</div>
   );
+}
+
+
+export class FountainCharacterReadOnlyComponent extends BaseReadOnlyComponent {
+  constructor(props: any) {
+    super(props);
+  }
+
+  renderSpecific(): JSX.Element {
+    return FountainCharacterComponent(this.props);
+  }
 }

@@ -3,6 +3,7 @@ export const LINES_PER_PAGE = 55;
 export const ONE_LINE_DURATION_SEC = 1.0909; // (1 / LINES_PER_PAGE * 60);
 
 /** Fields on the data for a block of parsed text */
+export const scrapIdField = 'scrapId'; // Indicates which scrap defines this block of prose
 export const isScrapEmbedding = 'isScrapEmbedding';
 export const scrapLink = 'scrapLink';
 export const isFountainHeader = 'isFountainHeader';
