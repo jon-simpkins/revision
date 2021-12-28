@@ -7,7 +7,7 @@ import {Editor, EditorState, ContentState, Modifier} from 'draft-js';
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
 import {Scrap, Story} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment} from 'semantic-ui-react';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment, Tab} from 'semantic-ui-react';
 import {
   Link
 } from 'react-router-dom';
@@ -36,7 +36,6 @@ interface ScrapDetailsState {
   actualDurationSec: number;
   parentScrapIds: string[];
   durationInputKey: string;
-  showEditor: boolean;
 }
 
 
@@ -67,7 +66,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       parentScrapIds: this.buildParentScrapIds(props),
       parseErrorState: false,
       durationInputKey: 'duration-key-' + Date.now(),
-      showEditor: true,
     };
   }
 
@@ -237,24 +235,12 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
   }
 
   getProseEditor(): ReactElement {
-    if (!this.state.showEditor) {
-      return (<div>
-        <div>
-          <button onClick={() => this.setShowEditor(true)}>Write</button>
-        </div>
-        <ReadOnlyViewer
-          scrapId={this.state.scrapId}
-          scrapMap={this.props.scrapMap}/>
-      </div>);
-    }
-
     const parseWarning = this.state.parseErrorState ?
         (<div style={{color: 'red'}}>Parsing took too long, please break into smaller chunks</div>) : null;
 
 
     return <div>
       <div>
-        <button onClick={() => this.setShowEditor(false)}>Read</button>
         <button onClick={() => this.addChildScrap()}>Add child scrap</button>
       </div>
       {parseWarning}
@@ -271,12 +257,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
           onChange={(newState) => {this.onProseChange(newState); }}/>
       </div>
     </div>;
-  }
-
-  setShowEditor(showEditor: boolean): void {
-    this.setState({
-      showEditor: showEditor,
-    });
   }
 
   setDomEditorRef(ref: any) {
@@ -403,13 +383,21 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       );
     }
 
-
-    return (
-        <div style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId}>
+    const panes = [
+      { menuItem: 'Write', render: () => <Tab.Pane>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
           {this.getProseEditor()}
-        </div>
+        </Tab.Pane>},
+      { menuItem: 'Read', render: () => <Tab.Pane>
+          <ReadOnlyViewer
+            scrapId={this.state.scrapId}
+            scrapMap={this.props.scrapMap}/>
+      </Tab.Pane>},
+    ]
+
+    return (
+        <Tab style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId} panes={panes} />
     );
   }
 
