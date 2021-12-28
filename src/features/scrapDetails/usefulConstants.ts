@@ -1,6 +1,7 @@
 
 export const LINES_PER_PAGE = 55;
 export const ONE_LINE_DURATION_SEC = 1.0909; // (1 / LINES_PER_PAGE * 60);
+export const PAGE_WIDTH_EM = '37em';
 
 /** Fields on the data for a block of parsed text */
 export const scrapIdField = 'scrapId'; // Indicates which scrap defines this block of prose
@@ -17,6 +18,7 @@ export const isFountainCharacter = 'isFountainCharacter';
 export const character = 'character';
 export const isFountainDialogue = 'isFountainDialogue';
 export const isFountainParenthetical = 'isFountainParenthetical';
+export const isFountainAction = 'isFountainAction';
 
 export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
   return {

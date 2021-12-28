@@ -11,6 +11,7 @@ import {checkIsCommentEnd, checkIsCommentStart} from './CommentComponent';
 import {characterData, characterDurationSec, checkIsCharacter} from './FountainCharacterComponent';
 import {checkIsDialogue, dialogueData, dialogueDurationSec} from './FountainDialogueComponent';
 import {checkIsParenthetical, parentheticalData, parentheticalDurationSec} from './FountainParentheticalComponent';
+import {actionData, actionDurationSec} from './FountainActionComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -120,6 +121,11 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
         blockData = mergeDataObject(blockData, parentheticalData(characterBefore, blockText));
 
         processProgress.currentDurationSec += parentheticalDurationSec(blockText);
+      } else {
+        /** Action */
+        blockData = mergeDataObject(blockData, actionData(blockText));
+
+        processProgress.currentDurationSec += actionDurationSec(blockText);
       }
     }
 

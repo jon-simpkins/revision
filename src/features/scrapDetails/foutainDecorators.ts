@@ -7,6 +7,7 @@ import {FountainCharacterComponent, FountainCharacterReadOnlyComponent, fountain
 import {FountainDialogueComponent, FountainDialogueReadOnlyComponent, fountainDialogueStrategy} from './FountainDialogueComponent';
 import {FountainParentheticalComponent, FountainParentheticalReadOnlyComponent, fountainParentheticalStrategy} from './FountainParentheticalComponent';
 import {CommentComponent, commentStrategy} from './CommentComponent';
+import {FountainActionComponent, FountainActionReadOnlyComponent, fountainActionStrategy} from './FountainActionComponent';
 
 /** Decorator for the script editor */
 export const editorDecorator = new CompositeDecorator([
@@ -42,6 +43,10 @@ export const editorDecorator = new CompositeDecorator([
     strategy: commentStrategy,
     component: CommentComponent,
   },
+  {
+    strategy: fountainActionStrategy,
+    component: FountainActionComponent,
+  },
 ]);
 
 /** Decorator for the script viewer (read-only) */
@@ -69,5 +74,9 @@ export const viewerDecorator = new CompositeDecorator([
   {
     strategy: fountainParentheticalStrategy,
     component: FountainParentheticalReadOnlyComponent,
+  },
+  {
+    strategy: fountainActionStrategy,
+    component: FountainActionReadOnlyComponent,
   },
 ]);

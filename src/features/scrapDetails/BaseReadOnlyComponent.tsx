@@ -1,5 +1,5 @@
 import {ContentState} from 'draft-js';
-import {scrapIdField} from './usefulConstants';
+import {PAGE_WIDTH_EM, scrapIdField} from './usefulConstants';
 import React, {Component, ReactElement} from 'react';
 import {Link} from 'react-router-dom';
 import {Button} from 'semantic-ui-react';
@@ -34,7 +34,7 @@ export class BaseReadOnlyComponent extends Component<any, FountainReadOnlyState>
     const scrapLink = `/scrap/${this.state.scrapId}`;
 
     return <Link to={scrapLink}>
-      <Button style={{cursor: 'pointer', position: 'absolute', top: '-12px'}} circular color='blue' icon='edit outline' />
+      <Button style={{cursor: 'pointer', position: 'absolute', top: '-12px', right: '-20px'}} circular color='blue' icon='edit outline' />
     </Link>;
   }
 
@@ -52,8 +52,10 @@ export class BaseReadOnlyComponent extends Component<any, FountainReadOnlyState>
 
   getParentStyle(): any {
     const style: React.CSSProperties = {
-      display: 'flex',
+      position: 'relative',
       paddingRight: '20px',
+      width: PAGE_WIDTH_EM,
+      margin: 0,
     };
 
     if (this.state.isHover) {

@@ -1,8 +1,7 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainTransition, ONE_LINE_DURATION_SEC} from './usefulConstants';
+import {isFountainTransition, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
-import {FountainDialogueComponent} from './FountainDialogueComponent';
 
 
 export function fountainTransitionStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
@@ -31,16 +30,12 @@ export function sceneTransitionData(blockText: string): { [index: string]: boole
  */
 export const FountainTransitionComponent = (props: any) => {
   return (
-      <div style={{fontWeight: 'bold', flex: '1', textAlign: 'right'}} >{props.children}</div>
+      <div style={{fontWeight: 'bold', textAlign: 'right', width: PAGE_WIDTH_EM}} >{props.children}</div>
   );
 }
 
 
 export class FountainTransitionReadOnlyComponent extends BaseReadOnlyComponent {
-  constructor(props: any) {
-    super(props);
-  }
-
   renderSpecific(): JSX.Element {
     return FountainTransitionComponent(this.props);
   }

@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isComment, isScrapEmbedding} from './usefulConstants';
+import {isComment, isScrapEmbedding, PAGE_WIDTH_EM} from './usefulConstants';
 import React from 'react';
 
 
@@ -24,6 +24,6 @@ export function checkIsCommentEnd(blockText: string): boolean {
  */
 export const CommentComponent = (props: any) => {
   return (
-      <div style={{fontStyle: 'italic', background: '#cfead9'}}>{props.children}</div>
+      <div style={{fontStyle: 'italic', background: '#cfead9', width: PAGE_WIDTH_EM}}>{props.children}</div>
   );
 }
