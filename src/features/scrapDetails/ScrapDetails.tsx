@@ -19,6 +19,7 @@ import {isArrayEqualToImmutableSet, parseAllProse} from './parseProse';
 import {editorDecorator} from './foutainDecorators';
 import {ReadOnlyViewer} from './ReadOnlyViewer';
 import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
+import {TimelineViewer} from '../timeline/Timeline';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -396,6 +397,9 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
           </div>
         </Tab.Pane>},
       { menuItem: 'Read', render: () => <Tab.Pane style={tabStyle}>
+          <TimelineViewer
+              scrapId={this.state.scrapId}
+              scrapMap={this.props.scrapMap}/>
           <ReadOnlyViewer
             scrapId={this.state.scrapId}
             scrapMap={this.props.scrapMap}/>

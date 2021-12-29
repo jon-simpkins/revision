@@ -1,0 +1,224 @@
+import {ScrapMap} from '../scrapList/scrapListSlice';
+import React, {Component} from 'react';
+import {Button, Icon, Popup} from 'semantic-ui-react';
+import {durationSecondsToString} from '../utils/durationUtils';
+
+function formatPercentString(percent: number): string {
+  return `${percent}%`;
+}
+
+class TimelineBlock {
+  headerText: string;
+  id: string;
+  startSec: number;
+  durationSec: number;
+
+  constructor(headerText: string, id: string, startSec: number, durationSec: number) {
+    this.headerText = headerText;
+    this.id = id;
+    this.startSec = startSec;
+    this.durationSec = durationSec;
+  }
+
+  render(totalDurationSec: number) {
+    return <Popup
+        key={'key-' + this.id}
+        content={durationSecondsToString(this.durationSec)}
+        header={this.headerText}
+        mouseEnterDelay={50}
+        mouseLeaveDelay={50}
+        trigger={<div style={{
+          cursor: 'pointer',
+          display: 'inline-block',
+          height: '100%',
+          boxShadow: 'inset 0px 0px 0px 1px #555',
+          position: 'absolute',
+          width: formatPercentString(100 * this.durationSec / totalDurationSec),
+          left: formatPercentString(100 * this.startSec / totalDurationSec),
+          background: 'grey',
+          zIndex: 2,
+        }}
+          onClick={() => {alert(this.id)}}
+        >
+          &nbsp;
+        </div>}
+    />
+  }
+}
+
+class TimelineRow {
+  blocks: TimelineBlock[] = [];
+
+  render(totalDurationSec: number, zoomLevel: number) {
+    return <div style={{
+      position: 'relative',
+      width: formatPercentString(zoomLevel),
+      height: '40px',
+      borderBottom: '1px solid'
+    }}>
+      {this.blocks.map((block) => block.render(totalDurationSec))}
+    </div>
+  }
+}
+
+class Timeline {
+  isValid: boolean = false;
+  durationSec: number = 0;
+  rows: TimelineRow[] = [];
+
+  constructor(scrapId: string, scrapMap: ScrapMap) {
+    if (!scrapMap[scrapId]) {
+      return;
+    }
+
+    this.isValid = true;
+    this.durationSec = 150;
+
+    this.rows = [];
+
+    let mockRow1 = new TimelineRow();
+    mockRow1.blocks.push(
+        new TimelineBlock('Parent block',  '0000', 15, 75)
+    );
+
+    this.rows.push(mockRow1);
+    this.rows.push(new TimelineRow());
+    let mockRow2 = new TimelineRow();
+    mockRow2.blocks.push(
+        new TimelineBlock('My block',  'abc123', 30, 15)
+    );
+    mockRow2.blocks.push(
+        new TimelineBlock('2nd block',  'def456', 75, 30)
+    );
+    mockRow2.blocks.push(
+        new TimelineBlock('another block',  'ghi789', 120, 20)
+    );
+    this.rows.push(mockRow2);
+  }
+
+  getSecondMarkers(zoomLevel: number): number[] {
+    const numLevels = Math.round(4 * (zoomLevel / 100)) + 1;
+    const stepLevel = (this.durationSec / (numLevels - 1));
+
+    let startingPoint = 0;
+    let steps = []
+    for (let i = 0; i < numLevels; i++) {
+      const nextContribution = Math.round(startingPoint);
+      steps.push(nextContribution);
+      startingPoint += stepLevel;
+    }
+
+    return steps;
+  }
+
+  render(zoomLevel: number) {
+    let secondMarkers = this.getSecondMarkers(zoomLevel);
+    let markerTopPadding = 41 * this.rows.length;
+
+    return <div style={{width: '100%', overflowX: 'scroll', background: 'lightgrey'}}>
+      {this.rows.map((row) => row.render(this.durationSec, zoomLevel))}
+      <div style={{height: '24px', position: 'relative', width: formatPercentString(zoomLevel), background: 'white'}}>
+        {secondMarkers.map((value, idx) => {
+
+          const markerStyle: React.CSSProperties = {
+            display: 'inline-block',
+            position: 'absolute',
+            fontSize: '16px',
+            fontFamily: 'CourierPrime, Courier, monospace',
+            paddingTop: `${markerTopPadding}px`,
+            top: `-${markerTopPadding}px`
+          };
+
+          if (idx + 1 === secondMarkers.length) {
+            markerStyle.paddingRight = '8px';
+            markerStyle.textAlign = 'right';
+            markerStyle.borderRight = '2px solid';
+            markerStyle.right = formatPercentString(100 - (100 * value / this.durationSec));
+          } else {
+            markerStyle.paddingLeft = '8px';
+            markerStyle.textAlign = 'left';
+            markerStyle.borderLeft = '2px solid';
+            markerStyle.left = formatPercentString(100 * value / this.durationSec);
+          }
+
+          return <div
+              style={markerStyle}>{durationSecondsToString(value)}</div>
+        })}
+      </div>
+    </div>
+  }
+}
+
+interface TimelineProps {
+  scrapId: string;
+  scrapMap: ScrapMap;
+}
+
+interface TimelineState {
+  scrapId: string;
+  timeline: Timeline;
+  zoomLevel: number;
+  minimized: boolean;
+}
+
+export class TimelineViewer extends Component<TimelineProps, TimelineState> {
+
+  constructor(props: TimelineProps) {
+    super(props);
+
+    this.state = this.initializeState(props);
+  }
+
+  initializeState(props: TimelineProps): TimelineState {
+    return {
+      scrapId: props.scrapId,
+      timeline: new Timeline(props.scrapId, props.scrapMap),
+      zoomLevel: 100,
+      minimized: false,
+    }
+  }
+
+  zoomIn() {
+    this.setState({
+      zoomLevel: this.state.zoomLevel * 2
+    });
+  }
+
+  zoomOut() {
+    this.setState({
+      zoomLevel: Math.max(100, this.state.zoomLevel / 2)
+    });
+  }
+
+  flipMinimization() {
+    this.setState({
+      minimized: !this.state.minimized
+    });
+  }
+
+  render() {
+    if (!this.state.timeline.isValid) {
+      return <div>... loading timeline... </div>
+    }
+
+    const zoomOptions = this.state.minimized ? null : (<div style={{display: 'inline-block'}}>
+      <Button onClick={() => this.zoomOut()} disabled={this.state.zoomLevel === 100} icon>
+        <Icon name='zoom-out' />
+      </Button>
+      <Button onClick={() => this.zoomIn()} icon>
+        <Icon name='zoom-in' />
+      </Button>
+    </div>);
+
+    return (<div>
+      <div style={{marginBottom: '12px', display: 'flex'}}>
+        {zoomOptions}
+        <span style={{flex: '1'}}>&nbsp;</span>
+        <Button onClick={() => this.flipMinimization()} icon>
+          <Icon name={this.state.minimized ? 'window maximize outline' : 'window minimize outline'}/>
+        </Button>
+      </div>
+      {this.state.minimized ? null : this.state.timeline.render(this.state.zoomLevel)}
+    </div>)
+  }
+}
