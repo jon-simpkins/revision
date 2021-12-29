@@ -18,6 +18,7 @@ import {durationSecondsToString, durationStringToSeconds} from '../utils/duratio
 import {isArrayEqualToImmutableSet, parseAllProse} from './parseProse';
 import {editorDecorator} from './foutainDecorators';
 import {ReadOnlyViewer} from './ReadOnlyViewer';
+import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -234,28 +235,15 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     this.setDurationErrorString(false);
   }
 
-  getProseEditor(): ReactElement {
+  getProseEditorToolbar(): ReactElement {
     const parseWarning = this.state.parseErrorState ?
         (<div style={{color: 'red'}}>Parsing took too long, please break into smaller chunks</div>) : null;
-
 
     return <div>
       <div>
         <button onClick={() => this.addChildScrap()}>Add child scrap</button>
       </div>
       {parseWarning}
-      <div
-        onClick={() => {this.focus()}}
-        style={{border: '1px solid', padding: '48px', minHeight: '300px', maxHeight: '500px', overflowY: 'scroll', fontSize: '16px', fontFamily: 'CourierPrime, Courier, monospace'}}>
-        <Editor
-          customStyleMap={styleMap}
-          stripPastedStyles={true}
-          onCut={(editor, e) => {this.onCut(editor, e, true);}}
-          onCopy={(editor, e) => {this.onCut(editor, e, false);}}
-          editorState={this.state.editorState}
-          ref={(ref) => {this.setDomEditorRef(ref);}}
-          onChange={(newState) => {this.onProseChange(newState); }}/>
-      </div>
     </div>;
   }
 
@@ -383,13 +371,31 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       );
     }
 
+    const tabStyle = {
+      height: 'calc(100% - 43px)', // Offset to account for tab height
+      display: 'flex',
+      flexDirection: 'column'
+    }
+
     const panes = [
-      { menuItem: 'Write', render: () => <Tab.Pane>
+      { menuItem: 'Write', render: () => <Tab.Pane style={tabStyle}>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
-          {this.getProseEditor()}
+          {this.getProseEditorToolbar()}
+          <div
+              onClick={() => {this.focus()}}
+              style={FOUNTAIN_EDITOR_STYLE}>
+            <Editor
+                customStyleMap={styleMap}
+                stripPastedStyles={true}
+                onCut={(editor, e) => {this.onCut(editor, e, true);}}
+                onCopy={(editor, e) => {this.onCut(editor, e, false);}}
+                editorState={this.state.editorState}
+                ref={(ref) => {this.setDomEditorRef(ref);}}
+                onChange={(newState) => {this.onProseChange(newState); }}/>
+          </div>
         </Tab.Pane>},
-      { menuItem: 'Read', render: () => <Tab.Pane>
+      { menuItem: 'Read', render: () => <Tab.Pane style={tabStyle}>
           <ReadOnlyViewer
             scrapId={this.state.scrapId}
             scrapMap={this.props.scrapMap}/>
@@ -397,7 +403,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     ]
 
     return (
-        <Tab style={{margin: '24px'}} key={'scrap-details-' + this.props.scrapId} panes={panes} />
+        <Tab style={{height: '100%'}} key={'scrap-details-' + this.props.scrapId} panes={panes} />
     );
   }
 

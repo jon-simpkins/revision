@@ -3,7 +3,7 @@ import {Editor, ContentState, EditorState, ContentBlock} from 'draft-js';
 import {Component, ReactElement} from 'react';
 import {viewerDecorator} from './foutainDecorators';
 import {parseAllProse} from './parseProse';
-import {isComment, isScrapEmbedding, scrapIdField, scrapLink} from './usefulConstants';
+import {FOUNTAIN_EDITOR_STYLE, isComment, isScrapEmbedding, scrapIdField, scrapLink} from './usefulConstants';
 
 interface ReadOnlyViewerProps {
   scrapId: string;
@@ -104,15 +104,7 @@ export class ReadOnlyViewer extends Component<ReadOnlyViewerProps, ReadOnlyViewe
 
   render(): ReactElement {
     return <div
-        style={{
-          border: '1px solid',
-          padding: '48px',
-          minHeight: '300px',
-          maxHeight: '500px',
-          overflowY: 'scroll',
-          fontSize: '16px',
-          fontFamily: 'CourierPrime, Courier, monospace'
-        }}>
+        style={FOUNTAIN_EDITOR_STYLE}>
       <Editor
         readOnly
         onChange={() => {}}

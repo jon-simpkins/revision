@@ -1,3 +1,4 @@
+import React from 'react';
 
 export const LINES_PER_PAGE = 55;
 export const ONE_LINE_DURATION_SEC = 1.0909; // (1 / LINES_PER_PAGE * 60);
@@ -19,6 +20,17 @@ export const character = 'character';
 export const isFountainDialogue = 'isFountainDialogue';
 export const isFountainParenthetical = 'isFountainParenthetical';
 export const isFountainAction = 'isFountainAction';
+
+export const FOUNTAIN_EDITOR_STYLE: React.CSSProperties = {
+  border: '1px solid',
+  padding: '6em',
+  margin: 'auto',
+  width: '49em', // PAGE_WIDTH_EM + padding
+  overflowY: 'scroll',
+  fontSize: '16px',
+  fontFamily: 'CourierPrime, Courier, monospace',
+  flex: '1'
+}
 
 export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
   return {

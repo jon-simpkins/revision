@@ -15,16 +15,23 @@ import DecisionPage from './pages/decisions/DecisionPage';
 
 function App() {
   return (
-    <Router>
+      <div style={{padding: 0, margin: 0, height: '100vh'}}>
+    <Router >
       <RevisionHeader />
-      <Switch>
-        <Route path="/decisions" component={DecisionPage} />
-        <Route path="/data" component={DataManagementPage} />
-        <Route path="/story/:id" component={StoryDetailsPage} />
-        <Route path="/scrap/:id" component={ScrapDetailsPage} />
-        <Route path="/" component={Homepage} />
-      </Switch>
+      <div style={{
+        //margin: '24px',
+        height: 'calc(100% - 68px)',
+      }}>
+        <Switch>
+          <Route path="/decisions" component={DecisionPage} />
+          <Route path="/data" component={DataManagementPage} />
+          <Route path="/story/:id" component={StoryDetailsPage} />
+          <Route path="/scrap/:id" component={ScrapDetailsPage} />
+          <Route path="/" component={Homepage} />
+        </Switch>
+      </div>
     </Router>
+      </div>
   );
 }
 
