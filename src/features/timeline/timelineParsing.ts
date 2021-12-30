@@ -1,18 +1,15 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {TimelineBlock, TimelineRow} from './Timeline';
-import {fetchParsedContentBlocksForScrap} from '../utils/fetchParsedContentBlocksForScrap';
 import {ancestorField, durationSecContribution, scrapIdField} from '../scrapDetails/usefulConstants';
+import {ContentBlock} from 'draft-js';
 
 interface ParsedTimeline {
   totalDurationSec: number;
   rows: TimelineRow[];
 }
 
-export function parseTimeline(scrapId: string, scrapMap: ScrapMap): ParsedTimeline {
+export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap): ParsedTimeline {
   let rows: TimelineRow[] = [];
-
-  // TODO: bring this in from a common place, don't double-parse
-  const parsedBlocks = fetchParsedContentBlocksForScrap(scrapId, [], scrapMap);
 
   let totalDurationSec = 0;
   for (let i = 0; i < parsedBlocks.length; i++) {

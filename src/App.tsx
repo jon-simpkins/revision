@@ -12,6 +12,7 @@ import StoryDetailsPage from './pages/story-details/StoryDetailsPage';
 import DataManagementPage from './pages/import-export/DataManagementPage';
 import ScrapDetailsPage from './pages/scrap-details/ScrapDetailsPage';
 import DecisionPage from './pages/decisions/DecisionPage';
+import ReadScrapPage from './pages/read-scrap/ReadScrapPage';
 
 function App() {
   return (
@@ -19,7 +20,6 @@ function App() {
     <Router >
       <RevisionHeader />
       <div style={{
-        //margin: '24px',
         height: 'calc(100% - 68px)',
       }}>
         <Switch>
@@ -27,6 +27,7 @@ function App() {
           <Route path="/data" component={DataManagementPage} />
           <Route path="/story/:id" component={StoryDetailsPage} />
           <Route path="/scrap/:id" component={ScrapDetailsPage} />
+          <Route path="/read/:id" component={ReadScrapPage} />
           <Route path="/" component={Homepage} />
         </Switch>
       </div>

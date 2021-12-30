@@ -6,6 +6,7 @@ import {parseTimeline} from './timelineParsing';
 import {
   Link
 } from 'react-router-dom';
+import {ContentBlock} from 'draft-js';
 
 function formatPercentString(percent: number): string {
   return `${percent}%`;
@@ -82,14 +83,11 @@ export class Timeline {
   durationSec: number = 0;
   rows: TimelineRow[] = [];
 
-  constructor(scrapId: string, scrapMap: ScrapMap) {
+  constructor(scrapId: string, scrapMap: ScrapMap, parsedContentBlocks: ContentBlock[]) {
     if (!scrapMap[scrapId]) {
       return;
     }
-
-    const parseResult = parseTimeline(scrapId, scrapMap);
-
-    console.log(parseResult);
+    const parseResult = parseTimeline(parsedContentBlocks, scrapMap);
 
     this.durationSec = parseResult.totalDurationSec;
     if (!this.durationSec) {
@@ -157,6 +155,7 @@ export class Timeline {
 interface TimelineProps {
   scrapId: string;
   scrapMap: ScrapMap;
+  parsedContentBlocks: ContentBlock[];
 }
 
 interface TimelineState {
@@ -177,7 +176,7 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
   initializeState(props: TimelineProps): TimelineState {
     return {
       scrapId: props.scrapId,
-      timeline: new Timeline(props.scrapId, props.scrapMap),
+      timeline: new Timeline(props.scrapId, props.scrapMap, props.parsedContentBlocks),
       zoomLevel: 100,
       minimized: false,
     }

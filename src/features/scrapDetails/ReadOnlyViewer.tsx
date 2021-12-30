@@ -1,5 +1,5 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
-import {Editor, ContentState, EditorState} from 'draft-js';
+import {Editor, ContentState, ContentBlock, EditorState} from 'draft-js';
 import {Component, ReactElement} from 'react';
 import {viewerDecorator} from './foutainDecorators';
 import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
@@ -8,6 +8,7 @@ import {fetchParsedContentBlocksForScrap} from '../utils/fetchParsedContentBlock
 interface ReadOnlyViewerProps {
   scrapId: string;
   scrapMap: ScrapMap;
+  parsedContentBlocks: ContentBlock[];
 }
 
 interface ReadOnlyViewerState {
@@ -46,11 +47,9 @@ export class ReadOnlyViewer extends Component<ReadOnlyViewerProps, ReadOnlyViewe
       return EditorState.createEmpty();
     }
 
-    const parsedBlocks = fetchParsedContentBlocksForScrap(props.scrapId, [], this.props.scrapMap);
-
     return EditorState.createWithContent(
         ContentState.createFromBlockArray(
-            parsedBlocks),
+            this.props.parsedContentBlocks),
         viewerDecorator);
   }
 

@@ -154,6 +154,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     return (<div>
       {storyContribution}
       {scrapContribution}
+      <Link to={'/read/' + this.state.scrapId}>Read</Link>
     </div>);
   }
 
@@ -372,14 +373,8 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       );
     }
 
-    const tabStyle = {
-      height: 'calc(100% - 43px)', // Offset to account for tab height
-      display: 'flex',
-      flexDirection: 'column'
-    }
-
-    const panes = [
-      { menuItem: 'Write', render: () => <Tab.Pane style={tabStyle}>
+    return (
+        <div style={{height: '100%', display: 'flex', flexDirection: 'column'}} key={'scrap-details-' + this.props.scrapId}>
           {this.getBreadcrumbs(thisScrap)}
           {this.getPrimaryForm(thisScrap)}
           {this.getProseEditorToolbar()}
@@ -395,19 +390,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
                 ref={(ref) => {this.setDomEditorRef(ref);}}
                 onChange={(newState) => {this.onProseChange(newState); }}/>
           </div>
-        </Tab.Pane>},
-      { menuItem: 'Read', render: () => <Tab.Pane style={tabStyle}>
-          <TimelineViewer
-              scrapId={this.state.scrapId}
-              scrapMap={this.props.scrapMap}/>
-          <ReadOnlyViewer
-            scrapId={this.state.scrapId}
-            scrapMap={this.props.scrapMap}/>
-      </Tab.Pane>},
-    ]
-
-    return (
-        <Tab style={{height: '100%'}} key={'scrap-details-' + this.props.scrapId} panes={panes} />
+        </div>
     );
   }
 
