@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainDialogue, ONE_LINE_DURATION_SEC} from './usefulConstants';
+import {character, durationSecContribution, isFountainDialogue, ONE_LINE_DURATION_SEC} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -17,10 +17,11 @@ export function dialogueDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC * Math.ceil(blockText.length / 36); // About 36 characters per line of dialogue fit
 }
 
-export function dialogueData(characterBefore: string, blockText: string): { [index: string]: boolean|string} {
+export function dialogueData(characterBefore: string, blockText: string): { [index: string]: boolean|string|number} {
   return {
-    isFountainDialogue: true,
-    character: characterBefore,
+    [isFountainDialogue]: true,
+    [character]: characterBefore,
+    [durationSecContribution]: dialogueDurationSec(blockText)
   }
 }
 

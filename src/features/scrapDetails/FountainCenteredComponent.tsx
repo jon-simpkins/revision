@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainCentered, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
+import {durationSecContribution, isFountainCentered, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -19,9 +19,10 @@ export function sceneCenteredDurationSec(blockText: string): number {
 }
 
 
-export function sceneCenteredData(blockText: string): { [index: string]: boolean|string} {
+export function sceneCenteredData(blockText: string): { [index: string]: boolean|string|number} {
   return {
-    isFountainCentered: true,
+    [isFountainCentered]: true,
+    [durationSecContribution]: sceneCenteredDurationSec(blockText),
   }
 }
 

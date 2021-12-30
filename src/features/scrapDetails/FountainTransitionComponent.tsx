@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainTransition, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
+import {durationSecContribution, isFountainTransition, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -18,9 +18,10 @@ export function sceneTransitionDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC; // Assume one line per scene heading
 }
 
-export function sceneTransitionData(blockText: string): { [index: string]: boolean|string} {
+export function sceneTransitionData(blockText: string): { [index: string]: boolean|string|number} {
   return {
-    isFountainTransition: true,
+    [isFountainTransition]: true,
+    [durationSecContribution]: sceneTransitionDurationSec(blockText)
   }
 }
 

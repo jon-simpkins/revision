@@ -2,12 +2,16 @@ import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component} from 'react';
 import {Button, Icon, Popup} from 'semantic-ui-react';
 import {durationSecondsToString} from '../utils/durationUtils';
+import {parseTimeline} from './timelineParsing';
+import {
+  Link
+} from 'react-router-dom';
 
 function formatPercentString(percent: number): string {
   return `${percent}%`;
 }
 
-class TimelineBlock {
+export class TimelineBlock {
   headerText: string;
   id: string;
   startSec: number;
@@ -27,27 +31,39 @@ class TimelineBlock {
         header={this.headerText}
         mouseEnterDelay={50}
         mouseLeaveDelay={50}
-        trigger={<div style={{
-          cursor: 'pointer',
-          display: 'inline-block',
-          height: '100%',
-          boxShadow: 'inset 0px 0px 0px 1px #555',
-          position: 'absolute',
-          width: formatPercentString(100 * this.durationSec / totalDurationSec),
-          left: formatPercentString(100 * this.startSec / totalDurationSec),
-          background: 'grey',
-          zIndex: 2,
-        }}
-          onClick={() => {alert(this.id)}}
+        trigger={
+          <Link
+              to={'/scrap/' + this.id}
+              style={{
+                cursor: 'pointer',
+                display: 'inline-block',
+                height: '100%',
+                boxShadow: 'inset 0px 0px 0px 1px #555',
+                position: 'absolute',
+                width: formatPercentString(100 * this.durationSec / totalDurationSec),
+                left: formatPercentString(100 * this.startSec / totalDurationSec),
+                background: 'grey',
+                zIndex: 2,
+              }}
+          >
+          <div
         >
           &nbsp;
-        </div>}
+          </div></Link>}
     />
   }
 }
 
-class TimelineRow {
+export class TimelineRow {
   blocks: TimelineBlock[] = [];
+
+  lastBlockId(): string {
+    if (!this.blocks.length) {
+      return '';
+    }
+
+    return this.blocks[this.blocks.length - 1].id;
+  }
 
   render(totalDurationSec: number, zoomLevel: number) {
     return <div style={{
@@ -61,7 +77,7 @@ class TimelineRow {
   }
 }
 
-class Timeline {
+export class Timeline {
   isValid: boolean = false;
   durationSec: number = 0;
   rows: TimelineRow[] = [];
@@ -71,29 +87,18 @@ class Timeline {
       return;
     }
 
+    const parseResult = parseTimeline(scrapId, scrapMap);
+
+    console.log(parseResult);
+
+    this.durationSec = parseResult.totalDurationSec;
+    if (!this.durationSec) {
+      return;
+    }
+
     this.isValid = true;
-    this.durationSec = 150;
 
-    this.rows = [];
-
-    let mockRow1 = new TimelineRow();
-    mockRow1.blocks.push(
-        new TimelineBlock('Parent block',  '0000', 15, 75)
-    );
-
-    this.rows.push(mockRow1);
-    this.rows.push(new TimelineRow());
-    let mockRow2 = new TimelineRow();
-    mockRow2.blocks.push(
-        new TimelineBlock('My block',  'abc123', 30, 15)
-    );
-    mockRow2.blocks.push(
-        new TimelineBlock('2nd block',  'def456', 75, 30)
-    );
-    mockRow2.blocks.push(
-        new TimelineBlock('another block',  'ghi789', 120, 20)
-    );
-    this.rows.push(mockRow2);
+    this.rows = parseResult.rows;
   }
 
   getSecondMarkers(zoomLevel: number): number[] {

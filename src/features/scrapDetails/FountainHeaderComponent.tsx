@@ -1,6 +1,6 @@
 import React from 'react';
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainHeader, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
+import {durationSecContribution, isFountainHeader, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
 export function fountainHeaderStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
@@ -17,9 +17,10 @@ export function sceneHeaderDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC; // Assume one line per scene heading
 }
 
-export function sceneHeaderData(blockText: string): { [index: string]: boolean|string} {
+export function sceneHeaderData(blockText: string): { [index: string]: boolean|string|number} {
   return {
-    isFountainHeader: true,
+    [isFountainHeader]: true,
+    [durationSecContribution]: sceneHeaderDurationSec(blockText),
   }
 }
 

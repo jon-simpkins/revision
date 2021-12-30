@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainCharacter, ONE_LINE_DURATION_SEC} from './usefulConstants';
+import {character, durationSecContribution, isFountainCharacter, ONE_LINE_DURATION_SEC} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -17,13 +17,14 @@ export function characterDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC * Math.ceil(blockText.length / 28); // About 28 characters per line
 }
 
-export function characterData(blockText: string): { [index: string]: boolean|string} {
+export function characterData(blockText: string): { [index: string]: boolean|string|number} {
   const parsedCharacter = blockText.trim();
   // TODO: actually parse out things like  (v.o) and (cont'd)
 
   return {
-    isFountainCharacter: true,
-    character: parsedCharacter,
+    [isFountainCharacter]: true,
+    [character]: parsedCharacter,
+    [durationSecContribution]: characterDurationSec(blockText)
   }
 }
 

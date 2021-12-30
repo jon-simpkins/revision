@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainParenthetical, ONE_LINE_DURATION_SEC} from './usefulConstants';
+import {character, durationSecContribution, isFountainParenthetical, ONE_LINE_DURATION_SEC} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -17,10 +17,11 @@ export function parentheticalDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC * Math.ceil(blockText.length / 30); // About 30 characters per line
 }
 
-export function parentheticalData(characterBefore: string, blockText: string): { [index: string]: boolean|string} {
+export function parentheticalData(characterBefore: string, blockText: string): { [index: string]: boolean|string|number} {
   return {
-    isFountainParenthetical: true,
-    character: characterBefore,
+    [isFountainParenthetical]: true,
+    [character]: characterBefore,
+    [durationSecContribution]: parentheticalDurationSec(blockText)
   }
 }
 

@@ -6,6 +6,10 @@ export const PAGE_WIDTH_EM = '37em';
 
 /** Fields on the data for a block of parsed text */
 export const scrapIdField = 'scrapId'; // Indicates which scrap defines this block of prose
+export const ancestorField = 'ancestorField'; // Array of ancestor scrap IDs, excluding the current one
+
+export const durationSecContribution = 'durationSecContribution'; // Seconds (perhaps partial) contributed to the script duration
+
 export const isScrapEmbedding = 'isScrapEmbedding';
 export const scrapLink = 'scrapLink';
 export const isFountainHeader = 'isFountainHeader';
@@ -32,7 +36,7 @@ export const FOUNTAIN_EDITOR_STYLE: React.CSSProperties = {
   flex: '1'
 }
 
-export function mergeDataObject(dataObject: { [index: string]: boolean|string}, newData: { [index: string]: boolean|string}): { [index: string]: boolean|string} {
+export function mergeDataObject(dataObject: { [index: string]: boolean|string|number}, newData: { [index: string]: boolean|string|number}): { [index: string]: boolean|string|number} {
   return {
     ...dataObject,
     ...newData

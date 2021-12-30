@@ -2,7 +2,7 @@ import {CharacterMetadata, ContentBlock, ContentState} from 'draft-js';
 import Immutable from 'immutable';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {Scrap} from '../../protos_v2';
-import {character, isBlank, isComment, isCommentEnd, isCommentStart, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
+import {character, durationSecContribution, isBlank, isComment, isCommentEnd, isCommentStart, mergeDataObject, ONE_LINE_DURATION_SEC, scrapLink} from './usefulConstants';
 import {checkIsSceneHeader, sceneHeaderData, sceneHeaderDurationSec} from './FountainHeaderComponent';
 import {checkIsScrapEmbed, scrapEmbedData} from './ScrapEmbedComponent';
 import {checkIsSceneTransition, sceneTransitionData, sceneTransitionDurationSec} from './FountainTransitionComponent';
@@ -75,7 +75,7 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
     };
   }
 
-  let blockData: { [index: string]: boolean|string} = contentBlock.getData().toJS();
+  let blockData: { [index: string]: boolean|string|number} = contentBlock.getData().toJS();
   let applyCharacterStyles = true;
 
   let blockText = contentBlock.getText().trim();
@@ -87,6 +87,9 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
   if (blockData[isBlank]) {
     if (!blankBefore && !blockData[isComment]) { // We only want to count 1 contiguous block of "blank", since we remove redundant whitespace
       processProgress.currentDurationSec += ONE_LINE_DURATION_SEC; // Assume one line of whitespace
+      blockData = mergeDataObject(blockData, {
+        [durationSecContribution]: ONE_LINE_DURATION_SEC
+      });
     }
   } else {
     if (!blockData[isComment]) {

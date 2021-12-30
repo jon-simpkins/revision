@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {isFountainAction, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
+import {durationSecContribution, isFountainAction, ONE_LINE_DURATION_SEC, PAGE_WIDTH_EM} from './usefulConstants';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
 
@@ -13,9 +13,10 @@ export function actionDurationSec(blockText: string): number {
   return ONE_LINE_DURATION_SEC * Math.ceil(blockText.length / 56); // About 56 characters per line of action
 }
 
-export function actionData(blockText: string): { [index: string]: boolean|string} {
+export function actionData(blockText: string): { [index: string]: boolean|string|number} {
   return {
     [isFountainAction]: true,
+    [durationSecContribution]: actionDurationSec(blockText),
   }
 }
 

@@ -1,9 +1,9 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
-import {Editor, ContentState, EditorState, ContentBlock} from 'draft-js';
+import {Editor, ContentState, EditorState} from 'draft-js';
 import {Component, ReactElement} from 'react';
 import {viewerDecorator} from './foutainDecorators';
-import {parseAllProse} from './parseProse';
-import {FOUNTAIN_EDITOR_STYLE, isComment, isScrapEmbedding, scrapIdField, scrapLink} from './usefulConstants';
+import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
+import {fetchParsedContentBlocksForScrap} from '../utils/fetchParsedContentBlocksForScrap';
 
 interface ReadOnlyViewerProps {
   scrapId: string;
@@ -46,56 +46,12 @@ export class ReadOnlyViewer extends Component<ReadOnlyViewerProps, ReadOnlyViewe
       return EditorState.createEmpty();
     }
 
-    const parsedBlocks = this.fetchParsedContentBlocksForScrap(props.scrapId, [], this.props.scrapMap);
+    const parsedBlocks = fetchParsedContentBlocksForScrap(props.scrapId, [], this.props.scrapMap);
 
     return EditorState.createWithContent(
         ContentState.createFromBlockArray(
             parsedBlocks),
         viewerDecorator);
-  }
-
-  fetchParsedContentBlocksForScrap(scrapId: string, scrapAncestors: string[], scrapMap: ScrapMap): Array<ContentBlock> {
-    let prose = scrapMap[scrapId]?.prose || '';
-
-    let newAncestors = [...scrapAncestors, scrapId];
-
-    const initialContentState = ContentState.createFromText(prose);
-
-    const parseResult = parseAllProse(initialContentState, scrapMap, 500, 5000);
-
-    const allNewContentBlocks: Array<ContentBlock> = [];
-
-    parseResult.contentState.getBlocksAsArray().forEach((block) => {
-      const blockData = block.getData();
-
-      if (blockData.get(isComment)) {
-        // Skip
-        return;
-      }
-
-      if (!blockData.get(isScrapEmbedding)) {
-        // Simple addition, just append the ID of the scrap
-        allNewContentBlocks.push(block.set('data', blockData.set(scrapIdField, scrapId)) as ContentBlock);
-        return;
-      }
-
-      const embeddedScrapId = blockData.get(scrapLink);
-
-      if (!scrapMap[embeddedScrapId]) {
-        // Scrap doesn't exist, skip
-        return;
-      }
-
-      if (newAncestors.includes(embeddedScrapId)) {
-        throw Error(`Replacing scrap ${embeddedScrapId} would cause infinite recursion`);
-      }
-
-      const subBlocks = this.fetchParsedContentBlocksForScrap(embeddedScrapId, newAncestors, scrapMap);
-
-      allNewContentBlocks.push(...subBlocks);
-    });
-
-    return allNewContentBlocks;
   }
 
   normalizeProse(prose: string): string {
