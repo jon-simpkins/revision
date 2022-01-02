@@ -3,7 +3,6 @@ import {Editor, ContentState, ContentBlock, EditorState} from 'draft-js';
 import {Component, ReactElement} from 'react';
 import {viewerDecorator} from './foutainDecorators';
 import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
-import {fetchParsedContentBlocksForScrap} from '../utils/fetchParsedContentBlocksForScrap';
 
 interface ReadOnlyViewerProps {
   scrapId: string;

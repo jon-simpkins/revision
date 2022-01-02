@@ -3,6 +3,7 @@ import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {selectStoryMap} from '../../features/storyList/storyListSlice';
 import {createScrap, selectScrapMap, updateScrap} from '../../features/scrapList/scrapListSlice';
 import ScrapDetails from '../../features/scrapDetails/ScrapDetails';
+import {updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
 
 interface MatchParams {
   id: string
@@ -22,6 +23,7 @@ export default function ScrapDetailsPage (props: ScrapDetailsProps) {
           storyMap={storyMap}
           onScrapCreate={(scrap) => dispatch(createScrap(scrap.toJSON()))}
           onScrapUpdate={(scrap) => dispatch(updateScrap(scrap.toJSON()))}
+          onUpdateHeaderOptions={(headerOptions) => dispatch(updateHeaderOptions(headerOptions))}
       />
   )
 }

@@ -1,11 +1,12 @@
 import { RouteComponentProps } from 'react-router';
-import {useAppSelector} from '../../app/hooks';
+import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {ScrapMap, selectScrapMap} from '../../features/scrapList/scrapListSlice';
 import React, {Component} from 'react';
 import {ContentBlock} from 'draft-js';
 import {fetchParsedContentBlocksForScrap} from '../../features/utils/fetchParsedContentBlocksForScrap';
 import {TimelineViewer} from '../../features/timeline/Timeline';
 import {ReadOnlyViewer} from '../../features/scrapDetails/ReadOnlyViewer';
+import {HeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
 
 interface MatchParams {
   id: string
@@ -15,15 +16,27 @@ interface ReadScrapProps extends RouteComponentProps<MatchParams> {}
 
 export default function ReadScrapPage (props: ReadScrapProps) {
   const scrapMap = useAppSelector(selectScrapMap);
+  const dispatch = useAppDispatch();
+
+  dispatch(() => updateHeaderOptions({
+    currentScrapId: props.match.params.id,
+    showReadLink: false,
+    showEditLink: true,
+  }));
 
   return (
-      <ReadScrap scrapId={props.match.params.id} scrapMap={scrapMap} />
+      <ReadScrap
+          scrapId={props.match.params.id}
+          scrapMap={scrapMap}
+          onUpdateHeaderOptions={(headerOptions) => dispatch(updateHeaderOptions(headerOptions))}
+      />
   )
 }
 
 interface ReadPageProps {
   scrapId: string;
   scrapMap: ScrapMap;
+  onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
 }
 
 interface ReadPageState {
@@ -52,6 +65,14 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
       });
 
     }, 50);
+  }
+
+  componentDidMount() {
+    this.props.onUpdateHeaderOptions({
+      currentScrapId: this.state.scrapId,
+      showReadLink: false,
+      showEditLink: true,
+    });
   }
 
   render() {

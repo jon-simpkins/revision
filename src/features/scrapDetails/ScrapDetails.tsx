@@ -7,7 +7,7 @@ import {Editor, EditorState, ContentState, Modifier} from 'draft-js';
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
 import {Scrap, Story} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment, Tab} from 'semantic-ui-react';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment} from 'semantic-ui-react';
 import {
   Link
 } from 'react-router-dom';
@@ -17,9 +17,8 @@ import {createChildScrap} from './ScrapEmbedComponent';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 import {isArrayEqualToImmutableSet, parseAllProse} from './parseProse';
 import {editorDecorator} from './foutainDecorators';
-import {ReadOnlyViewer} from './ReadOnlyViewer';
 import {FOUNTAIN_EDITOR_STYLE} from './usefulConstants';
-import {TimelineViewer} from '../timeline/Timeline';
+import {HeaderOptions} from '../revision-header/headerOptionsSlice';
 
 interface ScrapDetailsProps {
   scrapId: string;
@@ -27,6 +26,7 @@ interface ScrapDetailsProps {
   scrapMap: ScrapMap;
   onScrapCreate: (scrap: Scrap) => void;
   onScrapUpdate: (scrap: Scrap) => void;
+  onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
 }
 
 interface ScrapDetailsState {
@@ -39,8 +39,6 @@ interface ScrapDetailsState {
   parentScrapIds: string[];
   durationInputKey: string;
 }
-
-
 
 const styleMap = {
   'GREEN': {
@@ -71,6 +69,14 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     };
   }
 
+  setHeaderOptions(): void {
+    this.props.onUpdateHeaderOptions({
+      currentScrapId: this.props.scrapId,
+      showReadLink: true,
+      showEditLink: false,
+    });
+  }
+
   buildInitialEditorState(props: ScrapDetailsProps): EditorState {
     let thisScrap = props.scrapMap[props.scrapId];
 
@@ -81,12 +87,17 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     return EditorState.createWithContent(ContentState.createFromText(thisScrap.prose), editorDecorator)
   }
 
+  componentDidMount() {
+    this.setHeaderOptions();
+  }
+
   componentDidUpdate(prevProps: Readonly<ScrapDetailsProps>, prevState: Readonly<ScrapDetailsState>, snapshot?: any) {
     if (this.state.scrapId === this.props.scrapId) {
       return;
     }
 
     // Need to update
+    this.setHeaderOptions();
     this.setState(this.initializeState(this.props));
     this.remapEditorContent();
   }
@@ -154,7 +165,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     return (<div>
       {storyContribution}
       {scrapContribution}
-      <Link to={'/read/' + this.state.scrapId}>Read</Link>
     </div>);
   }
 
