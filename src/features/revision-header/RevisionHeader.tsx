@@ -2,15 +2,50 @@ import React from 'react';
 import {
   Link
 } from 'react-router-dom';
-import {Icon, Menu} from 'semantic-ui-react';
-import {useAppSelector} from '../../app/hooks';
-import {readHeaderOptions} from './headerOptionsSlice';
+import {Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react';
+import {useAppDispatch, useAppSelector} from '../../app/hooks';
+import {HeaderOptions, readHeaderOptions, updateHeaderOptions} from './headerOptionsSlice';
 
 export default function RevisionHeader() {
-
+  const dispatch = useAppDispatch();
   const options = useAppSelector(readHeaderOptions);
 
-  console.log(options);
+  let characterFilters;
+  if (options.characterFilters.length) {
+    const characterOptions = options.characterFilters.map((characterFilter) => {
+      return {
+        key: characterFilter.character,
+        text: `${characterFilter.character} (${Math.round(characterFilter.percentDurationSec * 1000) / 10}%)`,
+        value: characterFilter.character,
+      } as DropdownItemProps;
+    });
+
+    characterOptions.unshift({
+      key: 'none',
+      value: 'No Character Filter',
+      text: 'No Character Filter'
+    });
+
+    characterFilters = <Dropdown
+        text={options.currentCharacterFilter || 'Filter by character'}
+        floating
+        labeled
+        scrolling
+        item
+        className='icon'
+        value={options.currentCharacterFilter}
+        options={characterOptions}
+        onChange={(e, data) => {
+          console.log(data.value)
+          dispatch(updateHeaderOptions({
+            ...options,
+            currentCharacterFilter: data.value as string,
+          } as HeaderOptions));
+        }}
+    />
+  }
+
+
 
   let editEntry;
   if (options.showEditLink) {
@@ -41,6 +76,7 @@ export default function RevisionHeader() {
           </Menu.Item>
         </Link>
         <Menu.Menu position='right'>
+          {characterFilters}
           {editEntry}
           {readEntry}
         </Menu.Menu>

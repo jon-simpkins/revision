@@ -58,6 +58,10 @@ export class BaseReadOnlyComponent extends Component<any, FountainReadOnlyState>
       margin: 0,
     };
 
+    if (this.props.isFilterSelected) {
+      style.backgroundColor = '#f6f6c6';
+    }
+
     if (this.state.isHover) {
       style.backgroundColor = '#c6e1f6';
     }

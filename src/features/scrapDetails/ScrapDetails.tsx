@@ -74,6 +74,8 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       currentScrapId: this.props.scrapId,
       showReadLink: true,
       showEditLink: false,
+      characterFilters: [],
+      currentCharacterFilter: '',
     });
   }
 

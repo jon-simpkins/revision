@@ -1,10 +1,13 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '../../app/store';
+import {CharacterAppearance} from '../utils/fetchCharacters';
 
 export interface HeaderOptions {
   currentScrapId: string;
   showEditLink: boolean;
   showReadLink: boolean;
+  characterFilters: CharacterAppearance[];
+  currentCharacterFilter?: string;
 }
 
 interface headerOptionsInState {
@@ -18,7 +21,9 @@ const initialState = {
     currentScrapId: '',
     showEditLink: false,
     showReadLink: false,
-  }
+    characterFilters: [],
+    currentCharacterFilter: '',
+  } as HeaderOptions
 };
 
 

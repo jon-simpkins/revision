@@ -6,7 +6,8 @@ import {ContentBlock} from 'draft-js';
 import {fetchParsedContentBlocksForScrap} from '../../features/utils/fetchParsedContentBlocksForScrap';
 import {TimelineViewer} from '../../features/timeline/Timeline';
 import {ReadOnlyViewer} from '../../features/scrapDetails/ReadOnlyViewer';
-import {HeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
+import {HeaderOptions, readHeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
+import {fetchCharacters} from '../../features/utils/fetchCharacters';
 
 interface MatchParams {
   id: string
@@ -17,18 +18,18 @@ interface ReadScrapProps extends RouteComponentProps<MatchParams> {}
 export default function ReadScrapPage (props: ReadScrapProps) {
   const scrapMap = useAppSelector(selectScrapMap);
   const dispatch = useAppDispatch();
-
-  dispatch(() => updateHeaderOptions({
-    currentScrapId: props.match.params.id,
-    showReadLink: false,
-    showEditLink: true,
-  }));
+  const headerOptions = useAppSelector(readHeaderOptions);
 
   return (
       <ReadScrap
           scrapId={props.match.params.id}
           scrapMap={scrapMap}
-          onUpdateHeaderOptions={(headerOptions) => dispatch(updateHeaderOptions(headerOptions))}
+          onUpdateHeaderOptions={(newHeaderOptions) => dispatch(updateHeaderOptions(
+              {
+                ...headerOptions,
+                ...newHeaderOptions,
+              }))}
+          headerOptions={headerOptions}
       />
   )
 }
@@ -37,6 +38,7 @@ interface ReadPageProps {
   scrapId: string;
   scrapMap: ScrapMap;
   onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
+  headerOptions: HeaderOptions;
 }
 
 interface ReadPageState {
@@ -55,23 +57,23 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
       hasLoaded: false,
       parsedContentBlocks: [],
     };
-
-    setTimeout(() => {
-      const parsedBlocks = fetchParsedContentBlocksForScrap(props.scrapId, [], props.scrapMap);
-
-      this.setState({
-        hasLoaded: true,
-        parsedContentBlocks: parsedBlocks,
-      });
-
-    }, 50);
   }
 
   componentDidMount() {
+    const parsedBlocks = fetchParsedContentBlocksForScrap(this.props.scrapId, [], this.props.scrapMap);
+
+    const characters = fetchCharacters(parsedBlocks);
+
+    this.setState({
+      hasLoaded: true,
+      parsedContentBlocks: parsedBlocks,
+    });
+
     this.props.onUpdateHeaderOptions({
       currentScrapId: this.state.scrapId,
       showReadLink: false,
       showEditLink: true,
+      characterFilters: characters,
     });
   }
 
@@ -84,7 +86,9 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
       <TimelineViewer
           scrapId={this.state.scrapId}
           scrapMap={this.props.scrapMap}
-          parsedContentBlocks={this.state.parsedContentBlocks}/>
+          parsedContentBlocks={this.state.parsedContentBlocks}
+          currentCharacterFilter={this.props.headerOptions.currentCharacterFilter || ''}
+      />
       <ReadOnlyViewer
           scrapId={this.state.scrapId}
           scrapMap={this.props.scrapMap}

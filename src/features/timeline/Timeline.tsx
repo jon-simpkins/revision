@@ -17,15 +17,23 @@ export class TimelineBlock {
   id: string;
   startSec: number;
   durationSec: number;
+  characters: Set<string>;
 
   constructor(headerText: string, id: string, startSec: number, durationSec: number) {
     this.headerText = headerText;
     this.id = id;
     this.startSec = startSec;
     this.durationSec = durationSec;
+    this.characters = new Set<string>();
   }
 
-  render(totalDurationSec: number) {
+  render(totalDurationSec: number, currentCharacterFilter: string) {
+    let background = 'grey';
+
+    if (this.characters.has(currentCharacterFilter)) {
+      background = 'red';
+    }
+
     return <Popup
         key={'key-' + this.id}
         content={durationSecondsToString(this.durationSec)}
@@ -43,7 +51,7 @@ export class TimelineBlock {
                 position: 'absolute',
                 width: formatPercentString(100 * this.durationSec / totalDurationSec),
                 left: formatPercentString(100 * this.startSec / totalDurationSec),
-                background: 'grey',
+                background: background,
                 zIndex: 2,
               }}
           >
@@ -66,14 +74,14 @@ export class TimelineRow {
     return this.blocks[this.blocks.length - 1].id;
   }
 
-  render(totalDurationSec: number, zoomLevel: number) {
+  render(totalDurationSec: number, zoomLevel: number, currentCharacterFilter: string) {
     return <div style={{
       position: 'relative',
       width: formatPercentString(zoomLevel),
       height: '40px',
       borderBottom: '1px solid'
     }}>
-      {this.blocks.map((block) => block.render(totalDurationSec))}
+      {this.blocks.map((block) => block.render(totalDurationSec, currentCharacterFilter))}
     </div>
   }
 }
@@ -114,12 +122,12 @@ export class Timeline {
     return steps;
   }
 
-  render(zoomLevel: number) {
+  render(zoomLevel: number, currentCharacterFilter: string) {
     let secondMarkers = this.getSecondMarkers(zoomLevel);
     let markerTopPadding = 41 * this.rows.length;
 
     return <div style={{width: '100%', overflowX: 'scroll', background: 'lightgrey'}}>
-      {this.rows.map((row) => row.render(this.durationSec, zoomLevel))}
+      {this.rows.map((row) => row.render(this.durationSec, zoomLevel, currentCharacterFilter))}
       <div style={{height: '24px', position: 'relative', width: formatPercentString(zoomLevel), background: 'white'}}>
         {secondMarkers.map((value, idx) => {
 
@@ -156,6 +164,7 @@ interface TimelineProps {
   scrapId: string;
   scrapMap: ScrapMap;
   parsedContentBlocks: ContentBlock[];
+  currentCharacterFilter: string;
 }
 
 interface TimelineState {
@@ -222,7 +231,7 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
           <Icon name={this.state.minimized ? 'window maximize outline' : 'window minimize outline'}/>
         </Button>
       </div>
-      {this.state.minimized ? null : this.state.timeline.render(this.state.zoomLevel)}
+      {this.state.minimized ? null : this.state.timeline.render(this.state.zoomLevel, this.props.currentCharacterFilter)}
     </div>)
   }
 }
