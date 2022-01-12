@@ -12,6 +12,7 @@ import {characterData, characterDurationSec, checkIsCharacter} from './FountainC
 import {checkIsDialogue, dialogueData, dialogueDurationSec} from './FountainDialogueComponent';
 import {checkIsParenthetical, parentheticalData, parentheticalDurationSec} from './FountainParentheticalComponent';
 import {actionData, actionDurationSec} from './FountainActionComponent';
+import {checkIsScrapPlaceholder, scrapPlaceholderData, scrapPlaceholderDurationSec} from './ScrapPlaceholderComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -124,7 +125,12 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
         blockData = mergeDataObject(blockData, parentheticalData(characterBefore, blockText));
 
         processProgress.currentDurationSec += parentheticalDurationSec(blockText);
-      } else {
+      } else if (checkIsScrapPlaceholder(blockText)) {
+        /** Scrap placeholder (for scrap that doesn't exist yet, for structure planning) */
+        blockData = mergeDataObject(blockData, scrapPlaceholderData(blockText));
+
+        processProgress.currentDurationSec += scrapPlaceholderDurationSec(blockText);
+      } else if (!checkIsScrapEmbed(blockText)) {
         /** Action */
         blockData = mergeDataObject(blockData, actionData(blockText));
 

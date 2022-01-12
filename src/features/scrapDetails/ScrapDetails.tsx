@@ -256,6 +256,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     return <div>
       <div>
         <button onClick={() => this.addChildScrap()}>Add child scrap</button>
+        <button onClick={() => this.replacePlaceholderScraps()}>Replace placeholder scraps</button>
       </div>
       {parseWarning}
     </div>;
@@ -368,12 +369,66 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     );
 
     this.setState({
-      editorState: EditorState.set(editorState, {currentContent: newContentState})
+      editorState: EditorState.createWithContent(ContentState.createFromText(newContentState.getPlainText()), editorDecorator)
+    }, () => {
+      this.remapEditorContent();
     });
 
-    this.remapEditorContent();
   }
 
+  replacePlaceholderScraps(): void {
+    const editorState = this.state.editorState;
+    const currentSelection = editorState.getSelection();
+
+    const currentlySelectedText = this.getSelectedText();
+    let textToSwap = currentlySelectedText;
+
+    let re = new RegExp('{{([^}]+)}}', 'g');
+    let match;
+    while (match = re.exec(currentlySelectedText)) {
+      const textToReplace = match[0];
+      const splitText = match[1].split('|');
+
+      if (splitText.length != 2) {
+        continue;
+      }
+
+      let intendedDurationSec = 0;
+      try {
+        intendedDurationSec = durationStringToSeconds(splitText[1].trim());
+      } catch {}
+
+      const newScrapId = uuid();
+
+      const newScrap = Scrap.create({
+        id: newScrapId,
+        synopsis: splitText[0].trim(),
+        prose: textToReplace,
+        intendedDurationSec: intendedDurationSec
+      });
+
+
+      this.props.onScrapCreate(newScrap);
+
+      textToSwap = textToSwap.replace(
+          textToReplace,
+          '\n{{' + newScrapId + '}}\n'
+      );
+    }
+
+    const newContentState = Modifier.replaceText(
+        editorState.getCurrentContent(),
+        currentSelection,
+        textToSwap
+    );
+
+    this.setState({
+      editorState: EditorState.createWithContent(ContentState.createFromText(newContentState.getPlainText()), editorDecorator)
+    }, () => {
+      this.remapEditorContent();
+    });
+
+  }
 
 
   render() {

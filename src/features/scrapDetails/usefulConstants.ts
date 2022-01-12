@@ -10,6 +10,9 @@ export const ancestorField = 'ancestorField'; // Array of ancestor scrap IDs, ex
 
 export const durationSecContribution = 'durationSecContribution'; // Seconds (perhaps partial) contributed to the script duration
 
+export const isScrapPlaceholder = 'isScrapPlaceholder';
+export const scrapPlaceholderText = 'scrapPlaceholderText';
+export const scrapPlaceholderDurationSecField = 'scrapPlaceholderDurationSecField';
 export const isScrapEmbedding = 'isScrapEmbedding';
 export const scrapLink = 'scrapLink';
 export const isFountainHeader = 'isFountainHeader';

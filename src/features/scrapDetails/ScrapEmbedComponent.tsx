@@ -2,8 +2,8 @@
 // https://github.com/facebook/draft-js/blob/main/src/model/decorators/DraftDecorator.js#L54-L71
 import {ContentBlock, ContentState} from 'draft-js';
 import React, {Component} from 'react';
-import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {createScrap, ScrapMap, selectScrapMap} from '../scrapList/scrapListSlice';
+import {useAppSelector} from '../../app/hooks';
+import {ScrapMap, selectScrapMap} from '../scrapList/scrapListSlice';
 import {Scrap} from '../../protos_v2';
 import {
   useHistory, useLocation
@@ -35,15 +35,19 @@ export function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (st
 }
 
 export function checkIsScrapEmbed(blockText: string): boolean {
-  return blockText.startsWith('{{') && blockText.endsWith('}}');
+  if (!blockText.startsWith('{{') || !blockText.endsWith('}}')) {
+    return false;
+  }
+
+  return !(blockText.includes('|') || blockText.includes('@') || blockText.includes('#'));
 }
 
 export function scrapEmbedData(blockText: string): { [index: string]: boolean|string} {
   const scrapId = blockText.replace('{{', '').replace('}}', '').trim();
 
   return {
-    scrapLink: scrapId,
-    isScrapEmbedding: true,
+    [scrapLink]: scrapId,
+    [isScrapEmbedding]: true,
   }
 }
 
@@ -59,26 +63,35 @@ export const ScrapEmbedComponent = (props: any) => {
   const inComment = data.get(isComment);
 
   const scrapMap = useAppSelector(selectScrapMap);
-  const dispatch = useAppDispatch();
   const history = useHistory();
   const currentLocation = useLocation();
 
   const parentScrapId = getScrapIdFromUrl(currentLocation.pathname);
 
-  const backgroundColor = inComment ? '#cfead9' : 'grey';
-  const textColor = inComment ? '#000' : '#fff';
+  const backgroundColor = inComment ? '#cfead9' : '#555';
 
   return (
       <div
-          style={{background: backgroundColor, fontWeight: 'bold', display: 'flex', padding: '8px'}}
+          style={{
+            background: backgroundColor,
+            fontWeight: 'bold',
+            display: 'flex',
+            padding: '8px'
+          }}
       >
-        <div style={{margin: 'auto 24px auto 0', color: textColor}} >{props.children}</div>
+        <div style={{
+          margin: '0',
+          fontSize: '1px',
+          height: '2px',
+          width: '2px',
+          overflow: 'hidden',
+          color: backgroundColor
+        }} >{props.children}</div>
         <div style={{flex: '1', cursor: 'pointer', padding: '8px', border: '1px solid', background: 'white', fontWeight: 'normal'}}>
           <ScrapEmbedSummary
             parentScrapId={parentScrapId}
             scrapId={scrapId}
             scrapMap={scrapMap}
-            onScrapCreate={(scrap) => dispatch(createScrap(scrap.toJSON()))}
             onGotoScrap={() => { history.push(`/scrap/${scrapId}`) }}
           />
         </div>
@@ -95,24 +108,16 @@ interface ScrapEmbedSummaryProps {
   parentScrapId: string;
   scrapId: string;
   scrapMap: ScrapMap;
-  onScrapCreate: (scrap: Scrap) => void;
   onGotoScrap: () => void;
 }
 
 export class ScrapEmbedSummary extends Component<ScrapEmbedSummaryProps> {
-  createScrap() {
-    const newScrap = createChildScrap(this.props.parentScrapId, this.props.scrapMap, this.props.scrapId);
-
-    this.props.onScrapCreate(newScrap);
-  }
-
   render() {
     const scrap = this.props.scrapMap[this.props.scrapId];
 
     if (!scrap) {
       return (<div>
-        Scrap does not exist yet.
-        <button onClick={() => {this.createScrap()}}>Create Now</button>
+        Scrap "{this.props.scrapId}" does not exist.
       </div>)
     }
 

@@ -36,7 +36,6 @@ export default function RevisionHeader() {
         value={options.currentCharacterFilter}
         options={characterOptions}
         onChange={(e, data) => {
-          console.log(data.value)
           dispatch(updateHeaderOptions({
             ...options,
             currentCharacterFilter: data.value as string,
