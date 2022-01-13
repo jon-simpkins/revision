@@ -1,6 +1,6 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {TimelineBlock, TimelineRow} from './Timeline';
-import {ancestorField, character, durationSecContribution, scrapIdField} from '../scrapDetails/usefulConstants';
+import {ancestorField, character, durationSecContribution, isScrapPlaceholder, scrapIdField} from '../scrapDetails/usefulConstants';
 import {ContentBlock} from 'draft-js';
 
 interface ParsedTimeline {
@@ -20,6 +20,7 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
     }
 
     const characterContribution = parsedBlocks[i].getData().get(character) || null;
+    const pendingCompletion = !!parsedBlocks[i].getData().get(isScrapPlaceholder);
 
     const ancestors = [
         ...(parsedBlocks[i].getData().get(ancestorField) || []),
@@ -47,6 +48,9 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
         ));
       }
 
+      if (pendingCompletion) {
+        rows[j].blocks[rows[j].blocks.length - 1].pendingCompletion = true;
+      }
       if (!!characterContribution) {
         rows[j].blocks[rows[j].blocks.length - 1].characters.add(characterContribution);
       }

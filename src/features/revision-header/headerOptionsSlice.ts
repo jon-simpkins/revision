@@ -8,6 +8,7 @@ export interface HeaderOptions {
   showReadLink: boolean;
   characterFilters: CharacterAppearance[];
   currentCharacterFilter?: string;
+  currentCompletionFilter?: string;
 }
 
 interface headerOptionsInState {
@@ -23,6 +24,7 @@ const initialState = {
     showReadLink: false,
     characterFilters: [],
     currentCharacterFilter: '',
+    currentCompletionFilter: '',
   } as HeaderOptions
 };
 

@@ -88,6 +88,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
           scrapMap={this.props.scrapMap}
           parsedContentBlocks={this.state.parsedContentBlocks}
           currentCharacterFilter={this.props.headerOptions.currentCharacterFilter || ''}
+          currentCompletionFilter={this.props.headerOptions.currentCompletionFilter || ''}
       />
       <ReadOnlyViewer
           scrapId={this.state.scrapId}

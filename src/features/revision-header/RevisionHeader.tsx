@@ -39,11 +39,40 @@ export default function RevisionHeader() {
           dispatch(updateHeaderOptions({
             ...options,
             currentCharacterFilter: data.value as string,
+            currentCompletionFilter: '',
           } as HeaderOptions));
         }}
     />
   }
 
+  let completionFilters = <Dropdown
+    text={options.currentCompletionFilter || 'Filter by completion'}
+    floating
+    labeled
+    scrolling
+    item
+    className='icon'
+    value={options.currentCompletionFilter}
+    options={[
+      {
+        key: 'none',
+        value: '',
+        text: 'No Completion Filter'
+      },
+      {
+        key: 'pending',
+        value: 'Pending Completion',
+        text: 'Pending Completion'
+      }
+    ]}
+    onChange={(e, data) => {
+      dispatch(updateHeaderOptions({
+        ...options,
+        currentCharacterFilter: '',
+        currentCompletionFilter: data.value as string,
+      } as HeaderOptions));
+    }}
+  />
 
 
   let editEntry;
@@ -75,6 +104,7 @@ export default function RevisionHeader() {
           </Menu.Item>
         </Link>
         <Menu.Menu position='right'>
+          {completionFilters}
           {characterFilters}
           {editEntry}
           {readEntry}
