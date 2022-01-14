@@ -94,6 +94,7 @@ export class TimelineRow {
 export class Timeline {
   isValid: boolean = false;
   durationSec: number = 0;
+  percentComplete: number = 0;
   rows: TimelineRow[] = [];
 
   constructor(scrapId: string, scrapMap: ScrapMap, parsedContentBlocks: ContentBlock[]) {
@@ -103,6 +104,7 @@ export class Timeline {
     const parseResult = parseTimeline(parsedContentBlocks, scrapMap);
 
     this.durationSec = parseResult.totalDurationSec;
+    this.percentComplete = parseResult.percentComplete;
     if (!this.durationSec) {
       return;
     }
@@ -233,6 +235,7 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       <div style={{marginBottom: '12px', display: 'flex'}}>
         {zoomOptions}
         <span style={{flex: '1'}}>&nbsp;</span>
+        <span style={{margin: 'auto 24px'}}>Percent complete: {this.state.timeline.percentComplete}</span>
         <Button onClick={() => this.flipMinimization()} icon>
           <Icon name={this.state.minimized ? 'window maximize outline' : 'window minimize outline'}/>
         </Button>

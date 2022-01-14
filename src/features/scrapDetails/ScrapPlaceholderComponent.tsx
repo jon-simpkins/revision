@@ -1,5 +1,5 @@
 import {ContentBlock, ContentState} from 'draft-js';
-import {durationSecContribution, isScrapPlaceholder, ONE_LINE_DURATION_SEC, scrapPlaceholderDurationSecField, scrapPlaceholderText} from './usefulConstants';
+import {durationSecContribution, isScrapPlaceholder, ONE_LINE_DURATION_SEC, pendingDurationSecContribution, scrapPlaceholderDurationSecField, scrapPlaceholderText} from './usefulConstants';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 import React from 'react';
 import {BaseReadOnlyComponent} from './BaseReadOnlyComponent';
@@ -32,7 +32,8 @@ export function scrapPlaceholderData(blockText: string): { [index: string]: bool
     [scrapPlaceholderText]: placeholderText,
     [scrapPlaceholderDurationSecField]: durationSec,
     [isScrapPlaceholder]: true,
-    [durationSecContribution]: scrapPlaceholderDurationSec(blockText)
+    [durationSecContribution]: scrapPlaceholderDurationSec(blockText),
+    [pendingDurationSecContribution]: scrapPlaceholderDurationSec(blockText),
   }
 }
 

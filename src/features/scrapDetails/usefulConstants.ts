@@ -8,6 +8,7 @@ export const PAGE_WIDTH_EM = '37em';
 export const scrapIdField = 'scrapId'; // Indicates which scrap defines this block of prose
 export const ancestorField = 'ancestorField'; // Array of ancestor scrap IDs, excluding the current one
 
+export const pendingDurationSecContribution = 'pendingDurationSecContribution'; // Seconds (perhaps partial) which will be contributed, when this is actually written
 export const durationSecContribution = 'durationSecContribution'; // Seconds (perhaps partial) contributed to the script duration
 
 export const isScrapPlaceholder = 'isScrapPlaceholder';
