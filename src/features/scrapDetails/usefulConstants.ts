@@ -11,6 +11,8 @@ export const ancestorField = 'ancestorField'; // Array of ancestor scrap IDs, ex
 export const pendingDurationSecContribution = 'pendingDurationSecContribution'; // Seconds (perhaps partial) which will be contributed, when this is actually written
 export const durationSecContribution = 'durationSecContribution'; // Seconds (perhaps partial) contributed to the script duration
 
+export const isScrapTrait = 'isScrapTrait';
+export const scrapTraitText = 'scrapTraitText';
 export const isScrapPlaceholder = 'isScrapPlaceholder';
 export const scrapPlaceholderText = 'scrapPlaceholderText';
 export const scrapPlaceholderDurationSecField = 'scrapPlaceholderDurationSecField';

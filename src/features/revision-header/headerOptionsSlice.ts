@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '../../app/store';
 import {CharacterAppearance} from '../utils/fetchCharacters';
+import {TraitAppearance} from '../utils/fetchTraits';
 
 export interface HeaderOptions {
   currentScrapId: string;
@@ -9,6 +10,8 @@ export interface HeaderOptions {
   characterFilters: CharacterAppearance[];
   currentCharacterFilter?: string;
   currentCompletionFilter?: string;
+  traitFilters: TraitAppearance[];
+  currentTraitFilter?: string;
 }
 
 interface headerOptionsInState {
@@ -25,6 +28,8 @@ const initialState = {
     characterFilters: [],
     currentCharacterFilter: '',
     currentCompletionFilter: '',
+    traitFilters: [],
+    currentTraitFilter: '',
   } as HeaderOptions
 };
 

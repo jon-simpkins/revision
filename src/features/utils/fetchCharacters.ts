@@ -27,7 +27,7 @@ export function fetchCharacters(parsedBlocks: ContentBlock[]): CharacterAppearan
           percentDurationSec: 0,
         };
       }
-      characterMap[thisCharacter].totalDurationSec += blockData.get(durationSecContribution) as number;
+      characterMap[thisCharacter].totalDurationSec += thisDurationSecContribution;
     }
   });
 

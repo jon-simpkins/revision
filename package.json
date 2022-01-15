@@ -39,9 +39,7 @@
     "start": "node_modules/.bin/react-scripts start",
     "build": "node_modules/.bin/react-scripts build",
     "test": "node_modules/.bin/react-scripts test",
-    "eject": "node_modules/.bin/react-scripts eject",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "eject": "node_modules/.bin/react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -79,12 +77,6 @@
   },
   "homepage": "https://jon-simpkins.github.io/revision",
   "devDependencies": {
-    "@storybook/addon-actions": "^6.3.8",
-    "@storybook/addon-essentials": "^6.3.8",
-    "@storybook/addon-links": "^6.3.8",
-    "@storybook/node-logger": "^6.3.8",
-    "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.3.8",
     "@types/debounce": "^1.2.1",
     "@types/draft-js": "^0.11.7",
     "@types/uuid": "^8.3.1"

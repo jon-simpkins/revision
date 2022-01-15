@@ -19,6 +19,7 @@ export class TimelineBlock {
   durationSec: number;
   characters: Set<string>;
   pendingCompletion: boolean;
+  traits: Set<string>
 
   constructor(headerText: string, id: string, startSec: number, durationSec: number) {
     this.headerText = headerText;
@@ -27,14 +28,16 @@ export class TimelineBlock {
     this.durationSec = durationSec;
     this.characters = new Set<string>();
     this.pendingCompletion = false;
+    this.traits = new Set<string>();
   }
 
-  render(totalDurationSec: number, currentCharacterFilter: string, highlightPendingCompletion: boolean) {
+  render(totalDurationSec: number, currentCharacterFilter: string, highlightPendingCompletion: boolean, currentTraitFilter: string) {
     let background = 'grey';
 
     if (
         this.characters.has(currentCharacterFilter) ||
-        (this.pendingCompletion && highlightPendingCompletion)
+        (this.pendingCompletion && highlightPendingCompletion) ||
+        (this.traits.has(currentTraitFilter))
     ) {
       background = 'red';
     }
@@ -79,14 +82,14 @@ export class TimelineRow {
     return this.blocks[this.blocks.length - 1].id;
   }
 
-  render(totalDurationSec: number, zoomLevel: number, currentCharacterFilter: string, highlightPendingCompletion: boolean) {
+  render(totalDurationSec: number, zoomLevel: number, currentCharacterFilter: string, highlightPendingCompletion: boolean, currentTraitFilter: string) {
     return <div style={{
       position: 'relative',
       width: formatPercentString(zoomLevel),
       height: '40px',
       borderBottom: '1px solid'
     }}>
-      {this.blocks.map((block) => block.render(totalDurationSec, currentCharacterFilter, highlightPendingCompletion))}
+      {this.blocks.map((block) => block.render(totalDurationSec, currentCharacterFilter, highlightPendingCompletion, currentTraitFilter))}
     </div>
   }
 }
@@ -129,12 +132,12 @@ export class Timeline {
     return steps;
   }
 
-  render(zoomLevel: number, currentCharacterFilter: string, highlightPendingCompletion: boolean) {
+  render(zoomLevel: number, currentCharacterFilter: string, highlightPendingCompletion: boolean, currentTraitFilter: string) {
     let secondMarkers = this.getSecondMarkers(zoomLevel);
     let markerTopPadding = 41 * this.rows.length;
 
     return <div style={{width: '100%', overflowX: 'scroll', background: 'lightgrey'}}>
-      {this.rows.map((row) => row.render(this.durationSec, zoomLevel, currentCharacterFilter, highlightPendingCompletion))}
+      {this.rows.map((row) => row.render(this.durationSec, zoomLevel, currentCharacterFilter, highlightPendingCompletion, currentTraitFilter))}
       <div style={{height: '24px', position: 'relative', width: formatPercentString(zoomLevel), background: 'white'}}>
         {secondMarkers.map((value, idx) => {
 
@@ -173,6 +176,7 @@ interface TimelineProps {
   parsedContentBlocks: ContentBlock[];
   currentCharacterFilter: string;
   currentCompletionFilter: string;
+  currentTraitFilter: string;
 }
 
 interface TimelineState {
@@ -240,7 +244,12 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
           <Icon name={this.state.minimized ? 'window maximize outline' : 'window minimize outline'}/>
         </Button>
       </div>
-      {this.state.minimized ? null : this.state.timeline.render(this.state.zoomLevel, this.props.currentCharacterFilter, !!this.props.currentCompletionFilter)}
+      {this.state.minimized ? null : this.state.timeline.render(
+          this.state.zoomLevel,
+          this.props.currentCharacterFilter,
+          !!this.props.currentCompletionFilter,
+          this.props.currentTraitFilter
+      )}
     </div>)
   }
 }

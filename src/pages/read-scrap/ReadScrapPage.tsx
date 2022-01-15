@@ -8,6 +8,7 @@ import {TimelineViewer} from '../../features/timeline/Timeline';
 import {ReadOnlyViewer} from '../../features/scrapDetails/ReadOnlyViewer';
 import {HeaderOptions, readHeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
 import {fetchCharacters} from '../../features/utils/fetchCharacters';
+import {fetchTraits} from '../../features/utils/fetchTraits';
 
 interface MatchParams {
   id: string
@@ -63,6 +64,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
     const parsedBlocks = fetchParsedContentBlocksForScrap(this.props.scrapId, [], this.props.scrapMap);
 
     const characters = fetchCharacters(parsedBlocks);
+    const traits = fetchTraits(parsedBlocks);
 
     this.setState({
       hasLoaded: true,
@@ -74,6 +76,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
       showReadLink: false,
       showEditLink: true,
       characterFilters: characters,
+      traitFilters: traits,
     });
   }
 
@@ -89,6 +92,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
           parsedContentBlocks={this.state.parsedContentBlocks}
           currentCharacterFilter={this.props.headerOptions.currentCharacterFilter || ''}
           currentCompletionFilter={this.props.headerOptions.currentCompletionFilter || ''}
+          currentTraitFilter={this.props.headerOptions.currentTraitFilter || ''}
       />
       <ReadOnlyViewer
           scrapId={this.state.scrapId}

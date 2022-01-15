@@ -9,12 +9,17 @@ import {FountainParentheticalComponent, FountainParentheticalReadOnlyComponent, 
 import {CommentComponent, commentStrategy} from './CommentComponent';
 import {FountainActionComponent, FountainActionReadOnlyComponent, fountainActionStrategy} from './FountainActionComponent';
 import {ScrapPlaceholderComponent, ScrapPlaceholderReadOnlyComponent, scrapPlaceholderStrategy} from './ScrapPlaceholderComponent';
+import {ScrapTraitComponent, ScrapTraitReadonlyComponent, scrapTraitStrategy} from './ScrapTraitComponent';
 
 /** Decorator for the script editor */
 export const editorDecorator = new CompositeDecorator([
   {
     strategy: scrapPlaceholderStrategy,
     component: ScrapPlaceholderComponent,
+  },
+  {
+    strategy: scrapTraitStrategy,
+    component: ScrapTraitComponent,
   },
   {
     strategy: scrapEmbeddingStrategy,
@@ -59,6 +64,10 @@ export const viewerDecorator = new CompositeDecorator([
   {
     strategy: scrapPlaceholderStrategy,
     component: ScrapPlaceholderReadOnlyComponent,
+  },
+  {
+    strategy: scrapTraitStrategy,
+    component: ScrapTraitReadonlyComponent,
   },
   {
     strategy: fountainHeaderStrategy,

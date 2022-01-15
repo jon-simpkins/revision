@@ -40,6 +40,7 @@ export default function RevisionHeader() {
             ...options,
             currentCharacterFilter: data.value as string,
             currentCompletionFilter: '',
+            currentTraitFilter: '',
           } as HeaderOptions));
         }}
     />
@@ -69,11 +70,47 @@ export default function RevisionHeader() {
       dispatch(updateHeaderOptions({
         ...options,
         currentCharacterFilter: '',
+        currentTraitFilter: '',
         currentCompletionFilter: data.value as string,
       } as HeaderOptions));
     }}
   />
 
+  let traitFilters;
+  if (options.traitFilters.length) {
+    const traitOptions = options.traitFilters.map((traitFilter) => {
+      return {
+        key: traitFilter.trait,
+        text: `${traitFilter.trait} (${traitFilter.numberOfAppearances})`,
+        value: traitFilter.trait,
+      } as DropdownItemProps;
+    });
+
+    traitOptions.unshift({
+      key: 'none',
+      value: 'No Trait Filter',
+      text: 'No Trait Filter'
+    });
+
+    traitFilters = <Dropdown
+        text={options.currentTraitFilter || 'Filter by trait'}
+        floating
+        labeled
+        scrolling
+        item
+        className='icon'
+        value={options.currentTraitFilter}
+        options={traitOptions}
+        onChange={(e, data) => {
+          dispatch(updateHeaderOptions({
+            ...options,
+            currentCharacterFilter: '',
+            currentTraitFilter: data.value as string,
+            currentCompletionFilter: '',
+          } as HeaderOptions));
+        }}
+    />
+  }
 
   let editEntry;
   if (options.showEditLink) {
@@ -105,6 +142,7 @@ export default function RevisionHeader() {
         </Link>
         <Menu.Menu position='right'>
           {completionFilters}
+          {traitFilters}
           {characterFilters}
           {editEntry}
           {readEntry}

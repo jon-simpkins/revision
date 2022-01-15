@@ -13,6 +13,7 @@ import {checkIsDialogue, dialogueData, dialogueDurationSec} from './FountainDial
 import {checkIsParenthetical, parentheticalData, parentheticalDurationSec} from './FountainParentheticalComponent';
 import {actionData, actionDurationSec} from './FountainActionComponent';
 import {checkIsScrapPlaceholder, scrapPlaceholderData, scrapPlaceholderDurationSec} from './ScrapPlaceholderComponent';
+import {checkIsScrapTrait, scrapTraitData} from './ScrapTraitComponent';
 
 export interface ProcessProgress {
   processStartEpoch: number;
@@ -130,7 +131,10 @@ export function processProseBlock(contentBlock: ContentBlock, blockBefore: null|
         blockData = mergeDataObject(blockData, scrapPlaceholderData(blockText));
 
         processProgress.currentDurationSec += scrapPlaceholderDurationSec(blockText);
-      } else if (!checkIsScrapEmbed(blockText)) {
+      } else if (checkIsScrapTrait(blockText)) {
+      /** Scrap trait (for adding binary labels on scraps, for tracking / reporting) */
+      blockData = mergeDataObject(blockData, scrapTraitData(blockText));
+    } else if (!checkIsScrapEmbed(blockText)) {
         /** Action */
         blockData = mergeDataObject(blockData, actionData(blockText));
 

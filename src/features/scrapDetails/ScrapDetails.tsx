@@ -76,6 +76,9 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       showEditLink: false,
       characterFilters: [],
       currentCharacterFilter: '',
+      currentCompletionFilter: '',
+      traitFilters: [],
+      currentTraitFilter: '',
     });
   }
 

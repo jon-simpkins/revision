@@ -1,6 +1,6 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {TimelineBlock, TimelineRow} from './Timeline';
-import {ancestorField, character, durationSecContribution, isScrapPlaceholder, pendingDurationSecContribution, scrapIdField} from '../scrapDetails/usefulConstants';
+import {ancestorField, character, durationSecContribution, isScrapPlaceholder, pendingDurationSecContribution, scrapIdField, scrapTraitText} from '../scrapDetails/usefulConstants';
 import {ContentBlock} from 'draft-js';
 
 interface ParsedTimeline {
@@ -19,11 +19,14 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
     const durationContribution = parsedBlocks[i].getData().get(durationSecContribution) || 0;
     const incompleteContribution = parsedBlocks[i].getData().get(pendingDurationSecContribution) || 0;
     if (!durationContribution) {
-      continue;
+      //continue;
     }
 
     const characterContribution = parsedBlocks[i].getData().get(character) || null;
     const pendingCompletion = !!parsedBlocks[i].getData().get(isScrapPlaceholder);
+
+    const traitString = (parsedBlocks[i].getData().get(scrapTraitText) || '') as string;
+    const parsedTraits = traitString.split('#').filter(Boolean).map((untrimmed) => { return untrimmed.trim(); });
 
     const ancestors = [
         ...(parsedBlocks[i].getData().get(ancestorField) || []),
@@ -57,6 +60,9 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
       if (!!characterContribution) {
         rows[j].blocks[rows[j].blocks.length - 1].characters.add(characterContribution);
       }
+      parsedTraits.forEach((trait) => {
+        rows[j].blocks[rows[j].blocks.length - 1].traits.add(trait);
+      });
     }
 
     totalDurationSec += durationContribution;
