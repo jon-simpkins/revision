@@ -38,6 +38,7 @@ interface ScrapDetailsState {
   actualDurationSec: number;
   parentScrapIds: string[];
   durationInputKey: string;
+  focusMode: boolean;
 }
 
 const styleMap = {
@@ -66,6 +67,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       parentScrapIds: this.buildParentScrapIds(props),
       parseErrorState: false,
       durationInputKey: 'duration-key-' + Date.now(),
+      focusMode: false,
     };
   }
 
@@ -256,10 +258,19 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     const parseWarning = this.state.parseErrorState ?
         (<div style={{color: 'red'}}>Parsing took too long, please break into smaller chunks</div>) : null;
 
+    const focusLabel = this.state.focusMode ? 'Focus Off' : 'Focus On';
+
+    const actualDurationSec = this.state.actualDurationSec;
+    const intendedDurationSec = this.props.scrapMap[this.props.scrapId].intendedDurationSec;
+    let durationPercentLabel = `${Math.ceil(1000 * actualDurationSec / intendedDurationSec) / 10}% Complete`;
+
     return <div>
-      <div>
+      <div style={{display: 'flex'}}>
         <button onClick={() => this.addChildScrap()}>Add child scrap</button>
         <button onClick={() => this.replacePlaceholderScraps()}>Replace placeholder scraps</button>
+        <span style={{flex: 1}}>&nbsp;</span>
+        <span style={{margin: 'auto 24px'}}>{durationPercentLabel}</span>
+        <button onClick={() => { this.toggleFocusMode() }}>{focusLabel}</button>
       </div>
       {parseWarning}
     </div>;
@@ -430,7 +441,12 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     }, () => {
       this.remapEditorContent();
     });
+  }
 
+  toggleFocusMode(): void {
+    this.setState({
+      focusMode: !this.state.focusMode
+    });
   }
 
 
@@ -443,10 +459,17 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
       );
     }
 
+    let noFocusSection = null;
+    if (!this.state.focusMode) {
+      noFocusSection = <div>
+        {this.getBreadcrumbs(thisScrap)}
+        {this.getPrimaryForm(thisScrap)}
+      </div>
+    }
+
     return (
         <div style={{height: '100%', display: 'flex', flexDirection: 'column'}} key={'scrap-details-' + this.props.scrapId}>
-          {this.getBreadcrumbs(thisScrap)}
-          {this.getPrimaryForm(thisScrap)}
+          {noFocusSection}
           {this.getProseEditorToolbar()}
           <div
               onClick={() => {this.focus()}}
