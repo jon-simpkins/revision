@@ -26,6 +26,7 @@ interface ScrapDetailsProps {
   scrapMap: ScrapMap;
   onScrapCreate: (scrap: Scrap) => void;
   onScrapUpdate: (scrap: Scrap) => void;
+  headerOptions: HeaderOptions;
   onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
 }
 
@@ -73,6 +74,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
 
   setHeaderOptions(): void {
     this.props.onUpdateHeaderOptions({
+      ...this.props.headerOptions,
       currentScrapId: this.props.scrapId,
       showReadLink: true,
       showEditLink: false,

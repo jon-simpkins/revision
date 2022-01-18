@@ -12,6 +12,9 @@ export interface HeaderOptions {
   currentCompletionFilter?: string;
   traitFilters: TraitAppearance[];
   currentTraitFilter?: string;
+  isCurrentlyInSession: boolean; // In a timed writing session
+  currentWritingSessionStartEpoch: number;
+  lastCheckedWritingSessionEpoch: number;
 }
 
 interface headerOptionsInState {
@@ -30,6 +33,9 @@ const initialState = {
     currentCompletionFilter: '',
     traitFilters: [],
     currentTraitFilter: '',
+    isCurrentlyInSession: false,
+    currentWritingSessionStartEpoch: 0,
+    lastCheckedWritingSessionEpoch: 0,
   } as HeaderOptions
 };
 
@@ -40,8 +46,11 @@ const headerOptionsSlice = createSlice({
   name: actionPrefix,
   initialState,
   reducers: {
-    updateHeaderOptions(state, action: PayloadAction<HeaderOptions>) {
-      state.options = action.payload;
+    updateHeaderOptions(state, action: PayloadAction<object>) {
+      state.options = {
+        ...state.options,
+        ...action.payload
+      } as HeaderOptions;
     },
   }
 });

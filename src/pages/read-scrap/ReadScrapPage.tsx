@@ -72,6 +72,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
     });
 
     this.props.onUpdateHeaderOptions({
+      ...this.props.headerOptions,
       currentScrapId: this.state.scrapId,
       showReadLink: false,
       showEditLink: true,

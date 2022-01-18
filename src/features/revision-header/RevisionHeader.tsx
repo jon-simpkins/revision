@@ -2,13 +2,18 @@ import React from 'react';
 import {
   Link
 } from 'react-router-dom';
-import {Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react';
+import {Button, Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {HeaderOptions, readHeaderOptions, updateHeaderOptions} from './headerOptionsSlice';
+import {readHeaderOptions, updateHeaderOptions} from './headerOptionsSlice';
+import {durationSecondsToString} from '../utils/durationUtils';
 
 export default function RevisionHeader() {
   const dispatch = useAppDispatch();
   const options = useAppSelector(readHeaderOptions);
+
+  const dispatchPartialOptionsUpdate = (partialUpdate: object) => {
+    dispatch(updateHeaderOptions(partialUpdate));
+  }
 
   let characterFilters;
   if (options.characterFilters.length) {
@@ -36,45 +41,47 @@ export default function RevisionHeader() {
         value={options.currentCharacterFilter}
         options={characterOptions}
         onChange={(e, data) => {
-          dispatch(updateHeaderOptions({
-            ...options,
+          dispatchPartialOptionsUpdate({
             currentCharacterFilter: data.value as string,
             currentCompletionFilter: '',
             currentTraitFilter: '',
-          } as HeaderOptions));
+          });
         }}
     />
   }
 
-  let completionFilters = <Dropdown
-    text={options.currentCompletionFilter || 'Filter by completion'}
-    floating
-    labeled
-    scrolling
-    item
-    className='icon'
-    value={options.currentCompletionFilter}
-    options={[
-      {
-        key: 'none',
-        value: '',
-        text: 'No Completion Filter'
-      },
-      {
-        key: 'pending',
-        value: 'Pending Completion',
-        text: 'Pending Completion'
-      }
-    ]}
-    onChange={(e, data) => {
-      dispatch(updateHeaderOptions({
-        ...options,
-        currentCharacterFilter: '',
-        currentTraitFilter: '',
-        currentCompletionFilter: data.value as string,
-      } as HeaderOptions));
-    }}
-  />
+  let completionFilters;
+  if (options.showEditLink) {
+    // Only show on the read page
+    completionFilters = <Dropdown
+        text={options.currentCompletionFilter || 'Filter by completion'}
+        floating
+        labeled
+        scrolling
+        item
+        className='icon'
+        value={options.currentCompletionFilter}
+        options={[
+          {
+            key: 'none',
+            value: '',
+            text: 'No Completion Filter'
+          },
+          {
+            key: 'pending',
+            value: 'Pending Completion',
+            text: 'Pending Completion'
+          }
+        ]}
+        onChange={(e, data) => {
+          dispatchPartialOptionsUpdate({
+            currentCharacterFilter: '',
+            currentTraitFilter: '',
+            currentCompletionFilter: data.value as string,
+          });
+        }}
+    />
+  }
 
   let traitFilters;
   if (options.traitFilters.length) {
@@ -102,12 +109,11 @@ export default function RevisionHeader() {
         value={options.currentTraitFilter}
         options={traitOptions}
         onChange={(e, data) => {
-          dispatch(updateHeaderOptions({
-            ...options,
+          dispatchPartialOptionsUpdate({
             currentCharacterFilter: '',
             currentTraitFilter: data.value as string,
             currentCompletionFilter: '',
-          } as HeaderOptions));
+          });
         }}
     />
   }
@@ -130,6 +136,30 @@ export default function RevisionHeader() {
     </Link>
   }
 
+  let timerEntry;
+  if (options.isCurrentlyInSession) {
+    timerEntry = <Menu.Item>
+      {durationSecondsToString((Date.now() - options.currentWritingSessionStartEpoch) / 1000)} spent writing
+    </Menu.Item>
+  } else {
+    timerEntry = <Menu.Item><Button
+      onClick={() => {
+        dispatchPartialOptionsUpdate({
+          isCurrentlyInSession: true,
+          currentWritingSessionStartEpoch: Date.now(),
+          lastCheckedWritingSessionEpoch: Date.now(),
+        });
+
+        // Update header state every second, to get the timer to visibly update
+        setInterval(() => {
+          dispatchPartialOptionsUpdate({
+            lastCheckedWritingSessionEpoch: Date.now(),
+          });
+        }, 1000);
+      }}
+    >Start writing session</Button></Menu.Item>
+  }
+
   return (
       <Menu>
         <Link to={'/'}>
@@ -140,6 +170,7 @@ export default function RevisionHeader() {
             <Icon name="save" />
           </Menu.Item>
         </Link>
+        {timerEntry}
         <Menu.Menu position='right'>
           {completionFilters}
           {traitFilters}
