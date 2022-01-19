@@ -1,79 +1,90 @@
-import StoryCard from '../../features/storyList/StoryCard';
-import {Button, Header, Icon, Segment} from 'semantic-ui-react';
+import {Button, Header, Card, Icon, Segment} from 'semantic-ui-react';
 import { useHistory } from 'react-router-dom';
-import {createStory, selectStoryMap, StoryMap} from '../../features/storyList/storyListSlice';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {IScrap, IStory, Scrap, Story} from '../../protos_v2';
+import {IScrap, Scrap} from '../../protos_v2';
 import { v4 as uuid } from 'uuid';
-import {createScrap} from '../../features/scrapList/scrapListSlice';
+import {
+  Link
+} from 'react-router-dom';
+import {createScrap, selectScrapMap, ScrapMap} from '../../features/scrapList/scrapListSlice';
+import {durationSecondsToString} from '../../features/utils/durationUtils';
 
-function createNewStory(): IStory {
-  return Story.create({
-    id: uuid(),
-    name: 'New Story',
-    description: 'A story about something'
-  }).toJSON();
-}
-
-function createNewScrap(associatedStoryId: string): IScrap {
+function createNewScrap(): IScrap {
   return Scrap.create({
     id: uuid(),
     synopsis: 'Story Content',
     prose: 'Here is where you can summarize the story, and start to structure / brainstorm\n'
       + 'Feel free to create new scraps for alternative starting points, or new supporting docs '
-      + 'for this story.',
-    stories: [associatedStoryId]
+      + 'for this story.'
   }).toJSON();
 }
 
-function getStorySection(storyMap: StoryMap): JSX.Element {
-  const storyList = Object.values(storyMap);
+function getScrapSection(scrapMap: ScrapMap): JSX.Element {
+  const scrapList = Object.values(scrapMap);
 
-  if (!storyList.length) {
+  const hasParentMap: {[key: string]: boolean} = {};
+  scrapList.forEach((scrap) => {
+    scrap.childScraps.forEach((childId) => {
+      hasParentMap[childId] = true;
+    });
+  });
+
+  if (!scrapList.length) {
     return (
-        <Segment>Whoops, no stories yet</Segment>
+        <Segment>Whoops, no scraps yet</Segment>
     );
   }
 
+  const preparedScrapList = scrapList.filter((scrap) => {
+    return !hasParentMap[scrap.id];
+  }).sort((a, b) => {
+    return b.intendedDurationSec - a.intendedDurationSec;
+  });
+
   return <Segment style={{display: 'flex', flexWrap: 'wrap'}}>
-    {storyList.map((story, idx) => {
+    {preparedScrapList.map((scrap, idx) => {
       return (
-          <StoryCard key={idx} story={story} />
+          <Link to={'/read/' + scrap.id} key={idx}>
+            <Card style={{margin: '8px'}}>
+              <Card.Content header={scrap.synopsis} />
+              <Card.Content>
+                <p>{durationSecondsToString(scrap.intendedDurationSec)}</p>
+              </Card.Content>
+            </Card>
+          </Link>
       );
     })}
   </Segment>
 }
 
 export default function Homepage() {
-  const storyMap = useAppSelector(selectStoryMap);
   const dispatch = useAppDispatch();
   const history = useHistory();
+  const scrapMap = useAppSelector(selectScrapMap);
 
   return (
       <div style={{margin: '24px'}}>
         <Segment.Group >
           <Segment style={{display: 'flex'}}>
-            <Header size='medium'>Story List
+            <Header size='medium'>Scrap List
               <Header.Subheader>
-                All your stories
+                All your top-level scraps (no parents)
               </Header.Subheader>
             </Header>
             <div style={{flex: 1, textAlign: 'right'}}>
               <Button icon color='green'
                 onClick={() => {
-                  const newStory = createNewStory();
-                  dispatch(createStory(newStory));
-                  const newScrap = createNewScrap(newStory.id as string);
+                  const newScrap = createNewScrap();
                   dispatch(createScrap(newScrap));
 
-                  history.push(`/story/${newStory.id}`);
+                  history.push(`/scrap/${newScrap.id}`);
                 }}
               >
                 <Icon name='add' />
               </Button>
             </div>
           </Segment>
-          {getStorySection(storyMap)}
+          {getScrapSection(scrapMap)}
         </Segment.Group>
       </div>
   );

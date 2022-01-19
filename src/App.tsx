@@ -8,7 +8,6 @@ import {
 } from 'react-router-dom';
 
 import Homepage from './pages/homepage/Homepage';
-import StoryDetailsPage from './pages/story-details/StoryDetailsPage';
 import DataManagementPage from './pages/import-export/DataManagementPage';
 import ScrapDetailsPage from './pages/scrap-details/ScrapDetailsPage';
 import DecisionPage from './pages/decisions/DecisionPage';
@@ -25,7 +24,6 @@ function App() {
         <Switch>
           <Route path="/decisions" component={DecisionPage} />
           <Route path="/data" component={DataManagementPage} />
-          <Route path="/story/:id" component={StoryDetailsPage} />
           <Route path="/scrap/:id" component={ScrapDetailsPage} />
           <Route path="/read/:id" component={ReadScrapPage} />
           <Route path="/" component={Homepage} />

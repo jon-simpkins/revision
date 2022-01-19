@@ -1,4 +1,3 @@
-import {StoryMap} from '../storyList/storyListSlice';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import React, {Component, ReactElement} from 'react';
 import * as clipboard from "clipboard-polyfill/text";
@@ -6,7 +5,7 @@ import {Editor, EditorState, ContentState, Modifier} from 'draft-js';
 // @ts-ignore
 import getFragmentFromSelection from 'draft-js/lib/getFragmentFromSelection';
 import 'draft-js/dist/Draft.css';
-import {Scrap, Story} from '../../protos_v2';
+import {Scrap} from '../../protos_v2';
 import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment} from 'semantic-ui-react';
 import {
   Link
@@ -22,7 +21,6 @@ import {HeaderOptions} from '../revision-header/headerOptionsSlice';
 
 interface ScrapDetailsProps {
   scrapId: string;
-  storyMap: StoryMap;
   scrapMap: ScrapMap;
   onScrapCreate: (scrap: Scrap) => void;
   onScrapUpdate: (scrap: Scrap) => void;
@@ -124,30 +122,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     return parentScraps;
   }
 
-  getBreadcrumbs(thisScrap: Scrap): ReactElement {
-    let parentStories = thisScrap.stories.map((storyId) => {
-      return this.props.storyMap[storyId];
-    }).filter(Boolean);
-
-    const parentStoryLinks = parentStories.map<React.ReactNode>(((parentStory: Story) => {
-      return (<BreadcrumbSection link>
-        <Link to={'/story/' + parentStory.id}>{parentStory.name}</Link>
-      </BreadcrumbSection>)
-    }));
-
-    let storyContribution;
-    if (parentStories.length) {
-      storyContribution = (<div>Stories:
-        <Breadcrumb>
-          {
-            parentStoryLinks.reduce((prev, curr) => [prev, <BreadcrumbDivider icon='right chevron' />, curr])
-          }
-        </Breadcrumb>
-      </div>);
-    } else {
-      storyContribution = (<div>No parent stories</div>);
-    }
-
+  getBreadcrumbs(): ReactElement {
     const parentScraps = this.state.parentScrapIds.map((scrapId) => {
         return this.props.scrapMap[scrapId];
       }).filter(Boolean);
@@ -172,7 +147,6 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     }
 
     return (<div>
-      {storyContribution}
       {scrapContribution}
     </div>);
   }
@@ -464,7 +438,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
     let noFocusSection = null;
     if (!this.state.focusMode) {
       noFocusSection = <div>
-        {this.getBreadcrumbs(thisScrap)}
+        {this.getBreadcrumbs()}
         {this.getPrimaryForm(thisScrap)}
       </div>
     }

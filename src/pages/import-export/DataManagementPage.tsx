@@ -1,11 +1,10 @@
 import {useAppSelector} from '../../app/hooks';
 import {Button, Header, Segment} from 'semantic-ui-react';
-import {selectStoryMap} from '../../features/storyList/storyListSlice';
 
 import fileDownload from 'js-file-download';
 import {WritingWorkspace} from '../../protos_v2';
-import {addStoryToStorage, readAllStoriesFromStorage} from '../../features/storyList/storyListPersistence';
 import {addScrapToStorage, readAllScrapsFromStorage} from '../../features/scrapList/scrapListPersistence';
+import {selectScrapMap} from '../../features/scrapList/scrapListSlice';
 
 function clearWorkspace() {
   localStorage.clear();
@@ -32,7 +31,6 @@ async function uploadWorkspace(files: FileList|null) {
 
 export function loadDataFromStorage(): Uint8Array {
   const workspace = WritingWorkspace.create({
-    stories: readAllStoriesFromStorage(),
     scraps: readAllScrapsFromStorage(),
   });
 
@@ -44,10 +42,6 @@ export function loadDataToStorage(data: Uint8Array): void {
 
   localStorage.clear();
 
-  workspace.stories.forEach((story) => {
-    addStoryToStorage(story);
-  });
-
   workspace.scraps.forEach((scrap) => {
     addScrapToStorage(scrap);
   });
@@ -55,7 +49,7 @@ export function loadDataToStorage(data: Uint8Array): void {
 
 
 export default function DataManagementPage() {
-  const storyMap = useAppSelector(selectStoryMap);
+  const scrapMap = useAppSelector(selectScrapMap);
 
   return (
       <div style={{margin: '24px'}}>
@@ -68,7 +62,7 @@ export default function DataManagementPage() {
             </Header>
           </Segment>
           <Segment>
-            {Object.keys(storyMap).length} Stories
+            {Object.keys(scrapMap).length} Scraps
           </Segment>
           <Segment>
             <Button color='green'

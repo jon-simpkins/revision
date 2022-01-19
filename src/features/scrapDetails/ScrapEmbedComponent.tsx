@@ -14,17 +14,10 @@ import {isComment, isScrapEmbedding, scrapLink} from './usefulConstants';
 
 
 export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scrapId: string): Scrap {
-  let parentStories: string[] = [];
-
-  if (scrapMap[parentScrapId]) {
-    parentStories = scrapMap[parentScrapId].stories;
-  }
-
   return Scrap.create({
     id: scrapId,
     synopsis: 'New Scrap created in editor',
     prose: 'this has placeholder content for now',
-    stories: parentStories,
   });
 }
 
