@@ -4,22 +4,12 @@ import {ContentBlock, ContentState} from 'draft-js';
 import React, {Component} from 'react';
 import {useAppSelector} from '../../app/hooks';
 import {ScrapMap, selectScrapMap} from '../scrapList/scrapListSlice';
-import {Scrap} from '../../protos_v2';
 import {
   useHistory, useLocation
 } from 'react-router-dom';
 import {durationSecondsToString} from '../utils/durationUtils';
 import {Button, Icon} from 'semantic-ui-react';
 import {isComment, isScrapEmbedding, scrapLink} from './usefulConstants';
-
-
-export function createChildScrap(parentScrapId: string, scrapMap: ScrapMap, scrapId: string): Scrap {
-  return Scrap.create({
-    id: scrapId,
-    synopsis: 'New Scrap created in editor',
-    prose: 'this has placeholder content for now',
-  });
-}
 
 export function scrapEmbeddingStrategy(contentBlock: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
   if (!!contentBlock.getData().get(isScrapEmbedding)) {
