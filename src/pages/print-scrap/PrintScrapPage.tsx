@@ -4,25 +4,22 @@ import {ScrapMap, selectScrapMap} from '../../features/scrapList/scrapListSlice'
 import React, {Component} from 'react';
 import {ContentBlock} from 'draft-js';
 import {fetchParsedContentBlocksForScrap} from '../../features/utils/fetchParsedContentBlocksForScrap';
-import {TimelineViewer} from '../../features/timeline/Timeline';
-import {ReadOnlyViewer} from '../../features/scrapDetails/ReadOnlyViewer';
 import {HeaderOptions, readHeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
-import {fetchCharacters} from '../../features/utils/fetchCharacters';
-import {fetchTraits} from '../../features/utils/fetchTraits';
+import {renderExamplePDF} from './savePDF';
 
 interface MatchParams {
   id: string
 }
 
-interface ReadScrapProps extends RouteComponentProps<MatchParams> {}
+interface PrintScrapProps extends RouteComponentProps<MatchParams> {}
 
-export default function ReadScrapPage (props: ReadScrapProps) {
+export default function PrintScrapPage (props: PrintScrapProps) {
   const scrapMap = useAppSelector(selectScrapMap);
   const dispatch = useAppDispatch();
   const headerOptions = useAppSelector(readHeaderOptions);
 
   return (
-      <ReadScrap
+      <PrintScrap
           scrapId={props.match.params.id}
           scrapMap={scrapMap}
           onUpdateHeaderOptions={(newHeaderOptions) => dispatch(updateHeaderOptions(
@@ -35,22 +32,22 @@ export default function ReadScrapPage (props: ReadScrapProps) {
   )
 }
 
-interface ReadPageProps {
+export interface PrintPageProps {
   scrapId: string;
   scrapMap: ScrapMap;
   onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
   headerOptions: HeaderOptions;
 }
 
-interface ReadPageState {
+interface PrintPageState {
   scrapId: string;
   hasLoaded: boolean;
   parsedContentBlocks: ContentBlock[];
 }
 
-export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
+export class PrintScrap extends Component<PrintPageProps, PrintPageState> {
 
-  constructor(props: ReadPageProps) {
+  constructor(props: PrintPageProps) {
     super(props);
 
     this.state = {
@@ -63,9 +60,6 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
   componentDidMount() {
     const parsedBlocks = fetchParsedContentBlocksForScrap(this.props.scrapId, [], this.props.scrapMap);
 
-    const characters = fetchCharacters(parsedBlocks);
-    const traits = fetchTraits(parsedBlocks);
-
     this.setState({
       hasLoaded: true,
       parsedContentBlocks: parsedBlocks,
@@ -74,11 +68,9 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
     this.props.onUpdateHeaderOptions({
       ...this.props.headerOptions,
       currentScrapId: this.state.scrapId,
-      showReadLink: false,
+      showReadLink: true,
       showEditLink: true,
-      showPrintLink: true,
-      characterFilters: characters,
-      traitFilters: traits,
+      showPrintLink: false,
     });
   }
 
@@ -88,18 +80,7 @@ export class ReadScrap extends Component<ReadPageProps, ReadPageState> {
     }
 
     return <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
-      <TimelineViewer
-          scrapId={this.state.scrapId}
-          scrapMap={this.props.scrapMap}
-          parsedContentBlocks={this.state.parsedContentBlocks}
-          currentCharacterFilter={this.props.headerOptions.currentCharacterFilter || ''}
-          currentCompletionFilter={this.props.headerOptions.currentCompletionFilter || ''}
-          currentTraitFilter={this.props.headerOptions.currentTraitFilter || ''}
-      />
-      <ReadOnlyViewer
-          scrapId={this.state.scrapId}
-          scrapMap={this.props.scrapMap}
-          parsedContentBlocks={this.state.parsedContentBlocks}/>
-    </div>
+      {renderExamplePDF(this.props, this.state.parsedContentBlocks)}
+    </div>;
   }
 }

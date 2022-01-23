@@ -7,6 +7,7 @@ export interface HeaderOptions {
   currentScrapId: string;
   showEditLink: boolean;
   showReadLink: boolean;
+  showPrintLink: boolean;
   characterFilters: CharacterAppearance[];
   currentCharacterFilter?: string;
   currentCompletionFilter?: string;
@@ -28,6 +29,7 @@ const initialState = {
     currentScrapId: '',
     showEditLink: false,
     showReadLink: false,
+    showPrintLink: false,
     characterFilters: [],
     currentCharacterFilter: '',
     currentCompletionFilter: '',

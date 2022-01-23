@@ -16,7 +16,7 @@ export default function RevisionHeader() {
   }
 
   let characterFilters;
-  if (options.characterFilters.length) {
+  if (options.characterFilters.length && !options.showReadLink) {
     const characterOptions = options.characterFilters.map((characterFilter) => {
       return {
         key: characterFilter.character,
@@ -51,7 +51,7 @@ export default function RevisionHeader() {
   }
 
   let completionFilters;
-  if (options.showEditLink) {
+  if (!options.showReadLink) {
     // Only show on the read page
     completionFilters = <Dropdown
         text={options.currentCompletionFilter || 'Filter by completion'}
@@ -84,7 +84,7 @@ export default function RevisionHeader() {
   }
 
   let traitFilters;
-  if (options.traitFilters.length) {
+  if (options.traitFilters.length && !options.showReadLink) {
     const traitOptions = options.traitFilters.map((traitFilter) => {
       return {
         key: traitFilter.trait,
@@ -136,6 +136,15 @@ export default function RevisionHeader() {
     </Link>
   }
 
+  let printEntry;
+  if (options.showPrintLink) {
+    printEntry = <Link to={'/print/' + options.currentScrapId}>
+      <Menu.Item>
+        <Icon name="print" />
+      </Menu.Item>
+    </Link>
+  }
+
   let timerEntry;
   if (options.isCurrentlyInSession) {
     timerEntry = <Menu.Item>
@@ -177,6 +186,7 @@ export default function RevisionHeader() {
           {characterFilters}
           {editEntry}
           {readEntry}
+          {printEntry}
         </Menu.Menu>
       </Menu>
   );
