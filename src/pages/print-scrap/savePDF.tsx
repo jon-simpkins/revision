@@ -2,11 +2,21 @@ import React from 'react';
 import {PDFViewer, Font, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import {ContentBlock} from 'draft-js';
 import {Scrap} from '../../protos_v2';
-import {isFountainCentered, isFountainCharacter, isFountainDialogue, isFountainHeader, isFountainParenthetical, isFountainTransition} from '../../features/scrapDetails/usefulConstants';
+import {isFountainCentered, isFountainCharacter, isFountainDialogue, isFountainHeader, isFountainParenthetical, isFountainTransition, isScrapTrait} from '../../features/scrapDetails/usefulConstants';
 import {
   Style
 } from '@react-pdf/types';
 import {PrintPageProps} from './PrintScrapPage';
+
+// @ts-ignore
+import CourierPrime from '../../courierPrime/CourierPrime-Regular.ttf';
+
+// @ts-ignore
+import CourierPrimeBold from '../../courierPrime/CourierPrime-Bold.ttf';
+
+Font.register({ family: 'CourierPrime', format: 'truetype', src: CourierPrime});
+Font.register({ family: 'CourierPrimeBold', format: 'truetype', src: CourierPrimeBold});
+
 
 // Disable hyphenation
 Font.registerHyphenationCallback(word => [word]);
@@ -16,7 +26,7 @@ Font.registerHyphenationCallback(word => [word]);
 // Create styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Courier',
+    fontFamily: 'CourierPrime',
     fontSize: '12pt',
     paddingTop: '1in',
     paddingLeft: '1.5in',
@@ -44,6 +54,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sceneHeaderLine: {
+    fontFamily: 'CourierPrimeBold',
     paddingBottom: '16pt'
   },
   block: {
@@ -101,10 +112,14 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
 
   parsedContentBlocks.forEach((block) => {
     const blockData = block.getData();
-    const blockText = block.getText();
+    let blockText = block.getText();
 
     if (!blockText.trim().length) {
       return;
+    }
+
+    if (blockData.get(isScrapTrait)) {
+      return; // Don't render traits in PDF
     }
 
     let style: Style|undefined = undefined;
@@ -128,6 +143,10 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
     } else if (blockData.get(isFountainHeader)) {
       style = styles.sceneHeaderLine;
       type = ElementType.SCENE_HEADING;
+
+      if (blockText.startsWith('.')) {
+        blockText = blockText.replace(/^\./, '');
+      }
     }
 
     const nextElement: ScriptElement = {
