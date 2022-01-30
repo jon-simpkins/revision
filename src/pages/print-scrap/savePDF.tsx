@@ -190,16 +190,19 @@ function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[]): JSX.
 
   const parsedPDFBlocks = parsePDFBlocks(parsedContentBlocks);
 
-  let pageNumberElement: JSX.Element|null = (<Text style={{marginTop: '-16pt', textAlign: 'right'}} render={({ pageNumber, totalPages }) => {
+  let pageNumberElement: JSX.Element|null = (<Text style={{
+    position: 'absolute',
+    right: '1.25in',
+    top: '0.5in',
+    left: '1.5in',
+    textAlign: 'right'
+  }} render={({ pageNumber }) => {
     if (pageNumber === 1) {
       return '';
     }
 
     return `${pageNumber}.`
   }} fixed />);
-
-  // For now, disable page numbering
-  pageNumberElement = null;
 
   return <Document
       title={scrap.synopsis}
