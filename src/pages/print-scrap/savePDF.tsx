@@ -2,7 +2,7 @@ import React from 'react';
 import {PDFViewer, Font, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import {ContentBlock} from 'draft-js';
 import {Scrap} from '../../protos_v2';
-import {isFountainCentered, isFountainCharacter, isFountainDialogue, isFountainHeader, isFountainParenthetical, isFountainTransition, isScrapTrait} from '../../features/scrapDetails/usefulConstants';
+import {isFountainCentered, isFountainCharacter, isFountainDialogue, isFountainHeader, isFountainParenthetical, isFountainTransition, isScrapPlaceholder, isScrapTrait} from '../../features/scrapDetails/usefulConstants';
 import {
   Style
 } from '@react-pdf/types';
@@ -23,6 +23,8 @@ Font.registerHyphenationCallback(word => [word]);
 
 // TODO: register CourierPrime, along with bold / italic versions so they can be leveraged
 
+const ONE_LINE_PADDING = '12pt';
+
 // Create styles
 const styles = StyleSheet.create({
   page: {
@@ -40,14 +42,14 @@ const styles = StyleSheet.create({
   },
   dialogueLine: {
     marginLeft: '72pt',
-    width: '282pt'
+    width: '252pt'
   },
   parentheticalLine: {
-    marginLeft: '102pt',
+    marginLeft: '108pt',
     width: '234pt',
   },
   transitionLine: {
-    paddingTop: '16pt',
+    paddingTop: ONE_LINE_PADDING,
     textAlign: 'right',
   },
   centeredLine: {
@@ -55,10 +57,10 @@ const styles = StyleSheet.create({
   },
   sceneHeaderLine: {
     fontFamily: 'CourierPrimeBold',
-    paddingBottom: '16pt'
+    paddingBottom: ONE_LINE_PADDING
   },
   block: {
-    paddingBottom: '16pt'
+    paddingBottom: ONE_LINE_PADDING
   }
 });
 
@@ -120,6 +122,10 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
 
     if (blockData.get(isScrapTrait)) {
       return; // Don't render traits in PDF
+    }
+
+    if (blockData.get(isScrapPlaceholder)) {
+      return; // For now, don't render placeholders in PDF
     }
 
     let style: Style|undefined = undefined;
