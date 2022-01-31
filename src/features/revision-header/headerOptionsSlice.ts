@@ -2,6 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '../../app/store';
 import {CharacterAppearance} from '../utils/fetchCharacters';
 import {TraitAppearance} from '../utils/fetchTraits';
+import {SearchResult} from '../scrapDetails/SearchModal';
 
 export interface HeaderOptions {
   currentScrapId: string;
@@ -16,6 +17,10 @@ export interface HeaderOptions {
   isCurrentlyInSession: boolean; // In a timed writing session
   currentWritingSessionStartEpoch: number;
   lastCheckedWritingSessionEpoch: number;
+  // Search result stuff:
+  searchModalOpen: boolean;
+  currentSearchQuery: string;
+  currentSearchResults: SearchResult[];
 }
 
 interface headerOptionsInState {
@@ -38,6 +43,10 @@ const initialState = {
     isCurrentlyInSession: false,
     currentWritingSessionStartEpoch: 0,
     lastCheckedWritingSessionEpoch: 0,
+    // Things for the search modal:
+    searchModalOpen: false,
+    currentSearchQuery: '',
+    currentSearchResults: [],
   } as HeaderOptions
 };
 

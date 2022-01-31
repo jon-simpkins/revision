@@ -6,10 +6,13 @@ import {Button, Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {readHeaderOptions, updateHeaderOptions} from './headerOptionsSlice';
 import {durationSecondsToString} from '../utils/durationUtils';
+import {getSearchModal} from '../scrapDetails/SearchModal';
+import {selectScrapMap} from '../scrapList/scrapListSlice';
 
 export default function RevisionHeader() {
   const dispatch = useAppDispatch();
   const options = useAppSelector(readHeaderOptions);
+  const scrapMap = useAppSelector(selectScrapMap);
 
   const dispatchPartialOptionsUpdate = (partialUpdate: object) => {
     dispatch(updateHeaderOptions(partialUpdate));
@@ -169,6 +172,23 @@ export default function RevisionHeader() {
     >Start writing session</Button></Menu.Item>
   }
 
+  const searchModal = getSearchModal(
+      options.searchModalOpen,
+      options.currentSearchQuery,
+      options.currentSearchResults,
+      scrapMap,
+      (newQuery: string, newResults) => {
+        dispatchPartialOptionsUpdate({
+          currentSearchQuery: newQuery,
+          currentSearchResults: newResults,
+        });
+      },
+      () => {
+        dispatchPartialOptionsUpdate({
+          searchModalOpen: false,
+        });
+      });
+
   return (
       <Menu>
         <Link to={'/'}>
@@ -179,6 +199,14 @@ export default function RevisionHeader() {
             <Icon name="save" />
           </Menu.Item>
         </Link>
+        <Menu.Item onClick={() => {
+          dispatchPartialOptionsUpdate({
+            searchModalOpen: true,
+          });
+        }}>
+          <Icon name="search" />
+        </Menu.Item>
+        {searchModal}
         {timerEntry}
         <Menu.Menu position='right'>
           {completionFilters}
