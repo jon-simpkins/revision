@@ -7,6 +7,7 @@ import {editorDecorator} from './foutainDecorators';
 import {Scrap} from '../../protos_v2';
 import {durationStringToSeconds} from '../utils/durationUtils';
 import {ScrapDetailsProps, ScrapDetailsState} from './ScrapDetails';
+import {ScrapMap} from '../scrapList/scrapListSlice';
 
 export function getSelectedText(editorState: EditorState): string {
   const selected = getFragmentFromSelection(editorState);
@@ -125,6 +126,74 @@ export function replacePlaceholderScraps(
         '\n{{' + newScrapId + '}}\n'
     );
   }
+
+  const newContentState = Modifier.replaceText(
+      editorState.getCurrentContent(),
+      currentSelection,
+      textToSwap
+  );
+
+  setState({
+    editorState: EditorState.createWithContent(ContentState.createFromText(newContentState.getPlainText()), editorDecorator)
+  }, () => {
+    then();
+  });
+}
+
+export function absorbPlaceholderScraps(
+    thisScrapId: string,
+    editorState: EditorState,
+    scrapMap: ScrapMap,
+    onScrapDelete: (scrapId: string) => void,
+    setState: (newState: any, callback: () => void) => void,
+    then: () => void
+): void {
+  const currentSelection = editorState.getSelection();
+
+  const currentlySelectedText = getSelectedText(editorState);
+  let textToSwap = currentlySelectedText;
+  const absorbedIds: string[] = [];
+
+  let re = new RegExp('{{([^}]+)}}', 'g');
+  let match;
+  while (match = re.exec(currentlySelectedText)) {
+    const textToReplace = match[0];
+    const idToAbsorb = match[1].trim();
+
+    // Cool, now absorb that ID
+    const scrapToAbsorb = scrapMap[idToAbsorb] as Scrap;
+    if (!scrapToAbsorb) {
+      continue;
+    }
+
+    // Replace the ID reference with the actual prose
+    textToSwap = textToSwap.replace(
+        textToReplace,
+        scrapToAbsorb.prose
+    );
+
+    absorbedIds.push(idToAbsorb);
+  }
+
+  // Go through all absorbed IDs and see which ones can be cleaned up (deleted)
+  const childOfMoreThanThisMap: {[key: string]: boolean} = {};
+  Object.values(scrapMap).forEach((scrap) => {
+    if (scrap.id === thisScrapId) {
+      return;
+    }
+
+    scrap.childScraps.forEach((childScrapId) => {
+      childOfMoreThanThisMap[childScrapId] = true;
+    });
+  });
+
+  const fullyAbsorbedIds = absorbedIds.filter((absorbedId) => {
+    return !childOfMoreThanThisMap[absorbedId]; // If this was only a child of the absorbing scrap, you can delete it now
+  });
+
+  fullyAbsorbedIds.forEach((fullyAbsorbedId) => {
+    onScrapDelete(fullyAbsorbedId);
+  });
 
   const newContentState = Modifier.replaceText(
       editorState.getCurrentContent(),

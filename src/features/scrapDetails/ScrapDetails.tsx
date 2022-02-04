@@ -15,6 +15,7 @@ export interface ScrapDetailsProps {
   scrapMap: ScrapMap;
   onScrapCreate: (scrap: Scrap) => void;
   onScrapUpdate: (scrap: Scrap) => void;
+  onScrapDelete: (scrapId: string) => void;
   headerOptions: HeaderOptions;
   onUpdateHeaderOptions: (headerOptions: HeaderOptions) => void;
 }

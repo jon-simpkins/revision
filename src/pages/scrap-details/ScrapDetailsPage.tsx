@@ -1,6 +1,6 @@
 import { RouteComponentProps } from 'react-router';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {createScrap, selectScrapMap, updateScrap} from '../../features/scrapList/scrapListSlice';
+import {createScrap, removeScrap, selectScrapMap, updateScrap} from '../../features/scrapList/scrapListSlice';
 import ScrapDetails from '../../features/scrapDetails/ScrapDetails';
 import {readHeaderOptions, updateHeaderOptions} from '../../features/revision-header/headerOptionsSlice';
 
@@ -21,6 +21,7 @@ export default function ScrapDetailsPage (props: ScrapDetailsProps) {
           scrapMap={scrapMap}
           onScrapCreate={(scrap) => dispatch(createScrap(scrap.toJSON()))}
           onScrapUpdate={(scrap) => dispatch(updateScrap(scrap.toJSON()))}
+          onScrapDelete={(scrapId) => dispatch(removeScrap(scrapId))}
           headerOptions={headerOptions}
           onUpdateHeaderOptions={(headerOptions) => dispatch(updateHeaderOptions(headerOptions))}
       />
