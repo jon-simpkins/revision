@@ -30,6 +30,26 @@ message Scrap {
   // in its prose
   repeated string child_scraps = 9;
 
+  enum Completeness {
+    NOT_STARTED = 0;
+    BRAINSTORM = 1;
+    INITIAL_DRAFT = 2;
+    POLISHED = 3;
+    FINAL = 4;
+  }
+
+  Completeness completeness = 10;
+
+  message WritingHistory {
+    // Moment at which this is being recorded
+    int32 minutes_since_epoch = 1;
+
+    // Duration of this scrap (not including placeholders)
+    int32 actual_duration_sec = 2;
+  }
+
+  repeated WritingHistory writing_history = 11;
+
   reserved 5,6,7,8;
 }
 

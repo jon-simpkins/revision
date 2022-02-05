@@ -1,4 +1,4 @@
-import {Scrap, Story} from '../../protos_v2';
+import {Scrap} from '../../protos_v2';
 import {addScrapToStorage, clearScrapFromStorage, fetchInitialStateFromStorage, readAllScrapsFromStorage, writeScrap} from './scrapListPersistence';
 import scrapSliceReducer, {createScrap, handleScrapListPersistence, removeScrap, selectScrapMap, selectSpecificScrap, updateScrap} from './scrapListSlice';
 import {RootState} from '../../app/store';
