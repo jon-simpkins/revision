@@ -73,7 +73,7 @@ export default function RevisionHeader() {
           {
             key: 'pending',
             value: 'Pending Completion',
-            text: 'Pending Completion'
+            text: 'Show Completion'
           }
         ]}
         onChange={(e, data) => {

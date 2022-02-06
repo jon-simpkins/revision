@@ -7,6 +7,7 @@ import {
   Link
 } from 'react-router-dom';
 import {ContentBlock} from 'draft-js';
+import {Scrap} from '../../protos_v2';
 
 function formatPercentString(percent: number): string {
   return `${percent}%`;
@@ -18,16 +19,16 @@ export class TimelineBlock {
   startSec: number;
   durationSec: number;
   characters: Set<string>;
-  pendingCompletion: boolean;
+  completeness: Scrap.Completeness;
   traits: Set<string>
 
-  constructor(headerText: string, id: string, startSec: number, durationSec: number) {
+  constructor(headerText: string, id: string, startSec: number, durationSec: number, completeness: Scrap.Completeness) {
     this.headerText = headerText;
     this.id = id;
     this.startSec = startSec;
     this.durationSec = durationSec;
     this.characters = new Set<string>();
-    this.pendingCompletion = false;
+    this.completeness = completeness;
     this.traits = new Set<string>();
   }
 
@@ -36,15 +37,52 @@ export class TimelineBlock {
 
     if (
         this.characters.has(currentCharacterFilter) ||
-        (this.pendingCompletion && highlightPendingCompletion) ||
         (this.traits.has(currentTraitFilter))
     ) {
-      background = 'red';
+      background = '#D2042D';
+    }
+
+    let completenessText;
+    switch (this.completeness) {
+      case Scrap.Completeness.FINAL:
+        completenessText = 'Final';
+        break;
+      case Scrap.Completeness.POLISHED:
+        completenessText = 'Polished';
+        break;
+      case Scrap.Completeness.INITIAL_DRAFT:
+        completenessText = 'Initial Draft';
+        break;
+      case Scrap.Completeness.BRAINSTORM:
+        completenessText = 'Brainstorm';
+        break;
+      default:
+        completenessText = 'Not Started';
+    }
+    let popupText = durationSecondsToString(this.durationSec) + ` (${completenessText})`;
+
+    if (highlightPendingCompletion) {
+      switch (this.completeness) {
+        case Scrap.Completeness.FINAL:
+          background = '#228B22';
+          break;
+        case Scrap.Completeness.POLISHED:
+          background = '#C9CC3F';
+          break;
+        case Scrap.Completeness.INITIAL_DRAFT:
+          background = '#FFC300';
+          break;
+        case Scrap.Completeness.BRAINSTORM:
+          background = '#FF5F1F';
+          break;
+        default:
+          background = '#D2042D'
+      }
     }
 
     return <Popup
         key={'key-' + this.id}
-        content={durationSecondsToString(this.durationSec)}
+        content={popupText}
         header={this.headerText}
         mouseEnterDelay={50}
         mouseLeaveDelay={50}

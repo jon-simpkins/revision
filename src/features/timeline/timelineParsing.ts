@@ -2,6 +2,7 @@ import {ScrapMap} from '../scrapList/scrapListSlice';
 import {TimelineBlock, TimelineRow} from './Timeline';
 import {ancestorField, character, durationSecContribution, isScrapPlaceholder, pendingDurationSecContribution, scrapIdField, scrapTraitText} from '../scrapDetails/usefulConstants';
 import {ContentBlock} from 'draft-js';
+import {Scrap} from '../../protos_v2';
 
 interface ParsedTimeline {
   totalDurationSec: number;
@@ -23,7 +24,6 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
     }
 
     const characterContribution = parsedBlocks[i].getData().get(character) || null;
-    const pendingCompletion = !!parsedBlocks[i].getData().get(isScrapPlaceholder);
 
     const traitString = (parsedBlocks[i].getData().get(scrapTraitText) || '') as string;
     const parsedTraits = traitString.split('#').filter(Boolean).map((untrimmed) => { return untrimmed.trim(); });
@@ -50,13 +50,11 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
             getScrapSynopsis(ancestors[j], scrapMap),
             ancestors[j],
             totalDurationSec,
-            durationContribution
+            durationContribution,
+            getScrapCompleteness(ancestors[j], scrapMap),
         ));
       }
 
-      if (pendingCompletion) {
-        rows[j].blocks[rows[j].blocks.length - 1].pendingCompletion = true;
-      }
       if (!!characterContribution) {
         rows[j].blocks[rows[j].blocks.length - 1].characters.add(characterContribution);
       }
@@ -78,4 +76,8 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
 
 function getScrapSynopsis(scrapId: string, scrapMap: ScrapMap): string {
   return scrapMap[scrapId]?.synopsis || '';
+}
+
+function getScrapCompleteness(scrapId: string, scrapMap: ScrapMap): Scrap.Completeness {
+  return scrapMap[scrapId]?.completeness || Scrap.Completeness.NOT_STARTED
 }
