@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/revision/static/css/main.84cc72ea.chunk.css",
-    "main.js": "/revision/static/js/main.98d80958.chunk.js",
-    "main.js.map": "/revision/static/js/main.98d80958.chunk.js.map",
+    "main.js": "/revision/static/js/main.1294beb4.chunk.js",
+    "main.js.map": "/revision/static/js/main.1294beb4.chunk.js.map",
     "runtime-main.js": "/revision/static/js/runtime-main.0119c8eb.js",
     "runtime-main.js.map": "/revision/static/js/runtime-main.0119c8eb.js.map",
     "static/css/2.6cbb000d.chunk.css": "/revision/static/css/2.6cbb000d.chunk.css",
-    "static/js/2.c9b3bf90.chunk.js": "/revision/static/js/2.c9b3bf90.chunk.js",
-    "static/js/2.c9b3bf90.chunk.js.map": "/revision/static/js/2.c9b3bf90.chunk.js.map",
+    "static/js/2.fac5b7a3.chunk.js": "/revision/static/js/2.fac5b7a3.chunk.js",
+    "static/js/2.fac5b7a3.chunk.js.map": "/revision/static/js/2.fac5b7a3.chunk.js.map",
     "index.html": "/revision/index.html",
     "static/css/2.6cbb000d.chunk.css.map": "/revision/static/css/2.6cbb000d.chunk.css.map",
     "static/css/main.84cc72ea.chunk.css.map": "/revision/static/css/main.84cc72ea.chunk.css.map",
-    "static/js/2.c9b3bf90.chunk.js.LICENSE.txt": "/revision/static/js/2.c9b3bf90.chunk.js.LICENSE.txt",
+    "static/js/2.fac5b7a3.chunk.js.LICENSE.txt": "/revision/static/js/2.fac5b7a3.chunk.js.LICENSE.txt",
     "static/media/CourierPrime-Bold.ac693e5a.ttf": "/revision/static/media/CourierPrime-Bold.ac693e5a.ttf",
     "static/media/index.css": "/revision/static/media/CourierPrime-Regular.68d89efc.ttf",
     "static/media/semantic.min.css": "/revision/static/media/outline-icons.ddae9b1b.woff"
@@ -19,8 +19,8 @@
   "entrypoints": [
     "static/js/runtime-main.0119c8eb.js",
     "static/css/2.6cbb000d.chunk.css",
-    "static/js/2.c9b3bf90.chunk.js",
+    "static/js/2.fac5b7a3.chunk.js",
     "static/css/main.84cc72ea.chunk.css",
-    "static/js/main.98d80958.chunk.js"
+    "static/js/main.1294beb4.chunk.js"
   ]
 }
