@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react';
 import {Scrap} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Form, Segment} from 'semantic-ui-react';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Dropdown, Form, Segment} from 'semantic-ui-react';
 import {Link} from 'react-router-dom';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {absorbPlaceholderScraps, addChildScrap, replacePlaceholderScraps} from './editorInteractionUtils';
@@ -118,6 +118,49 @@ export function getPrimaryForm(
                 onDurationChange(e.target.value, props, setState);
               }}
           />
+        </div>
+        <div style={{flex: 1, margin: '16px auto'}}>
+          <Form.Field>
+            <label>
+              Completeness
+            </label>
+            <Dropdown
+                selection
+                options = {[
+                  {
+                    key: 'not_started',
+                    text: 'Not Started',
+                    value: Scrap.Completeness.NOT_STARTED,
+                  },
+                  {
+                    key: 'brainstorm',
+                    text: 'Brainstorm',
+                    value: Scrap.Completeness.BRAINSTORM,
+                  },
+                  {
+                    key: 'draft',
+                    text: 'Initial Draft',
+                    value: Scrap.Completeness.INITIAL_DRAFT,
+                  },
+                  {
+                    key: 'polished',
+                    text: 'Polished',
+                    value: Scrap.Completeness.POLISHED,
+                  },
+                  {
+                    key: 'final',
+                    text: 'Final',
+                    value: Scrap.Completeness.FINAL,
+                  },
+                ]}
+                value={thisScrap.completeness || Scrap.Completeness.NOT_STARTED}
+                onChange={(e, data) => {
+                  const scrap = props.scrapMap[props.scrapId] as Scrap;
+                  scrap.completeness = data.value as number;
+                  props.onScrapUpdate(scrap);
+                }}
+            />
+          </Form.Field>
         </div>
         <div style={{flex: 1, margin: 'auto'}}>
           <Form.Field>
