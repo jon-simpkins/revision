@@ -8,6 +8,9 @@ import {
 } from 'react-router-dom';
 import {ContentBlock} from 'draft-js';
 import {Scrap} from '../../protos_v2';
+import { Line } from 'react-chartjs-2';
+import {Chart, ChartOptions, registerables} from 'chart.js';
+Chart.register(...registerables);
 
 function formatPercentString(percent: number): string {
   return `${percent}%`;
@@ -221,7 +224,8 @@ interface TimelineState {
   scrapId: string;
   timeline: Timeline;
   zoomLevel: number;
-  minimized: boolean;
+  chartMinimized: boolean;
+  timelineMinimized: boolean;
 }
 
 export class TimelineViewer extends Component<TimelineProps, TimelineState> {
@@ -237,7 +241,8 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       scrapId: props.scrapId,
       timeline: new Timeline(props.scrapId, props.scrapMap, props.parsedContentBlocks),
       zoomLevel: 100,
-      minimized: false,
+      chartMinimized: true,
+      timelineMinimized: false,
     }
   }
 
@@ -253,10 +258,68 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
     });
   }
 
-  flipMinimization() {
+  flipTimelineMinimization() {
     this.setState({
-      minimized: !this.state.minimized
+      timelineMinimized: !this.state.timelineMinimized
     });
+  }
+
+  flipChartMinimization() {
+    this.setState({
+      chartMinimized: !this.state.chartMinimized
+    });
+  }
+
+  getProgressChart(): JSX.Element|null {
+    if (this.state.chartMinimized) {
+      return null;
+    }
+
+
+    const labels = Array(100).fill(0).map((value, idx) => { return `Day ${idx}`; });
+    const values = Array(100).fill(0).map((value, idx) => { return idx % 4; });
+
+    const options = {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Progress over Time',
+        },
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: 'Pages complete',
+          },
+          type: 'linear' as const,
+          display: true,
+          position: 'left' as const,
+        },
+      },
+      maintainAspectRatio: false,
+    };
+
+    const data = {
+      labels,
+      datasets: [
+        {
+          data: values
+        }
+      ]
+    }
+
+    return <div>
+        <Line
+          height='300px'
+          options={options}
+          data={data}
+      />
+    </div>;
   }
 
   render() {
@@ -264,7 +327,7 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       return <div>... loading timeline... </div>
     }
 
-    const zoomOptions = this.state.minimized ? null : (<div style={{display: 'inline-block'}}>
+    const zoomOptions = this.state.timelineMinimized ? null : (<div style={{display: 'inline-block'}}>
       <Button onClick={() => this.zoomOut()} disabled={this.state.zoomLevel === 100} icon>
         <Icon name='zoom-out' />
       </Button>
@@ -277,12 +340,17 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       <div style={{marginBottom: '12px', display: 'flex'}}>
         {zoomOptions}
         <span style={{flex: '1'}}>&nbsp;</span>
-        <span style={{margin: 'auto 24px'}}>Percent complete: {this.state.timeline.percentComplete}</span>
-        <Button onClick={() => this.flipMinimization()} icon>
-          <Icon name={this.state.minimized ? 'window maximize outline' : 'window minimize outline'}/>
+        <button style={{margin: 'auto 24px'}} onClick={() => { this.flipChartMinimization(); }}>
+          Percent complete: {this.state.timeline.percentComplete}
+        </button>
+        <Button onClick={() => this.flipTimelineMinimization()} icon>
+          <Icon name={this.state.timelineMinimized ? 'window maximize outline' : 'window minimize outline'}/>
         </Button>
       </div>
-      {this.state.minimized ? null : this.state.timeline.render(
+      <div>
+        {this.getProgressChart()}
+      </div>
+      {this.state.timelineMinimized ? null : this.state.timeline.render(
           this.state.zoomLevel,
           this.props.currentCharacterFilter,
           !!this.props.currentCompletionFilter,
