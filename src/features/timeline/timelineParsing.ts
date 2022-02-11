@@ -1,11 +1,12 @@
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {TimelineBlock, TimelineRow} from './Timeline';
-import {ancestorField, character, durationSecContribution, isScrapPlaceholder, pendingDurationSecContribution, scrapIdField, scrapTraitText} from '../scrapDetails/usefulConstants';
+import {ancestorField, character, durationSecContribution, pendingDurationSecContribution, scrapIdField, scrapTraitText} from '../scrapDetails/usefulConstants';
 import {ContentBlock} from 'draft-js';
 import {Scrap} from '../../protos_v2';
 
 interface ParsedTimeline {
   totalDurationSec: number;
+  totalCompletedSec: number;
   percentComplete: number;
   rows: TimelineRow[];
 }
@@ -69,6 +70,7 @@ export function parseTimeline(parsedBlocks: ContentBlock[], scrapMap: ScrapMap):
 
   return {
     totalDurationSec: totalDurationSec,
+    totalCompletedSec: totalDurationSec - totalPendingSec,
     percentComplete: Math.ceil(1000 * (1 - (totalPendingSec / totalDurationSec))) / 10,
     rows: rows,
   }

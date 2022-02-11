@@ -9,7 +9,8 @@ import {
 import {ContentBlock} from 'draft-js';
 import {Scrap} from '../../protos_v2';
 import { Line } from 'react-chartjs-2';
-import {Chart, ChartOptions, registerables} from 'chart.js';
+import {Chart, registerables} from 'chart.js';
+import {dateFromMinSinceEpoch} from '../utils/timeUtils';
 Chart.register(...registerables);
 
 function formatPercentString(percent: number): string {
@@ -275,9 +276,41 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       return null;
     }
 
+    const writingHistory = this.props.scrapMap[this.state.scrapId]?.writingHistory || [];
 
-    const labels = Array(100).fill(0).map((value, idx) => { return `Day ${idx}`; });
-    const values = Array(100).fill(0).map((value, idx) => { return idx % 4; });
+    if (!writingHistory.length) {
+      return <div>No writing history</div>
+    }
+
+    if (writingHistory.length === 1) {
+      return <div>
+        {dateFromMinSinceEpoch(writingHistory[0].minutesSinceEpoch as number)}: {(writingHistory[0].actualDurationSec as number) / 60}
+      </div>
+    }
+
+    let minMinEpoch = (writingHistory[0].minutesSinceEpoch as number);
+    let maxMinEpoch = (writingHistory[writingHistory.length - 1].minutesSinceEpoch as number);
+
+    /// build the list and values
+    const dateMap: {[key:string]: number|null} = {};
+    for (let minEpoch = minMinEpoch; minEpoch <= maxMinEpoch; minEpoch += (24 * 60)) {
+      dateMap[dateFromMinSinceEpoch(minEpoch)] = null;
+    }
+
+    for (let i = 0; i < writingHistory.length; i++) {
+      const dateStr = dateFromMinSinceEpoch(writingHistory[i].minutesSinceEpoch as number);
+      dateMap[dateStr] = (writingHistory[i].actualDurationSec as number) / 60;
+    }
+
+    const labels = [];
+    const values = [];
+    for (let minEpoch = minMinEpoch; minEpoch <= maxMinEpoch; minEpoch += (24 * 60)) {
+      const dateStr = dateFromMinSinceEpoch(minEpoch);
+      const value = dateMap[dateStr];
+
+      labels.push(dateStr);
+      values.push(value);
+    }
 
     const options = {
       responsive: true,
