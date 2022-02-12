@@ -143,9 +143,17 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
     } else if (blockData.get(isFountainTransition)) {
       style = styles.transitionLine;
       type = ElementType.TRANSITION;
+
+      if (blockText.startsWith('>')) {
+        blockText = blockText.replace(/^>/, '');
+      }
     } else if (blockData.get(isFountainCentered)) {
       style = styles.centeredLine;
       type = ElementType.CENTERED;
+
+      if (blockText.startsWith('>') && blockText.endsWith('<')) {
+        blockText = blockText.replace(/^>/, '').replace(/<$/, '');
+      }
     } else if (blockData.get(isFountainHeader)) {
       style = styles.sceneHeaderLine;
       type = ElementType.SCENE_HEADING;
