@@ -347,11 +347,14 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
     }
 
     return <div>
+      <div style={{position: 'relative', height: '300px'}}>
         <Line
           height='300px'
           options={options}
           data={data}
       />
+      </div>
+      <pre>{JSON.stringify(writingHistory, null, 4)}</pre>
     </div>;
   }
 
