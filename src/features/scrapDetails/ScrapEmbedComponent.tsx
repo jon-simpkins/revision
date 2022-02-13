@@ -59,17 +59,14 @@ export const ScrapEmbedComponent = (props: any) => {
             background: backgroundColor,
             fontWeight: 'bold',
             display: 'flex',
+            flexDirection: 'column',
             padding: '8px'
           }}
       >
         <div style={{
-          margin: '0',
-          fontSize: '1px',
-          height: '2px',
-          width: '2px',
-          overflow: 'hidden',
-          color: backgroundColor
-        }} >{props.children}</div>
+          color: 'white'
+
+        }}>{props.children}</div>
         <div style={{flex: '1', cursor: 'pointer', padding: '8px', border: '1px solid', background: 'white', fontWeight: 'normal'}}>
           <ScrapEmbedSummary
             parentScrapId={parentScrapId}
