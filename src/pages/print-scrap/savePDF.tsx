@@ -14,14 +14,19 @@ import CourierPrime from '../../courierPrime/CourierPrime-Regular.ttf';
 // @ts-ignore
 import CourierPrimeBold from '../../courierPrime/CourierPrime-Bold.ttf';
 
+// @ts-ignore
+import CourierPrimeItalic from '../../courierPrime/CourierPrime-Italic.ttf';
+
+// @ts-ignore
+import CourierPrimeBoldItalic from '../../courierPrime/CourierPrime-Bold-Italic.ttf';
+
 Font.register({ family: 'CourierPrime', format: 'truetype', src: CourierPrime});
 Font.register({ family: 'CourierPrimeBold', format: 'truetype', src: CourierPrimeBold});
-
+Font.register({ family: 'CourierPrimeItalic', format: 'truetype', src: CourierPrimeItalic});
+Font.register({ family: 'CourierPrimeBoldItalic', format: 'truetype', src: CourierPrimeBoldItalic});
 
 // Disable hyphenation
 Font.registerHyphenationCallback(word => [word]);
-
-// TODO: register CourierPrime, along with bold / italic versions so they can be leveraged
 
 const ONE_LINE_PADDING = '12pt';
 
@@ -61,12 +66,30 @@ const styles = StyleSheet.create({
   },
   block: {
     paddingBottom: ONE_LINE_PADDING
+  },
+  bold: {
+    fontFamily: 'CourierPrimeBold',
+  },
+  italic: {
+    fontFamily: 'CourierPrimeItalic',
+  },
+  boldItalic: {
+    fontFamily: 'CourierPrimeBoldItalic',
+  },
+  underline: {
+    textDecoration: 'underline',
   }
 });
 
 // Defines a block of elements that must exist on the same page
 interface PDFBlock {
   elements: ScriptElement[];
+}
+
+// Defines a text block that contains some amount of emphasis
+interface TextEmphasisBlock {
+  style: object;
+  text: string;
 }
 
 enum ElementType {
@@ -203,6 +226,55 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
   });
 }
 
+const underlineRegex = /_(.*?)_/;
+const boldItalicRegex = /\*{3}(.*?)\*{3}/;
+const boldRegex = /\*{2}(.*?)\*{2}/;
+const italicRegex = /\*(.*?)\*/;
+
+function applyRegexSplit(text: string, regex: RegExp, parentStyle: object, thisStyle: object): TextEmphasisBlock[] {
+  const splitResult = text.split(regex);
+
+  if (splitResult.length > 1) {
+    const returnBlocks: TextEmphasisBlock[] = [];
+
+    splitResult.forEach((segment, idx) => {
+      const segmentStyle = idx % 2 === 0 ? parentStyle : {
+        ...parentStyle,
+        ...thisStyle,
+      };
+
+      returnBlocks.push(
+        ...parseTextEmphasis(
+            segment,
+            segmentStyle
+        )
+      );
+    })
+
+    return returnBlocks;
+  }
+
+  return [];
+}
+
+function parseTextEmphasis(text: string, parentStyle: object): TextEmphasisBlock[] {
+  const underlineResult = applyRegexSplit(text, underlineRegex, parentStyle, styles.underline);
+  if (underlineResult.length) { return underlineResult; }
+
+  const boldItalicResult = applyRegexSplit(text, boldItalicRegex, parentStyle, styles.boldItalic);
+  if (boldItalicResult.length) { return boldItalicResult; }
+
+  const boldResult = applyRegexSplit(text, boldRegex, parentStyle, styles.bold);
+  if (boldResult.length) { return boldResult; }
+
+  const italicResult = applyRegexSplit(text, italicRegex, parentStyle, styles.italic);
+  if (italicResult.length) { return italicResult; }
+
+  return [{
+    style: parentStyle,
+    text: text,
+  }];
+}
 
 // Create Document Component
 function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[]): JSX.Element {
@@ -234,7 +306,13 @@ function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[]): JSX.
       {parsedPDFBlocks.map((pdfBlock) => (
         <View wrap={false} style={styles.block}>
           {pdfBlock.elements.map((element) => (
-              <Text style={element.style}>{element.text}</Text>
+              <Text style={element.style}>
+                {parseTextEmphasis(element.text, {})
+                    .filter((emphasisBlock) => !!emphasisBlock.text.length)
+                    .map((emphasisBlock) => (
+                  <Text style={emphasisBlock.style}>{emphasisBlock.text}</Text>
+                ))}
+              </Text>
           ))}
         </View>
       ))}
