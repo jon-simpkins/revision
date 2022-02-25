@@ -167,6 +167,7 @@ export default class ScrapDetails extends Component<ScrapDetailsProps, ScrapDeta
               style={FOUNTAIN_EDITOR_STYLE}>
             <Editor
                 customStyleMap={styleMap}
+                spellCheck={true}
                 stripPastedStyles={true}
                 onCut={(editor, e) => {
                   onCut(editor, e, true, this.state.editorState, (newState) => {this.setState(newState);});
