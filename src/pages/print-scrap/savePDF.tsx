@@ -111,6 +111,7 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
   const pdfBlocks: PDFBlock[] = [];
 
   let nextPDFBlock = newPDFBlock();
+  let mostRecentCharacter: string;
 
   parsedContentBlocks.forEach((block) => {
     const blockData = block.getData();
@@ -134,6 +135,14 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
     if (blockData.get(isFountainCharacter)) {
       style = styles.characterLine;
       type = ElementType.CHARACTER;
+
+      if (blockText !== mostRecentCharacter) {
+        mostRecentCharacter = blockText;
+      } else {
+        // If the same character is continuing, label it as (CONT'D)
+        blockText += ' (CONT\'D)';
+      }
+
     } else if (blockData.get(isFountainDialogue)) {
       style = styles.dialogueLine;
       type = ElementType.DIALOGUE;
@@ -143,6 +152,7 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
     } else if (blockData.get(isFountainTransition)) {
       style = styles.transitionLine;
       type = ElementType.TRANSITION;
+      mostRecentCharacter = '';
 
       if (blockText.startsWith('>')) {
         blockText = blockText.replace(/^>/, '');
@@ -157,6 +167,7 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
     } else if (blockData.get(isFountainHeader)) {
       style = styles.sceneHeaderLine;
       type = ElementType.SCENE_HEADING;
+      mostRecentCharacter = '';
 
       if (blockText.startsWith('.')) {
         blockText = blockText.replace(/^\./, '');
