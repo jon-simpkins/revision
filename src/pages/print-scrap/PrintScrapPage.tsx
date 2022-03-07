@@ -81,7 +81,7 @@ export class PrintScrap extends Component<PrintPageProps, PrintPageState> {
     this.setState({
       hasLoaded: true,
       parsedContentBlocks: parsedBlocks,
-      alreadyWarned: (totalDurationSec <= 60 * 1),
+      alreadyWarned: (totalDurationSec <= 60 * 5),
       durationPages: Math.ceil(totalDurationSec / 60),
     });
 
