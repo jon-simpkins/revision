@@ -21,6 +21,7 @@ export interface HeaderOptions {
   searchModalOpen: boolean;
   currentSearchQuery: string;
   currentSearchResults: SearchResult[];
+  includeTitlePage: boolean;
 }
 
 interface headerOptionsInState {
@@ -47,6 +48,8 @@ const initialState = {
     searchModalOpen: false,
     currentSearchQuery: '',
     currentSearchResults: [],
+    // For printing
+    includeTitlePage: false,
   } as HeaderOptions
 };
 

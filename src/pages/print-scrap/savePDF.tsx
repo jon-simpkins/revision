@@ -32,6 +32,33 @@ const ONE_LINE_PADDING = '12pt';
 
 // Create styles
 const styles = StyleSheet.create({
+  title: {
+    marginLeft: '72pt',
+    marginTop: '2in',
+    textAlign: 'center',
+    textDecoration: 'underline',
+    width: '252pt'
+  },
+  author: {
+    marginLeft: '72pt',
+    paddingTop: '18pt',
+    textAlign: 'center',
+    width: '252pt'
+  },
+  contactInfo: {
+    position: 'absolute',
+    //right: '1.25in',
+    //top: '0.5in',
+    bottom: '1in',
+    left: '1.5in',
+  },
+  dateInfo: {
+    position: 'absolute',
+    right: '1in',
+    //top: '0.5in',
+    bottom: '1in',
+    //left: '1in',
+  },
   page: {
     fontFamily: 'CourierPrime',
     fontSize: '12pt',
@@ -78,6 +105,13 @@ const styles = StyleSheet.create({
   },
   underline: {
     textDecoration: 'underline',
+  },
+  pageNumber: {
+    position: 'absolute',
+    right: '1.25in',
+    top: '0.5in',
+    left: '1.5in',
+    textAlign: 'right',
   }
 });
 
@@ -276,31 +310,59 @@ function parseTextEmphasis(text: string, parentStyle: object): TextEmphasisBlock
   }];
 }
 
+function getTitlePage(title: string|null, author: string, contactInfo: string): JSX.Element|null {
+  if (!title) {
+    return null;
+  }
+
+  const dateStr = new Date().toLocaleDateString(
+      'en-US',
+      {year: 'numeric', month: 'long', day: 'numeric'}
+  );
+
+  return <Page size="LETTER" style={styles.page}>
+    <View style={styles.title}>
+      {title.split('|').map((titleLine) => {
+        return <Text>{titleLine.trim()}</Text>
+      })}
+    </View>
+    <Text style={styles.author}>by</Text>
+    <Text style={styles.author}>{author}</Text>
+    <View style={styles.contactInfo}>
+      {contactInfo.split('\n').map((contactLine) => {
+        return <Text>{contactLine.trim()}</Text>
+      })}
+    </View>
+    <View style={styles.dateInfo}>
+      <Text>{dateStr}</Text>
+    </View>
+  </Page>;
+}
+
 // Create Document Component
-function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[]): JSX.Element {
+function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[], title: string|null, author: string, contactInfo: string): JSX.Element {
 
   const parsedPDFBlocks = parsePDFBlocks(parsedContentBlocks);
 
-  let pageNumberElement: JSX.Element|null = (<Text style={{
-    position: 'absolute',
-    right: '1.25in',
-    top: '0.5in',
-    left: '1.5in',
-    textAlign: 'right'
-  }} render={({ pageNumber }) => {
-    if (pageNumber === 1) {
+  const showTitlePage = !!title;
+
+  let pageNumberElement: JSX.Element|null = (<Text style={styles.pageNumber} render={({ pageNumber }) => {
+    const effectivePageNumber = showTitlePage ? (pageNumber - 1) : pageNumber;
+
+    if (effectivePageNumber === 1) {
       return '';
     }
 
-    return `${pageNumber}.`
+    return `${effectivePageNumber}.`
   }} fixed />);
 
   return <Document
-      title={scrap.synopsis}
-      author={'Me'}
-      creator={'Me'}
+      title={scrap.synopsis.replace('|', '')}
+      author={author}
+      creator={author}
       producer={'Revision (https://jon-simpkins.github.io/revision)'}
   >
+    {getTitlePage(title, author, contactInfo)}
     <Page size="LETTER" style={styles.page} wrap>
       {pageNumberElement}
       {parsedPDFBlocks.map((pdfBlock) => (
@@ -323,7 +385,9 @@ function renderDocument(scrap: Scrap, parsedContentBlocks: ContentBlock[]): JSX.
 export function renderExamplePDF(printPageProps: PrintPageProps, parsedContentBlocks: ContentBlock[]) {
   const thisScrap = printPageProps.scrapMap[printPageProps.scrapId] as Scrap;
 
+  const title = printPageProps.headerOptions.includeTitlePage ? thisScrap.synopsis : null;
+
   return <PDFViewer style={{flex: 1}}>
-    {renderDocument(thisScrap, parsedContentBlocks)}
+    {renderDocument(thisScrap, parsedContentBlocks, title, printPageProps.author, printPageProps.contactInfo)}
   </PDFViewer>
 }

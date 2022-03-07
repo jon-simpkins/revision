@@ -60,5 +60,9 @@ message WritingWorkspace {
   // All scraps
   repeated Scrap scraps = 2;
 
+  string author = 3;
+
+  string contact_info = 4;
+
   reserved 1;
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Link
 } from 'react-router-dom';
-import {Button, Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react';
+import {Button, Checkbox, Dropdown, DropdownItemProps, Icon, Menu} from 'semantic-ui-react';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {readHeaderOptions, updateHeaderOptions} from './headerOptionsSlice';
 import {durationSecondsToString} from '../utils/durationUtils';
@@ -149,27 +149,43 @@ export default function RevisionHeader() {
   }
 
   let timerEntry;
-  if (options.isCurrentlyInSession) {
-    timerEntry = <Menu.Item>
-      {durationSecondsToString((Date.now() - options.currentWritingSessionStartEpoch) / 1000)} spent writing
-    </Menu.Item>
-  } else {
-    timerEntry = <Menu.Item><Button
-      onClick={() => {
-        dispatchPartialOptionsUpdate({
-          isCurrentlyInSession: true,
-          currentWritingSessionStartEpoch: Date.now(),
-          lastCheckedWritingSessionEpoch: Date.now(),
-        });
+  if (options.showPrintLink) {
+    if (options.isCurrentlyInSession) {
+      timerEntry = <Menu.Item>
+        {durationSecondsToString((Date.now() - options.currentWritingSessionStartEpoch) / 1000)} spent writing
+      </Menu.Item>
+    } else {
+      timerEntry = <Menu.Item><Button
+          onClick={() => {
+            dispatchPartialOptionsUpdate({
+              isCurrentlyInSession: true,
+              currentWritingSessionStartEpoch: Date.now(),
+              lastCheckedWritingSessionEpoch: Date.now(),
+            });
 
-        // Update header state every second, to get the timer to visibly update
-        setInterval(() => {
-          dispatchPartialOptionsUpdate({
-            lastCheckedWritingSessionEpoch: Date.now(),
-          });
-        }, 1000);
-      }}
-    >Start writing session</Button></Menu.Item>
+            // Update header state every second, to get the timer to visibly update
+            setInterval(() => {
+              dispatchPartialOptionsUpdate({
+                lastCheckedWritingSessionEpoch: Date.now(),
+              });
+            }, 1000);
+          }}
+      >Start writing session</Button></Menu.Item>
+    }
+  }
+
+  let titlePageEntry;
+  if (!options.showPrintLink) {
+    titlePageEntry = <Menu.Item>
+      <Checkbox
+          onChange={(e, data) => {
+            dispatchPartialOptionsUpdate({
+              includeTitlePage: data.checked
+            });
+          }}
+          checked={options.includeTitlePage}
+          label={'Include title page'}/>
+    </Menu.Item>
   }
 
   const searchModal = getSearchModal(
@@ -208,6 +224,7 @@ export default function RevisionHeader() {
         </Menu.Item>
         {searchModal}
         {timerEntry}
+        {titlePageEntry}
         <Menu.Menu position='right'>
           {completionFilters}
           {traitFilters}
