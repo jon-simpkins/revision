@@ -1,5 +1,6 @@
-import {createSlice, Middleware} from '@reduxjs/toolkit';
+import {createSlice, Middleware, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '../../app/store';
+import {readContactInfoFromStorage, setAuthor, setContactInfo} from './contactInfoPersistence';
 
 export interface ContactInfo {
   author: string;
@@ -10,20 +11,21 @@ interface ContactInfoInState {
   workspaceContactInfo: ContactInfo;
 }
 
-const AUTHOR_KEY = 'workspace-author';
-const CONTACT_INFO_KEY = 'workspace-contact-info';
-
-const initialState = {
-  author: localStorage.getItem(AUTHOR_KEY) || '',
-  contactInfo: localStorage.getItem(CONTACT_INFO_KEY) || '',
-}
+const initialState = readContactInfoFromStorage();
 
 const actionPrefix = 'workspaceContactInfo';
 
 const ContactInfoSlice = createSlice({
   name: actionPrefix,
   initialState,
-  reducers: {},
+  reducers: {
+    updateAuthor(state, action: PayloadAction<string>) {
+      state.author = action.payload;
+    },
+    updateContactInfo(state, action: PayloadAction<string>) {
+      state.contactInfo = action.payload;
+    }
+  },
 });
 
 export const contactInfoPersistenceMiddleware: Middleware<{}, ContactInfoInState>
@@ -31,11 +33,21 @@ export const contactInfoPersistenceMiddleware: Middleware<{}, ContactInfoInState
   let result = next(action);
 
   if (action.type.startsWith(actionPrefix + '/')) {
-    console.log('do persistence for');
-    console.log(action);
+    handleContactInfoPersistence(action);
   }
 
   return result;
+}
+
+export const handleContactInfoPersistence = (action: PayloadAction<string>) => {
+  switch (action.type) {
+    case `${actionPrefix}/updateAuthor`:
+      setAuthor(action.payload);
+      break;
+    case `${actionPrefix}/updateContactInfo`:
+      setContactInfo(action.payload);
+      break;
+  }
 }
 
 // Selector for fetching contact info
@@ -43,4 +55,5 @@ export const selectContactInfo = (state: ContactInfoInState|RootState): ContactI
   return state.workspaceContactInfo;
 }
 
+export const { updateAuthor, updateContactInfo } = ContactInfoSlice.actions;
 export default ContactInfoSlice.reducer;

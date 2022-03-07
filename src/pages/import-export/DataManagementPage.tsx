@@ -5,6 +5,7 @@ import fileDownload from 'js-file-download';
 import {WritingWorkspace} from '../../protos_v2';
 import {addScrapToStorage, readAllScrapsFromStorage} from '../../features/scrapList/scrapListPersistence';
 import {selectScrapMap} from '../../features/scrapList/scrapListSlice';
+import {readContactInfoFromStorage, writeContactInfoToStorage} from '../print-scrap/contactInfoPersistence';
 
 function clearWorkspace() {
   localStorage.clear();
@@ -30,7 +31,11 @@ async function uploadWorkspace(files: FileList|null) {
 }
 
 export function loadDataFromStorage(): Uint8Array {
+  const contactInfo = readContactInfoFromStorage();
+
   const workspace = WritingWorkspace.create({
+    author: contactInfo.author,
+    contactInfo: contactInfo.contactInfo,
     scraps: readAllScrapsFromStorage(),
   });
 
@@ -44,6 +49,11 @@ export function loadDataToStorage(data: Uint8Array): void {
 
   workspace.scraps.forEach((scrap) => {
     addScrapToStorage(scrap);
+  });
+
+  writeContactInfoToStorage({
+    author: workspace.author,
+    contactInfo: workspace.contactInfo,
   });
 }
 

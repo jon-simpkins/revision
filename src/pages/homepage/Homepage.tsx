@@ -1,4 +1,4 @@
-import {Button, Header, Card, Icon, Segment} from 'semantic-ui-react';
+import {Button, Header, Card, Icon, Segment, Form} from 'semantic-ui-react';
 import { useHistory } from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {IScrap, Scrap} from '../../protos_v2';
@@ -8,6 +8,8 @@ import {
 } from 'react-router-dom';
 import {createScrap, selectScrapMap, ScrapMap} from '../../features/scrapList/scrapListSlice';
 import {durationSecondsToString} from '../../features/utils/durationUtils';
+import {selectContactInfo, updateAuthor, updateContactInfo} from '../print-scrap/contactInfoSlice';
+import React from 'react';
 
 function createNewScrap(): IScrap {
   return Scrap.create({
@@ -61,9 +63,36 @@ export default function Homepage() {
   const dispatch = useAppDispatch();
   const history = useHistory();
   const scrapMap = useAppSelector(selectScrapMap);
+  const contactInfo = useAppSelector(selectContactInfo);
 
   return (
       <div style={{margin: '24px'}}>
+        <Segment.Group>
+          <Segment>
+            <Header size='medium'>About You
+              <Header.Subheader>
+                Your name / contact info (will be on PDFs you download)
+              </Header.Subheader>
+            </Header>
+            <Form>
+              <Form.Input
+                  label='Author'
+                  defaultValue={contactInfo.author}
+                  onChange={(e) => {
+                    dispatch(updateAuthor(e.target.value));
+                  }}
+              />
+              <Form.TextArea
+                  label='Contact Info'
+                  defaultValue={contactInfo.contactInfo}
+                  onChange={(e) => {
+                    dispatch(updateContactInfo(e.target.value));
+                  }}
+                  rows={2}
+              />
+            </Form>
+          </Segment>
+        </Segment.Group>
         <Segment.Group >
           <Segment style={{display: 'flex'}}>
             <Header size='medium'>Scrap List
