@@ -320,22 +320,29 @@ function getTitlePage(title: string|null, author: string, contactInfo: string): 
       {year: 'numeric', month: 'long', day: 'numeric'}
   );
 
+  let metadataSection;
+  if (!!author) {
+    metadataSection = <React.Fragment>
+      <Text style={styles.author}>by</Text>
+      <Text style={styles.author}>{author}</Text>
+      <View style={styles.contactInfo}>
+        {contactInfo.split('\n').map((contactLine) => {
+          return <Text>{contactLine.trim()}</Text>
+        })}
+      </View>
+      <View style={styles.dateInfo}>
+        <Text>{dateStr}</Text>
+      </View>
+    </React.Fragment>
+  }
+
   return <Page size="LETTER" style={styles.page}>
     <View style={styles.title}>
       {title.split('|').map((titleLine) => {
         return <Text>{titleLine.trim()}</Text>
       })}
     </View>
-    <Text style={styles.author}>by</Text>
-    <Text style={styles.author}>{author}</Text>
-    <View style={styles.contactInfo}>
-      {contactInfo.split('\n').map((contactLine) => {
-        return <Text>{contactLine.trim()}</Text>
-      })}
-    </View>
-    <View style={styles.dateInfo}>
-      <Text>{dateStr}</Text>
-    </View>
+    {metadataSection}
   </Page>;
 }
 
