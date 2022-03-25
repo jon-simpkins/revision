@@ -208,6 +208,41 @@ export function absorbPlaceholderScraps(
   });
 }
 
+export function generatePlaceholderScrapsFromSelectedLines(
+    thisScrapId: string,
+    intendedDuration: number,
+    editorState: EditorState,
+    setState: (newState: any, callback: () => void) => void,
+    then: () => void
+): void {
+  const currentSelection = editorState.getSelection();
+
+  const currentlySelectedText = getSelectedText(editorState);
+
+  let currentSelectionAsLines = currentlySelectedText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean);
+
+  const durationPerPlaceholder = Math.floor(intendedDuration / currentSelectionAsLines.length);
+
+  let textToSwap = currentSelectionAsLines
+      .map(line => `{{${line}|${durationPerPlaceholder}}}`)
+      .join('\n\n');
+
+  const newContentState = Modifier.replaceText(
+      editorState.getCurrentContent(),
+      currentSelection,
+      textToSwap
+  );
+
+  setState({
+    editorState: EditorState.createWithContent(ContentState.createFromText(newContentState.getPlainText()), editorDecorator)
+  }, () => {
+    then();
+  });
+}
+
 export function initializeState(props: ScrapDetailsProps): ScrapDetailsState {
   return {
     editorState: buildInitialEditorState(props),

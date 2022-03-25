@@ -3,7 +3,7 @@ import {Scrap} from '../../protos_v2';
 import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Dropdown, Form, Segment} from 'semantic-ui-react';
 import {Link} from 'react-router-dom';
 import {ScrapMap} from '../scrapList/scrapListSlice';
-import {absorbPlaceholderScraps, addChildScrap, replacePlaceholderScraps} from './editorInteractionUtils';
+import {absorbPlaceholderScraps, addChildScrap, generatePlaceholderScrapsFromSelectedLines, replacePlaceholderScraps} from './editorInteractionUtils';
 import {ScrapDetailsProps, ScrapDetailsState} from './ScrapDetails';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 
@@ -74,6 +74,15 @@ export function getProseEditorToolbar(
           () => remapEditorContent()
       )}>
         Absorb selected scraps
+      </button>
+      <button onClick={() => generatePlaceholderScrapsFromSelectedLines(
+          props.scrapId,
+          intendedDurationSec,
+          state.editorState,
+          (newState, callback) => {setState(newState, callback);},
+          () => remapEditorContent()
+      )}>
+        Generate placeholders from selected lines
       </button>
       <span style={{flex: 1}}>&nbsp;</span>
       <span style={{margin: 'auto 24px'}}>{durationPercentLabel}</span>
