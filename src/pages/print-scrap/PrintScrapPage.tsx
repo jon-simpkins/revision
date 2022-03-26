@@ -1,5 +1,6 @@
 import { RouteComponentProps } from 'react-router';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
+import {Button, Icon} from 'semantic-ui-react';
 import {ScrapMap, selectScrapMap} from '../../features/scrapList/scrapListSlice';
 import React, {Component} from 'react';
 import {ContentBlock} from 'draft-js';
@@ -105,13 +106,13 @@ export class PrintScrap extends Component<PrintPageProps, PrintPageState> {
       }}>
         <p>Long PDFs can take a bit to render (this one will be about {this.state.durationPages} pages).</p>
         <p>Click the following button to render, and then please be patient :) </p>
-        <button onClick={() => {
+        <Button primary icon title='Render PDF' onClick={() => {
           this.setState({
             alreadyWarned: true
           });
         }}>
-          Render PDF
-        </button>
+          <Icon name='file pdf outline' />
+        </Button>
       </div>
     }
 

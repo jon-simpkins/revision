@@ -376,9 +376,14 @@ export class TimelineViewer extends Component<TimelineProps, TimelineState> {
       <div style={{marginBottom: '12px', display: 'flex'}}>
         {zoomOptions}
         <span style={{flex: '1'}}>&nbsp;</span>
-        <button style={{margin: 'auto 24px'}} onClick={() => { this.flipChartMinimization(); }}>
-          Percent complete: {this.state.timeline.percentComplete}
-        </button>
+
+        <span style={{margin: 'auto 12px'}}>Percent complete: {this.state.timeline.percentComplete}</span>
+
+
+        <Button icon title='Toggle Chart'
+                onClick={() => { this.flipChartMinimization(); }}>
+          <Icon name='chart line'/>
+        </Button>
         <Button onClick={() => this.flipTimelineMinimization()} icon>
           <Icon name={this.state.timelineMinimized ? 'window maximize outline' : 'window minimize outline'}/>
         </Button>

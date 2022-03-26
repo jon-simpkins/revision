@@ -1,5 +1,5 @@
 import {useAppSelector} from '../../app/hooks';
-import {Button, Header, Segment} from 'semantic-ui-react';
+import {Button, Icon, Header, Segment} from 'semantic-ui-react';
 
 import fileDownload from 'js-file-download';
 import {WritingWorkspace} from '../../protos_v2';
@@ -75,13 +75,17 @@ export default function DataManagementPage() {
             {Object.keys(scrapMap).length} Scraps
           </Segment>
           <Segment>
-            <Button color='green'
+            <Button icon
+                    color='green'
+                    title='Download Workspace'
                     onClick={() => {downloadWorkspace()}}>
-              Download Workspace
+              <Icon name='download' />
             </Button>
-            <Button color='red'
+            <Button icon
+                    color='red'
+                    title='Clear Workspace'
                     onClick={() => {clearWorkspace()}}>
-              Clear Workspace
+              <Icon name='file text outline' />
             </Button>
           </Segment>
           <Segment>

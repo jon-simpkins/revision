@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react';
 import {Scrap} from '../../protos_v2';
-import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Dropdown, Form, Segment} from 'semantic-ui-react';
+import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Icon, Dropdown, Form, Segment} from 'semantic-ui-react';
 import {Link} from 'react-router-dom';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 import {absorbPlaceholderScraps, addChildScrap, generatePlaceholderScrapsFromSelectedLines, replacePlaceholderScraps} from './editorInteractionUtils';
@@ -46,6 +46,7 @@ export function getProseEditorToolbar(
       (<div style={{color: 'red'}}>Parsing took too long, please break into smaller chunks</div>) : null;
 
   const focusLabel = state.focusMode ? 'Focus Off' : 'Focus On';
+  const focusIcon = state.focusMode ? 'expand arrows alternate' : 'crosshairs';
 
   const actualDurationSec = state.actualDurationSec;
   const intendedDurationSec = props.scrapMap[props.scrapId].intendedDurationSec;
@@ -53,19 +54,28 @@ export function getProseEditorToolbar(
 
   return <div>
     <div style={{display: 'flex'}}>
-      <button onClick={() => addChildScrap(
+      <Button icon
+              title='Add child scrap' onClick={() => addChildScrap(
           state.editorState,
           props.onScrapCreate,
           (newState, callback) => {setState(newState, callback);},
           () => remapEditorContent()
-      )}>Add child scrap</button>
-      <button onClick={() => replacePlaceholderScraps(
+      )}>
+        <Icon name='add' />
+      </Button>
+      <Button icon
+              title='Replace placeholder scraps'
+              onClick={() => replacePlaceholderScraps(
           state.editorState,
           props.onScrapCreate,
           (newState, callback) => {setState(newState, callback);},
           () => remapEditorContent()
-      )}>Replace placeholder scraps</button>
-      <button onClick={() => absorbPlaceholderScraps(
+      )}>
+        <Icon name='cogs'/>
+      </Button>
+      <Button icon
+              title='Absorb selected scraps'
+              onClick={() => absorbPlaceholderScraps(
           props.scrapId,
           state.editorState,
           props.scrapMap,
@@ -73,24 +83,29 @@ export function getProseEditorToolbar(
           (newState, callback) => {setState(newState, callback);},
           () => remapEditorContent()
       )}>
-        Absorb selected scraps
-      </button>
-      <button onClick={() => generatePlaceholderScrapsFromSelectedLines(
+        <Icon name='sitemap' />
+      </Button>
+      <Button icon
+              title='Generate placeholders from selected lines' onClick={() => generatePlaceholderScrapsFromSelectedLines(
           props.scrapId,
           intendedDurationSec,
           state.editorState,
           (newState, callback) => {setState(newState, callback);},
           () => remapEditorContent()
       )}>
-        Generate placeholders from selected lines
-      </button>
+        <Icon name='list ul' />
+      </Button>
       <span style={{flex: 1}}>&nbsp;</span>
       <span style={{margin: 'auto 24px'}}>{durationPercentLabel}</span>
-      <button onClick={() => {
+      <Button icon
+              title={focusLabel}
+              onClick={() => {
         setState({
           focusMode: !state.focusMode
         }, () => {});
-      }}>{focusLabel}</button>
+      }}>
+        <Icon name={focusIcon} />
+      </Button>
     </div>
     {parseWarning}
   </div>;
