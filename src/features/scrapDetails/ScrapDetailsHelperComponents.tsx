@@ -3,7 +3,7 @@ import {Scrap} from '../../protos_v2';
 import {Breadcrumb, BreadcrumbDivider, BreadcrumbSection, Button, Icon, Dropdown, Form, Segment} from 'semantic-ui-react';
 import {Link} from 'react-router-dom';
 import {ScrapMap} from '../scrapList/scrapListSlice';
-import {absorbPlaceholderScraps, addChildScrap, generatePlaceholderScrapsFromSelectedLines, replacePlaceholderScraps} from './editorInteractionUtils';
+import {absorbPlaceholderScraps, addChildScrap, generatePlaceholderScrapsFromSelectedLines, replacePlaceholderScraps, resizePlaceholderScraps} from './editorInteractionUtils';
 import {ScrapDetailsProps, ScrapDetailsState} from './ScrapDetails';
 import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 
@@ -96,6 +96,18 @@ export function getProseEditorToolbar(
           () => remapEditorContent()
       )}>
         <Icon name='list ul' />
+      </Button>
+      <Button icon
+              disabled={intendedDurationSec <= 0}
+              title='Resize placeholders to fill' onClick={() => resizePlaceholderScraps(
+          props.scrapId,
+          intendedDurationSec,
+          actualDurationSec,
+          state.editorState,
+          (newState, callback) => {setState(newState, callback);},
+          () => remapEditorContent()
+      )}>
+        <Icon name='resize vertical' />
       </Button>
       <span style={{flex: 1}}>&nbsp;</span>
       <span style={{margin: 'auto 24px'}}>{durationPercentLabel}</span>

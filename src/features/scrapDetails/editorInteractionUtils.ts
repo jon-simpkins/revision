@@ -5,7 +5,7 @@ import * as clipboard from 'clipboard-polyfill/text';
 import {v4 as uuid} from 'uuid';
 import {editorDecorator} from './foutainDecorators';
 import {Scrap} from '../../protos_v2';
-import {durationStringToSeconds} from '../utils/durationUtils';
+import {durationSecondsToString, durationStringToSeconds} from '../utils/durationUtils';
 import {ScrapDetailsProps, ScrapDetailsState} from './ScrapDetails';
 import {ScrapMap} from '../scrapList/scrapListSlice';
 
@@ -238,6 +238,66 @@ export function generatePlaceholderScrapsFromSelectedLines(
 
   setState({
     editorState: EditorState.createWithContent(ContentState.createFromText(newContentState.getPlainText()), editorDecorator)
+  }, () => {
+    then();
+  });
+}
+
+export function resizePlaceholderScraps(
+    thisScrapId: string,
+    intendedDuration: number,
+    currentDuration: number,
+    editorState: EditorState,
+    setState: (newState: any, callback: () => void) => void,
+    then: () => void
+): void {
+  const initialText = editorState.getCurrentContent().getPlainText();
+
+  let updatedText = initialText;
+
+  // Go through and find out the sum duration due to placeholders
+  let durationSecFromPlaceholder = 0;
+  let re = new RegExp('{{([^}]+)}}', 'g');
+  let match;
+  while (match = re.exec(initialText)) {
+    const splitText = match[1].split('|');
+
+    if (splitText.length !== 2) {
+      continue;
+    }
+
+    try {
+      durationSecFromPlaceholder += durationStringToSeconds(splitText[1].trim());
+    } catch {}
+  }
+
+  const durationNotFromPlaceholder = currentDuration - durationSecFromPlaceholder;
+  const placeholderScale = (intendedDuration - durationNotFromPlaceholder) / durationSecFromPlaceholder;
+
+  // Now go through and apply scale
+  re = new RegExp('{{([^}]+)}}', 'g');
+  while (match = re.exec(initialText)) {
+    const textToReplace = match[0];
+    const splitText = match[1].split('|');
+
+    if (splitText.length !== 2) {
+      continue;
+    }
+
+    try {
+      let placeholderDurationSec = durationStringToSeconds(splitText[1].trim());
+
+      placeholderDurationSec = Math.round(placeholderDurationSec * placeholderScale);
+
+      updatedText = updatedText.replace(
+          textToReplace,
+          '{{' + splitText[0] + '|' + durationSecondsToString(placeholderDurationSec) + '}}'
+      );
+    } catch {}
+  }
+
+  setState({
+    editorState: EditorState.createWithContent(ContentState.createFromText(updatedText), editorDecorator)
   }, () => {
     then();
   });
