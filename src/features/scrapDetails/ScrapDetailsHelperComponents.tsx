@@ -50,7 +50,9 @@ export function getProseEditorToolbar(
 
   const actualDurationSec = state.actualDurationSec;
   const intendedDurationSec = props.scrapMap[props.scrapId].intendedDurationSec;
-  let durationPercentLabel = `${Math.ceil(1000 * actualDurationSec / intendedDurationSec) / 10}% Complete`;
+  let durationPercentLabel = (intendedDurationSec > 0) ?
+      `${Math.ceil(1000 * actualDurationSec / intendedDurationSec) / 10}% Complete`
+      : '';
 
   return <div>
     <div style={{display: 'flex'}}>
