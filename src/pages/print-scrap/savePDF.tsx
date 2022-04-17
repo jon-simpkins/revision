@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   parentheticalLine: {
     marginLeft: '108pt',
-    width: '234pt',
+    width: '174pt',
   },
   transitionLine: {
     paddingTop: ONE_LINE_PADDING,
@@ -197,7 +197,11 @@ function parsePDFBlocks(parsedContentBlocks: ContentBlock[]): PDFBlock[] {
         mostRecentCharacter = blockText;
       } else {
         // If the same character is continuing, label it as (CONT'D)
-        blockText += ' (CONT\'D)';
+        // EDIT: removed, the feedback in the UCLA class was that this is
+        //    not the modern approach, just let the characters talk.
+        //
+        // Maybe someday this will be a settings option?
+        //blockText += ' (CONT\'D)';
       }
 
     } else if (blockData.get(isFountainDialogue)) {
