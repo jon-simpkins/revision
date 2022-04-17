@@ -17,3 +17,9 @@ This is **not** an official Google product.
 Early early stages of (yet another) ground-up rewrite, using Angular Dart
 
 There's a React-based v4 implementation in the master branch.
+
+## How do I run this locally?
+
+```shell
+webdev serve
+```
