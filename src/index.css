@@ -1,8 +1,0 @@
-@font-face {
-  font-family: 'CourierPrime';
-  src: local('CourierPrime'), url(./courierPrime/CourierPrime-Regular.ttf) format('truetype');
-}
-
-body {
-  margin: 0;
-}
