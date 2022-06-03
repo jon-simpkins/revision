@@ -10,16 +10,43 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:revision.helloWorld"
+		"onCommand:revision.helloWorld",
+		"onCommand:revision.contextExample"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "revision.helloWorld",
-				"title": "Hello World"
+				"title": "Revision: Hello World"
+			},
+			{
+				"command": "revision.contextExample",
+				"title": "Revision: Metadata Example"
 			}
-		]
+		],
+		"languages": [
+			{
+				"id": "revision_metadata",
+				"extensions": ["metadata.write"]
+			}
+		],
+		"menus": {
+			"editor/context": [
+			  {
+				"when": "resourceLangId == revision_metadata",
+				"command": "revision.contextExample",
+				"group": "navigation"
+			  }
+			],
+			"editor/title": [
+				{
+				  "when": "resourceLangId == revision_metadata",
+				  "command": "revision.contextExample",
+				  "group": "navigation"
+				}
+			  ]
+		  }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
