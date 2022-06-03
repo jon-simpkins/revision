@@ -1,6 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { askFavoriteColor } from './codelens/askFavoriteColor';
+import { MetadataCodeLensProvider } from './codelens/metadataCodeLensProvider';
 import { exampleContextCommand } from './contentExample';
 import { sayHello } from './sayHello';
 
@@ -16,6 +18,19 @@ export function activate(context: vscode.ExtensionContext) {
 		'revision.helloWorld', sayHello));
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'revision.contextExample', exampleContextCommand));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'revision.askFavoriteColor', askFavoriteColor));
+
+	let metadataSelector: vscode.DocumentSelector = {
+		language: 'revision_metadata',
+		scheme: 'file',
+	};
+
+	context.subscriptions.push(vscode.languages.registerCodeLensProvider(
+		metadataSelector,
+		new MetadataCodeLensProvider()
+	));
 }
 
 // this method is called when your extension is deactivated

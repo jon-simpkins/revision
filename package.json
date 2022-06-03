@@ -11,7 +11,9 @@
 	],
 	"activationEvents": [
 		"onCommand:revision.helloWorld",
-		"onCommand:revision.contextExample"
+		"onCommand:revision.contextExample",
+		"onCommand:revision.askFavoriteColor",
+		"onLanguage:revision_metadata"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -23,6 +25,10 @@
 			{
 				"command": "revision.contextExample",
 				"title": "Revision: Metadata Example"
+			},
+			{
+				"command": "revision.askFavoriteColor",
+				"title": "Revision: Ask Favorite Color"
 			}
 		],
 		"languages": [
