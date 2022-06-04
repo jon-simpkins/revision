@@ -31,6 +31,12 @@ export function activate(context: vscode.ExtensionContext) {
 		metadataSelector,
 		new MetadataCodeLensProvider()
 	));
+
+	// Set up event listeners
+	vscode.workspace.onDidSaveTextDocument(event => {
+		console.log('save event');
+		console.log(event.fileName);
+	});
 }
 
 // this method is called when your extension is deactivated

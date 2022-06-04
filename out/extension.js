@@ -22,6 +22,11 @@ function activate(context) {
         scheme: 'file',
     };
     context.subscriptions.push(vscode.languages.registerCodeLensProvider(metadataSelector, new metadataCodeLensProvider_1.MetadataCodeLensProvider()));
+    // Set up event listeners
+    vscode.workspace.onDidSaveTextDocument(event => {
+        console.log('save event');
+        console.log(event.fileName);
+    });
 }
 exports.activate = activate;
 // this method is called when your extension is deactivated
