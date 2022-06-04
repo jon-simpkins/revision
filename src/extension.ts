@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { askFavoriteColor } from './codelens/askFavoriteColor';
 import { MetadataCodeLensProvider } from './codelens/metadataCodeLensProvider';
 import { exampleContextCommand } from './contentExample';
+import { DemoLinkProvider } from './documentLink/demoLinkProvider';
 import { sayHello } from './sayHello';
 
 // this method is called when your extension is activated
@@ -30,6 +31,11 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.languages.registerCodeLensProvider(
 		metadataSelector,
 		new MetadataCodeLensProvider()
+	));
+
+	context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(
+		metadataSelector,
+		new DemoLinkProvider()
 	));
 
 	// Set up event listeners

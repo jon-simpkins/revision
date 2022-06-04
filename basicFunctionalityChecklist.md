@@ -12,7 +12,8 @@ This is all the extension-specific stuff I'd like to prototype for feasibility.
 - [x] Add action to title bar of editor
 - [ ] Custom formatting
 - [ ] Open webview
-- [ ] Custom linking to other files in editor
+- [x] Custom linking to other files in editor
 - [ ] Generate graph in webview
 - [ ] Link from webview to file
 - [ ] Generate PDF
+- [ ] Show status in status bar
