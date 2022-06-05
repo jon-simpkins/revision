@@ -6,6 +6,9 @@ import { MetadataCodeLensProvider } from './codelens/metadataCodeLensProvider';
 import { exampleContextCommand } from './contentExample';
 import { DemoLinkProvider } from './documentLink/demoLinkProvider';
 import { sayHello } from './sayHello';
+import { StatusBarController } from './StatusBarController';
+
+let statusBarController: StatusBarController | null;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -43,7 +46,12 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('save event');
 		console.log(event.fileName);
 	});
+
+	statusBarController = new StatusBarController();
+	statusBarController.updateMessage('$(preview) 15% complete', 'this is my tooltip', 'revision.helloWorld');
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+	statusBarController?.tearDown();
+}
