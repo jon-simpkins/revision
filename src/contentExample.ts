@@ -24,7 +24,11 @@ export function exampleContextCommand() {
         id: 'content-' + filename,
         type: 'example-revision-content', // Should be an enum
         title: 'Content example',
-        initialHtml: generateWebviewContent(filename)
+        initialHtml: generateWebviewContent(filename),
+        messageHandler: (message) => {
+            console.log('got message:');
+            console.log(message);
+        }
     };
     webViewController.establishWebviewPanel(myWebViewInstance);
 }
@@ -42,6 +46,22 @@ function generateWebviewContent(filename: string): string {
     <body>
         <h1>Oh hello there</h1>
         <p>Filename: ` + filename + `</p>
+        <button id="file-open-button">Click to open</button>
     </body>
+
+    <script>
+        (function() {
+            const vscode = acquireVsCodeApi();
+            const openButton = document.getElementById('file-open-button');
+
+            openButton.onclick = () => {
+                vscode.postMessage({
+                    command: 'open',
+                    filename: '` + filename + `',
+                })
+            }
+        }())
+    </script>
+
     </html>`;
 }

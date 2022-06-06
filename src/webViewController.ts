@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 
 export class WebViewController {
-    webviewPanels: Map<string, vscode.WebviewPanel> = new  Map<string, vscode.WebviewPanel>();
+    webviewPanels: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
+    messageSubscriptions: Map<string, vscode.Disposable> = new Map<string, vscode.Disposable>();
 
     establishWebviewPanel(instance: WebViewInstance): void {
         let panel: vscode.WebviewPanel;
@@ -12,9 +13,18 @@ export class WebViewController {
             panel = vscode.window.createWebviewPanel(
                 instance.type,
                 instance.title,
-                vscode.ViewColumn.Beside
+                vscode.ViewColumn.Beside,
+                {
+                    enableScripts: !!instance.messageHandler,
+                }
             );
             panel.onDidDispose(() => this.onDispose(instance.id));
+            if (!!instance.messageHandler) {
+                this.messageSubscriptions.set(
+                    instance.id,
+                    panel.webview.onDidReceiveMessage(instance.messageHandler)
+                );
+            }
             this.webviewPanels.set(instance.id, panel);
         }
         panel.title = instance.title;
@@ -23,9 +33,9 @@ export class WebViewController {
     }
 
     onDispose(id: string) {
-        console.log('Got dispose from:');
-        console.log(id);
         this.webviewPanels.delete(id);
+        this.messageSubscriptions.get(id)?.dispose();
+        this.messageSubscriptions.delete(id);
     }
 }
 
@@ -34,4 +44,5 @@ export interface WebViewInstance {
     type: string,
     title: string,
     initialHtml: string,
+    messageHandler?: (message: any) => void,
 }
