@@ -14,6 +14,6 @@ This is all the extension-specific stuff I'd like to prototype for feasibility.
 - [x] Open webview
 - [x] Custom linking to other files in editor
 - [ ] Generate graph in webview
-- [ ] Link from webview to file
+- [x] Link from webview to file
 - [ ] Generate PDF
 - [x] Show status in status bar

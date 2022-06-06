@@ -6,6 +6,10 @@
 	"engines": {
 		"vscode": "^1.67.0"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jon-simpkins/revision.git"
+	},
 	"categories": [
 		"Other"
 	],
@@ -34,25 +38,27 @@
 		"languages": [
 			{
 				"id": "revision_metadata",
-				"extensions": ["metadata.write"]
+				"extensions": [
+					"metadata.write"
+				]
 			}
 		],
 		"menus": {
 			"editor/context": [
-			  {
-				"when": "resourceLangId == revision_metadata",
-				"command": "revision.contextExample",
-				"group": "navigation"
-			  }
+				{
+					"when": "resourceLangId == revision_metadata",
+					"command": "revision.contextExample",
+					"group": "navigation"
+				}
 			],
 			"editor/title": [
 				{
-				  "when": "resourceLangId == revision_metadata",
-				  "command": "revision.contextExample",
-				  "group": "navigation"
+					"when": "resourceLangId == revision_metadata",
+					"command": "revision.contextExample",
+					"group": "navigation"
 				}
-			  ]
-		  }
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -63,16 +69,17 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.67.0",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.1.1",
 		"@types/node": "16.x",
+		"@types/vscode": "^1.67.0",
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
 		"@typescript-eslint/parser": "^5.27.0",
+		"@vscode/test-electron": "^2.1.3",
 		"eslint": "^8.16.0",
 		"glob": "^8.0.3",
+		"handlebars": "^4.7.7",
 		"mocha": "^10.0.0",
-		"typescript": "^4.7.2",
-		"@vscode/test-electron": "^2.1.3"
+		"typescript": "^4.7.2"
 	}
 }

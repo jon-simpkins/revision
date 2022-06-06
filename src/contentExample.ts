@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { WebViewController, WebViewInstance } from './webViewController';
-
+import * as Handlebars from 'handlebars';
 
 // Demo method to be executed from a particular editor
 export function exampleContextCommand() {
@@ -36,19 +36,23 @@ export function exampleContextCommand() {
 const webViewController = new WebViewController();
 
 function generateWebviewContent(filename: string): string {
-    return `<!DOCTYPE html>
-    <html lang="en">
+
+    let htmlHeadTemplate = Handlebars.compile(`
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>HTML title</title>
-    </head>
+    </head>`);
+
+    const htmlBodyTemplate = Handlebars.compile(`
     <body>
         <h1>Oh hello there</h1>
-        <p>Filename: ` + filename + `</p>
+        <p>Filename: {{filename}}</p>
         <button id="file-open-button">Click to open</button>
     </body>
+    `);
 
+    const scriptTemplate = Handlebars.compile(`
     <script>
         (function() {
             const vscode = acquireVsCodeApi();
@@ -57,11 +61,15 @@ function generateWebviewContent(filename: string): string {
             openButton.onclick = () => {
                 vscode.postMessage({
                     command: 'open',
-                    filename: '` + filename + `',
+                    filename: '{{filename}}',
                 })
             }
         }())
     </script>
+    `);
 
+    return `<!DOCTYPE html>
+    <html lang="en">
+    ` + htmlHeadTemplate({}) + htmlBodyTemplate({filename: filename}) + scriptTemplate({filename: filename}) + `
     </html>`;
 }
