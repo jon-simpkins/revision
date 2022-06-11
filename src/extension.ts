@@ -5,6 +5,7 @@ import { askFavoriteColor } from './codelens/askFavoriteColor';
 import { MetadataCodeLensProvider } from './codelens/metadataCodeLensProvider';
 import { exampleContextCommand } from './contentExample';
 import { DemoLinkProvider } from './documentLink/demoLinkProvider';
+import { FountainLinkProvider } from './documentLink/fountainLinkProvider';
 import { sayHello } from './sayHello';
 import { StatusBarController } from './StatusBarController';
 
@@ -30,6 +31,10 @@ export function activate(context: vscode.ExtensionContext) {
 		language: 'revision_metadata',
 		scheme: 'file',
 	};
+	let fountainSelector: vscode.DocumentSelector = {
+		language: 'revision_fountain',
+		scheme: 'file',
+	};
 
 	context.subscriptions.push(vscode.languages.registerCodeLensProvider(
 		metadataSelector,
@@ -39,6 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(
 		metadataSelector,
 		new DemoLinkProvider()
+	));
+
+	context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(
+		fountainSelector,
+		new FountainLinkProvider()
 	));
 
 	// Set up event listeners

@@ -12,8 +12,6 @@ repository:
   scraps:
     # Represents a reference to another bit of writing
     # Example: {{ scrap-1234 }}
-    name: 'markup.raw.revision.scrap'
-    match: '{{([^}]+)}}'
-    captures:
-      '1':
-        name: 'markup.underline.link.revision.scrap'
+    name: 'markup.code.revision.scrap'
+    begin: '{{'
+    end: '}}'

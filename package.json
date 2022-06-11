@@ -17,7 +17,8 @@
 		"onCommand:revision.helloWorld",
 		"onCommand:revision.contextExample",
 		"onCommand:revision.askFavoriteColor",
-		"onLanguage:revision_metadata"
+		"onLanguage:revision_metadata",
+		"onLanguage:revision_fountain"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
