@@ -1,0 +1,19 @@
+scopeName: 'source.fountain.revision'
+patterns:
+  - include: '#comments'
+  - include: '#scraps'
+repository:
+  comments:
+    # Represents block comments
+    # Example: /** some stuff */
+    name: 'comment.block.fountain.revision'
+    begin: '/\*'
+    end: '\*/'
+  scraps:
+    # Represents a reference to another bit of writing
+    # Example: {{ scrap-1234 }}
+    name: 'markup.raw.revision.scrap'
+    match: '{{([^}]+)}}'
+    captures:
+      '1':
+        name: 'markup.underline.link.revision.scrap'

@@ -41,6 +41,12 @@
 				"extensions": [
 					"metadata.write"
 				]
+			},
+			{
+				"id": "revision_fountain",
+				"extensions": [
+					"fountain.write"
+				]
 			}
 		],
 		"menus": {
@@ -58,13 +64,21 @@
 					"group": "navigation"
 				}
 			]
-		}
+		},
+		"grammars": [
+			{
+				"language": "revision_fountain",
+				"scopeName": "source.fountain.revision",
+				"path": "./syntaxes/fountain-write.tmLanguage.json"
+			}
+		]
 	},
 	"scripts": {
+		"compile-syntaxes": "npx js-yaml syntaxes/fountain-write.tmLanguage.yaml > syntaxes/fountain-write.tmLanguage.json",
 		"vscode:prepublish": "npm run package",
 		"compile": "webpack",
 		"watch": "webpack --watch",
-		"package": "webpack --mode production --devtool hidden-source-map",
+		"package": "npm run compile-syntaxes && webpack --mode production --devtool hidden-source-map",
 		"compile-tests": "tsc -p . --outDir out",
 		"watch-tests": "tsc -p . -w --outDir out",
 		"pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -82,9 +96,10 @@
 		"eslint": "^8.16.0",
 		"glob": "^8.0.3",
 		"handlebars": "^4.7.7",
+		"js-yaml": "^4.1.0",
 		"mocha": "^10.0.0",
-		"typescript": "^4.7.2",
 		"ts-loader": "^9.3.0",
+		"typescript": "^4.7.2",
 		"webpack": "^5.72.1",
 		"webpack-cli": "^4.9.2"
 	}
