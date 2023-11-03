@@ -43,6 +43,12 @@ my-other-story/
 
 ## How to package locally
 
+If you don't already have vsce installed:
+
+```
+npm install --global @vscode/vsce
+```
+
 ```bash
 vsce package
 ```

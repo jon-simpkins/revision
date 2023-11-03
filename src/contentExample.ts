@@ -61,6 +61,7 @@ function generateWebviewContent(filename: string): string {
             openButton.onclick = () => {
                 vscode.postMessage({
                     command: 'open',
+                    foo: 'bar',
                     filename: '{{filename}}',
                 })
             }
